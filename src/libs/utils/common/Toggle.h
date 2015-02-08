@@ -1,3 +1,5 @@
+// @author: Raoul Rubien 2011
+
 #ifndef __Toggle_h__
 #define __Toggle_h__
 

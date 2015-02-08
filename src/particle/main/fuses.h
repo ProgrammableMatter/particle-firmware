@@ -1,3 +1,5 @@
+// @author: Raoul Rubien 2011
+
 #ifndef __fuses_h__
 #define __fuses_h__
 

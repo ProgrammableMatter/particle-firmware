@@ -1,3 +1,5 @@
+// @author: Raoul Rubien 2011
+
 #ifndef _common_h_
 #define _common_h_
 

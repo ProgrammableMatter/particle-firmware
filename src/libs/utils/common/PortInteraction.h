@@ -1,3 +1,5 @@
+// @author: Raoul Rubien 2011
+
 #ifndef __PortInteraction__
 #define __PortInteraction__
 

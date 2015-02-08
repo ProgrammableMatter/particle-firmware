@@ -1,3 +1,5 @@
+# @author: Raoul Rubien 2011
+
 # post binary build hack
 # ${BINARY]} must be set before.
 

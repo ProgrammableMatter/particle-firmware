@@ -1,3 +1,5 @@
+// @author: Raoul Rubien 2011
+
 #include <avr/io.h>
 
 #include <avr/interrupt.h>

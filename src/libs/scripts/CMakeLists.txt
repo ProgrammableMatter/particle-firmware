@@ -1,3 +1,5 @@
+# @author: Raoul Rubien 2011
+
 include(${Atmega_SOURCE_DIR}/programmer.cmake)
 include(${Atmega_SOURCE_DIR}/debugger.cmake)
 

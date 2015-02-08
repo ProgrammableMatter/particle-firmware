@@ -41,3 +41,6 @@ Udev rules (avrdude may require root rights):
  $ echo 'sudo echo 'SUBSYSTEM=="usb", SYSFS{idVendor}=="1781", SYSFS{idProduct}=="0c9f", GROUP="adm", MODE="0666"' > /etc/udev/rules.d/10-avrdude.rules' | sudo sh
  $ sudo restart udev
 
+@author: Raoul Rubien 2011
+
+

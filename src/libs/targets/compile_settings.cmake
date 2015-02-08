@@ -1,3 +1,5 @@
+# @author: Raoul Rubien 2011
+
 SET(CMAKE_SYSTEM_NAME Generic)
 
 SET(CMAKE_C_COMPILER   avr-gcc)

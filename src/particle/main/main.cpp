@@ -1,3 +1,5 @@
+// @author: Raoul Rubien 2015
+
 #include <avr/interrupt.h>
 
 #include <common/IntTypes.h>

@@ -1,3 +1,5 @@
+// @author: Raoul Rubien 2011
+
 #ifndef _Trigger_h_
 #define _Trigger_h_
 

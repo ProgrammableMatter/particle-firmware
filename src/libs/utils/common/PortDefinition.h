@@ -1,3 +1,5 @@
+// @author: Raoul Rubien 2011
+
 #ifndef __PortDefinition__
 #define __PortDefinition__
 

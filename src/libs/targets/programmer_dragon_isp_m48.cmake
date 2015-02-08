@@ -1,3 +1,5 @@
+# @author: Raoul Rubien 2011
+
 SET(PROGRAMMER dragon_isp)
 #SET(PROGRAMMER dragon_pp)
 #SET(PROGRAMMER dragon_hvsp)

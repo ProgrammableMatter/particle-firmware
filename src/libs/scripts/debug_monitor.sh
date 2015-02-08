@@ -1,4 +1,5 @@
 #!/bin/bash
+# @author: Raoul Rubien 2011
 
 SCRIPT_PATH="$(readlink -f $(dirname "$0"))"
 SCRIPT_REL_PATH="$(dirname "$0")"
