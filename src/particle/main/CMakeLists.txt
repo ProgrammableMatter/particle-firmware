@@ -6,17 +6,18 @@ include_directories(
     ${Atmega_SOURCE_DIR}/libs
 )
 
-add_executable(${BINARY} 
+add_executable(${BINARY}
+    DefaultIsr.c 
     main.cpp
 )
 
 
 LINK_DIRECTORIES(
-    ${Atmega_SOURCE_DIR}/libs/lcd
+#    ${Atmega_SOURCE_DIR}/libs/xxo
 )
 
 target_link_libraries(${BINARY}
-    lcd
+#    xxo
 )
 
 

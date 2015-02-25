@@ -15,5 +15,6 @@
 
     * for Eclipse
 	* cmake -G"Eclipse CDT4 - Unix Makefiles" -D CMAKE_BUILD_TYPE=Debug ../src/<yourproject>
-	* eclipse -> new project -> from existing source -> select build folder
+	* eclipse -> new project -> C/C++ -> Makefile Project with Existing Code -> select AVR-GCC Toolchain
+        * project name should be different from: executable, build folder
 	* add includepath: -> project -> properties -> C/C++ include paths and symbols "/usr/lib/avr/include"

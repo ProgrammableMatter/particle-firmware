@@ -1,1 +1,1 @@
-targets/programmer_dragon_isp_m324p.cmake
+targets/programmer_avr911_attiny20.cmake

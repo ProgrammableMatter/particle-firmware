@@ -33,7 +33,7 @@ Insalled programs/packages:
   * gcc-avr
   * avr-libc
   * binutils-avr
-  * srec_cat (manipulate EPROM load files)
+  * srecord (manipulate EPROM load files)
   * cu (for rs232 monitoring)
   * avrdude
 
@@ -42,5 +42,3 @@ Udev rules (avrdude may require root rights):
  $ sudo restart udev
 
 @author: Raoul Rubien 2011
-
-
