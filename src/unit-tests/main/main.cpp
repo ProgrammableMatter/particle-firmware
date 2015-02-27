@@ -6,8 +6,6 @@
 #include <common/common.h>
 #include "PortDefinition.h"
 
-#include "fuses.h"
-
 extern "C" {
 
 }

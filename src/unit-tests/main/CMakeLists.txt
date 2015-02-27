@@ -1,0 +1,24 @@
+# @author: Raoul Rubien 2011
+
+include(${Atmega_SOURCE_DIR}/crosscompile.cmake)
+
+include_directories(
+    ${Atmega_SOURCE_DIR}/libs
+)
+
+add_executable(${BINARY}
+    DefaultIsr.c 
+    main.cpp
+)
+
+
+LINK_DIRECTORIES(
+#    ${Atmega_SOURCE_DIR}/libs/xxo
+)
+
+target_link_libraries(${BINARY}
+#    xxo
+)
+
+
+include(${Atmega_SOURCE_DIR}/scripts/post_binary_build.cmake)
