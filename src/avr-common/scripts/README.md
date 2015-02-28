@@ -37,6 +37,7 @@ make info            display help information
   * simulavr
   * ddd
   * gdb
+  * xdot
 
 ## Udev rules (avrdude may require root rights):
 ```
