@@ -18,7 +18,7 @@ add_custom_command(OUTPUT cat_uart
 add_custom_target(listen DEPENDS cat_uart)
 
 add_custom_command(OUTPUT show_help
-    COMMAND cat ${CMAKE_CURRENT_SOURCE_DIR}/startup.txt 
+    COMMAND cat ${CMAKE_CURRENT_SOURCE_DIR}/README.md 
 )
 add_custom_target(info DEPENDS show_help)
 

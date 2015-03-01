@@ -1,33 +1,19 @@
-// @author: Raoul Rubien 2011
+// @author: Raoul Rubien 2015
 
 #include <avr/io.h>
-
 #include <avr/interrupt.h>
 
 /**
- * pin change interrupt request 2
+ * pin on port A change interrupt request
  */
-ISR( PCINT2_vect ) {
-	// rx-b
-}
-
-/**
- * pin change interrupt request 5
- */
-ISR( PCINT5_vect ) {
-	// rx-a
-}
-
-/**
- * timer0/counter0: 8-bit counter overflow
- */
-ISR( TIMER0_OVF_vect ) {
+ISR( PCINT0_vect ) {
+	// rx-A or rx-B
 }
 
 /**
  * External Pin, Power-on Reset, Brown-Out Reset, Watchdog Reset
  */
-ISR( RESET_vect ) {
+ISR( _VECTOR(0) ) {
 }
 
 /**
@@ -54,7 +40,7 @@ ISR( TIM1_COMPA_vect ) {
 ISR( TIM1_COMPB_vect ) {
 }
 /**
- * Timer/Counter1 Overflow
+ * Timer/Counter1 Overflow - 16 bit counter
  */
 ISR( TIM1_OVF_vect ) {
 }
@@ -72,7 +58,7 @@ ISR( TIM0_COMPB_vect ) {
 }
 
 /**
- * Timer/Counter0 Overflow
+ * Timer/Counter0 Overflow - 8bit counter
  */
 ISR( TIM0_OVF_vect ) {
 }

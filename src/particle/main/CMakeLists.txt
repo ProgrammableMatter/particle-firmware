@@ -13,11 +13,13 @@ add_executable(${BINARY}
 
 
 LINK_DIRECTORIES(
-#    ${Atmega_SOURCE_DIR}/libs/xxo
+    ${Atmega_SOURCE_DIR}/libs/uc-core
+    ${Atmega_SOURCE_DIR}/libs/common
 )
 
 target_link_libraries(${BINARY}
-#    xxo
+    uccore
+    common
 )
 
 

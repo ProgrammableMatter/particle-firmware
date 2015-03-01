@@ -1,3 +1,4 @@
+<!--- @author: Raoul Rubien 2011 -->
 
 ## CLI options (Make):
 for a complete list use *make help*
@@ -45,4 +46,4 @@ make info            display help information
  $ sudo restart udev
 ```
 
-@author: Raoul Rubien 2011
+

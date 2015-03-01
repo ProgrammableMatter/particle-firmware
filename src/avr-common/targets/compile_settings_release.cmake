@@ -6,7 +6,7 @@ SET(CMAKE_C_COMPILER   avr-gcc)
 SET(CMAKE_CXX_COMPILER avr-g++)
 
 SET(CSTANDARD "-std=gnu99")
-SET(CDEBUG    "-gstabs")
+SET(CDEBUG    "")
 SET(CWARN     "-Wall -Wstrict-prototypes")
 SET(CTUNING   "-funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums")
 SET(COPT      "-Os")
