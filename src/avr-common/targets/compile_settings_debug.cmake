@@ -8,7 +8,7 @@ SET(CMAKE_CXX_COMPILER avr-g++)
 SET(CSTANDARD "-std=gnu99")
 SET(CDEBUG    "-gstabs")
 SET(CWARN     "-Wall -Wstrict-prototypes")
-SET(CTUNING   ) #"-funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums")
+SET(CTUNING   "-funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums")
 SET(COPT      "-Os")
 
 SET(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS   "")

@@ -1,7 +1,14 @@
 // @author: Raoul Rubien 2015
 
+extern "C" {
 #include <avr/io.h>
 #include <avr/interrupt.h>
+}
+;
+
+#include "InterruptFlags.h"
+
+extern InterruptFlags IRCollector;
 
 /**
  * pin on port A change interrupt request
@@ -49,6 +56,7 @@ ISR( TIM1_OVF_vect ) {
  * Timer/Counter0 Compare Match A
  */
 ISR( TIM0_COMPA_vect ) {
+	IRCollector.flags = (InterruptFlags::Flag) ((int8_t)IRCollector.flags | InterruptFlags::COMPARE0A );
 }
 
 /**

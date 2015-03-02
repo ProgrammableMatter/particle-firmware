@@ -1,5 +1,5 @@
-#ifndef __particle_core__
-#define __particle_core__
+#ifndef __output_core__
+#define __output_core__
 
 #include <inttypes.h>
 
@@ -15,12 +15,14 @@ public:
 	 * changes the indicator led state
 	 * @param st the mode to be entered
 	 */
-	virtual void enterLedState(State st) = 0;
+	void enterLedState(State st) {
+	}
 
 	/**
 	 * gives runtime to the core
 	 */
-	virtual void tick() = 0;
+	void tick() {
+	}
 };
 
 #endif

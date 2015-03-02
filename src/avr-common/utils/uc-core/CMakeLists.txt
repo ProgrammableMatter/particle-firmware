@@ -2,9 +2,10 @@
 
 include(${Atmega_SOURCE_DIR}/crosscompile.cmake)
 
-include_directories(${Atmega_SOURCE_DIR}/utils)
+include_directories(${Atmega_SOURCE_DIR}/libs)
 
 add_library (uccore
-Particle.cpp
-Indicator.cpp)
+	Particle.cpp
+	Indicator.cpp
+)
 

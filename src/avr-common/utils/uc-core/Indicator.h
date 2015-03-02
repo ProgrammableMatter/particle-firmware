@@ -13,9 +13,14 @@
 class Indicator: public OutputCore {
 public:
 	Indicator();
+	void enterLedState(State st);
+	void tick();
 
-	virtual void enterLedState(State st);
-	virtual void tick();
+	void init();
+
+private:
+	uint16_t time;
+	uint16_t level;
 };
 
 #endif

@@ -7,9 +7,6 @@
 
 #include "Particle.h"
 
-Particle::Particle() {
-}
-
 void Particle::writeBits(Channel ch, uint8_t bytes[], uint8_t numBits) {
 
 }

@@ -12,13 +12,12 @@
 
 class Particle: public ParticleCore {
 public:
-	Particle();
 
-	virtual void writeBits(Channel ch, uint8_t bytes[], uint8_t numBits);
-	virtual void readBits(Channel ch, uint8_t buffer[], uint8_t size,
+	void writeBits(Channel ch, uint8_t bytes[], uint8_t numBits);
+	void readBits(Channel ch, uint8_t buffer[], uint8_t size,
 			uint8_t *bits);
-	virtual void powerOn(Channel ch, Line line);
-	virtual void tick();
+	void powerOn(Channel ch, Line line);
+	void tick();
 };
 
 #endif

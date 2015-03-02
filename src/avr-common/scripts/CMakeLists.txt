@@ -123,7 +123,7 @@ add_custom_command(OUTPUT read_efuse
 add_custom_target(refuse DEPENDS read_efuse)
 
 
-add_custom_command(OUTPUT terminal_mode
-         COMMAND avrdude -c ${PROGRAMMER} -p ${PROGRAMMER_TARGET} -b ${PROGRAMMER_BAUD} -P ${PROGRAMMER_PORT} ${PROGRAMMER_EXTRA_FLAGS}t
+add_custom_command(OUTPUT terminal_mode 
+         COMMAND avrdude -p ${PROGRAMMER_TARGET} -b ${PROGRAMMER_BAUD} -P ${PROGRAMMER_PORT} -c ${PROGRAMMER} ${PROGRAMMER_EXTRA_FLAGS} -t
 )
 add_custom_target(avrterminal DEPENDS terminal_mode)
