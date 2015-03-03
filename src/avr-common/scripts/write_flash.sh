@@ -40,7 +40,7 @@ echo ""
 avr-objcopy  -R .stab -R .stabstr $input $input 
 
 # extract flash
-avr-objcopy  -j .data -j .text -O ihex   $input $flash
+avr-objcopy  -j .text -j .data -O ihex   $input $flash
 #avr-objcopy  -j .text -j .data  -j .bss -O ihex   $input $flash
 assertSuccess $? "FAILED to copy .text from [$input] -> [$flash]"
 

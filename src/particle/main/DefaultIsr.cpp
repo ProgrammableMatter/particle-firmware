@@ -1,15 +1,23 @@
 // @author: Raoul Rubien 2015
 
-extern "C" {
-#include <avr/io.h>
+//#include <avr/io.h>
 #include <avr/interrupt.h>
-}
-;
+
+//extern "C" {
+//}
+//;
 
 #include "InterruptFlags.h"
 
-extern InterruptFlags IRCollector;
+//extern InterruptFlags IRCollector;
 
+/**
+ * External Pin, Power-on Reset, Brown-Out Reset, Watchdog Reset
+ */
+ISR( _VECTOR(0) ) {
+}
+
+#ifdef __AVR_ATtiny20__
 /**
  * pin on port A change interrupt request
  */
@@ -17,11 +25,6 @@ ISR( PCINT0_vect ) {
 	// rx-A or rx-B
 }
 
-/**
- * External Pin, Power-on Reset, Brown-Out Reset, Watchdog Reset
- */
-ISR( _VECTOR(0) ) {
-}
 
 /**
  * Watchdog Time-out
@@ -56,7 +59,7 @@ ISR( TIM1_OVF_vect ) {
  * Timer/Counter0 Compare Match A
  */
 ISR( TIM0_COMPA_vect ) {
-	IRCollector.flags = (InterruptFlags::Flag) ((int8_t)IRCollector.flags | InterruptFlags::COMPARE0A );
+//	IRCollector.flags = (InterruptFlags::Flag) ((int8_t)IRCollector.flags | (int8_t)InterruptFlags::COMPARE0A);
 }
 
 /**
@@ -70,3 +73,4 @@ ISR( TIM0_COMPB_vect ) {
  */
 ISR( TIM0_OVF_vect ) {
 }
+#endif

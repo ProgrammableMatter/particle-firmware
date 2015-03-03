@@ -26,7 +26,13 @@
 #define SIGNAL_HI INDICATOR_PORT setHi SIGNAL_PIN
 
 Indicator::Indicator() :
-		time(0), level(128) {
+		time(0), level(30000) {
+	LED_INIT
+	;
+	LED_ON;
+
+	SIGNAL_INIT;
+	SIGNAL_LO;
 }
 
 void Indicator::enterLedState(State st) {
@@ -34,17 +40,8 @@ void Indicator::enterLedState(State st) {
 
 void Indicator::tick() {
 	if (level <= time++) {
-		LED_ON;
-	} else {
 		LED_OFF;
+	} else {
+		LED_ON;
 	}
-}
-
-void Indicator::init() {
-	LED_INIT
-	;
-	LED_OFF;
-
-	SIGNAL_INIT;
-	SIGNAL_LO;
 }

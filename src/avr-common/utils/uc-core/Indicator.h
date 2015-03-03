@@ -16,8 +16,6 @@ public:
 	void enterLedState(State st);
 	void tick();
 
-	void init();
-
 private:
 	uint16_t time;
 	uint16_t level;

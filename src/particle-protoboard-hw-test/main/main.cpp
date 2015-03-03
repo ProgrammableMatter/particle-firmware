@@ -4,7 +4,7 @@
 #include <avr/interrupt.h>
 
 #include <common/common.h>
-#include "PortDefinition.h"
+#include <common/PortADefinition.h>
 
 extern "C" {};
 
