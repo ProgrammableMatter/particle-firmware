@@ -4,25 +4,13 @@
 #include <avr/interrupt.h>
 
 #include <common/common.h>
-#include "PortDefinition.h"
 
-extern "C" {
-
-}
-;
-
-/**
- * free function declarations
- */
 void init(void);
 
 int main(void) {
+    init();
     return 0;
 }
 
-/**
- * initialization before main is called
- */
 void init() {
 }
-
