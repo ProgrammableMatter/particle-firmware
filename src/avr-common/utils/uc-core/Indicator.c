@@ -47,7 +47,7 @@ void Indicator_enterSignal(Indicator_Signal signal) {
 void Indicator_tick(void) {
 	if (indicatorState.counter == UINT8_MAX) {
 		indicatorState.isIncrement = 0;
-	} else if (indicatorState.counter == UINT8_MAX) {
+	} else if (indicatorState.counter == 0) {
 		indicatorState.isIncrement = 1;
 	}
 

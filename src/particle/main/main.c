@@ -12,13 +12,7 @@
 #include "uc-core/Indicator.h"
 
 void init(void) __attribute__ ((naked)) __attribute__ ((section (".init3")));
-
-void initCounter1Compare(void);
-
-static void foo(void) {
-	int i = 0;
-	i++;
-}
+void initCounter0Compare(void);
 
 int main(void) {
 	init();
@@ -34,28 +28,28 @@ int main(void) {
 void init(void) {
 	cli();
 	Indicator();
-	initCounter1Compare();
+	initCounter0Compare();
 	sei();
 }
 
-void initCounter1Compare(void) {
-#ifdef __AVR_ATtiny20__
+void initCounter0Compare(void) {
+//#ifdef __AVR_ATtiny20__
 // disconnect interrupt from port
 	TCCR0A unsetBit bit (COM0A1);
 	TCCR0A unsetBit bit (COM0A0);
 
 // set waveform generation to normal
 	TCCR0A unsetBit bit (WGM00);
-	TCCR0A unsetBit bit (WGM00);
+	TCCR0A unsetBit bit (WGM01);
 	TCCR0B unsetBit bit (WGM02);
 
 // clear counter
-	TCNT0 = 0xff;
+	TCNT0 = 0x00;
 
 // set compare value
-	OCR0A = 0xff;
+	OCR0A = 0x10;
 
 // enable interrupt
 	TIMSK setBit bit(OCIE0A);
-#endif
+//#endif
 }
