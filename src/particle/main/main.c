@@ -16,7 +16,6 @@ void initCounter0Compare(void);
 
 int main(void) {
 	init();
-	init();
 	forever {
 		Indicator_tick();
 	}

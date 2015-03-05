@@ -25,4 +25,4 @@ SET(PROGRAMMER_TARGET t20)
 # -V do not verify
 # -D disable auto erase for flash memory
 # -t enter terminal mode (debug only)
-SET(PROGRAMMER_EXTRA_FLAGS "-uveC${CMAKE_SOURCE_DIR}/avrdude.conf")
+SET(PROGRAMMER_EXTRA_FLAGS "-uvveC${CMAKE_SOURCE_DIR}/avrdude.conf")

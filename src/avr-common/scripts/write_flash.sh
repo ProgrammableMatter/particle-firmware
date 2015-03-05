@@ -43,7 +43,9 @@ avr-objcopy  -R .stab -R .stabstr -R .comment $input $input
 avr-objcopy  -j .text -j .data -O ihex $input $flash
 #avr-objcopy  -j .text -j .data  -j .bss -O ihex   $input $flash
 assertSuccess $? "FAILED to copy .text from [$input] -> [$flash]"
-avrdude -c $programmer -p $target -b $baud -P $port -U flash:w:$flash:i $flags
+flashCommand="avrdude -c $programmer -p $target -b $baud -P $port $flags -U flash:w:$flash:i"
+echo "command='$flashCommand'"
+$flashCommand
 assertSuccess $? "FAILED to write binary to device."
 
 
@@ -52,5 +54,3 @@ assertSuccess $? "FAILED to write binary to device."
 #assertSuccess $? "FAILED to copy .eeprom from [$input] -> [$eeprom]"
 # write to target
 #avrdude -c $programmer -p $target -b $baud -P $port -U flash:w:$flash:a -U eeprom:w:$eeprom:a $flags
-
-
