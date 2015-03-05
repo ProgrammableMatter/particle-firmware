@@ -37,19 +37,20 @@ echo "eeprom=$eeprom"
 echo ""
 
 #remove debug sections
-avr-objcopy  -R .stab -R .stabstr $input $input 
+avr-objcopy  -R .stab -R .stabstr -R .comment $input $input 
 
 # extract flash
-avr-objcopy  -j .text -j .data -O ihex   $input $flash
+avr-objcopy  -j .text -j .data -O ihex $input $flash
 #avr-objcopy  -j .text -j .data  -j .bss -O ihex   $input $flash
 assertSuccess $? "FAILED to copy .text from [$input] -> [$flash]"
+avrdude -c $programmer -p $target -b $baud -P $port -U flash:w:$flash:i $flags
+assertSuccess $? "FAILED to write binary to device."
 
 
 # extract eeprom
-avr-objcopy  -j .eeprom   --no-change-warnings --change-section-lma .eeprom=0 -O ihex $input $eeprom
-assertSuccess $? "FAILED to copy .eeprom from [$input] -> [$eeprom]"
-
+#avr-objcopy  -j .eeprom   --no-change-warnings --change-section-lma .eeprom=0 -O ihex $input $eeprom
+#assertSuccess $? "FAILED to copy .eeprom from [$input] -> [$eeprom]"
 # write to target
 #avrdude -c $programmer -p $target -b $baud -P $port -U flash:w:$flash:a -U eeprom:w:$eeprom:a $flags
- avrdude -c $programmer -p $target -b $baud -P $port -U flash:w:$flash:a $flags
-assertSuccess $? "FAILED to write binary to device."
+
+

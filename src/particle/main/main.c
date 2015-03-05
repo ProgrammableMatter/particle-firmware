@@ -7,41 +7,46 @@
 
 #include <common/common.h>
 #include <common/PortInteraction.h>
-#include <uc-core/OutputCore.h>
-
-#include "InterruptFlags.h"
 
 #include "uc-core/Particle.h"
 #include "uc-core/Indicator.h"
 
-/**
- * free function declarations
- */
-void init(void);
-void initCounter1Compare();
+void init(void) __attribute__ ((naked)) __attribute__ ((section (".init3")));
 
-/**
- * globals
- */
-//InterruptFlags IRCollector;
+void initCounter1Compare(void);
+
+static void foo(void) {
+	int i = 0;
+	i++;
+}
 
 int main(void) {
 	init();
-	Indicator id;
-	OutputCore *indicator = &id;
-
+	init();
 	forever {
-		indicator->tick();
+		Indicator_tick();
 	}
 }
 
-void initCounter1Compare() {
+/**
+ * initialization before main is called
+ */
+void init(void) {
+	cli();
+	Indicator();
+	initCounter1Compare();
+	sei();
+}
+
+void initCounter1Compare(void) {
 #ifdef __AVR_ATtiny20__
 // disconnect interrupt from port
-	TCCR0A unsetBit bit (COM0A1) | bit(COM0A0);
+	TCCR0A unsetBit bit (COM0A1);
+	TCCR0A unsetBit bit (COM0A0);
 
 // set waveform generation to normal
-	TCCR0A unsetBit bit (WGM01) | bit(WGM00);
+	TCCR0A unsetBit bit (WGM00);
+	TCCR0A unsetBit bit (WGM00);
 	TCCR0B unsetBit bit (WGM02);
 
 // clear counter
@@ -52,15 +57,5 @@ void initCounter1Compare() {
 
 // enable interrupt
 	TIMSK setBit bit(OCIE0A);
-// enable global interrupt
 #endif
 }
-
-/**
- * initialization before main is called
- */
-void init() {
-	initCounter1Compare();
-	sei();
-}
-

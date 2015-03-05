@@ -7,8 +7,8 @@ include_directories(
 )
 
 add_executable(${BINARY}
-    DefaultIsr.cpp 
-    main.cpp
+    DefaultIsr.c 
+    main.c
 )
 
 

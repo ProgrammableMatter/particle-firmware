@@ -5,15 +5,15 @@
 
 #include <avr/io.h>
 
-#ifdef __AVR_ATtiny20__
+//#ifdef __AVR_ATtiny20__
 #define AOut PORTA
 #define AIn PINA
 #define ADir DDRA
-#else
+//#else
 // mock other free atmega8 port for debugging
-#define AOut PORTC
-#define AIn PINC
-#define ADir DDRC
-#endif
+//#define AOut PORTC
+//#define AIn PINC
+//#define ADir DDRC
+//#endif
 
 #endif
