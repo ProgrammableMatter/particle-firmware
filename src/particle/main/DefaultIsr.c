@@ -50,22 +50,19 @@ ISR( TIM1_OVF_vect) {
  * Timer/Counter0 Compare Match A
  */
 ISR( TIM0_COMPA_vect) {
-	Indicator_setLevel(1 + Indicator_getLevel());
 }
 
 /**
  * Timer/Counter0 Compare Match B
  */
 ISR( TIM0_COMPB_vect) {
-	Indicator_setLevel(1 + Indicator_getLevel());
 }
 
 /**
  * Timer/Counter0 Overflow - 8bit counter
  */
 ISR( TIM0_OVF_vect) {
-	Indicator_setLevel(1 + Indicator_getLevel());
+    Indicator_setLevel(1 + Indicator_getLevel());
 }
 
 //#endif
-

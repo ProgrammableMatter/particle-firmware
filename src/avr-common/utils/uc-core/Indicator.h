@@ -15,7 +15,7 @@ typedef enum {
 } Indicator_Signal;
 
 struct Indicator {
-	uint8_t isIncrement;
+	int8_t increment;
 	uint8_t counter;
 	uint8_t level;
 	Indicator_Signal state;
