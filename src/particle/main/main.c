@@ -16,8 +16,8 @@ void initCounter0Compare(void);
 void initClock(void);
 
 int main(void) {
-    initClock();
-    Indicator();
+ //   initClock();
+ //   Indicator();
     forever {
         Indicator_tick();
     }

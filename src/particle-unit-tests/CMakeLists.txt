@@ -6,6 +6,7 @@ Project(Atmega)
 
 SET(BINARY "programmable_particle_tests.elf")
 
+add_subdirectory(simulavr)
 add_subdirectory(scripts)
 add_subdirectory(libs)
 add_subdirectory(main)
