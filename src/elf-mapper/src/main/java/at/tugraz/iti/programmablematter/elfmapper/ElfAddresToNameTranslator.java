@@ -3,7 +3,6 @@ package at.tugraz.iti.programmablematter.elfmapper;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.ObjectInputStream.GetField;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
