@@ -1,0 +1,209 @@
+<html lang="en">
+<head>
+<title>Examples - SimulAVR Documentation 1.0.0</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="SimulAVR Documentation 1.0.0">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="prev" href="The-VPI-interface-to-Verilog.html#The-VPI-interface-to-Verilog" title="The VPI interface to Verilog">
+<link rel="next" href="Platform-Related-Notes.html#Platform-Related-Notes" title="Platform Related Notes">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This file documents the simulavr program.
+
+Copyright (C) 2001, 2002, 2003 Theodore A. Roth
+
+Copyright (C) 2004 Theodore A. Roth, Klaus Rudolph
+
+Copyright (C) 2005 Klaus Rudolph
+
+Copyright (C) 2008 Knut Schwichtenberg
+
+Copyright (C) 2009 Joel Sherrill, Michael Hennebry, Onno Kortmann, Thomas Klepp
+
+
+   Permission is granted to make and distribute verbatim copies of
+this manual provided the copyright notice and this permission notice
+are preserved on all copies.
+
+Permission is granted to copy and distribute modified versions of this
+manual under the conditions for verbatim copying, provided that the entire
+resulting derived work is distributed under the terms of a permission
+notice identical to this one.
+
+Permission is granted to copy and distribute translations of this manual
+into another language, under the above conditions for modified versions,
+except that this permission notice may be stated in a translation approved
+by the Free Software Foundation.-->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Examples"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Platform-Related-Notes.html#Platform-Related-Notes">Platform Related Notes</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="The-VPI-interface-to-Verilog.html#The-VPI-interface-to-Verilog">The VPI interface to Verilog</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="index.html#Top">Top</a>
+<hr>
+</div>
+
+<h2 class="chapter">8 Examples</h2>
+
+<p><a name="index-Examples-10"></a>
+Simulavr is designed to interact in a few different ways. These
+examples briefly explain the examples that can be found in the source
+distribution's <samp><span class="file">examples</span></samp> directory.
+
+   <p>There are examples, which use Tcl/Tk. <b>For that you must also install Itcl
+package for your Tcl.</b> It will be used in all examples with Tcl and a Tk GUI! 
+Over that you can find also examples for python interface and for the verilog
+module.
+
+   <p>The anacomp example is all we have started with. Anacomp brings up an
+Itcl based GUI which shows two analog input simulations, a comparison
+output value, and a toggle button on bottom. After changing the inputs,
+hit the corresponding update to clock the simulation to respond to the
+changed inputs.
+
+   <p>The avr-gdb session for me requires a "load" before hitting "continue",
+which actually starts the simulation.
+
+   <p>It is strongly recommended to implement own simulation scripts very
+closely to the examples. Usage of a different name than <code>.x</code> for
+the grahic frame need changes of gui.tcl as well as some simulavr
+sources. So stay better close to the example.
+
+<h3 class="section">8.1 TCL Anacomp Example</h3>
+
+<p><a name="index-Example-TCL-11"></a>
+This is Klaus' very nice original example simulation.
+
+   <p>After performing the build, go to the <samp><span class="file">examples/anacomp</span></samp> directory
+and try <code>make do</code> (without gdb) or <code>make dogdb</code>.
+
+<h3 class="section">8.2 Python Example</h3>
+
+<p><a name="index-Example_002c-Python-12"></a>
+There is a file <samp><span class="file">README</span></samp> in <samp><span class="file">examples/python</span></samp> path, which describes
+examples there. You can try it with <code>make run_example</code>, this will run all
+available examples together. Or try <code>make example1</code> till <code>make example4</code>
+to run each example alone.
+
+<h3 class="section">8.3 Simple Example</h3>
+
+<p><a name="index-Example_002c-Simple-13"></a>
+This sample uses only simulavr to execute a hacked AVR program. I say
+"hacked" because is shows using 3 simulator features that provide input,
+output and simulation termination based on "magic" port access and
+reaching a particular symbol.  It is only really useful for getting
+your feet wet with simulavr, it is not a great example of how to use
+simulavr. It is thought to be useful enough to the absolute newbie to
+get you started though.
+
+   <p>After performing the build, go to the <samp><span class="file">examples/simple_ex1</span></samp> directory
+and try <code>make run_sim</code>. Notice the use of -W, -R and -T flags.
+
+   <p>And again you can try <code>make do</code>, which uses Tcl interface and a Tcl script
+to make the simulation. Results are the same as in <code>make run_sim</code>!
+
+<h3 class="section">8.4 LCD and SerialRx, SerialTx Example</h3>
+
+<p><a name="index-Example_002c-LCD-and-SerialRx_002fSerialTx-14"></a>
+This example is based on Klaus' Anacomp Example and uses the avr-libc
+example stdiodemo to display characters on the LCD.
+
+   <p>After performing the build, go to the <samp><span class="file">examples/stdiodemo</span></samp> directory
+and try <code>./checkdebug.tcl</code>. The following commands are taken
+from the LCD-specific <samp><span class="file">examples/stdiodemo/checkdebug.tcl</span></samp> script:
+
+<pre class="example">     Lcd mylcd $ui "lcd0" ".x"
+     sc AddAsyncMember  mylcd
+</pre>
+   <p>The first command creates a LCD instance <code>mylcd</code> with the name
+<code>lcd0</code> The second command adds the LCD instance to the simulavr
+timer subsystem as an asynchronous member.  Asynchronous Timer objects
+are updated every 1ns - which means every iteration in the simulavr
+main-loop.  All timing is done internally in the <samp><span class="file">lcd.cpp</span></samp>. The
+rest of this simulation script is the normal business create Nets for
+each LCD pin, wire the Nets to the CPU pins.  The stdiodemo application
+contains a serial receiver and transmitter part to receive commands and
+interprete it and if possible prints it on the LCD or sends a response to
+the serial receiver. Transmitter and receiver application are implemented
+by polling opposite to the Keyboard example. The components used for
+the SerialRx/Tx are described below. Together with the comments in the
+script you should be able to understand what happens. Please mind the
+different names for the functions SetBaudRate and GetPin for SerialRx
+and SerialTx! Not optimal but that's it at the moment...
+
+   <p>And you can try <code>make do</code> or <code>make dogdb</code>.
+
+<h3 class="section">8.5 Keyboard and SerialRx Example</h3>
+
+<p><a name="index-Example_002c-Keyboard-and-SerialRx-15"></a>
+This example is based on Klaus' Anacomp Example and uses the Atmel
+application note AVR313 to convert the incomming data from the
+keyboard into a serial ASCII stream and sends this stream via the serial
+interface. Atmel's C-Code is ported to a current avr-gcc (4.x) and a
+Mega128. For this example only the serial transmitter is used. Atmel
+implemented the serial transmitter as interrupt controlled application,
+opposite to the serial transmitter / receiver of the LCD example. Here
+a polled solution is implemented.
+
+   <p>After performing the build, go to the <samp><span class="file">examples/atmel-key</span></samp> directory
+and try <code>./checkdebug.tcl</code>.  This example by itself is good to
+show how the GUI needs to be setup to make the Keyboard component work. 
+The output of the keyboard is displayed into SerialRx component. 
+Let's look into the simulation script to point out some details:
+
+   <p>1. Keyboard
+<pre class="example">     Keyboard kbd $ui "kbd1" ".x"
+     Keyboard_SetClockFreq kbd 40000
+     sc Add kbd
+</pre>
+   <p>These three commands create a Keyboard instance <code>kbd</code> with
+the name <code>"kbd1"</code>. For this instance the clock timing is
+set to 40000ns. simulavr internal timing for any asynchronous
+activity are multiples of 1ns. The third command adds the keyboard
+instance to the simulavr timer. The rest of the commands in
+<samp><span class="file">examples/atmel-key/checkdebug.tcl</span></samp> is the normal for this
+simmulation. Create a CPU AtMega128 with 4MHz clock. Create indicators
+for the digital pins (not necessary but good looking). Create a Net for
+each signal - here Clock(key_clk), Data(key_data), Run-LED(key_runLED),
+Test-Pin(key_TestPin), and Serial Output(key_txD0). Wire the pins
+Net specific. Run-LED and Test-Pin are specific to the Atmel AP-Note
+AVR313. The output of the keyboard converter is send to the serial
+interface. Based on an "implementation speciality" of simulavr a serial
+output must be either set by the AVR program to output or a Pin with a
+Pull-Up activated has to be wired.
+
+   <p>2. SerialRx
+<pre class="example">     SerialRx mysrx $ui "serialRx0" ".x"
+     SerialRxBasic_SetBaudRate mysrx 19200
+</pre>
+   <p>These two commands create a SerialRx instance <code>mysrx</code> with the name <code>"serialRx0"</code>. For this instance the baud rate is set to 19200. This SerialRx is wired to the controller pin, a display pin by the following commands:
+
+<pre class="example">     ExtPin exttxD0 $Pin_PULLUP $ui "txD0" ".x"
+     key_txD0 Add [AvrDevice_GetPin $dev1 "E1"]
+     key_txD0 Add exttxD0
+     key_txD0 Add [SerialRxBasic_GetPin mysrx "rx"]
+</pre>
+   <p>The last command ExtPin shows an alternative default value for
+txD0-Pin. Here it is pulled high - what is identical of adding any pull-up
+resistor to the device pin - no matter which resistor value is used.
+
+   <p>While creating this example, simulavr helped to find the bugs left in
+the AP-Note.
+
+   </body></html>
+

@@ -1,0 +1,111 @@
+<html lang="en">
+<head>
+<title>Using with avr-gdb - SimulAVR Documentation 1.0.0</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="SimulAVR Documentation 1.0.0">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="prev" href="Invoking.html#Invoking" title="Invoking">
+<link rel="next" href="Tracing.html#Tracing" title="Tracing">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This file documents the simulavr program.
+
+Copyright (C) 2001, 2002, 2003 Theodore A. Roth
+
+Copyright (C) 2004 Theodore A. Roth, Klaus Rudolph
+
+Copyright (C) 2005 Klaus Rudolph
+
+Copyright (C) 2008 Knut Schwichtenberg
+
+Copyright (C) 2009 Joel Sherrill, Michael Hennebry, Onno Kortmann, Thomas Klepp
+
+
+   Permission is granted to make and distribute verbatim copies of
+this manual provided the copyright notice and this permission notice
+are preserved on all copies.
+
+Permission is granted to copy and distribute modified versions of this
+manual under the conditions for verbatim copying, provided that the entire
+resulting derived work is distributed under the terms of a permission
+notice identical to this one.
+
+Permission is granted to copy and distribute translations of this manual
+into another language, under the above conditions for modified versions,
+except that this permission notice may be stated in a translation approved
+by the Free Software Foundation.-->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Using-with-avr-gdb"></a>
+<a name="Using-with-avr_002dgdb"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Tracing.html#Tracing">Tracing</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Invoking.html#Invoking">Invoking</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="index.html#Top">Top</a>
+<hr>
+</div>
+
+<h2 class="chapter">3 Using with avr-gdb</h2>
+
+<p><a name="index-avr_002dgdb_002c-using-with-3"></a>
+Using the simulator with avr-gdb is very simple. Start simulavr with:
+
+   <p><samp><span class="command">simulavr -g</span></samp>
+
+   <p>Now simulavr opens a socket on port 1212. If you need another port
+give the port number with:
+
+   <p><samp><span class="command">simulavr -p5566</span></samp>
+
+   <p>which will start simulavr with avr-gdb socket at port 5566.
+
+   <p>After that you can start avr-gdb or ddd with avr-gdb.
+
+   <p><samp><span class="command">avr-gdb</span></samp>
+
+   <p><samp><span class="command">ddd --debugger avr-gdb</span></samp>
+
+   <p>In the comandline of ddd or avr-gdb you can now enter your debug commands:
+<samp><span class="command">
+    <br>
+    file a.out <br>
+    target remote localhost:1212 <br>
+    load <br>
+    step <br>
+    step <br>
+    .... <br>
+</span></samp>
+
+   <p><b>Attention</b>: In the actual implementation there is a known bug: If you
+start in avr-gdb mode and give no file to execute <samp><span class="command">-f filename</span></samp>
+you will run into an <samp><span class="command">"Illegal Instruction"</span></samp>.  The reason
+is that simulavr runs immediately with an empty flash. But avr-gdb
+is not connected and could stop the core. Solution: Please start with
+<samp><span class="command">simulavr -g -f &lt;filename&gt;</span></samp>. The problem will be fixed later. 
+It doesn't matter whether the filename of the simulavr command line
+is identical to the filename of avr-gdb file command.  The avr-gdb
+downloads the file itself to the simulator.  And after downloading the
+core of simulavr will be reset complete, so there is not a real problem.
+
+   <p>Connecting multiple devices via multiple sockets is discussed in the
+scripting section. 
+<!-- It would be nice if this description would be anywhere :-) kschwi -->
+
+<!-- node-name,  next,  previous,  up -->
+<!-- @node Invoking, Using with avr-gdb, Introduction, Top -->
+   </body></html>
+

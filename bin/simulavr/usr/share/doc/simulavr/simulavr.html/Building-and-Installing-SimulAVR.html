@@ -1,0 +1,236 @@
+<html lang="en">
+<head>
+<title>Building and Installing SimulAVR - SimulAVR Documentation 1.0.0</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="SimulAVR Documentation 1.0.0">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="prev" href="Graphic-User-Interface.html#Graphic-User-Interface" title="Graphic User Interface">
+<link rel="next" href="The-VPI-interface-to-Verilog.html#The-VPI-interface-to-Verilog" title="The VPI interface to Verilog">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This file documents the simulavr program.
+
+Copyright (C) 2001, 2002, 2003 Theodore A. Roth
+
+Copyright (C) 2004 Theodore A. Roth, Klaus Rudolph
+
+Copyright (C) 2005 Klaus Rudolph
+
+Copyright (C) 2008 Knut Schwichtenberg
+
+Copyright (C) 2009 Joel Sherrill, Michael Hennebry, Onno Kortmann, Thomas Klepp
+
+
+   Permission is granted to make and distribute verbatim copies of
+this manual provided the copyright notice and this permission notice
+are preserved on all copies.
+
+Permission is granted to copy and distribute modified versions of this
+manual under the conditions for verbatim copying, provided that the entire
+resulting derived work is distributed under the terms of a permission
+notice identical to this one.
+
+Permission is granted to copy and distribute translations of this manual
+into another language, under the above conditions for modified versions,
+except that this permission notice may be stated in a translation approved
+by the Free Software Foundation.-->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Building-and-Installing-SimulAVR"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="The-VPI-interface-to-Verilog.html#The-VPI-interface-to-Verilog">The VPI interface to Verilog</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Graphic-User-Interface.html#Graphic-User-Interface">Graphic User Interface</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="index.html#Top">Top</a>
+<hr>
+</div>
+
+<h2 class="chapter">6 Building and Installing SimulAVR</h2>
+
+<p><a name="index-Installing_002c-Building-SimulAVR-8"></a>
+SimulAVR uses GNU auto tools. This means that, given a tarball, for
+version 1.0.0, for example, you should be able to use the following
+steps to build and install simulavr:
+
+<pre class="example">     tar zxvf simulavr-1.0.0.tar.gz
+     cd simulavr-1.0.0
+     ./configure {configure options}
+     make
+     make install
+</pre>
+   <p>This will build <samp><span class="command">simulavr</span></samp> and, if switched on by configure options,
+some extension modules and libraries. It installs simulavr itself, libraries and
+some examples and the <samp><span class="file">simulavr.info</span></samp> in documentation directory
+<samp><span class="file">{prefix}/share/doc/simulavr</span></samp>.
+
+   <p>If you want to install <samp><span class="file">simulavr.pdf</span></samp> too, you can do that after the normal
+installation:
+
+<pre class="example">     make install-pdf
+</pre>
+   <p>To install simulavr documentation as html:
+
+<pre class="example">     make install-html
+</pre>
+   <p>Installing doxygen documentation is also possible, if doxygen is installed and
+switched on by configure option:
+
+<pre class="example">     make install-doxygen
+</pre>
+   <p>Same is possible for the verilog extension. avr.vpi will be installed in <samp><span class="file">{prefix}/lib/ivl</span></samp>
+if switched on by configure option:
+
+<pre class="example">     make install-vpi
+</pre>
+   <p>Python interface will not be installed by <samp><span class="command">make-install...</span></samp>, because a right
+installation depends on the actual python installation. To support the installation
+of python module there is a <samp><span class="file">setup.py</span></samp> in <samp><span class="file">src</span></samp> directory:
+
+<pre class="example">     cd simulavr-1.0.0/src
+     python setup.py install
+</pre>
+   <p>If you want to create a egg-package from this python module, you have to install
+python's setuptools package first. Then run:
+
+<pre class="example">     python setup.py build bdist_egg
+</pre>
+   <p>For more possibilities on installing python interface, please see python
+documentation (distutils package) and documentation for setuptools python
+package.<br>
+
+   <p>Simulavr does rely on a few other GNU tools. In particular, it relies
+on libbfd from binutils, and by libbfd's dependency, it also relies on
+libiberty.
+
+   <p>I have found it useful to install my hand-configured-installed
+files in one area. That way I can put the AVR-tools in my path only when
+I'm working on AVR related work.  For reference, here is how I could
+install AVR tools to <samp><span class="file">/home/user/install</span></samp>:
+
+<pre class="example">     mkdir b-binutils
+     tar jxvf binutils-2.19.tar.bz2
+     cd b-binutils
+     ../binutils-2.19/configure --enable-install-libbfd \
+        --prefix=/home/user/install --target=avr
+     make &amp;&amp; make install
+</pre>
+   <p>Then I configure/install simulavr as follows:
+
+<pre class="example">     tar zxvf simulavr-1.0.0.tar.gz
+     cd simulavr-1.0.0
+     ./configure --prefix=/home/user/install
+     make
+     make install
+</pre>
+   <p>Ideally this is all you should need to build/install simulavr. Below are some
+of the configure options.
+
+     <dl>
+<dt>&lsquo;<samp><span class="samp">--prefix</span></samp>&rsquo;<dd>Use this option to specify the root directory to install simulavr
+to. <samp><span class="file">/usr/local</span></samp> is the default.
+
+     <br><dt>&lsquo;<samp><span class="samp">--with-bfd</span></samp>&rsquo;<dd>If configure tells you it can't find libbfd, try
+<code>--with-bfd=/your/path/</code>. Notice that you are expected to point to
+the libbfd from binutils configured for AVR.
+
+     <br><dt>&lsquo;<samp><span class="samp">--with-libiberty</span></samp>&rsquo;<dd>In the unlikely event that your properly installed AVR binutils results
+in simulavr finding libbfd but not libiberty, use this option. Use of
+this option usually means the libiberty you are looking at did not come
+from the same binutils install that gave you the libbfd you have.
+
+     <br><dt>&lsquo;<samp><span class="samp">--disable-tcl</span></samp>&rsquo;<dd>By default, the Tcl interface is enabled.  However, it is possible to
+build a standalone simulavr executable without Tcl.  When <code>--disable-tcl</code>
+is specified, neither the simulator shared library not the examples
+requiring the Tcl GUI will be built.  By default, Tcl is enabled
+but if Tcl is not installed on your computer, Tcl will be automatically
+disabled.
+
+     <br><dt>&lsquo;<samp><span class="samp">--with-tclconfig</span></samp>&rsquo;<dd>If configure tells you it can't find <samp><span class="file">tclConfig.sh</span></samp>, try
+<code>--with-tclconfig=/your/path/</code>.
+
+     <br><dt>&lsquo;<samp><span class="samp">--enable-maintainer-mode</span></samp>&rsquo;<dd>If specified on the configure command, the generated Makefiles will
+do more dependency tracking.  In particular, they will check the
+dependencies on all automake and autoconf generated files.  When
+not building in maintainer mode, the file <samp><span class="file">src/keytrans.h</span></samp> will
+not be built or dependencies checked.
+
+     <br><dt>&lsquo;<samp><span class="samp">--with-winsock</span></samp>&rsquo;<dd>Specifies, where the winsock library is located. <b>Only used, if you want
+to build simulavr for windows with MingW environment and this library cannot be
+found. This should not occur.</b>
+
+     <br><dt>&lsquo;<samp><span class="samp">--with-zlib</span></samp>&rsquo;<dd>Specifies, where the libz library is located. Libtool want's to link against
+libz too, this library isn't used by simulavr. <b>Only used, if you want
+to build simulavr for windows with MingW environment and this library cannot be
+found. This should not occur.</b>
+
+     <br><dt>&lsquo;<samp><span class="samp">--enable-doxygen-doc</span></samp>&rsquo;<dd>If Doxygen is installed, you can build too a programming documentation. If you
+enable this with this option, then you can build this documentation with
+<samp><span class="command">make doxygen-doc</span></samp>. (not enabled by default)
+
+     <br><dt>&lsquo;<samp><span class="samp">--enable-python</span></samp>&rsquo;<dd>If Python is installed with a version younger than 2.1, then you can enable
+building the python interface. Python is also used for some tests and examples. 
+If not enabled, (the default) then you can't run this tests and examples.
+
+     <br><dt>&lsquo;<samp><span class="samp">--enable-verilog</span></samp>&rsquo;<dd>If you have installed verilog package, then it's possible to enable building a
+verilog interface. (not enabled by default) See next chapter!
+
+   </dl>
+
+   <p>There are more options for running <samp><span class="command">./configure</span></samp>. To find out, what's
+possible, see autotools documentation or try <samp><span class="command">./configure --help</span></samp>.
+
+   <p><b>A few words about libbfd and libiberty:</b> simulavr dosn't use any AVR specific
+things from libbfd, so it should be possible to use the system libbfd (and
+libiberty). But I have seen cases, where building simulavr against this system
+libbfd was successfull and running simulavr with a AVR elf file end in a
+segmentation fault. Then it's necessary to use a special AVR binutils build.
+
+   <p><b>How to build simulavr on MingW/Windows:</b>
+
+   <p>(Your should have experience with shell scripts, MingW on Windows, how to
+configure MingW)
+
+     <ul>
+<li>Install msys and mingw on your windows box. Further you need the following
+packages for msys/mingw: autoconf, automake, crypt, gmp, libtool, mpfr, perl,
+pthreads, w32api, zlib. 
+<li>If you want to use python interface, you need to install a python package
+and swigwin. 
+<li>Try <samp><span class="command">autoconf --version</span></samp>, if autoconf isn't found, then it could
+be that you can find autoconf-VVV (with VVV as autoconf version!) in your
+<samp><span class="command">/mingw/bin</span></samp>. If so, copy autoconf-VVV to autoconf. Same
+procedure with automake, autoheader, autom4te, aclocal! 
+<li>Unpack simulavr package or checkout/clone a simulavr repo. If you use a
+simulavr distribution package (you can find configure script), then it's high
+recommended to run <samp><span class="command">make clean &amp;&amp; make distclean &amp;&amp; ./bootstrap -c</span></samp>
+in package root. 
+<li>Run <samp><span class="command">./bootstrap</span></samp> in package root. This will (re)build configure
+script and also all necessary files to run configure. 
+<li>Then run configure: <samp><span class="command">./configure --with-bfd=/mingw</span></samp>
+<li>If configure was successfull, then you cann proceed with <samp><span class="command">make</span></samp> and
+so one ... 
+<li>If you want to use python interface and you have installed Python and SWIG,
+then you should use the following options for configure:
+<samp><span class="command">./configure --with-bfd=/mingw --enable-python PYTHON_LDFLAGS="-LX:/PYPATH/libs -lpython25"</span></samp>
+where <samp><span class="file">X:/PYPATH</span></samp> is <b>your</b> path to your python installations. (e.g. where the
+python.exe can be found) Replace also the name of the library (here <samp><span class="file">python25</span></samp>)
+to the right name from <b>your</b> installation, for python 2.6.x it is for example
+<samp><span class="file">python26</span></samp> Don't use configure option <samp><span class="command">--enable-python=X:/PYPATH/python</span></samp>,
+because there is a bug in m4 scripts. 
+</ul>
+
+   </body></html>
+

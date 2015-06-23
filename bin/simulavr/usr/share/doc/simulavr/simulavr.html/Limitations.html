@@ -1,0 +1,125 @@
+<html lang="en">
+<head>
+<title>Limitations - SimulAVR Documentation 1.0.0</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="SimulAVR Documentation 1.0.0">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="prev" href="Platform-Related-Notes.html#Platform-Related-Notes" title="Platform Related Notes">
+<link rel="next" href="Help-Wanted.html#Help-Wanted" title="Help Wanted">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This file documents the simulavr program.
+
+Copyright (C) 2001, 2002, 2003 Theodore A. Roth
+
+Copyright (C) 2004 Theodore A. Roth, Klaus Rudolph
+
+Copyright (C) 2005 Klaus Rudolph
+
+Copyright (C) 2008 Knut Schwichtenberg
+
+Copyright (C) 2009 Joel Sherrill, Michael Hennebry, Onno Kortmann, Thomas Klepp
+
+
+   Permission is granted to make and distribute verbatim copies of
+this manual provided the copyright notice and this permission notice
+are preserved on all copies.
+
+Permission is granted to copy and distribute modified versions of this
+manual under the conditions for verbatim copying, provided that the entire
+resulting derived work is distributed under the terms of a permission
+notice identical to this one.
+
+Permission is granted to copy and distribute translations of this manual
+into another language, under the above conditions for modified versions,
+except that this permission notice may be stated in a translation approved
+by the Free Software Foundation.-->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Limitations"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Help-Wanted.html#Help-Wanted">Help Wanted</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Platform-Related-Notes.html#Platform-Related-Notes">Platform Related Notes</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="index.html#Top">Top</a>
+<hr>
+</div>
+
+<h2 class="chapter">10 Limitations</h2>
+
+<p><a name="index-Limitations-17"></a>
+Please be aware, that this chapter is version dependent so compare
+document version and software version to ensure both fit together.
+
+<h3 class="section">10.1 Overall Limitations</h3>
+
+<p><a name="index-Overall-Limitations-18"></a>
+This chapters describes an overview of system wide limitations for
+simulavr. Specific limitations see below.
+
+     <ul>
+<li>The documentation of the simulator provides a wide field of
+activities to be carried out. 
+<li>Currently only some AVR-CPUs are simulated. While several of the
+Mega-CPUs can be simulated by the available Mega128 no Tiny is around. 
+If your Mega-CPU is not available recompile your project and use a
+Mega128 CPU for simulation. This works only if your destination CPU and
+the Mega128 share <strong>identical</strong> components. Comparing of the names
+e.g. "Timer0" is not sufficient - you need to compare each component
+for identical function! 
+<li>simulavr simulates an AVR-CPU and a small amount of environment,
+like IO-network, some analogue components as well as SPI, ... 
+There is neither a fully description for the environment available nor
+comprehensive examples around. 
+<li>simulavr makes no validation if the current assembler statement
+is available for the selected CPU (e.g. MUL for Tiny,...) 
+<li>The current version of simulavr is not validated against the
+avr-gcc regression tests. 
+<li>AVR XMEGA are completely <strong>not yet</strong> simulated by simulavr. 
+</ul>
+
+<h3 class="section">10.2 CPU Limitations</h3>
+
+<p><a name="index-CPU-Limitations-19"></a>
+This chapters describes an overview of limitations for simulavr. Specific
+limitations see below.  This chapter focuses only on the Mega128 CPU.
+
+   <p>The following hardware is <strong>not</strong> simulated by simulavr:
+     <ul>
+<li>TWI Serial Interface
+<li>Analog to Digital Converter Subsystem
+<li>Self-Programming
+<li>Boot Loader Support (incl. Fuses)
+<li>Real Time Clock
+<li>Watchdog Timer
+<li>Sleep-command
+<li>Reset-pin is not available
+<li>With activating the Tx-Pin of an UART the DDR-Register is not
+set properly to output. Workaround: Set the Pin's default value to
+PULLUP. While the Pin behaves as Open Colletor (pulls down only) the
+pull-up "resistor" lets the system run as it should. 
+</ul>
+
+   <p>There are 64kByte of external memory automatically attached to the
+Mega128.
+
+   <p>While Atmel changed some function details of the EEPROM, Watchdog Timer,
+Timer Subsystem, ADC, and USART / USI these subsystems have identical
+names but different functions.  Therefore adding a new CPU to simulavr
+might end in reprogramming a subsystem!
+
+   </body></html>
+

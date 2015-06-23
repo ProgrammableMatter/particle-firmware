@@ -1,0 +1,124 @@
+<html lang="en">
+<head>
+<title>Introduction - SimulAVR Documentation 1.0.0</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="SimulAVR Documentation 1.0.0">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="prev" href="index.html#Top" title="Top">
+<link rel="next" href="Invoking.html#Invoking" title="Invoking">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This file documents the simulavr program.
+
+Copyright (C) 2001, 2002, 2003 Theodore A. Roth
+
+Copyright (C) 2004 Theodore A. Roth, Klaus Rudolph
+
+Copyright (C) 2005 Klaus Rudolph
+
+Copyright (C) 2008 Knut Schwichtenberg
+
+Copyright (C) 2009 Joel Sherrill, Michael Hennebry, Onno Kortmann, Thomas Klepp
+
+
+   Permission is granted to make and distribute verbatim copies of
+this manual provided the copyright notice and this permission notice
+are preserved on all copies.
+
+Permission is granted to copy and distribute modified versions of this
+manual under the conditions for verbatim copying, provided that the entire
+resulting derived work is distributed under the terms of a permission
+notice identical to this one.
+
+Permission is granted to copy and distribute translations of this manual
+into another language, under the above conditions for modified versions,
+except that this permission notice may be stated in a translation approved
+by the Free Software Foundation.-->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Introduction"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Invoking.html#Invoking">Invoking</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="index.html#Top">Top</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="index.html#Top">Top</a>
+<hr>
+</div>
+
+<h2 class="chapter">1 Introduction</h2>
+
+<p><a name="index-Introduction-1"></a>
+The SimulAVR program is a simulator for the Atmel AVR family of
+microcontrollers.  SimulAVR can be used either standalone or as a
+remote target for avr-gdb.  When used in gdbserver mode, the simulator is
+used as a back-end so that avr-gdb can be used as a source level debugger for
+AVR programs.
+
+   <p>SimulAVR started out as a C based project written by Theodore Roth. The hardware
+simulation part has since been completely re-written in C++. Only the
+instruction decoder and the avr-gdb interface are mostly copied from the
+original simulavr sources. This C++ based version was known as simulavrxx until
+it became feature compatibile with the old simulavr code, then it renamed back
+to simulavr.
+
+   <p>What features are new:
+     <ul>
+<li>Run multiple AVR devices in one simulation. (only with interpreter
+interfaces or special application linked against simulavr library) Multiple
+cores can run where each has a different clock frequency. 
+<li>Connect multiple AVR core pins to other devices like LCD, LED and
+others. (environment)
+<li>Connect multiple AVR cores to multiple avr-gdb instances. (each on its
+own socket/port number, but see first point for running multiple avr cores)
+<li>Write simulation scripts in Tcl/Tk or Python, other languages could be
+added by simply adding swig scripts! 
+<li>Tracing the execution of the program, these traces support all debugging
+information directly from the ELF-file. 
+<li>The traces run step by step for each device so you see all actions
+in the multiple devices in time-correct order. 
+<li>Every interrupt call is visible. 
+<li>Interrupt statistics with latency, longest and shortest execution
+time and some more. 
+<li>There is a simple text based UI interface to add LCD, switches,
+LEDs or other components and can modify it during simulation, so there
+is no longer a need to enter a pin value during execution. (Tcl/Tk based)
+<li>Execution timing should be nearly accurate, different access
+times for internal RAM / external RAM / EEPROM and other hardware
+components are simulated. 
+<li>A pseudo core hardware component is introduced to do "printf"
+debugging. This "device" is connected to a normal named UNIX socket so
+you do not have to waste a UART or other hardware in your test environment. 
+<li>ELF-file loading is supported, no objcopy needed anymore. 
+<li>Execution speed is tuned a lot, most hardware simulations are now
+only done if needed. 
+<li>External IO pins which are not ports are also available. 
+<li>External I/O and some internal states of hardware units (link prescaler
+counter and interrupt states) can be dumped ot into a VCD trace to analyse I/O
+behaviour and timing. Or you can use it for tests. 
+</ul>
+
+   <p>The core of SimulAVR is functionally a library. This library is linked together
+with a command-line interface to create a command-line program. It is also
+linked together with a interpreter interface to create a library that can
+be use by a graphical interpreter language (currently Python / TCL). In
+the examples directory there are examples of simulations with a graphical
+environment (with the Tcl/Tk interface) or writing unit tests by using Python
+interface. The graphic components do not show any hardware / registers
+of the simulated CPU. It shows only external components attached to the
+IO-pins of the simulated CPU.
+
+   </body></html>
+

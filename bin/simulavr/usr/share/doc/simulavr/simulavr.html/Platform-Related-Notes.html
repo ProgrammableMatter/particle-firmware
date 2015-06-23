@@ -1,0 +1,79 @@
+<html lang="en">
+<head>
+<title>Platform Related Notes - SimulAVR Documentation 1.0.0</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="SimulAVR Documentation 1.0.0">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="prev" href="Examples.html#Examples" title="Examples">
+<link rel="next" href="Limitations.html#Limitations" title="Limitations">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This file documents the simulavr program.
+
+Copyright (C) 2001, 2002, 2003 Theodore A. Roth
+
+Copyright (C) 2004 Theodore A. Roth, Klaus Rudolph
+
+Copyright (C) 2005 Klaus Rudolph
+
+Copyright (C) 2008 Knut Schwichtenberg
+
+Copyright (C) 2009 Joel Sherrill, Michael Hennebry, Onno Kortmann, Thomas Klepp
+
+
+   Permission is granted to make and distribute verbatim copies of
+this manual provided the copyright notice and this permission notice
+are preserved on all copies.
+
+Permission is granted to copy and distribute modified versions of this
+manual under the conditions for verbatim copying, provided that the entire
+resulting derived work is distributed under the terms of a permission
+notice identical to this one.
+
+Permission is granted to copy and distribute translations of this manual
+into another language, under the above conditions for modified versions,
+except that this permission notice may be stated in a translation approved
+by the Free Software Foundation.-->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Platform-Related-Notes"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Limitations.html#Limitations">Limitations</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Examples.html#Examples">Examples</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="index.html#Top">Top</a>
+<hr>
+</div>
+
+<h2 class="chapter">9 Platform Related Notes</h2>
+
+<!-- unnumbered Platform Related notes -->
+<h3 class="section">9.1 Gentoo GNU/Linux distribution</h3>
+
+<p><a name="index-Gentoo-Platform-Notes-16"></a>
+To install the AVR cross compiler toolchain, try: <code>crossdev -t AVR</code>
+
+   <p>Of course you may need to "<code>emerge crossdev</code>" first ;-)
+
+   <p>There have been some problems reported with crossdev. Have a look to
+build scripts for Linux provided by the AVR-Freaks.  This script has
+problems with the bfd-libs but the rest builds easily.
+
+   <p>No ebuild for simulavr exists yet, but for me, the standard ./configure
+&amp;&amp; make works. Let me know if this is not the case for you.
+
+   </body></html>
+
