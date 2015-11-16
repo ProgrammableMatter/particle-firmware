@@ -1,26 +1,23 @@
-# @author: Raoul Rubien 2011
+# @author: Raoul Rubien 2015
 
-include(${Atmega_SOURCE_DIR}/crosscompile.cmake)
+include(${PROJECT_SOURCE_DIR}/crosscompile.cmake)
 
 include_directories(
-    ${Atmega_SOURCE_DIR}/libs
+        ${PROJECT_SOURCE_DIR}/libs/
 )
 
 add_executable(${BINARY}
-    DefaultIsr.c 
-    main.c
-)
-
+        DefaultIsr.c
+        main.c
+        )
 
 LINK_DIRECTORIES(
-    ${Atmega_SOURCE_DIR}/libs/uc-core
-    ${Atmega_SOURCE_DIR}/libs/common
+        ${PROJECTS_SOURCE_ROOT}/avr-common/
 )
 
 target_link_libraries(${BINARY}
-    uccore
-    common
-)
+        ${PROJECT_NAME}_uccore
+        ${PROJECT_NAME}_common
+        )
 
-
-include(${Atmega_SOURCE_DIR}/scripts/post_binary_build.cmake)
+include(${PROJECTS_SOURCE_ROOT}/avr-common/scripts/post_binary_build.cmake)

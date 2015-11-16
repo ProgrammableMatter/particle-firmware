@@ -2,9 +2,9 @@
 
 cmake_minimum_required(VERSION 2.6)
 
-Project(Atmega)
+Project(Particle)
 
-SET(BINARY "programmable_particle.elf")
+SET(BINARY "${PROJECT_NAME}.elf")
 
 add_subdirectory(scripts)
 add_subdirectory(libs)

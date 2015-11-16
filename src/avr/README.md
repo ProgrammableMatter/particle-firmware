@@ -35,30 +35,3 @@ unittests
 
 * all targets can be listed using
  * *make help* i.e.
- ```
-... all (the default if no target is provided)
-... clean
-... depend
-... edit_cache
-... rebuild_cache
-... avrterminal
-... erase
-... flash
-... fuse
-... info
-... listen
-... refuse
-... rfuses
-... rhfuse
-... rlfuse
-... verify
-... avrora-analyze-stack
-... avrora-cfg
-... avrora-elf-dump
-... avrora-inter-procedural-side-effect-analysis
-... avrora-simulate
-... avrora-test
-... test
-... <a_binary>.elf
-...
-```

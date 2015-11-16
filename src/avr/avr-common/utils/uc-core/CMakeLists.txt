@@ -1,11 +1,13 @@
 # @author: Raoul Rubien 2015
 
-include(${Atmega_SOURCE_DIR}/crosscompile.cmake)
+include(${PROJECT_SOURCE_DIR}/crosscompile.cmake)
 
-include_directories(${Atmega_SOURCE_DIR}/libs)
-
-add_library (uccore
-	Particle.c
-	Indicator.c
+include_directories(
+        ${CMAKE_CURRENT_SOURCE_DIR}/../
 )
+
+add_library(${PROJECT_NAME}_uccore
+        Particle.c
+        Indicator.c
+        )
 

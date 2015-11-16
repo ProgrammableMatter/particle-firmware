@@ -2,10 +2,10 @@
 
 cmake_minimum_required(VERSION 2.6)
 
-Project(Atmega)
+Project(ParticleProtoboardHwTest)
 
-SET(BINARY "programmable_particle_activation_program.elf")
+SET(BINARY "${PROJECT_NAME}.elf")
 
 add_subdirectory(scripts)
-add_subdirectory(libs)
 add_subdirectory(main)
+add_subdirectory(libs)
