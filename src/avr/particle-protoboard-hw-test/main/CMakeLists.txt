@@ -3,7 +3,7 @@
 include(${PROJECT_SOURCE_DIR}/crosscompile.cmake)
 
 include_directories(
-        ${PROJECT_SOURCE_DIR}/libs/
+        ${PROJECT_SOURCE_DIR}/libs
 )
 
 add_executable(${BINARY}
@@ -12,7 +12,7 @@ add_executable(${BINARY}
         )
 
 LINK_DIRECTORIES(
-        ${PROJECTS_SOURCE_ROOT}/avr-common/utils/common
+        ${PROJECT_SOURCE_DIR}/libs/common
 )
 
 target_link_libraries(${BINARY}

@@ -5,6 +5,11 @@ Project(ParticleUnitTest)
 
 SET(BINARY "${PROJECT_NAME}.elf")
 
-add_subdirectory(simulavr)
-add_subdirectory(scripts)
+include(crosscompile.cmake)
+#include(debugger.cmake)
+#include(programmer.cmake)
+
+#add_subdirectory(simulavr)
+add_subdirectory(libs)
+add_subdirectory(avrora)
 add_subdirectory(main)

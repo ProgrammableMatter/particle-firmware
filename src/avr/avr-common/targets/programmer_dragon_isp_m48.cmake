@@ -27,5 +27,6 @@ SET(PROGRAMMER_TARGET m48)
 # -V do not verify
 # -D disable auto erase for flash memory
 # -t enter terminal mode (debug only)
-SET(PROGRAMMER_EXTRA_FLAGS -yuv)
+# -E exitspec: reset, noreset, vcc, novcc, d_high, d_low; not supported by all programmer i.e. ft232rl_dasa
+SET(PROGRAMMER_EXTRA_FLAGS -yuvEnoreset)
 

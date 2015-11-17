@@ -4,7 +4,6 @@ include(${PROJECT_SOURCE_DIR}/crosscompile.cmake)
 
 include_directories(
         ${PROJECT_SOURCE_DIR}/libs
-        ${PROJECT_SOURCE_DIR}/libs/
 )
 
 add_executable(${BINARY}

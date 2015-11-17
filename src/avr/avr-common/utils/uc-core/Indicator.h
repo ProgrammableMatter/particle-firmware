@@ -21,6 +21,7 @@ struct Indicator {
 	Indicator_Signal state;
 };
 
+
 /**
  * initcator initializer
  */
