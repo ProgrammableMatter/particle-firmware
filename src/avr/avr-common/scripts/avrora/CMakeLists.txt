@@ -29,20 +29,40 @@ add_custom_command(OUTPUT avrora_elf_dump
 add_custom_target(${PROJECT_NAME}_avrora-elf-dump DEPENDS avrora_elf_dump ${PROJECT_NAME}.elf)
 
 
-#add_custom_command(OUTPUT avrora_isea
-#    COMMAND ${SIMULATOR} -action=isea ${HEX_FILE}
-#)
-#add_custom_target(${PROJECT_NAME}_avrora-inter-procedural-side-effect-analysis DEPENDS avrora_isea)
+add_custom_command(OUTPUT avrora_isea
+    COMMAND ${SIMULATOR} -action=isea ${HEX_FILE}
+)
+add_custom_target(${PROJECT_NAME}_avrora-inter-procedural-side-effect-analysis DEPENDS avrora_isea ${PROJECT_NAME}.elf)
 
 add_custom_command(OUTPUT avrora_simulate
-        COMMAND ${SIMULATOR} -banner=false -verbose=loader,atmel.flash -action=simulate -arch=avr -simulation=particle-network -platform=particle -clockspeed=8000000 -seconds=3 -mcu=atmega16  -monitors=calls,call-profile,profile,stack,interrupts,memory,break,virgil,leds -status-timing=true -input=elf ${HEX_FILE}
-        )
+        COMMAND
+        ${SIMULATOR}
+        -banner=false
+        -status-timing=true
+#        -verbose=loader,atmel.flash
+        -verbose=all
+        -seconds-precision=11
+        -action=simulate
+#           -simulation=sensor-network
+            -simulation=particle-network
+                -nodecount=1
+                -seconds=1E-3
+                -report-seconds=true
+                -platform=particle
+                -arch=avr
+                -clockspeed=8000000
+#                -monitors=calls,call-profile,profile,stack,interrupts,memory,break,leds,real-time,retaddr
+#                -monitors=calls,call-profile,profile,stack,interrupts,memory,break,leds,retaddr
+                -monitors=calls,retaddr,particle,memory
+#                -monitors=calls,retaddr,particle
+#                    -low-addresses=true
+                    -dump-writes=true
+                    -low-addresses=true
+                    -particle-log-file=true
+                    -particle-facets=state,break,wires
+                -input=elf
+            -throughput=true
+        ${HEX_FILE})
 add_custom_target(${PROJECT_NAME}_avrora-simulate DEPENDS avrora_simulate ${PROJECT_NAME}.elf)
-
-#add_custom_command(OUTPUT avrora_test
-#    COMMAND ${SIMULATOR} -action=test -detail=true ${HEX_FILE}
-#)
-#add_custom_target(${PROJECT_NAME}_avrora-test DEPENDS avrora_test)
-#add_custom_target(${PROJECT_NAME}_test DEPENDS avrora_test)
 
 

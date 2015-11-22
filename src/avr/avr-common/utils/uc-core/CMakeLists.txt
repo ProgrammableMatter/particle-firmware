@@ -7,7 +7,5 @@ include_directories(
 )
 
 add_library(${PROJECT_NAME}_uccore
-        Particle.c
-        Indicator.c
-        )
+        Particle.c)
 
