@@ -31,6 +31,8 @@ typedef struct {
     StateType state;
     NodeType type;
     unsigned char nodeId;
+    unsigned char northRxEvents;
+    unsigned char southRxEvents;
 } ParticleState;
 
-#endif //PROJECT_PARTICLETYPES_H_H
+#endif

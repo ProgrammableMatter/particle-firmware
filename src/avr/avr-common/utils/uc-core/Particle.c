@@ -4,19 +4,40 @@
  */
 
 #include "Particle.h"
-
 #include "Globals.h"
+#include "ParticleIoDefinitions.h"
+#include "ParticleTypes.h"
 
 extern ParticleState GlobalState;
 
+static unsigned char minRxSenseSignals = 10;
+
 void particle_tick(void) {
+
+    LED_TOGGLE;
+
     switch (GlobalState.state) {
         case STATE_TYPE_ACTIVE:
-            // enable toggling to north and south
+            // enable toggling to north and south: cnonfigure interrupts
+
             // switch to -> state discovery
             break;
         case STATE_TYPE_NEIGHBOURS_DISCOVERY:
             // stay in discovrey exact n[ms]
+            if (GlobalState.southRxEvents >= minRxSenseSignals) {
+                if (GlobalState.northRxEvents >= minRxSenseSignals) {
+                    GlobalState.type = NODE_TYPE_INTER_NODE;
+                } else {
+                    GlobalState.type = NODE_TYPE_HEAD;
+                }
+            } else {
+                if (GlobalState.northRxEvents >= minRxSenseSignals) {
+                    GlobalState.type = NODE_TYPE_TAIL;
+                } else {
+                    GlobalState.type = NODE_TYPE_ORPHAN;
+                }
+            }
+
             // detect neighbours
             // switch to -> sate waiting
             break;

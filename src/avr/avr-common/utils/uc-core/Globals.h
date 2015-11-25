@@ -1,6 +1,7 @@
-//
-// Created by rubienr on 21.11.15.
-//
+/**
+ * @author Raoul Rubien
+ * on 21.11.15
+ */
 
 #ifndef PROJECT_GLOBALS_H
 #define PROJECT_GLOBALS_H
@@ -9,4 +10,4 @@
 
 ParticleState GlobalState;
 
-#endif //PROJECT_GLOBALS_H
+#endif

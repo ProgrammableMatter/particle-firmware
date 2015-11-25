@@ -7,6 +7,7 @@ include_directories(
 )
 
 add_executable(${BINARY}
+        DefaultIsr.c
         main.c
         )
 

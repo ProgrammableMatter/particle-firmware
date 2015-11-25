@@ -36,6 +36,7 @@
 #define getBit   &
 #define setBit   |=
 #define unsetBit &= ~
+#define toggleBit ^=
 #define bit      _BV
 
 #endif
