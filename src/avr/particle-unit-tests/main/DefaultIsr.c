@@ -6,17 +6,19 @@
 #include <uc-core/Globals.h>
 #include <common/PortInteraction.h>
 #include <uc-core/ParticleIoDefinitions.h>
+#include <uc-core/ParticleInterruptDefinitions.h>
 
-extern ParticleState GlobalState;
+extern volatile ParticleState GlobalState;
 
+#define TIMER0_ON_INTERRUPT_SHIFT_BACK 2
 
-// TODO on INT[1:0]_vect the timer/compare 0 timer must be paused and released afterwards to prevent loosing interrupts
 /**
  * pin change interrupt 0 - INT0
  * This interrupt routine is triggered on falling edges of the north reception pin. In other words on received
  * falling edges from the north neighbour.
  */
 ISR(INT0_vect) {
+    DISABLE_TIMER0_PRESCALER;
     SREG unsetBit bit(SREG_I);
 #ifdef __AVR_ATmega16__
     if (GlobalState.northRxEvents == 255) {
@@ -24,7 +26,11 @@ ISR(INT0_vect) {
     }
 #endif
     GlobalState.northRxEvents++;
+    // Shift counter by the approximate clock ticks it takes from ENABLE_TIMER0_PRESCALE until sei instruction
+    // back.
+    TCNT0 = TCNT0 - TIMER0_ON_INTERRUPT_SHIFT_BACK;
     GIFR = bit(INTF0);
+    ENABLE_TIMER0_PRESCALER;
 }
 
 /**
@@ -32,6 +38,7 @@ ISR(INT0_vect) {
  * falling edged from the south neighbour.
  */
 ISR(INT1_vect) {
+    DISABLE_TIMER0_PRESCALER;
     SREG unsetBit bit(SREG_I);
 #ifdef __AVR_ATmega16__
     if (GlobalState.southRxEvents == 255) {
@@ -39,7 +46,11 @@ ISR(INT1_vect) {
     }
 #endif
     GlobalState.southRxEvents++;
+    // Shift counter by the approximate clock ticks it takes from ENABLE_TIMER0_PRESCALE until sei instruction
+    // back.
+    TCNT0 = TCNT0 - TIMER0_ON_INTERRUPT_SHIFT_BACK;
     GIFR = bit(INTF1);
+    ENABLE_TIMER0_PRESCALER;
 }
 
 /**
