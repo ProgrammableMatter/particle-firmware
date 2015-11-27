@@ -2,8 +2,8 @@
  * @author: Raoul Rubien 2011
  */
 
-#ifndef __PortInteraction__
-#define __PortInteraction__
+#ifndef PORT_INTERACTION_H
+#define PORT_INTERACTION_H
 
 /**
  * pin definition
@@ -33,10 +33,10 @@
  * <p>
  * AOut unsetBit Pin0;
  */
-#define getBit   &
-#define setBit   |=
-#define unsetBit &= ~
+#define getBit    &
+#define setBit    |=
+#define unsetBit  &= ~
 #define toggleBit ^=
-#define bit      _BV
+#define bit       _BV
 
 #endif

@@ -1,7 +1,7 @@
 // @author: Raoul Rubien 2015
 
-#ifndef __port_a_definition__
-#define __port_a_definition__
+#ifndef PORT_A_DEFINITION_H
+#define PORT_A_DEFINITION_H
 
 #include <avr/io.h>
 

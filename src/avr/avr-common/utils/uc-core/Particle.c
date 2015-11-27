@@ -6,7 +6,6 @@
 #include "Particle.h"
 #include "Globals.h"
 #include "ParticleIoDefinitions.h"
-#include "ParticleTypes.h"
 #include <uc-core/ParticleInterruptDefinitions.h>
 
 extern volatile ParticleState GlobalState;
@@ -71,6 +70,7 @@ void particle_tick(void) {
             // keep pulsing neighbours maximum MAX_NEIGHBOUR_PULSING_LOOPS loops
             if (loopCount >= MAX_NEIGHBOUR_PULSING_LOOPS) {
                 DISABLE_TIMER0_INTERRUPT;
+                // TODO switch directly to state enumerating
                 GlobalState.state = STATE_TYPE_WAITING;
             }
             break;
@@ -81,25 +81,37 @@ void particle_tick(void) {
 
             if (GlobalState.type == NODE_TYPE_HEAD) {
                 GlobalState.nodeId = 1;
-                GlobalState.state = STATE_TYPE_ENUMERATING;
+                GlobalState.state = STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR;
             }
-            GlobalState.state = STATE_TYPE_WAIT_FOR_ENUMERATING;
+            GlobalState.state = STATE_TYPE_WAIT_FOR_BEING_ENUMERATED;
             break;
         case STATE_TYPE_RESET:
-            // run asm("BREAK")
+//            asm("BREAK");
+            GlobalState.state = STATE_TYPE_ERRONEOUS;
             // reset internal states, maybe total hw reset
             // switch to -> state active
+
             break;
-        case STATE_TYPE_WAIT_FOR_ENUMERATING:
-            // enable reception
-            // receive local id
-            // go to enumerating state
+        case STATE_TYPE_WAIT_FOR_BEING_ENUMERATED: // passive enumerating mode, waiting for local id
+            // enable reception interrupts on falling edge
+            // wait for the start bit;
+            // on start bit received
+            //      * enable reception interrupts on both (falling and rising) edge
+            //      * start to alternate exactly 16 times the "receiving"
+            //      clock as expected in the differential manchester coding
+            //      * log transition occurrence of interrupt for each of the 16 clocks
+            // now we have received the local id -> is parity valid
+            //      true: switch state to STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR
+            //      false: switch state to STATE_TYPE_ERRONEOUS
             break;
-        case STATE_TYPE_ENUMERATING:
-            // wait for predecessor's id
-            // determine our id
-            // send next id to succesor
-            // switch to -> state enumerated
+        case STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR: // active enumerating, send start bit and send neighbour id
+            // enable receive interrupts on rising edges only
+            // send start bit
+            // wait (with timeout) for neighbours "receive"-clock
+            //      * on neighbours "receive"-clock rising edges
+            //          - do transmit a transition (toggle) to indicate the "1" byte
+            //          - else to indicate a "0" byte do nothing
+            // after exactly 16 "receive"-clock cycles switch state to STATE_TYPE_ENUMERATED
             break;
         case STATE_TYPE_ENUMERATED:
             // switch to -> state idle

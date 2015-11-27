@@ -7,8 +7,8 @@
 #include <uc-core/ParticleIoDefinitions.h>
 #include <uc-core/Particle.h>
 #include <uc-core/ParticleInterruptDefinitions.h>
-#include "../../particle/libs/uc-core/Globals.h"
-#include "../../particle/libs/uc-core/ParticleTypes.h"
+#include <uc-core/ParticleTypes.h>
+#include <uc-core/Globals.h>
 
 /**
  * set "void init()" as initialization function

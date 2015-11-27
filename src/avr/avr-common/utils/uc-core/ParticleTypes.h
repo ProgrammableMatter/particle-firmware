@@ -15,8 +15,8 @@ typedef enum {
     STATE_TYPE_DISCOVERY_PULSING,
     STATE_TYPE_WAITING,
     STATE_TYPE_RESET,
-    STATE_TYPE_WAIT_FOR_ENUMERATING,
-    STATE_TYPE_ENUMERATING,
+    STATE_TYPE_WAIT_FOR_BEING_ENUMERATED,
+    STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR,
     STATE_TYPE_ENUMERATED,
     STATE_TYPE_IDLE,
     STATE_TYPE_INTERPRETE_COMMAND,
@@ -45,6 +45,7 @@ typedef struct {
     unsigned char rxNorthByte2;
     unsigned char rxSouthByte1;
     unsigned char rxSouthByte2;
+    unsigned char rxBitCounter;
 } ParticleState;
 
 #endif

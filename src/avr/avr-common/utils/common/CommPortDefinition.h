@@ -2,8 +2,8 @@
 
 
 // TODO deprecated
-#ifndef __port_definition__
-#define __port_definition__
+#ifndef PORT_DEFINITION_H
+#define PORT_DEFINITION_H
 
 #include <avr/io.h>
 #include "PortADefinition.h"

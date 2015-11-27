@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 2.6)
 
 Project(ParticleProtoboardHwTest)
 
-SET(BINARY "${PROJECT_NAME}.elf")
+SET(BINARY "${PROJECT_NAME}")
 
 include(crosscompile.cmake)
 include(debugger.cmake)
