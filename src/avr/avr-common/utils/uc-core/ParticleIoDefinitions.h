@@ -7,7 +7,6 @@
 
 #include <common/PortADefinition.h>
 #include <common/PortBDefinition.h>
-
 #ifdef __AVR_ATmega16__
 #  include <common/PortDDefinition.h>
 #endif

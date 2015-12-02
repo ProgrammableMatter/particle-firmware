@@ -11,11 +11,11 @@
 
 extern volatile ParticleState GlobalState;
 
-#define MIN_RX_NEIGHBOUR_SIGNALS_SENSE 10 // minimum signals to be detected until this side is recognized as
+#define MIN_RX_NEIGHBOUR_SIGNALS_SENSE 5 // minimum signals to be detected until this side is recognized as
 // connected to a neighbour
 #define MIN_NEIGHBOURS_DISCOVERY_LOOPS 50 // earliest loop when local node discovery may be finished
 #define MAX_NEIGHBOURS_DISCOVERY_LOOPS 200 // latest loop when local node discovery is to be aborted
-#define MAX_NEIGHBOUR_PULSING_LOOPS 200 // last loop when pulsing to neighbours is to be deactivated
+#define MAX_NEIGHBOUR_PULSING_LOOPS 250 // last loop when pulsing to neighbours is to be deactivated
 
 
 /**
@@ -23,11 +23,11 @@ extern volatile ParticleState GlobalState;
  * changes/work/communication.
  */
 void particle_tick(void) {
-//    int i = (GlobalState.type + 1) * 2;
+    unsigned char i;
     static volatile unsigned char loopCount = 0;
     loopCount++;
 
-//    LED_TOGGLE;
+    LED_TOGGLE;
 
     switch (GlobalState.state) {
         case STATE_TYPE_ACTIVE:
@@ -73,32 +73,32 @@ void particle_tick(void) {
             break;
 
         case STATE_TYPE_DISCOVERY_PULSING:
-            //            NODE_TYPE_ORPHAN=(0+1)*2, NODE_TYPE_HEAD, NODE_TYPE_INTER_NODE, NODE_TYPE_TAIL
-//            TESTPOINT_LO;
-//            TESTPOINT_LO;
-//            TESTPOINT_LO;
-//            TESTPOINT_LO;
-//            for (; i > 0; i--) {
-//
-////                TESTPOINT_TOGGLE;
-////                TESTPOINT_TOGGLE;
-//
-//            }
-//            TESTPOINT_LO;
-//            TESTPOINT_LO;
-//            TESTPOINT_LO;
-//            TESTPOINT_LO;
-            //            // keep pulsing neighbours maximum MAX_NEIGHBOUR_PULSING_LOOPS loops
-            //            if (loopCount >= MAX_NEIGHBOUR_PULSING_LOOPS) {
-            //                DISABLE_TIMER0_INTERRUPT;
-            //                // TODO switch directly to state enumerating
-            //                GlobalState.state = STATE_TYPE_WAITING;
-            //            }
+            // keep pulsing neighbours maximum MAX_NEIGHBOUR_PULSING_LOOPS loops
+            if (loopCount >= MAX_NEIGHBOUR_PULSING_LOOPS) {
+                DISABLE_TIMER0_INTERRUPT;
+                // TODO switch directly to state enumerating
+                GlobalState.state = STATE_TYPE_WAITING;
+            }
             break;
 
         case STATE_TYPE_WAITING:
 
-
+            //            NODE_TYPE_ORPHAN=(0+1)*2=2, NODE_TYPE_HEAD=4, NODE_TYPE_INTER_NODE=6, NODE_TYPE_TAIL=8
+            SREG unsetBit bit(SREG_I);
+            forever {
+                TESTPOINT_LO;
+                TESTPOINT_LO;
+                TESTPOINT_LO;
+                TESTPOINT_LO;
+                for (i = (GlobalState.type + 1) * 2; i > 0; i--) {
+                    TESTPOINT_HI;
+                    TESTPOINT_LO;
+                }
+                TESTPOINT_LO;
+                TESTPOINT_LO;
+                TESTPOINT_LO;
+                TESTPOINT_LO;
+            }
 
             // wait for enumeration command
             // switch to -> state enumerated
@@ -168,8 +168,7 @@ void particle_tick(void) {
             // switch to -> state idle
             break;
         case STATE_TYPE_ERRONEOUS:
-            forever
-            {
+            forever {
                 LED_ON;
                 _delay_ms(200);
                 LED_OFF;
