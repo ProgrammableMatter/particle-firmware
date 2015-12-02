@@ -13,8 +13,8 @@ extern volatile ParticleState GlobalState;
 #define MIN_RX_NEIGHBOUR_SIGNALS_SENSE 10 // minimum signals to be detected until this side is recognized as
 // connected to a neighbour
 #define MIN_NEIGHBOURS_DISCOVERY_LOOPS 50 // earliest loop when local node discovery may be finished
-#define MAX_NEIGHBOURS_DISCOVERY_LOOPS 150 // latest loop when local node discovery is to be aborted
-#define MAX_NEIGHBOUR_PULSING_LOOPS 300 // last loop when pulsing to neighbours is to be deactivated
+#define MAX_NEIGHBOURS_DISCOVERY_LOOPS 100 // latest loop when local node discovery is to be aborted
+#define MAX_NEIGHBOUR_PULSING_LOOPS 200 // last loop when pulsing to neighbours is to be deactivated
 
 
 /**
