@@ -93,16 +93,12 @@ ISR( TIM0_COMPA_vect) {
  * This interrupt routine is triggered when the counter equals to OCR0 value.
  */
 ISR(TIMER0_COMP_vect) {
-    asm("BREAK");
     DISABLE_TIMER0_PRESCALER;
     SREG unsetBit bit(SREG_I);
     TCNT0 = 0;
 
     NORTH_TX_TOGGLE;
     SOUTH_TX_TOGGLE;
-//   TODO instead of toggling 2x in this isr toggle just once but adjust {loop counter, min pulsing events, compare0A}
-//    NORTH_TX_TOGGLE;
-//    SOUTH_TX_TOGGLE;
 
     // TODO clearing flag really necessary?
     TIFR = bit(OCF0);
