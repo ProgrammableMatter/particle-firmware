@@ -12,6 +12,7 @@
 #include "Particle.h"
 
 #ifndef __AVR_ATtmega16__
+#  include <util/delay.h>
 #endif
 
 void init(void);
