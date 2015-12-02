@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 2.6)
 
 Project(Particle)
 
-SET(BINARY "${PROJECT_NAME}")
+SET(BINARY "${PROJECT_NAME}.elf")
 
 include(crosscompile.cmake)
 include(debugger.cmake)
