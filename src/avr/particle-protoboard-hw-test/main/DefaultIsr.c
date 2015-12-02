@@ -1,4 +1,6 @@
-// @author: Raoul Rubien 2015
+/**
+ * @author Raoul Rubien 2015
+ */
 
 #include <avr/io.h>
 #include <avr/interrupt.h>

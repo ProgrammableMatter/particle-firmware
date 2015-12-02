@@ -1,5 +1,8 @@
 #!/bin/bash
+
+#
 # @author: Raoul Rubien 2011
+#
 
 # waits for following cli args: [programmer] [target] [baud] [port] [flags]
 

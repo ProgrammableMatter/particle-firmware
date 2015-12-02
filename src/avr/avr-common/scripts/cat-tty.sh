@@ -1,5 +1,8 @@
 #!/bin/bash
+
+#
 # @author: Raoul Rubien 2011
+#
 
 device="$1"         # serial device
 baud_rate="38400"   # bit/sec

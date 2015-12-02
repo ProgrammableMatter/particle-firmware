@@ -1,4 +1,6 @@
-// @author: Raoul Rubien 2015
+/**
+ * @author Raoul Rubien 2015
+ */
 
 #ifndef PORT_A_DEFINITION_H
 #define PORT_A_DEFINITION_H

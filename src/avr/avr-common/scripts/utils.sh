@@ -1,4 +1,6 @@
+#
 # @author: Raoul Rubien 2011
+#
 
 # @param1: exitcode
 # @param2: optional message

@@ -8,15 +8,14 @@ include_directories(
 
 add_executable(${BINARY}
         DefaultIsr.c
-        main.cpp
+        main.c
         )
 
 LINK_DIRECTORIES(
-        ${PROJECT_SOURCE_DIR}/libs/common
+#        ${PROJECT_SOURCE_DIR}/libs/common
 )
 
 target_link_libraries(${BINARY}
-        ${PROJECT_NAME}_common
         )
 
 include(${PROJECTS_SOURCE_ROOT}/avr-common/scripts/post_binary_build.cmake)

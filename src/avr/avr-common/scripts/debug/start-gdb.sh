@@ -1,4 +1,9 @@
 #!/bin/bash
+
+#
+# @author Raoul Rubien 2015
+#
+
 SCRIPT_PATH="$(readlink -f $(dirname "$0"))"
 SCRIPT_NAME="${0##*/}"
 

@@ -6,7 +6,6 @@
 #include <common/common.h>
 #include <common/PortADefinition.h>
 
-extern "C" {};
 
 /**
  * free function declarations

@@ -1,5 +1,6 @@
-// @author: Raoul Rubien 2015
-
+/**
+ * @author Raoul Rubien 2015
+ */
 
 // TODO deprecated
 #ifndef PORT_DEFINITION_H

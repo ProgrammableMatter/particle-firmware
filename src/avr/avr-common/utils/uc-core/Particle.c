@@ -1,12 +1,12 @@
 /**
- * Created on: Mar 1, 2015
- * @author: Raoul Rubien
+ * @author Raoul Rubien 2015
  */
 
 #include "Particle.h"
 #include "Globals.h"
 #include "ParticleIoDefinitions.h"
-#include <uc-core/ParticleInterruptDefinitions.h>
+#include "ParticleInterruptDefinitions.h"
+#include <util/delay.h>
 
 extern volatile ParticleState GlobalState;
 
@@ -17,11 +17,16 @@ extern volatile ParticleState GlobalState;
 #define MAX_NEIGHBOUR_PULSING_LOOPS 300 // last loop when pulsing to neighbours is to be deactivated
 
 
+/**
+ * Function that is called in an endless loop without delay in between to perform the particl's state
+ * changes/work/communication.
+ */
 void particle_tick(void) {
     static volatile unsigned char loopCount = 0;
     loopCount++;
 
     LED_TOGGLE;
+    TESTPOINT_TOGGLE;
 
     switch (GlobalState.state) {
         case STATE_TYPE_ACTIVE:
@@ -86,7 +91,7 @@ void particle_tick(void) {
             GlobalState.state = STATE_TYPE_WAIT_FOR_BEING_ENUMERATED;
             break;
         case STATE_TYPE_RESET:
-//            asm("BREAK");
+            //            asm("BREAK");
             GlobalState.state = STATE_TYPE_ERRONEOUS;
             // reset internal states, maybe total hw reset
             // switch to -> state active
@@ -142,6 +147,10 @@ void particle_tick(void) {
         case STATE_TYPE_EXECUTE_COMMAND:
             // execute command
             // switch to -> state idle
+            break;
+        case STATE_TYPE_ERRONEOUS:
+            LED_TOGGLE;
+            _delay_ms(500);
             break;
         default:
             GlobalState.state = STATE_TYPE_ERRONEOUS;

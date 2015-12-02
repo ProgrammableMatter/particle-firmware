@@ -1,5 +1,9 @@
 #!/bin/bash
 
+#
+# @author Raoul Rubien 2015
+#
+
 SCRIPT_NAME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
 SCRIPT=`realpath $0`
 SCRIPTPATH=`dirname $SCRIPT`
