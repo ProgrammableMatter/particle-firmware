@@ -24,19 +24,19 @@ add_custom_command(OUTPUT write_fuse
         # DEPENDS __clear_cmake_cache
         COMMAND ${WRITE_FUSE}
         )
-add_custom_target(${PROJECT_NAME}_fuse DEPENDS write_fuse)
+add_custom_target(${PROJECT_NAME}_fuse DEPENDS write_fuse ${BINARY})
 
 add_custom_command(OUTPUT write_flash
         # DEPENDS __clear_cmake_cache
         COMMAND ${WRITE_FLASH}
         )
-add_custom_target(${PROJECT_NAME}_flash DEPENDS write_flash)
+add_custom_target(${PROJECT_NAME}_flash DEPENDS write_flash ${BINARY})
 
 add_custom_command(OUTPUT verify_flash
         # DEPENDS __clear_cmake_cache
         COMMAND ${VERIFY_FLASH}
         )
-add_custom_target(${PROJECT_NAME}_verify DEPENDS verify_flash)
+add_custom_target(${PROJECT_NAME}_verify DEPENDS verify_flash ${BINARY})
 
 add_custom_command(OUTPUT erase_flash
         COMMAND ${ERASE_FLASH}
