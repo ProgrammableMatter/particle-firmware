@@ -41,7 +41,7 @@ ISR( PCINT0_vect) { // attiny 20
  */
 ISR(INT0_vect) { // atmega 16
     DISABLE_TIMER0_PRESCALER;
-    SREG unsetBit bit(SREG_I);
+//    SREG unsetBit bit(SREG_I);
     if (GlobalState.northRxEvents == 255) {
         asm("BREAK");
     }
@@ -49,8 +49,7 @@ ISR(INT0_vect) { // atmega 16
     // Shift counter by the approximate clock ticks it takes from ENABLE_TIMER0_PRESCALE until sei instruction
     // back.
     TCNT0 = TCNT0 - TIMER0_ON_INTERRUPT_SHIFT_BACK;
-    // TODO clearing flag really necessary?
-    GIFR = bit(INTF0);
+//    GIFR = bit(INTF0);
     ENABLE_TIMER0_PRESCALER;
 }
 
@@ -60,7 +59,7 @@ ISR(INT0_vect) { // atmega 16
  */
 ISR(INT1_vect) { // atmega 16
     DISABLE_TIMER0_PRESCALER;
-    SREG unsetBit bit(SREG_I);
+//    SREG unsetBit bit(SREG_I);
     if (GlobalState.southRxEvents == 255) {
         asm("BREAK");
     }
@@ -68,8 +67,7 @@ ISR(INT1_vect) { // atmega 16
     // Shift counter by the approximate clock ticks it takes from ENABLE_TIMER0_PRESCALE until sei instruction
     // back.
     TCNT0 = TCNT0 - TIMER0_ON_INTERRUPT_SHIFT_BACK;
-    // TODO clearing flag really necessary?
-    GIFR = bit(INTF1);
+//    GIFR = bit(INTF1);
     ENABLE_TIMER0_PRESCALER;
 }
 
@@ -94,14 +92,13 @@ ISR( TIM0_COMPA_vect) {
  */
 ISR(TIMER0_COMP_vect) {
     DISABLE_TIMER0_PRESCALER;
-    SREG unsetBit bit(SREG_I);
+//    SREG unsetBit bit(SREG_I);
     TCNT0 = 0;
 
     NORTH_TX_TOGGLE;
     SOUTH_TX_TOGGLE;
 
-    // TODO clearing flag really necessary?
-    TIFR = bit(OCF0);
+//    TIFR = bit(OCF0);
     ENABLE_TIMER0_PRESCALER;
 }
 #endif
@@ -113,7 +110,7 @@ ISR(TIMER0_COMP_vect) {
  * Timer/Counter0 Overflow
  */
 ISR(TIMER0_OVF_vect) {
-    SREG unsetBit bit(SREG_I);
+//    SREG unsetBit bit(SREG_I);
     asm("BREAK");
 }
 
@@ -121,7 +118,7 @@ ISR(TIMER0_OVF_vect) {
  * Timer/Counter1 Input Capture
  */
 ISR(TIMER1_CAPT_vect) {
-    SREG unsetBit bit(SREG_I);
+//    SREG unsetBit bit(SREG_I);
     asm("BREAK");
 }
 
@@ -129,7 +126,7 @@ ISR(TIMER1_CAPT_vect) {
  * Timer/Counter1 Compare Match A
  */
 ISR(TIMER1_COMPA_vect) {
-    SREG unsetBit bit(SREG_I);
+//    SREG unsetBit bit(SREG_I);
     asm("BREAK");
 }
 
@@ -137,7 +134,7 @@ ISR(TIMER1_COMPA_vect) {
  * Timer/Counter1 Compare Match B
  */
 ISR(TIMER1_COMPB_vect) {
-    SREG unsetBit bit(SREG_I);
+//    SREG unsetBit bit(SREG_I);
     asm("BREAK");
 }
 
@@ -145,7 +142,7 @@ ISR(TIMER1_COMPB_vect) {
  * Timer/Counter1 Overflow
  */
 ISR(TIMER1_OVF_vect) {
-    SREG unsetBit bit(SREG_I);
+//    SREG unsetBit bit(SREG_I);
     asm("BREAK");
 }
 
@@ -153,7 +150,7 @@ ISR(TIMER1_OVF_vect) {
  * External Pin, Power-on Reset, Brown-Out Reset, Watchdog Reset
  */
 ISR(_VECTOR(0)) {
-    SREG unsetBit bit(SREG_I);
+//    SREG unsetBit bit(SREG_I);
     asm("BREAK");
 }
 
