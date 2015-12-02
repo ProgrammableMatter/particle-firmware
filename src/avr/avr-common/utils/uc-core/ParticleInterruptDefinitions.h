@@ -18,8 +18,8 @@
 #ifdef __AVR_ATtiny20__
 // clear pending interrupt flags
 #  define __SETUP_CLEAR_PENDING_INT0_INT1_INT  GIFR = bit(PCIF0) | bit(PCIF1) | bit(INTF0)
-// ISC01=1 and ISC0=0 => falling edge on PCINT0
-#  define __SETUP_SENSE_CONTROL MCUCR setBit bit(ISC01)
+// ISC01=0 and ISC00=1 => any logical change on INT0 generates an interrupt request
+#  define __SETUP_SENSE_CONTROL MCUCR setBit bit(ISC00)
 // unset per default: MCUCR unsetBit bit(ISC00);
 // enable for pin 2 and 5
 #  define ENABLE_RX_INTERRUPTS PCMSK0 setBit (bit(PCINT2) | bit(PCINT5))
@@ -80,7 +80,7 @@
 
 // counter output mode
 // COM0A[1:0]: 00 - output disconnected, 01 - toggle OC0, 10 - clear OC0, 11 - set OC0
-// set per default: TCCR0A unsetBit (bit(COM01) | bit(COM00));
+// set per default: TCCR0A unsetBit (bit(COM0A1) | bit(COM0A0));
 
 // set timer/counter0 compare value
 #  define __SETUP_TIMER0_NEIGHBOUR_SENSE_COMPARE OCR0A = __DEFAULT_NEIGHBOUR_SENSING_PRESCALER_COMPARE
