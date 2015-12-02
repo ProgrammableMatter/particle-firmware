@@ -4,9 +4,9 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
-#include <uc-core/Globals.h>
-#include <uc-core/ParticleIoDefinitions.h>
-#include <uc-core/ParticleInterruptDefinitions.h>
+#include "Globals.h"
+#include "ParticleIoDefinitions.h"
+#include "ParticleInterruptDefinitions.h"
 
 extern volatile ParticleState GlobalState;
 
@@ -18,19 +18,78 @@ extern volatile ParticleState GlobalState;
  * Since ATtiny20 has no flag signaling which pin contributed to the PCINT0_vect it is needed to track the pin
  * changes manuallay to determine that cases.
  */
-static unsigned char PinStateBeforeInterrupt = 0;
-#  define NORTH_RX_FLAG = 0b00000001
-#  define SOUTH_RX_FLAG = 0b00000010
-#  define IS_NORTH_RX_FLAG PinStateBeforeInterrupt getBit(NORTH_RX_FLAG)
-#  define IS_SOUTH_RX_FLAG PinStateBeforeInterrupt getBit(SOUTH_RX_FLAG)
-#  define SET_NORTH_RX_FLAG PinStateBeforeInterrupt setBit(NORTH_RX_FLAG)
-#  define SET_SOUTH_RX_FLAG PinStateBeforeInterrupt setBit(SOUTH_RX_FLAG)
+//static unsigned char PinStateBeforeInterrupt = 0;
+//#  define __NORTH_RX_FLAG                0b00000001
+//#  define __SOUTH_RX_FLAG                0b00000010
+//#  define __IS_RX_INITIALIZED_FLAG 0b00000100
+//
+//#  define IS_NORTH_RX_FLAG_SET (0 != (PinStateBeforeInterrupt getBit __NORTH_RX_FLAG))
+//#  define IS_SOUTH_RX_FLAG_SET (0 != (PinStateBeforeInterrupt getBit __SOUTH_RX_FLAG))
+//#  define SET_NORTH_RX_FLAG PinStateBeforeInterrupt setBit __NORTH_RX_FLAG
+//#  define UNSET_NORTH_RX_FLAG PinStateBeforeInterrupt unsetBit __NORTH_RX_FLAG
+//#  define SET_SOUTH_RX_FLAG PinStateBeforeInterrupt setBit __SOUTH_RX_FLAG
+//#  define UNSET_SOUTH_RX_FLAG PinStateBeforeInterrupt unsetBit __SOUTH_RX_FLAG
+//#  define IS_RX_FLAG_INITIALIZED (0 != (PinStateBeforeInterrupt getBit __IS_RX_INITIALIZED_FLAG))
+//#  define SET_RX_FLAG_INITIALIZED PinStateBeforeInterrupt setBit __IS_RX_INITIALIZED_FLAG
 
 /**
  * pin on port A change interrupt request
  */
-ISR( PCINT0_vect) { // attiny 20
-    // TODO @attiny20 there is no flag that indicates the interrupt-pin contrubuting to this interrupt ...
+ISR(PCINT0_vect) { // attiny 20
+    TESTPOINT_HI;
+    if (SOUTH_RX_IS_HI) {
+    LED_ON;
+    } else {
+        LED_OFF;
+    }
+    // TODO it seems that the RX-Leds are draining too much current and therefore the reception voltage is too low
+    // for triggering an interrupt (2.2v)
+//    DISABLE_TIMER0_PRESCALER;
+//
+//    // filter north rx events on falling edge
+//    if (IS_RX_FLAG_INITIALIZED) {
+//        // record nortx rx events
+//        // on falling edge: if previous tracked edge is high and current is low
+//        if (IS_NORTH_RX_FLAG_SET && NORTH_RX_IS_LO) {
+//            GlobalState.northRxEvents++;
+//            UNSET_NORTH_RX_FLAG;
+//        } // update rising edge
+//        else if (NORTH_RX_IS_HI) {
+//            SET_NORTH_RX_FLAG;
+//        }
+//        // record south rx events
+//        // on falling edge: if previous tracked edge is high and current is low
+//        if (IS_SOUTH_RX_FLAG_SET && SOUTH_TX_IS_LO) {
+//            GlobalState.southRxEvents++;
+//            UNSET_SOUTH_RX_FLAG;
+//        } // update rising edge
+//        else if (SOUTH_RX_IS_HI) {
+//            SET_SOUTH_RX_FLAG;
+//        }
+//
+//    }
+//        // consume one edge of south or north rx to determine the next "last" flank states
+//    else {
+//        if (NORTH_RX_IS_LO) {
+//            UNSET_NORTH_RX_FLAG;
+//        } else {
+//            SET_NORTH_RX_FLAG;
+//        }
+//
+//        if (SOUTH_RX_IS_LO) {
+//            UNSET_SOUTH_RX_FLAG;
+//        } else {
+//            SET_SOUTH_RX_FLAG;
+//        }
+//        SET_RX_FLAG_INITIALIZED;
+//    }
+//
+//    // Shift counter by the approximate clock ticks it takes from ENABLE_TIMER0_PRESCALE until sei instruction
+//    // back.
+//    TCNT0 = TCNT0 - TIMER0_ON_INTERRUPT_SHIFT_BACK;
+//
+//    ENABLE_TIMER0_PRESCALER;
+    TESTPOINT_LO;
 }
 
 #elif __AVR_ATmega16__
@@ -80,8 +139,16 @@ ISR(INT1_vect) { // atmega 16
  * timer/counter 0 match on compare with register A - TCNT0 compare with OCR0A
  * This interrupt routine is triggered when the counter equals to OCR0A value.
  */
-ISR( TIM0_COMPA_vect) {
-    // TODO timer0 compare a implementation missing
+
+ISR(TIM0_COMPA_vect) {
+    DISABLE_TIMER0_PRESCALER;
+    TCNT0 = 0;
+
+    NORTH_TX_TOGGLE;
+    SOUTH_TX_TOGGLE;
+
+    //    TIFR setBit (bit(OCF0B) | bit (OCF0A) | bit(TOV0));
+    ENABLE_TIMER0_PRESCALER;
 }
 
 
