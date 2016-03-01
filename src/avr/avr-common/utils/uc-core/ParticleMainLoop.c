@@ -27,9 +27,9 @@ int particleLoop(void) {
     GlobalState.state = STATE_TYPE_ACTIVE;
     forever {
                 particle_tick();
-                if (GlobalState.state == STATE_TYPE_ERRONEOUS) {
-                    return 1;
-                }
+//                if (GlobalState.state == STATE_TYPE_ERRONEOUS) {
+//                    return 1;
+//                }
     }
 }
 

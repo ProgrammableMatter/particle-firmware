@@ -47,7 +47,7 @@ add_custom_command(OUTPUT avrora_simulate
             -simulation=particle-network
                 -nodecount=3
 #                -seconds=190E-4
-                -seconds=1000E-6
+                -seconds=2000E-6
                 -report-seconds=true
                 -platform=particle
                 -arch=avr

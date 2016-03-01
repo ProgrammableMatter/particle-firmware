@@ -21,7 +21,7 @@ extern volatile ParticleState GlobalState;
 static unsigned char PinStateBeforeInterrupt = 0;
 #  define __NORTH_RX_FLAG                0b00000001
 #  define __SOUTH_RX_FLAG                0b00000010
-#  define __IS_RX_INITIALIZED_FLAG 0b00000100
+#  define __IS_RX_INITIALIZED_FLAG       0b00000100
 
 #  define IS_NORTH_RX_FLAG_SET (0 != (PinStateBeforeInterrupt getBit __NORTH_RX_FLAG))
 #  define IS_SOUTH_RX_FLAG_SET (0 != (PinStateBeforeInterrupt getBit __SOUTH_RX_FLAG))
@@ -51,7 +51,7 @@ ISR(PCINT0_vect) { // attiny 20
         }
         // record south rx events
         // on falling edge: if previous tracked edge is high and current is low
-        if (IS_SOUTH_RX_FLAG_SET && SOUTH_TX_IS_LO) {
+        if (IS_SOUTH_RX_FLAG_SET && SOUTH_RX_IS_LO) {
             GlobalState.southRxEvents++;
             UNSET_SOUTH_RX_FLAG;
         } // update rising edge
