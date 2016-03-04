@@ -2,9 +2,11 @@
  * @author Raoul Rubien 2015
  */
 
-#ifndef __particle_h__
-#define __particle_h__
+#ifndef PARTICLE_H
+#define PARTICLE_H
 
-void particle_tick(void);
+void particleTick(void);
+
+void particleSnapshotRxFlanks(void);
 
 #endif

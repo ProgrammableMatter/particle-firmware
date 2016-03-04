@@ -2,8 +2,8 @@
  * @author Raoul Rubien 2015
  */
 
-#ifndef PROJECT_PARTICLETYPES_H_H
-#define PROJECT_PARTICLETYPES_H_H
+#ifndef PARTICLE_TYPES_H
+#define PARTICLE_TYPES_H
 
 #include <common/PortInteraction.h>
 
@@ -41,17 +41,33 @@ typedef struct {
 } RxInterruptFlankStates;
 
 typedef struct {
+    unsigned char north : 4;
+    unsigned char south : 4;
+    unsigned char east : 4;
+} RxDiscoveryPulseCounter;
+
+#define RX_PULSE_COUNTER_MAX 0xF
+
+typedef struct {
+    unsigned char northBytes[2];
+    unsigned char southBytes[2];
+    unsigned char eastBytes[2];
+    unsigned char northBitCount : 4;
+    unsigned char southBitCount : 4;
+    unsigned char eastBitCount : 4;
+} RxBitBuffer;
+
+typedef struct {
+    unsigned char row;
+    unsigned char column;
+} NodeId;
+
+typedef struct {
     StateType state;
     NodeType type;
-    unsigned char nodeId;
-    unsigned char northRxEvents;
-    unsigned char southRxEvents;
-    unsigned char flags;
-    unsigned char rxNorthByte1;
-    unsigned char rxNorthByte2;
-    unsigned char rxSouthByte1;
-    unsigned char rxSouthByte2;
-    unsigned char rxBitCounter;
+    NodeId nodeId;
+    RxBitBuffer rxBitBuffer;
+    RxDiscoveryPulseCounter rxDiscoveryPulseCounter;
     RxInterruptFlankStates rxInterruptFlankStates;
 } ParticleState;
 

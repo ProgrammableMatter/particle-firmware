@@ -8,8 +8,9 @@
 #include "ParticleInterruptDefinitions.h"
 #include <util/delay.h>
 #include <common/common.h>
+#include <uc-core/ParticleTypes.h>
 
-extern volatile ParticleState GlobalState;
+extern volatile ParticleState ParticleAttributes;
 
 #define MIN_RX_NEIGHBOUR_SIGNALS_SENSE 5 // minimum signals to be detected until this side is recognized as
 // connected to a neighbour
@@ -19,19 +20,19 @@ extern volatile ParticleState GlobalState;
 
 
 /**
- * Function that is called in an endless loop without delay in between to perform the particl's state
- * changes/work/communication.
+ * Function that is called in an endless loop without delay in between to perform the particle's state
+ * changes, work and communication.
  */
-void particle_tick(void) {
+void particleTick(void) {
     unsigned char i;
     static volatile unsigned char loopCount = 0;
     loopCount++;
 
     LED_HEARTBEAT_TOGGLE;
 
-    switch (GlobalState.state) {
+    switch (ParticleAttributes.state) {
         case STATE_TYPE_ACTIVE:
-            GlobalState.state = STATE_TYPE_NEIGHBOURS_DISCOVERY;
+            ParticleAttributes.state = STATE_TYPE_NEIGHBOURS_DISCOVERY;
             // enable pulsing on north and south tx wires
             TIMER0_NEIGHBOUR_SENSE_ENABLE;
             SREG setBit bit(SREG_I); // finally enable interrupts
@@ -45,22 +46,22 @@ void particle_tick(void) {
 
             // discovery timeout -> abort discovery
             if (loopCount >= MAX_NEIGHBOURS_DISCOVERY_LOOPS) {
-                GlobalState.state = STATE_TYPE_DISCOVERY_PULSING;
+                ParticleAttributes.state = STATE_TYPE_DISCOVERY_PULSING;
             } else if (loopCount >= MIN_NEIGHBOURS_DISCOVERY_LOOPS) {
                 // detect neighbours
-                if (GlobalState.southRxEvents >= MIN_RX_NEIGHBOUR_SIGNALS_SENSE) {
+                if (ParticleAttributes.rxDiscoveryPulseCounter.south >= MIN_RX_NEIGHBOUR_SIGNALS_SENSE) {
                     // found both neighbours -> abort discovery
-                    if (GlobalState.northRxEvents >= MIN_RX_NEIGHBOUR_SIGNALS_SENSE) {
-                        GlobalState.type = NODE_TYPE_INTER_NODE;
-                        GlobalState.state = STATE_TYPE_DISCOVERY_PULSING;
+                    if (ParticleAttributes.rxDiscoveryPulseCounter.north >= MIN_RX_NEIGHBOUR_SIGNALS_SENSE) {
+                        ParticleAttributes.type = NODE_TYPE_INTER_NODE;
+                        ParticleAttributes.state = STATE_TYPE_DISCOVERY_PULSING;
                     } else {
-                        GlobalState.type = NODE_TYPE_HEAD;
+                        ParticleAttributes.type = NODE_TYPE_HEAD;
                     }
                 } else {
-                    if (GlobalState.northRxEvents >= MIN_RX_NEIGHBOUR_SIGNALS_SENSE) {
-                        GlobalState.type = NODE_TYPE_TAIL;
+                    if (ParticleAttributes.rxDiscoveryPulseCounter.north >= MIN_RX_NEIGHBOUR_SIGNALS_SENSE) {
+                        ParticleAttributes.type = NODE_TYPE_TAIL;
                     } else {
-                        GlobalState.type = NODE_TYPE_ORPHAN;
+                        ParticleAttributes.type = NODE_TYPE_ORPHAN;
                     }
                 }
             }
@@ -69,7 +70,7 @@ void particle_tick(void) {
         case STATE_TYPE_NEIGHBOURS_DISCOVERED:
             // prevent exhausting clocks for reception interrupts unless rx is not needed
         RX_INTERRUPTS_DISABLE;
-            GlobalState.state = STATE_TYPE_DISCOVERY_PULSING;
+            ParticleAttributes.state = STATE_TYPE_DISCOVERY_PULSING;
             break;
 
         case STATE_TYPE_DISCOVERY_PULSING:
@@ -77,7 +78,7 @@ void particle_tick(void) {
             if (loopCount >= MAX_NEIGHBOUR_PULSING_LOOPS) {
                 TIMER0_NEIGHBOUR_SENSE_DISABLE;
                 // TODO switch directly to state enumerating
-                GlobalState.state = STATE_TYPE_WAITING;
+                ParticleAttributes.state = STATE_TYPE_WAITING;
             }
             break;
 
@@ -90,7 +91,7 @@ void particle_tick(void) {
                 TEST_POINT1_LO;
                 TEST_POINT1_LO;
                 TEST_POINT1_LO;
-                for (i = (GlobalState.type + 1) * 2; i > 0; i--) {
+                for (i = (ParticleAttributes.type + 1) * 2; i > 0; i--) {
                     TEST_POINT1_HI;
                     TEST_POINT1_LO;
                 }
@@ -111,7 +112,7 @@ void particle_tick(void) {
             break;
         case STATE_TYPE_RESET:
             //            asm("BREAK");
-            GlobalState.state = STATE_TYPE_ERRONEOUS;
+            ParticleAttributes.state = STATE_TYPE_ERRONEOUS;
             // reset internal states, maybe total hw reset
             // switch to -> state active
 
@@ -176,7 +177,18 @@ void particle_tick(void) {
             }
             break;
         default:
-            GlobalState.state = STATE_TYPE_ERRONEOUS;
+            ParticleAttributes.state = STATE_TYPE_ERRONEOUS;
             break;
     }
+}
+
+/**
+ * Take a current reception signal snapshot for later sense control since the MCU is not capable of filtering flank the
+ * direction on pin change interrupt. The interrupt is triggered at any logical change.
+ */
+void particleSnapshotRxFlanks(void) {
+    ParticleAttributes.rxInterruptFlankStates.north = NORTH_RX;
+    ParticleAttributes.rxInterruptFlankStates.south = SOUTH_RX;
+    ParticleAttributes.rxInterruptFlankStates.east = EAST_RX;
+    ParticleAttributes.rxInterruptFlankStates.isInitialized = 1;
 }

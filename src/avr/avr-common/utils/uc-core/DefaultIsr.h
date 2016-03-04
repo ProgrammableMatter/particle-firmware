@@ -11,7 +11,7 @@
 #include "ParticleIoDefinitions.h"
 #include "ParticleInterruptDefinitions.h"
 
-extern volatile ParticleState GlobalState;
+extern volatile ParticleState ParticleAttributes;
 
 #define TIMER0_ON_INTERRUPT_SHIFT_BACK 2
 
@@ -21,14 +21,26 @@ extern volatile ParticleState GlobalState;
  */
 #ifdef __AVR_ATtiny1634__
 
-ISR(PCINT2_vect) {
+ISR(PCINT2_vect)
 #else
 #  ifdef __AVR_ATmega16__
-    ISR(INT0_vect) {
+ISR(INT0_vect)
 #  else
 #    error
 #  endif
 #endif
+{
+    unsigned char isRxSignalLow = NORTH_RX;
+
+    if (isRxSignalLow && ParticleAttributes.rxInterruptFlankStates.north != isRxSignalLow) { // on falling edge
+        // count incoming discovery pulse events
+        if (ParticleAttributes.state == STATE_TYPE_NEIGHBOURS_DISCOVERY) {
+            if (ParticleAttributes.rxDiscoveryPulseCounter.north < RX_PULSE_COUNTER_MAX) {
+                ParticleAttributes.rxDiscoveryPulseCounter.north++;
+            }
+        }
+    }
+    ParticleAttributes.rxInterruptFlankStates.north = isRxSignalLow;
 }
 
 
@@ -37,14 +49,26 @@ ISR(PCINT2_vect) {
  */
 #ifdef __AVR_ATtiny1634__
 
-ISR(PCINT0_vect) {
+ISR(PCINT0_vect)
 #else
 #  ifdef __AVR_ATmega16__
-    ISR(INT1_vect) {
+    ISR(INT1_vect)
 #  else
 #    error
 #  endif
 #endif
+{
+    unsigned char isRxSignalLow = SOUTH_RX;
+
+    if (isRxSignalLow && ParticleAttributes.rxInterruptFlankStates.south != isRxSignalLow) { // on falling edge
+        // count incoming discovery pulse events
+        if (ParticleAttributes.state == STATE_TYPE_NEIGHBOURS_DISCOVERY) {
+            if (ParticleAttributes.rxDiscoveryPulseCounter.south < RX_PULSE_COUNTER_MAX) {
+                ParticleAttributes.rxDiscoveryPulseCounter.south++;
+            }
+        }
+    }
+    ParticleAttributes.rxInterruptFlankStates.south = isRxSignalLow;
 }
 
 
@@ -53,21 +77,32 @@ ISR(PCINT0_vect) {
  */
 #ifdef __AVR_ATtiny1634__
 
-ISR(PCINT1_vect) {
+ISR(PCINT1_vect)
 #else
 #  ifdef __AVR_ATmega16__
-    ISR(INT2_vect) {
+    ISR(INT2_vect)
 #  else
 #    error
 #  endif
 #endif
+{
+    unsigned char isRxSignalLow = EAST_RX;
+
+    if (isRxSignalLow && ParticleAttributes.rxInterruptFlankStates.east != isRxSignalLow) { // on falling edge
+        // count incoming discovery pulse events
+        if (ParticleAttributes.state == STATE_TYPE_NEIGHBOURS_DISCOVERY) {
+            if (ParticleAttributes.rxDiscoveryPulseCounter.east < RX_PULSE_COUNTER_MAX) {
+                ParticleAttributes.rxDiscoveryPulseCounter.east++;
+            }
+        }
+    }
+    ParticleAttributes.rxInterruptFlankStates.east = isRxSignalLow;
 }
 
 
 #if defined(__AVR_ATtiny1634__) || defined(__AVR_ATmega16__)
 /**
- * timer/counter 1 match on compare with register A - TCNT1 compare with OCR1A
- * This interrupt routine is triggered when the counter equals to OCR1A value.
+ * On timer_counter match with compare register A.
  */
 ISR(TIMER1_COMPA_vect) {
     TIMER0_NEIGHBOUR_SENSE_DISABLE;
@@ -75,21 +110,21 @@ ISR(TIMER1_COMPA_vect) {
 
     NORTH_TX_TOGGLE;
     SOUTH_TX_TOGGLE;
+    EAST_TX_TOGGLE;
 
-    //    TIFR setBit (bit(OCF0B) | bit (OCF0A) | bit(TOV0));
     TIMER0_NEIGHBOUR_SENSE_ENABLE;
 }
 
 
 /**
- * Timer/Counter1 Overflow
+ * On timer_counter overflow.
  */
 ISR(TIMER1_OVF_vect) {
     asm("BREAK");
 }
 
 /**
- * Timer/Counter1 Input Capture
+ * On timer_counter input capture.
  */
 ISR(TIMER1_CAPT_vect) {
     asm("BREAK");
@@ -97,7 +132,7 @@ ISR(TIMER1_CAPT_vect) {
 
 
 /**
- * Timer/Counter1 Compare Match B
+ * On timer_counter compare register B match.
  */
 ISR(TIMER1_COMPB_vect) {
     asm("BREAK");
@@ -105,7 +140,7 @@ ISR(TIMER1_COMPB_vect) {
 
 
 /**
- * External Pin, Power-on Reset, Brown-Out Reset, Watchdog Reset
+ * On external pin, power-on reset, brown-out reset, watchdog reset.
  */
 ISR(_VECTOR(0)) {
     asm("BREAK");
