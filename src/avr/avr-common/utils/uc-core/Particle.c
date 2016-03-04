@@ -27,13 +27,13 @@ void particle_tick(void) {
     static volatile unsigned char loopCount = 0;
     loopCount++;
 
-    LED_TOGGLE;
+    LED_HEARTBEAT_TOGGLE;
 
     switch (GlobalState.state) {
         case STATE_TYPE_ACTIVE:
             GlobalState.state = STATE_TYPE_NEIGHBOURS_DISCOVERY;
             // enable pulsing on north and south tx wires
-            ENABLE_TIMER0_INTERRUPT;
+            TIMER0_NEIGHBOUR_SENSE_ENABLE;
             SREG setBit bit(SREG_I); // finally enable interrupts
             // switch to -> state discovery
             break;
@@ -68,14 +68,14 @@ void particle_tick(void) {
 
         case STATE_TYPE_NEIGHBOURS_DISCOVERED:
             // prevent exhausting clocks for reception interrupts unless rx is not needed
-            DISABLE_RX_INTERRUPTS;
+        RX_INTERRUPTS_DISABLE;
             GlobalState.state = STATE_TYPE_DISCOVERY_PULSING;
             break;
 
         case STATE_TYPE_DISCOVERY_PULSING:
             // keep pulsing neighbours maximum MAX_NEIGHBOUR_PULSING_LOOPS loops
             if (loopCount >= MAX_NEIGHBOUR_PULSING_LOOPS) {
-                DISABLE_TIMER0_INTERRUPT;
+                TIMER0_NEIGHBOUR_SENSE_DISABLE;
                 // TODO switch directly to state enumerating
                 GlobalState.state = STATE_TYPE_WAITING;
             }
@@ -86,18 +86,18 @@ void particle_tick(void) {
             //            NODE_TYPE_ORPHAN=(0+1)*2=2, NODE_TYPE_HEAD=4, NODE_TYPE_INTER_NODE=6, NODE_TYPE_TAIL=8
             SREG unsetBit bit(SREG_I);
             forever {
-                TESTPOINT_LO;
-                TESTPOINT_LO;
-                TESTPOINT_LO;
-                TESTPOINT_LO;
+                TEST_POINT1_LO;
+                TEST_POINT1_LO;
+                TEST_POINT1_LO;
+                TEST_POINT1_LO;
                 for (i = (GlobalState.type + 1) * 2; i > 0; i--) {
-                    TESTPOINT_HI;
-                    TESTPOINT_LO;
+                    TEST_POINT1_HI;
+                    TEST_POINT1_LO;
                 }
-                TESTPOINT_LO;
-                TESTPOINT_LO;
-                TESTPOINT_LO;
-                TESTPOINT_LO;
+                TEST_POINT1_LO;
+                TEST_POINT1_LO;
+                TEST_POINT1_LO;
+                TEST_POINT1_LO;
             }
 
             // wait for enumeration command
@@ -169,9 +169,9 @@ void particle_tick(void) {
             break;
         case STATE_TYPE_ERRONEOUS:
             forever {
-                LED_ON;
+                LED_STATUS0_ON;
                 _delay_ms(200);
-                LED_OFF;
+                LED_STATUS0_OFF;
                 _delay_ms(200);
             }
             break;

@@ -38,11 +38,10 @@ int particleLoop(void) {
  * Sets up ports and interrupts but does not enable the global interrupt (I-flag in SREG)
  */
 void init(void) {
-    SETUP_PORT_DIRS; // configure all pin directions
-    SETUP_PORT_PINS; // set all IO pins to default
+    IO_PORTS_SETUP; // configure input/output pins
+    // TODO: initialize interrupt flanks before rx int. are activated
+    RX_INTERRUPTS_SETUP; // configure input pins interrupts
+    RX_INTERRUPTS_ENABLE; // enable input pin interrupts
+    TIMER0_NEIGHBOUR_SENSE_SETUP; // configure timer interrupt for neighbour sensing
 
-    SETUP_RX_INTERRUPTS; // configure reception interrupts
-    ENABLE_RX_INTERRUPTS;  // enable rx north and south to contribute to pin interrupts
-
-    SETUP_TIMER0_NEIGHBOUR_SENSE_INTERRUPT; // configure timer 0 interrupt for neighbour sensing
 }

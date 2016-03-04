@@ -33,6 +33,12 @@ typedef enum {
     NODE_TYPE_ORPHAN, NODE_TYPE_HEAD, NODE_TYPE_INTER_NODE, NODE_TYPE_TAIL
 } NodeType;
 
+typedef struct {
+    unsigned char north : 1;
+    unsigned char south : 1;
+    unsigned char east : 1;
+    unsigned char isInitialized : 1;
+} RxInterruptFlankStates;
 
 typedef struct {
     StateType state;
@@ -46,6 +52,7 @@ typedef struct {
     unsigned char rxSouthByte1;
     unsigned char rxSouthByte2;
     unsigned char rxBitCounter;
+    RxInterruptFlankStates rxInterruptFlankStates;
 } ParticleState;
 
 #endif
