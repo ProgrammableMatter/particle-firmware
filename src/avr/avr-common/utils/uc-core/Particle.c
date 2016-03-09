@@ -12,8 +12,7 @@
 
 extern volatile ParticleState ParticleAttributes;
 
-#define MIN_RX_NEIGHBOUR_SIGNALS_SENSE 5 // minimum signals to be detected until this side is recognized as
-// connected to a neighbour
+#define MIN_RX_NEIGHBOUR_SIGNALS_SENSE 5 // minimum signals to be detected until this side is recognized as connected to a neighbour
 #define MIN_NEIGHBOURS_DISCOVERY_LOOPS 50 // earliest loop when local node discovery may be finished
 #define MAX_NEIGHBOURS_DISCOVERY_LOOPS 200 // latest loop when local node discovery is to be aborted
 #define MAX_NEIGHBOUR_PULSING_LOOPS 250 // last loop when pulsing to neighbours is to be deactivated
@@ -49,16 +48,16 @@ void particleTick(void) {
                 ParticleAttributes.state = STATE_TYPE_DISCOVERY_PULSING;
             } else if (loopCount >= MIN_NEIGHBOURS_DISCOVERY_LOOPS) {
                 // detect neighbours
-                if (ParticleAttributes.rxDiscoveryPulseCounter.south >= MIN_RX_NEIGHBOUR_SIGNALS_SENSE) {
+                if (ParticleAttributes.rxDiscoveryPulseCounters.south >= MIN_RX_NEIGHBOUR_SIGNALS_SENSE) {
                     // found both neighbours -> abort discovery
-                    if (ParticleAttributes.rxDiscoveryPulseCounter.north >= MIN_RX_NEIGHBOUR_SIGNALS_SENSE) {
+                    if (ParticleAttributes.rxDiscoveryPulseCounters.north >= MIN_RX_NEIGHBOUR_SIGNALS_SENSE) {
                         ParticleAttributes.type = NODE_TYPE_INTER_NODE;
                         ParticleAttributes.state = STATE_TYPE_DISCOVERY_PULSING;
                     } else {
                         ParticleAttributes.type = NODE_TYPE_HEAD;
                     }
                 } else {
-                    if (ParticleAttributes.rxDiscoveryPulseCounter.north >= MIN_RX_NEIGHBOUR_SIGNALS_SENSE) {
+                    if (ParticleAttributes.rxDiscoveryPulseCounters.north >= MIN_RX_NEIGHBOUR_SIGNALS_SENSE) {
                         ParticleAttributes.type = NODE_TYPE_TAIL;
                     } else {
                         ParticleAttributes.type = NODE_TYPE_ORPHAN;

@@ -35,8 +35,8 @@ ISR(INT0_vect)
     if (isRxSignalLow && ParticleAttributes.rxInterruptFlankStates.north != isRxSignalLow) { // on falling edge
         // count incoming discovery pulse events
         if (ParticleAttributes.state == STATE_TYPE_NEIGHBOURS_DISCOVERY) {
-            if (ParticleAttributes.rxDiscoveryPulseCounter.north < RX_PULSE_COUNTER_MAX) {
-                ParticleAttributes.rxDiscoveryPulseCounter.north++;
+            if (ParticleAttributes.rxDiscoveryPulseCounters.north < RX_PULSE_COUNTER_MAX) {
+                ParticleAttributes.rxDiscoveryPulseCounters.north++;
             }
         }
     }
@@ -63,8 +63,8 @@ ISR(PCINT0_vect)
     if (isRxSignalLow && ParticleAttributes.rxInterruptFlankStates.south != isRxSignalLow) { // on falling edge
         // count incoming discovery pulse events
         if (ParticleAttributes.state == STATE_TYPE_NEIGHBOURS_DISCOVERY) {
-            if (ParticleAttributes.rxDiscoveryPulseCounter.south < RX_PULSE_COUNTER_MAX) {
-                ParticleAttributes.rxDiscoveryPulseCounter.south++;
+            if (ParticleAttributes.rxDiscoveryPulseCounters.south < RX_PULSE_COUNTER_MAX) {
+                ParticleAttributes.rxDiscoveryPulseCounters.south++;
             }
         }
     }
@@ -91,8 +91,8 @@ ISR(PCINT1_vect)
     if (isRxSignalLow && ParticleAttributes.rxInterruptFlankStates.east != isRxSignalLow) { // on falling edge
         // count incoming discovery pulse events
         if (ParticleAttributes.state == STATE_TYPE_NEIGHBOURS_DISCOVERY) {
-            if (ParticleAttributes.rxDiscoveryPulseCounter.east < RX_PULSE_COUNTER_MAX) {
-                ParticleAttributes.rxDiscoveryPulseCounter.east++;
+            if (ParticleAttributes.rxDiscoveryPulseCounters.east < RX_PULSE_COUNTER_MAX) {
+                ParticleAttributes.rxDiscoveryPulseCounters.east++;
             }
         }
     }

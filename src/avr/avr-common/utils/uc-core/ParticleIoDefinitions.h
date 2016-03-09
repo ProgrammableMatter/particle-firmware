@@ -8,6 +8,7 @@
 #include <common/PortADefinition.h>
 #include <common/PortBDefinition.h>
 #include <common/PortCDefinition.h>
+
 #ifdef __AVR_ATmega16__
 #  include <common/PortDDefinition.h>
 #endif
@@ -20,7 +21,7 @@
 #define SOUTH_TX_PIN Pin3
 #define SOUTH_TX_DIR ADir
 #define SOUTH_TX_OUT AOut
-#define SOUTH_TX_IN AOut
+#define SOUTH_TX_IN AIn
 
 #define SOUTH_TX SOUTH_TX_IN getBit SOUTH_TX_PIN
 #define SOUTH_TX_HI SOUTH_TX_OUT setHi SOUTH_TX_PIN
@@ -41,7 +42,7 @@
 #  define SOUTH_RX_IN AIn
 #else
 #  ifdef __AVR_ATmega16__
-#    define SOUTH_RX_PIN Pin3
+#    define SOUTH_RX_PIN Pin2
 #    define SOUTH_RX_DIR DDir
 #    define SOUTH_RX_OUT DOut
 #    define SOUTH_RX_IN DIn
@@ -61,7 +62,7 @@
 #define SOUTH_RX_SWITCH_PIN Pin2
 #define SOUTH_RX_SWITCH_DIR ADir
 #define SOUTH_RX_SWITCH_OUT AOut
-#define SOUTH_RX_SWITCH_IN AOut
+#define SOUTH_RX_SWITCH_IN AIn
 
 
 #define SOUTH_RX (unsigned char)((0 == (SOUTH_RX_IN getBit SOUTH_RX_PIN)) ? 0 : 1)
@@ -78,7 +79,7 @@
 #define NORTH_TX_PIN Pin0
 #define NORTH_TX_DIR CDir
 #define NORTH_TX_OUT COut
-#define NORTH_TX_IN COut
+#define NORTH_TX_IN CIn
 
 #define NORTH_TX_HI NORTH_TX_OUT setHi NORTH_TX_PIN
 #define NORTH_TX_LO NORTH_TX_OUT setLo NORTH_TX_PIN
@@ -98,7 +99,7 @@
 #  define NORTH_RX_IN CIn
 #else
 #  ifdef __AVR_ATmega16__
-#    define NORTH_RX_PIN Pin3
+#    define NORTH_RX_PIN Pin2
 #    define NORTH_RX_DIR BDir
 #    define NORTH_RX_OUT BOut
 #    define NORTH_RX_IN BIn
@@ -119,7 +120,7 @@
 #define NORTH_RX_SWITCH_PIN Pin4
 #define NORTH_RX_SWITCH_DIR CDir
 #define NORTH_RX_SWITCH_OUT COut
-#define NORTH_RX_SWITCH_IN COut
+#define NORTH_RX_SWITCH_IN CIn
 
 #define NORTH_RX_SWITCH_HI NORTH_RX_SWITCH_OUT setHi NORTH_RX_SWITCH_PIN
 #define NORTH_RX_SWITCH_LO NORTH_RX_SWITCH_OUT setLo NORTH_RX_SWITCH_PIN
@@ -134,7 +135,7 @@
 #define EAST_TX_PIN Pin7
 #define EAST_TX_DIR ADir
 #define EAST_TX_OUT AOut
-#define EAST_TX_IN AOut
+#define EAST_TX_IN AIn
 
 #define EAST_TX_HI SOUTH_TX_OUT setHi EAST_TX_PIN
 #define EAST_TX_LO SOUTH_TX_OUT setLo EAST_TX_PIN
@@ -175,7 +176,7 @@
 #define EAST_RX_SWITCH_PIN Pin6
 #define EAST_RX_SWITCH_DIR ADir
 #define EAST_RX_SWITCH_OUT AOut
-#define EAST_RX_SWITCH_IN AOut
+#define EAST_RX_SWITCH_IN AIn
 
 #define EAST_RX (unsigned char)((0 == (EAST_RX_SWITCH_IN getBit EAST_RX_SWITCH_PIN)) ? 0 : 1)
 #define EAST_RX_SWITCH_HI EAST_RX_SWITCH_OUT setHi EAST_RX_SWITCH_PIN
@@ -200,7 +201,7 @@
 #define LED_ERROR_IS_OFF (0 == (LED_ERROR))
 #define LED_ERROR_TOGGLE LED_ERROR_OUT toggleBit LED_ERROR_PIN
 
-#define LED_ERROR_SETUP LED_ERROR_DIR setOut LED_ERROR_PIN; LED_ERROR_OFF
+#define LED_ERROR_SETUP LED_ERROR_DIR setOut LED_ERROR_PIN; LED_ERROR_ON
 
 // status led 1
 #define LED_STATUS1_PIN Pin3
@@ -215,13 +216,25 @@
 #define LED_STATUS1_IS_OFF (0 == (LED_STATUS1))
 #define LED_STATUS1_TOGGLE _OUT toggleBit LED_STATUS1_PIN
 
-#define LED_STATUS1_SETUP LED_STATUS1_DIR setOut LED_STATUS1_PIN; LED_STATUS1_OFF
+#define LED_STATUS1_SETUP LED_STATUS1_DIR setOut LED_STATUS1_PIN; LED_STATUS1_ON
 
 // status led 0
-#define LED_STATUS0_PIN Pin2
-#define LED_STATUS0_DIR BDir
-#define LED_STATUS0_OUT BOut
-#define LED_STATUS0_IN BIn
+#ifdef __AVR_ATtiny1634__
+#  define LED_STATUS0_PIN Pin2
+#  define LED_STATUS0_DIR BDir
+#  define LED_STATUS0_OUT BOut
+#  define LED_STATUS0_IN BIn
+#else
+#  ifdef __AVR_ATmega16__
+#    define LED_STATUS0_PIN Pin4
+#    define LED_STATUS0_DIR BDir
+#    define LED_STATUS0_OUT BOut
+#    define LED_STATUS0_IN BIn
+#  else
+#    error
+#  endif
+#endif
+
 
 #define LED_STATUS0 LED_STATUS0_IN getBit LED_STATUS0_PIN
 #define LED_STATUS0_ON LED_STATUS0_OUT setHi LED_STATUS0_PIN
@@ -230,7 +243,7 @@
 #define LED_STATUS0_IS_OFF (0 == (LED_STATUS0))
 #define LED_STATUS0_TOGGLE LED_STATUS0_OUT toggleBit LED_STATUS0_PIN
 
-#define LED_STATUS0_SETUP LED_STATUS0_DIR setOut LED_STATUS0_PIN;LED_STATUS0_OFF
+#define LED_STATUS0_SETUP LED_STATUS0_DIR setOut LED_STATUS0_PIN;LED_STATUS0_ON
 
 // heartbeat led
 #define LED_HEARTBEAT_PIN Pin1
@@ -268,7 +281,7 @@
 #define TEST_POINT2_PIN Pin1
 #define TEST_POINT2_DIR ADir
 #define TEST_POINT2_OUT AOut
-#define TEST_POINT2_IN AOIn
+#define TEST_POINT2_IN AIn
 
 #define TEST_POINT2 TEST_POINT2_IN getBit TEST_POINT2_PIN
 #define TEST_POINT2_HI TEST_POINT2_OUT setHi TEST_POINT2_PIN

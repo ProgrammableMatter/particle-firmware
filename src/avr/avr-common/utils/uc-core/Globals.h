@@ -14,6 +14,6 @@
  */
 volatile ParticleState ParticleAttributes;
 
-// GLOBALS CAN BE SAFELY DECLARED HERE:
+// OTHER GLOBALS CAN BE SAFELY DECLARED HERE:
 
 #endif

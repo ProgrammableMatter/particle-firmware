@@ -20,7 +20,7 @@ int particleLoop(void) {
     init();
 
 #ifdef __AVR_ATtiny1634__
-    _delay_ms(0.5); // wait for all nodes to be ready
+    _delay_ms(1); // wait for all nodes to be ready
 #endif
 
     ParticleAttributes.state = STATE_TYPE_ACTIVE;

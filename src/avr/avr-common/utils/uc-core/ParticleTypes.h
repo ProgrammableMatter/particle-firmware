@@ -38,12 +38,15 @@ typedef struct {
     unsigned char south : 1;
     unsigned char east : 1;
     unsigned char isInitialized : 1;
+    unsigned char : 4;
 } RxInterruptFlankStates;
 
 typedef struct {
     unsigned char north : 4;
     unsigned char south : 4;
     unsigned char east : 4;
+    unsigned char : 4;
+    unsigned char loopCount;
 } RxDiscoveryPulseCounter;
 
 #define RX_PULSE_COUNTER_MAX 0xF
@@ -55,6 +58,7 @@ typedef struct {
     unsigned char northBitCount : 4;
     unsigned char southBitCount : 4;
     unsigned char eastBitCount : 4;
+    unsigned char : 4;
 } RxBitBuffer;
 
 typedef struct {
@@ -67,7 +71,7 @@ typedef struct {
     NodeType type;
     NodeId nodeId;
     RxBitBuffer rxBitBuffer;
-    RxDiscoveryPulseCounter rxDiscoveryPulseCounter;
+    RxDiscoveryPulseCounter rxDiscoveryPulseCounters;
     RxInterruptFlankStates rxInterruptFlankStates;
 } ParticleState;
 

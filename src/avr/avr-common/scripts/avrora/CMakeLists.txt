@@ -2,10 +2,10 @@
 
 set(SIMULATOR "${CMAKE_CURRENT_SOURCE_DIR}/avrora.sh")
 set(TRANSLATOR "${CMAKE_CURRENT_SOURCE_DIR}/elf-translator.sh")
-set(HEX_FILE "${CMAKE_BINARY_DIR}/${BINARY}")
-set(ELF_DUMP "${CMAKE_BINARY_DIR}/elf.dump")
-set(CFG_DOT "${CMAKE_BINARY_DIR}/cfg.dot")
-set(PRETTY_CFG_DOT "${CMAKE_BINARY_DIR}/pretty-cfg.dot")
+set(HEX_FILE "${CMAKE_CURRENT_BINARY_DIR}/../${BINARY}")
+set(ELF_DUMP "${CMAKE_CURRENT_BINARY_DIR}/elf.dump")
+set(CFG_DOT "${CMAKE_CURRENT_BINARY_DIR}/cfg.dot")
+set(PRETTY_CFG_DOT "${CMAKE_CURRENT_BINARY_DIR}/pretty-cfg.dot")
 
 
 add_custom_command(OUTPUT avrora_analyze_stack
@@ -15,7 +15,7 @@ add_custom_target(${PROJECT_NAME}_avrora-analyze-stack DEPENDS avrora_analyze_st
 
 
 add_custom_command(OUTPUT create_elf_dump
-        COMMAND readelf -as ${CMAKE_BINARY_DIR}/${BINARY} > ${ELF_DUMP}
+        COMMAND readelf -as ${CMAKE_CURRENT_BINARY_DIR}/../${BINARY} > ${ELF_DUMP}
         )
 add_custom_command(OUTPUT avrora_control_flow_graph
         COMMAND ${SIMULATOR} -action=cfg -output=dot -file=${CFG_DOT} ${HEX_FILE} && ${TRANSLATOR} ${ELF_DUMP} ${CFG_DOT} && xdot ${PRETTY_CFG_DOT}
@@ -24,7 +24,7 @@ add_custom_target(${PROJECT_NAME}_avrora-cfg DEPENDS create_elf_dump avrora_cont
 
 
 add_custom_command(OUTPUT avrora_elf_dump
-        COMMAND ${SIMULATOR} -action=elf-dump ${HEX_FILE}
+        COMMAND ${SIMULATOR} -action=elf-dump ${CMAKE_CURRENT_BINARY_DIR}/../${BINARY}
         )
 add_custom_target(${PROJECT_NAME}_avrora-elf-dump DEPENDS avrora_elf_dump ${BINARY})
 
@@ -45,7 +45,9 @@ add_custom_command(OUTPUT avrora_simulate
         -action=simulate
 #           -simulation=sensor-network
             -simulation=particle-network
-                -nodecount=3
+        #-nodecount=3
+        -rowcount = 2
+        -columnscount = 2
 #                -seconds=190E-4
                 -seconds=2000E-6
                 -report-seconds=true
