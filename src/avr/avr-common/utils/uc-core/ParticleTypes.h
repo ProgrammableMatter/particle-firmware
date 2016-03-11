@@ -30,7 +30,13 @@ typedef enum {
 } StateType;
 
 typedef enum {
-    NODE_TYPE_ORPHAN, NODE_TYPE_HEAD, NODE_TYPE_INTER_NODE, NODE_TYPE_TAIL
+    NODE_TYPE_ORPHAN,
+    NODE_TYPE_ORIGIN,
+    NODE_TYPE_INTER_HEAD,
+    NODE_TYPE_HEAD,
+    NODE_TYPE_INTER_NODE,
+    NODE_TYPE_TAIL,
+    NODE_TYPE_INVALID
 } NodeType;
 
 typedef struct {

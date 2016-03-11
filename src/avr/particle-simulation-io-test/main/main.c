@@ -2,7 +2,7 @@
  * @author Raoul Rubien 2016
  */
 
-#include <uc-core/ParticleIoDefinitions.h>
+#include <uc-core/IoDefinitions.h>
 #include <common/common.h>
 
 /**
@@ -124,6 +124,12 @@ int main(void) {
         EAST_RX_PULL_DOWN;
         EAST_RX_PULL_UP;
     }
+
+    UDR = 't';
+    UDR = 'e';
+    UDR = 's';
+    UDR = 't';
+    UDR = '\n';
 
     forever { };
 }

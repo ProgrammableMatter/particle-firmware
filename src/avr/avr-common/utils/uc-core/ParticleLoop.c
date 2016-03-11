@@ -1,13 +1,13 @@
 /**
 * @author Raoul Rubien 2015
 */
-#include "ParticleMainLoop.h"
+#include "ParticleLoop.h"
 
 #include <avr/interrupt.h>
 #include <common/common.h>
-#include "ParticleIoDefinitions.h"
-#include "ParticleInterruptDefinitions.h"
-#include "DefaultIsr.h"
+#include "IoDefinitions.h"
+#include "InterruptDefinitions.h"
+#include "Interrupts.h"
 #include "Particle.h"
 
 #ifdef __AVR_ATtiny1634__

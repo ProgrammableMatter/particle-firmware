@@ -4,77 +4,62 @@
 
 #include "Particle.h"
 #include "Globals.h"
-#include "ParticleIoDefinitions.h"
-#include "ParticleInterruptDefinitions.h"
+#include "IoDefinitions.h"
+#include "InterruptDefinitions.h"
 #include <util/delay.h>
 #include <common/common.h>
 #include <uc-core/ParticleTypes.h>
 
 extern volatile ParticleState ParticleAttributes;
 
+static unsigned char updateNodeType(void);
+
 #define MIN_RX_NEIGHBOUR_SIGNALS_SENSE 5 // minimum signals to be detected until this side is recognized as connected to a neighbour
 #define MIN_NEIGHBOURS_DISCOVERY_LOOPS 50 // earliest loop when local node discovery may be finished
 #define MAX_NEIGHBOURS_DISCOVERY_LOOPS 200 // latest loop when local node discovery is to be aborted
 #define MAX_NEIGHBOUR_PULSING_LOOPS 250 // last loop when pulsing to neighbours is to be deactivated
-
 
 /**
  * Function that is called in an endless loop without delay in between to perform the particle's state
  * changes, work and communication.
  */
 void particleTick(void) {
-    unsigned char i;
-    static volatile unsigned char loopCount = 0;
-    loopCount++;
-
     LED_HEARTBEAT_TOGGLE;
+    ParticleAttributes.rxDiscoveryPulseCounters.loopCount++;
 
     switch (ParticleAttributes.state) {
+
+        // STATE_TYPE_ACTIVE: switch to state discovery and enable interrupt
         case STATE_TYPE_ACTIVE:
             ParticleAttributes.state = STATE_TYPE_NEIGHBOURS_DISCOVERY;
             // enable pulsing on north and south tx wires
             TIMER0_NEIGHBOUR_SENSE_ENABLE;
             SREG setBit bit(SREG_I); // finally enable interrupts
-            // switch to -> state discovery
             break;
 
-
+            // STATE_TYPE_NEIGHBOURS_DISCOVERY: stay in discovery state for
+            // MAX_NEIGHBOURS_DISCOVERY_LOOPS but at least MIN_NEIGHBOURS_DISCOVERY_LOOPS loops
         case STATE_TYPE_NEIGHBOURS_DISCOVERY:
-            // stay in discovrey state for some MAX_NEIGHBOURS_DISCOVERY_LOOPS but at least
-            // MIN_NEIGHBOURS_DISCOVERY_LOOPS loops
-
-            // discovery timeout -> abort discovery
-            if (loopCount >= MAX_NEIGHBOURS_DISCOVERY_LOOPS) {
-                ParticleAttributes.state = STATE_TYPE_DISCOVERY_PULSING;
-            } else if (loopCount >= MIN_NEIGHBOURS_DISCOVERY_LOOPS) {
-                // detect neighbours
-                if (ParticleAttributes.rxDiscoveryPulseCounters.south >= MIN_RX_NEIGHBOUR_SIGNALS_SENSE) {
-                    // found both neighbours -> abort discovery
-                    if (ParticleAttributes.rxDiscoveryPulseCounters.north >= MIN_RX_NEIGHBOUR_SIGNALS_SENSE) {
-                        ParticleAttributes.type = NODE_TYPE_INTER_NODE;
-                        ParticleAttributes.state = STATE_TYPE_DISCOVERY_PULSING;
-                    } else {
-                        ParticleAttributes.type = NODE_TYPE_HEAD;
-                    }
-                } else {
-                    if (ParticleAttributes.rxDiscoveryPulseCounters.north >= MIN_RX_NEIGHBOUR_SIGNALS_SENSE) {
-                        ParticleAttributes.type = NODE_TYPE_TAIL;
-                    } else {
-                        ParticleAttributes.type = NODE_TYPE_ORPHAN;
-                    }
+            if (ParticleAttributes.rxDiscoveryPulseCounters.loopCount >= MAX_NEIGHBOURS_DISCOVERY_LOOPS) {
+                // discovery timeout
+                ParticleAttributes.state = STATE_TYPE_NEIGHBOURS_DISCOVERED;
+            } else if (ParticleAttributes.rxDiscoveryPulseCounters.loopCount >=
+                       MIN_NEIGHBOURS_DISCOVERY_LOOPS) {
+                if (updateNodeType() == 1) {
+                    ParticleAttributes.state = STATE_TYPE_NEIGHBOURS_DISCOVERED;
                 }
             }
             break;
 
+            // prevent exhausting cpu clocks for reception interrupts unless rx is not needed but keep pulsing
         case STATE_TYPE_NEIGHBOURS_DISCOVERED:
-            // prevent exhausting clocks for reception interrupts unless rx is not needed
         RX_INTERRUPTS_DISABLE;
             ParticleAttributes.state = STATE_TYPE_DISCOVERY_PULSING;
             break;
 
+            // keep pulsing to neighbours until maximum MAX_NEIGHBOUR_PULSING_LOOPS loops is reached
         case STATE_TYPE_DISCOVERY_PULSING:
-            // keep pulsing neighbours maximum MAX_NEIGHBOUR_PULSING_LOOPS loops
-            if (loopCount >= MAX_NEIGHBOUR_PULSING_LOOPS) {
+            if (ParticleAttributes.rxDiscoveryPulseCounters.loopCount >= MAX_NEIGHBOUR_PULSING_LOOPS) {
                 TIMER0_NEIGHBOUR_SENSE_DISABLE;
                 // TODO switch directly to state enumerating
                 ParticleAttributes.state = STATE_TYPE_WAITING;
@@ -82,22 +67,9 @@ void particleTick(void) {
             break;
 
         case STATE_TYPE_WAITING:
-
             //            NODE_TYPE_ORPHAN=(0+1)*2=2, NODE_TYPE_HEAD=4, NODE_TYPE_INTER_NODE=6, NODE_TYPE_TAIL=8
             SREG unsetBit bit(SREG_I);
             forever {
-                TEST_POINT1_LO;
-                TEST_POINT1_LO;
-                TEST_POINT1_LO;
-                TEST_POINT1_LO;
-                for (i = (ParticleAttributes.type + 1) * 2; i > 0; i--) {
-                    TEST_POINT1_HI;
-                    TEST_POINT1_LO;
-                }
-                TEST_POINT1_LO;
-                TEST_POINT1_LO;
-                TEST_POINT1_LO;
-                TEST_POINT1_LO;
             }
 
             // wait for enumeration command
@@ -182,12 +154,57 @@ void particleTick(void) {
 }
 
 /**
+ * Updates the node type according to the amount of incoming pulses. The type {@link NodeType} is stored to
+ * {@link ParticleAttributes.type}.
+ * @return 1 if the node is fully connected, else 0
+ */
+static unsigned char updateNodeType(void) {
+    unsigned char hasNorthNeighbour =
+            (unsigned char) ((ParticleAttributes.rxDiscoveryPulseCounters.north >=
+                              MIN_RX_NEIGHBOUR_SIGNALS_SENSE) ? 1 : 0);
+    unsigned char hasSouthNeighbour =
+            (unsigned char) ((ParticleAttributes.rxDiscoveryPulseCounters.south >=
+                              MIN_RX_NEIGHBOUR_SIGNALS_SENSE) ? 1 : 0);
+    unsigned char hasEastNeighbour =
+            (unsigned char) ((ParticleAttributes.rxDiscoveryPulseCounters.east >=
+                              MIN_RX_NEIGHBOUR_SIGNALS_SENSE) ? 1 : 0);
+
+    if (hasNorthNeighbour) {
+        if (hasSouthNeighbour) {
+            if (hasEastNeighbour) {
+                ParticleAttributes.type = NODE_TYPE_INTER_HEAD;
+                return 1;
+            } else {
+                ParticleAttributes.type = NODE_TYPE_INTER_NODE;
+            }
+        } else {
+            ParticleAttributes.type = NODE_TYPE_INVALID;
+        }
+    } else {
+        if (hasSouthNeighbour) {
+            if (hasEastNeighbour) {
+                ParticleAttributes.type = NODE_TYPE_ORIGIN;
+            } else {
+                ParticleAttributes.type = NODE_TYPE_INVALID;
+            }
+        } else {
+            if (hasEastNeighbour) {
+                ParticleAttributes.type = NODE_TYPE_INVALID;
+            } else {
+                ParticleAttributes.type = NODE_TYPE_ORPHAN;
+            }
+        }
+    }
+    return 0;
+}
+
+/**
  * Take a current reception signal snapshot for later sense control since the MCU is not capable of filtering flank the
  * direction on pin change interrupt. The interrupt is triggered at any logical change.
  */
 void particleSnapshotRxFlanks(void) {
-    ParticleAttributes.rxInterruptFlankStates.north = NORTH_RX;
-    ParticleAttributes.rxInterruptFlankStates.south = SOUTH_RX;
-    ParticleAttributes.rxInterruptFlankStates.east = EAST_RX;
+    ParticleAttributes.rxInterruptFlankStates.north = NORTH_RX_IS_HI;
+    ParticleAttributes.rxInterruptFlankStates.south = SOUTH_RX_IS_HI;
+    ParticleAttributes.rxInterruptFlankStates.east = EAST_RX_IS_HI;
     ParticleAttributes.rxInterruptFlankStates.isInitialized = 1;
 }

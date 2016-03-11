@@ -7,6 +7,6 @@ include_directories(
 )
 
 add_library(${PROJECT_NAME}_uccore
-        ParticleMainLoop.c
+        ParticleLoop.c
         Particle.c)
 
