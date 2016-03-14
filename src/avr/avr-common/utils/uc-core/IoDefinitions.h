@@ -9,7 +9,7 @@
 #include <common/PortBDefinition.h>
 #include <common/PortCDefinition.h>
 
-#ifdef __AVR_ATmega16__
+#if defined(__AVR_ATmega16__)
 #  include <common/PortDDefinition.h>
 #endif
 
@@ -40,7 +40,7 @@
 #  define SOUTH_RX_OUT AOut
 #  define SOUTH_RX_IN AIn
 #else
-#  ifdef __AVR_ATmega16__
+#  if defined(__AVR_ATmega16__)
 #    define SOUTH_RX_PIN Pin2
 #    define SOUTH_RX_DIR DDir
 #    define SOUTH_RX_OUT DOut
@@ -97,7 +97,7 @@
 #  define NORTH_RX_OUT COut
 #  define NORTH_RX_IN CIn
 #else
-#  ifdef __AVR_ATmega16__
+#  if defined(__AVR_ATmega16__)
 #    define NORTH_RX_PIN Pin2
 #    define NORTH_RX_DIR BDir
 #    define NORTH_RX_OUT BOut
@@ -153,7 +153,7 @@
 #  define EAST_RX_OUT BOut
 #  define EAST_RX_IN BIn
 #else
-#  ifdef __AVR_ATmega16__
+#  if defined(__AVR_ATmega16__)
 #    define EAST_RX_PIN Pin3
 #    define EAST_RX_DIR DDir
 #    define EAST_RX_OUT DOut
@@ -224,7 +224,7 @@
 #  define LED_STATUS0_OUT BOut
 #  define LED_STATUS0_IN BIn
 #else
-#  ifdef __AVR_ATmega16__
+#  if defined(__AVR_ATmega16__)
 #    define LED_STATUS0_PIN Pin4
 #    define LED_STATUS0_DIR BDir
 #    define LED_STATUS0_OUT BOut

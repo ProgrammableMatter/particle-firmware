@@ -13,10 +13,10 @@ typedef enum {
     STATE_TYPE_NEIGHBOURS_DISCOVERY,
     STATE_TYPE_NEIGHBOURS_DISCOVERED,
     STATE_TYPE_DISCOVERY_PULSING,
-    STATE_TYPE_WAITING,
     STATE_TYPE_RESET,
     STATE_TYPE_WAIT_FOR_BEING_ENUMERATED,
     STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR,
+    STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR,
     STATE_TYPE_ENUMERATED,
     STATE_TYPE_IDLE,
     STATE_TYPE_INTERPRETE_COMMAND,
@@ -51,11 +51,14 @@ typedef struct {
     unsigned char north : 4;
     unsigned char south : 4;
     unsigned char east : 4;
-    unsigned char : 4;
+    unsigned char isNorthConnected: 1;
+    unsigned char isSouthConnected: 1;
+    unsigned char isEastConnected: 1;
+    unsigned char : 1;
     unsigned char loopCount;
 } RxDiscoveryPulseCounter;
 
-#define RX_PULSE_COUNTER_MAX 0xF
+#define RX_PULSE_COUNTER_MAX 0xA
 
 typedef struct {
     unsigned char northBytes[2];

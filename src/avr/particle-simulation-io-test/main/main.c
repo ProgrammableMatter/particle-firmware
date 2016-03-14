@@ -4,6 +4,13 @@
 
 #include <uc-core/IoDefinitions.h>
 #include <common/common.h>
+#include <simulation/SimulationUtils.h>
+#include <uc-core/Globals.h>
+#include <avr/pgmspace.h>
+
+extern volatile ParticleState ParticleAttributes;
+
+const char testMessage[] PROGMEM = "test";
 
 /**
  * Generates a certain amount of transitions/writes per output wires/registers. The expected amount of
@@ -125,11 +132,6 @@ int main(void) {
         EAST_RX_PULL_UP;
     }
 
-    UDR = 't';
-    UDR = 'e';
-    UDR = 's';
-    UDR = 't';
-    UDR = '\n';
-
+    writeToUart((PGM_P) pgm_read_word(&(testMessage)));
     forever { };
 }

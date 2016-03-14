@@ -38,8 +38,8 @@ int particleLoop(void) {
  */
 void init(void) {
     IO_PORTS_SETUP; // configure input/output pins
-    particleSnapshotRxFlanks(); // take rx input signal snapshot for later flank sense control
+//    particleSnapshotRxFlanks(); // take rx input signal snapshot for later flank sense control
     RX_INTERRUPTS_SETUP; // configure input pins interrupts
     RX_INTERRUPTS_ENABLE; // enable input pin interrupts
-    TIMER0_NEIGHBOUR_SENSE_SETUP; // configure timer interrupt for neighbour sensing
+    TIMER_NEIGHBOUR_SENSE_SETUP; // configure timer interrupt for neighbour sensing
 }
