@@ -7,6 +7,4 @@
 
 void particleTick(void);
 
-//void particleSnapshotRxFlanks(void);
-
 #endif

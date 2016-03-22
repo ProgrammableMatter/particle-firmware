@@ -5,33 +5,38 @@
 #include "Particle.h"
 #include "Globals.h"
 #include "IoDefinitions.h"
-#include "InterruptDefinitions.h"
+#include "Interrupts.h"
 #include <util/delay.h>
 #include <common/common.h>
-#include <uc-core/ParticleTypes.h>
+#include <uc-core/ParticleParameters.h>
 
 extern volatile ParticleState ParticleAttributes;
 
-static unsigned char updateNodeType(void);
+static inline unsigned char updateNodeType(void);
 
-#define MIN_RX_NEIGHBOUR_SIGNALS_SENSE ((unsigned char)(RX_PULSE_COUNTER_MAX / 2.0)  + 1) // minimum signals to be detected until this side is recognized as connected to a neighbour
-#define MIN_NEIGHBOURS_DISCOVERY_LOOPS (unsigned char)(5 * RX_PULSE_COUNTER_MAX) // earliest loop when local node discovery may be finished
-#define MAX_NEIGHBOURS_DISCOVERY_LOOPS (unsigned char)(2 * MIN_NEIGHBOURS_DISCOVERY_LOOPS) // latest loop when local node discovery is to be aborted
-#define MAX_NEIGHBOUR_PULSING_LOOPS (unsigned char)(3 * MIN_NEIGHBOURS_DISCOVERY_LOOPS) // last loop when pulsing to neighbours is to be deactivated
+static inline void init(void);
+
+static inline void enableReception(void);
+
+static inline void disableReception(void);
+
+static inline void heartBeatToggle(void);
 
 /**
  * Function that is called in an endless loop without delay in between to perform the particle's state
  * changes, work and communication.
  */
-
-
 void particleTick(void) {
-    LED_HEARTBEAT_TOGGLE;
     ParticleAttributes.rxDiscoveryPulseCounters.loopCount++;
+    heartBeatToggle();
 
+    // STATE_TYPE_START: state before initialization
     switch (ParticleAttributes.state) {
+        case STATE_TYPE_START:
+            init();
+            break;
 
-        // STATE_TYPE_ACTIVE: switch to state discovery and enable interrupt
+            // STATE_TYPE_ACTIVE: switch to state discovery and enable interrupt
         case STATE_TYPE_ACTIVE:
             ParticleAttributes.state = STATE_TYPE_NEIGHBOURS_DISCOVERY;
             // enable pulsing on north and south tx wires
@@ -80,8 +85,9 @@ void particleTick(void) {
             // switch to -> state active
 
             break;
-        case STATE_TYPE_WAIT_FOR_BEING_ENUMERATED: // passive enumerating mode, waiting for local id
-            // enable reception interrupts on falling edge
+            // wait for incoming particle address from south neighbour
+        case STATE_TYPE_WAIT_FOR_BEING_ENUMERATED:
+            enableReception();
             // wait for the start bit;
             // on start bit received
             //      * enable reception interrupts on both (falling and rising) edge
@@ -94,7 +100,7 @@ void particleTick(void) {
             break;
         case STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR:
 
-            if (ParticleAttributes.rxDiscoveryPulseCounters.isSouthConnected) {
+            if (ParticleAttributes.rxDiscoveryPulseCounters.south.isConnected) {
                 // enumerate south
             }
             ParticleAttributes.state = STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR;
@@ -112,7 +118,7 @@ void particleTick(void) {
             break;
         case STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR:
 
-            if (ParticleAttributes.rxDiscoveryPulseCounters.isEastConnected) {
+            if (ParticleAttributes.rxDiscoveryPulseCounters.east.isConnected) {
                 // enumerate south neighbour
             }
             ParticleAttributes.state = STATE_TYPE_ENUMERATED;
@@ -121,22 +127,22 @@ void particleTick(void) {
             // switch to -> state idle
             break;
         case STATE_TYPE_IDLE:
-            SREG unsetBit bit(SREG_I);
-            forever {
-            }
-            // wait for command or
-            // are scheduled to be executed?
-            // on command switch to -> state interprete command
-            // on cheduled switch to -> state execute command
+
+            // if new rx buffer available -> interpret
+            // if scheduled command available -> execute
             break;
-        case STATE_TYPE_INTERPRETE_COMMAND:
-            // interprete command
+        case STATE_TYPE_INTERPRET_COMMAND:
+            // interpret command
             // schedule command -> switch to state schedule command
             // execute command -> switch to state execute command
             break;
-        case STATE_TYPE_RX_A:
+            // setup and start transmission
+        case STATE_TYPE_TX_START:
+            // TODO: setup tx timer/counter
             break;
-        case STATE_TYPE_RX_B:
+            // nothing to transmit any more
+        case STATE_TYPE_TX_DONE:
+            ParticleAttributes.state = STATE_TYPE_IDLE;
             break;
         case STATE_TYPE_FORWARD_PKG:
             break;
@@ -169,15 +175,15 @@ void particleTick(void) {
  * {@link ParticleAttributes.type}.
  * @return 1 if the node is fully connected, else 0
  */
-static unsigned char updateNodeType(void) {
+static inline unsigned char updateNodeType(void) {
     unsigned char hasNorthNeighbour =
-            (unsigned char) ((ParticleAttributes.rxDiscoveryPulseCounters.north >=
+            (unsigned char) ((ParticleAttributes.rxDiscoveryPulseCounters.north.counter >=
                               MIN_RX_NEIGHBOUR_SIGNALS_SENSE) ? 1 : 0);
     unsigned char hasSouthNeighbour =
-            (unsigned char) ((ParticleAttributes.rxDiscoveryPulseCounters.south >=
+            (unsigned char) ((ParticleAttributes.rxDiscoveryPulseCounters.south.counter >=
                               MIN_RX_NEIGHBOUR_SIGNALS_SENSE) ? 1 : 0);
     unsigned char hasEastNeighbour =
-            (unsigned char) ((ParticleAttributes.rxDiscoveryPulseCounters.east >=
+            (unsigned char) ((ParticleAttributes.rxDiscoveryPulseCounters.east.counter >=
                               MIN_RX_NEIGHBOUR_SIGNALS_SENSE) ? 1 : 0);
     if (hasNorthNeighbour) { // N
         if (hasSouthNeighbour) { // N, S
@@ -214,13 +220,39 @@ static unsigned char updateNodeType(void) {
     return 0;
 }
 
-///**
-// * Take a current reception signal snapshot for later sense control since the MCU is not capable of filtering flank the
-// * direction on pin change interrupt. The interrupt is triggered at any logical change.
-// */
-//void particleSnapshotRxFlanks(void) {
-//    ParticleAttributes.rxInterruptFlankStates.north = NORTH_RX_IS_HI;
-//    ParticleAttributes.rxInterruptFlankStates.south = SOUTH_RX_IS_HI;
-//    ParticleAttributes.rxInterruptFlankStates.east = EAST_RX_IS_HI;
-//    ParticleAttributes.rxInterruptFlankStates.isInitialized = 1;
-//}
+
+/**
+ * Sets up ports and interrupts but does not enable the global interrupt (I-flag in SREG)
+ */
+static inline void init(void) {
+    RX_INTERRUPTS_SETUP; // configure input pins interrupts
+    RX_INTERRUPTS_ENABLE; // enable input pin interrupts
+    TIMER_NEIGHBOUR_SENSE_SETUP; // configure timer interrupt for neighbour sensing
+}
+
+/**
+ * Sets up reception timer/counter interrupt and enables the interrupt.
+ */
+static inline void enableReception(void) {
+    TIMER_TX_RX_SETUP;
+    TIMER_TX_RX_ENABLE;
+}
+
+/**
+ * Disables reception timer/counter interrupt.
+ */
+static inline void disableReception(void) {
+    TIMER_TX_RX_DISABLE;
+}
+
+/**
+ * Toggles heartbeat LED
+ */
+static inline void heartBeatToggle(void) {
+    static unsigned char loopCounter = 0;
+    loopCounter++;
+    if (0 == (loopCounter % HEARTBEAT_LOOP_COUNT_TOGGLE)) {
+        LED_HEARTBEAT_TOGGLE;
+        loopCounter = 0;
+    }
+}

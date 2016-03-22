@@ -6,40 +6,28 @@
 #include <avr/interrupt.h>
 #include <common/common.h>
 #include "IoDefinitions.h"
-#include "InterruptDefinitions.h"
 #include "Interrupts.h"
+#include "Interrupts.c"
 #include "Particle.h"
 
 #ifdef __AVR_ATtiny1634__
 #  include <util/delay.h>
 #endif
 
-void init(void);
-
+/**
+ * The particle loop. It changes particle states and performs/execute tasks.
+ */
 int particleLoop(void) {
-    init();
-
+    IO_PORTS_SETUP; // configure input/output pins
 #ifdef __AVR_ATtiny1634__
     _delay_ms(1); // wait for all nodes to be ready
 #endif
 
-    ParticleAttributes.state = STATE_TYPE_ACTIVE;
+    ParticleAttributes.state = STATE_TYPE_START;
     forever {
         particleTick();
         if (ParticleAttributes.state == STATE_TYPE_ERRONEOUS) {
             return 1;
         }
     }
-}
-
-
-/**
- * Sets up ports and interrupts but does not enable the global interrupt (I-flag in SREG)
- */
-void init(void) {
-    IO_PORTS_SETUP; // configure input/output pins
-//    particleSnapshotRxFlanks(); // take rx input signal snapshot for later flank sense control
-    RX_INTERRUPTS_SETUP; // configure input pins interrupts
-    RX_INTERRUPTS_ENABLE; // enable input pin interrupts
-    TIMER_NEIGHBOUR_SENSE_SETUP; // configure timer interrupt for neighbour sensing
 }

@@ -1,5 +1,5 @@
 /**
- * @author Raoul Rubien 2015
+ * @author Raoul Rubien 2016
  */
 
 #ifndef PARTICLE_GLOBALS_H
