@@ -8,17 +8,16 @@
 #include "Interrupts.h"
 #include <util/delay.h>
 #include <common/common.h>
-#include <uc-core/ParticleParameters.h>
 
-extern volatile ParticleState ParticleAttributes;
+//extern volatile ParticleState ParticleAttributes;
 
-static inline unsigned char updateNodeType(void);
+static inline uint8_t updateNodeType(void);
 
 static inline void init(void);
 
 static inline void enableReception(void);
 
-static inline void disableReception(void);
+//static inline void disableReception(void);
 
 static inline void heartBeatToggle(void);
 
@@ -27,18 +26,18 @@ static inline void heartBeatToggle(void);
  * changes, work and communication.
  */
 void particleTick(void) {
-    ParticleAttributes.rxDiscoveryPulseCounters.loopCount++;
+    ParticleAttributes.discoveryPulseCounters.loopCount++;
     heartBeatToggle();
 
     // STATE_TYPE_START: state before initialization
-    switch (ParticleAttributes.state) {
+    switch (ParticleAttributes.node.state) {
         case STATE_TYPE_START:
             init();
             break;
 
             // STATE_TYPE_ACTIVE: switch to state discovery and enable interrupt
         case STATE_TYPE_ACTIVE:
-            ParticleAttributes.state = STATE_TYPE_NEIGHBOURS_DISCOVERY;
+            ParticleAttributes.node.state = STATE_TYPE_NEIGHBOURS_DISCOVERY;
             // enable pulsing on north and south tx wires
             TIMER_NEIGHBOUR_SENSE_ENABLE;
             SREG setBit bit(SREG_I); // finally enable interrupts
@@ -47,13 +46,13 @@ void particleTick(void) {
             // STATE_TYPE_NEIGHBOURS_DISCOVERY: stay in discovery state for
             // MAX_NEIGHBOURS_DISCOVERY_LOOPS but at least MIN_NEIGHBOURS_DISCOVERY_LOOPS loops
         case STATE_TYPE_NEIGHBOURS_DISCOVERY:
-            if (ParticleAttributes.rxDiscoveryPulseCounters.loopCount >= MAX_NEIGHBOURS_DISCOVERY_LOOPS) {
+            if (ParticleAttributes.discoveryPulseCounters.loopCount >= MAX_NEIGHBOURS_DISCOVERY_LOOPS) {
                 // discovery timeout
-                ParticleAttributes.state = STATE_TYPE_NEIGHBOURS_DISCOVERED;
-            } else if (ParticleAttributes.rxDiscoveryPulseCounters.loopCount >=
+                ParticleAttributes.node.state = STATE_TYPE_NEIGHBOURS_DISCOVERED;
+            } else if (ParticleAttributes.discoveryPulseCounters.loopCount >=
                        MIN_NEIGHBOURS_DISCOVERY_LOOPS) {
                 if (updateNodeType() == 1) {
-                    ParticleAttributes.state = STATE_TYPE_NEIGHBOURS_DISCOVERED;
+                    ParticleAttributes.node.state = STATE_TYPE_NEIGHBOURS_DISCOVERED;
                 }
             }
             break;
@@ -61,30 +60,30 @@ void particleTick(void) {
             // prevent exhausting cpu clocks for reception interrupts unless rx is not needed but keep pulsing
         case STATE_TYPE_NEIGHBOURS_DISCOVERED:
         RX_INTERRUPTS_DISABLE;
-            ParticleAttributes.state = STATE_TYPE_DISCOVERY_PULSING;
+            ParticleAttributes.node.state = STATE_TYPE_DISCOVERY_PULSING;
             break;
 
             // keep pulsing to neighbours until maximum MAX_NEIGHBOUR_PULSING_LOOPS loops is reached,
             // then switch to enumeration state
         case STATE_TYPE_DISCOVERY_PULSING:
-            if (ParticleAttributes.rxDiscoveryPulseCounters.loopCount >= MAX_NEIGHBOUR_PULSING_LOOPS) {
+            if (ParticleAttributes.discoveryPulseCounters.loopCount >= MAX_NEIGHBOUR_PULSING_LOOPS) {
                 TIMER_NEIGHBOUR_SENSE_DISABLE;
 
-                if (ParticleAttributes.type == NODE_TYPE_ORIGIN) {
-                    ParticleAttributes.state = STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR;
+                if (ParticleAttributes.node.type == NODE_TYPE_ORIGIN) {
+                    ParticleAttributes.node.state = STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR;
                 } else {
-                    ParticleAttributes.state = STATE_TYPE_WAIT_FOR_BEING_ENUMERATED;
+                    ParticleAttributes.node.state = STATE_TYPE_WAIT_FOR_BEING_ENUMERATED;
                 }
             }
             break;
 
+            // reset state disables timers and switches back to the very first state
         case STATE_TYPE_RESET:
-            //            asm("BREAK");
-            ParticleAttributes.state = STATE_TYPE_ERRONEOUS;
-            // reset internal states, maybe total hw reset
-            // switch to -> state active
-
+        TIMER_NEIGHBOUR_SENSE_DISABLE;
+            TIMER_TX_RX_DISABLE;
+            ParticleAttributes.node.state = STATE_TYPE_ACTIVE;
             break;
+
             // wait for incoming particle address from south neighbour
         case STATE_TYPE_WAIT_FOR_BEING_ENUMERATED:
             enableReception();
@@ -100,10 +99,10 @@ void particleTick(void) {
             break;
         case STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR:
 
-            if (ParticleAttributes.rxDiscoveryPulseCounters.south.isConnected) {
+            if (ParticleAttributes.discoveryPulseCounters.south.isConnected) {
                 // enumerate south
             }
-            ParticleAttributes.state = STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR;
+            ParticleAttributes.node.state = STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR;
 
 
             // active enumerating, send start bit and send neighbour id
@@ -118,10 +117,10 @@ void particleTick(void) {
             break;
         case STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR:
 
-            if (ParticleAttributes.rxDiscoveryPulseCounters.east.isConnected) {
+            if (ParticleAttributes.discoveryPulseCounters.east.isConnected) {
                 // enumerate south neighbour
             }
-            ParticleAttributes.state = STATE_TYPE_ENUMERATED;
+            ParticleAttributes.node.state = STATE_TYPE_ENUMERATED;
             break;
         case STATE_TYPE_ENUMERATED:
             // switch to -> state idle
@@ -142,7 +141,7 @@ void particleTick(void) {
             break;
             // nothing to transmit any more
         case STATE_TYPE_TX_DONE:
-            ParticleAttributes.state = STATE_TYPE_IDLE;
+            ParticleAttributes.node.state = STATE_TYPE_IDLE;
             break;
         case STATE_TYPE_FORWARD_PKG:
             break;
@@ -165,7 +164,7 @@ void particleTick(void) {
             }
             break;
         default:
-            ParticleAttributes.state = STATE_TYPE_ERRONEOUS;
+            ParticleAttributes.node.state = STATE_TYPE_ERRONEOUS;
             break;
     }
 }
@@ -175,45 +174,45 @@ void particleTick(void) {
  * {@link ParticleAttributes.type}.
  * @return 1 if the node is fully connected, else 0
  */
-static inline unsigned char updateNodeType(void) {
-    unsigned char hasNorthNeighbour =
-            (unsigned char) ((ParticleAttributes.rxDiscoveryPulseCounters.north.counter >=
-                              MIN_RX_NEIGHBOUR_SIGNALS_SENSE) ? 1 : 0);
-    unsigned char hasSouthNeighbour =
-            (unsigned char) ((ParticleAttributes.rxDiscoveryPulseCounters.south.counter >=
-                              MIN_RX_NEIGHBOUR_SIGNALS_SENSE) ? 1 : 0);
-    unsigned char hasEastNeighbour =
-            (unsigned char) ((ParticleAttributes.rxDiscoveryPulseCounters.east.counter >=
-                              MIN_RX_NEIGHBOUR_SIGNALS_SENSE) ? 1 : 0);
+static inline uint8_t updateNodeType(void) {
+    uint8_t hasNorthNeighbour =
+            (uint8_t) ((ParticleAttributes.discoveryPulseCounters.north.counter >=
+                        MIN_RX_NEIGHBOUR_SIGNALS_SENSE) ? 1 : 0);
+    uint8_t hasSouthNeighbour =
+            (uint8_t) ((ParticleAttributes.discoveryPulseCounters.south.counter >=
+                        MIN_RX_NEIGHBOUR_SIGNALS_SENSE) ? 1 : 0);
+    uint8_t hasEastNeighbour =
+            (uint8_t) ((ParticleAttributes.discoveryPulseCounters.east.counter >=
+                        MIN_RX_NEIGHBOUR_SIGNALS_SENSE) ? 1 : 0);
     if (hasNorthNeighbour) { // N
         if (hasSouthNeighbour) { // N, S
             if (hasEastNeighbour) { // N, S, E
-                ParticleAttributes.type = NODE_TYPE_INTER_HEAD;
+                ParticleAttributes.node.type = NODE_TYPE_INTER_HEAD;
                 return 1;
             } else { // N,S,!E
-                ParticleAttributes.type = NODE_TYPE_INTER_NODE;
+                ParticleAttributes.node.type = NODE_TYPE_INTER_NODE;
             }
         } else { // N, !S
             if (hasEastNeighbour) { // N, !S, E
-                ParticleAttributes.type = NODE_TYPE_INVALID;
+                ParticleAttributes.node.type = NODE_TYPE_INVALID;
                 return 1;
             } else { // N, !S, !E
-                ParticleAttributes.type = NODE_TYPE_TAIL;
+                ParticleAttributes.node.type = NODE_TYPE_TAIL;
             }
 
         }
     } else { // !N
         if (hasSouthNeighbour) { // !N, S
             if (hasEastNeighbour) { // !N, S, E
-                ParticleAttributes.type = NODE_TYPE_ORIGIN;
+                ParticleAttributes.node.type = NODE_TYPE_ORIGIN;
             } else { // !N, S, !E
-                ParticleAttributes.type = NODE_TYPE_ORIGIN;
+                ParticleAttributes.node.type = NODE_TYPE_ORIGIN;
             }
         } else { // !N, !S
             if (hasEastNeighbour) { // !N, !S, E
-                ParticleAttributes.type = NODE_TYPE_INVALID;
+                ParticleAttributes.node.type = NODE_TYPE_INVALID;
             } else { // !N, !S, !E
-                ParticleAttributes.type = NODE_TYPE_ORPHAN;
+                ParticleAttributes.node.type = NODE_TYPE_ORPHAN;
             }
         }
     }
@@ -238,18 +237,18 @@ static inline void enableReception(void) {
     TIMER_TX_RX_ENABLE;
 }
 
-/**
- * Disables reception timer/counter interrupt.
- */
-static inline void disableReception(void) {
-    TIMER_TX_RX_DISABLE;
-}
+///**
+// * Disables reception timer/counter interrupt.
+// */
+//static inline void disableReception(void) {
+//    TIMER_TX_RX_DISABLE;
+//}
 
 /**
  * Toggles heartbeat LED
  */
 static inline void heartBeatToggle(void) {
-    static unsigned char loopCounter = 0;
+    static uint8_t loopCounter = 0;
     loopCounter++;
     if (0 == (loopCounter % HEARTBEAT_LOOP_COUNT_TOGGLE)) {
         LED_HEARTBEAT_TOGGLE;

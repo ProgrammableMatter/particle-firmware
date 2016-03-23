@@ -45,24 +45,13 @@ typedef enum {
     NODE_TYPE_INVALID // invalid note type
 } NodeType;
 
-/**
- * Stores the last flank state since the pin change interrupt hardware has no sense control. The state
- * is updated at any pin change interrupt accordingly.
-typedef struct {
-    unsigned char north : 1;
-    unsigned char south : 1;
-    unsigned char east : 1;
-    unsigned char : 5;
-} RxInterruptFlankStates;
- */
-
 
 /**
  * A pulse counter and it's connectivity state.
  */
 typedef struct {
-    unsigned char counter : 4; //pulse counter
-    unsigned char isConnected : 1; // connectivity flag
+    uint8_t counter : 4; //pulse counter
+    uint8_t isConnected : 1; // connectivity flag
 } PulseCounter;
 
 /**
@@ -73,30 +62,35 @@ typedef struct {
     PulseCounter north;
     PulseCounter south;
     PulseCounter east;
-    unsigned char loopCount; // particle loop counter
-} RxDiscoveryPulseCounter;
+    uint8_t loopCount; // particle loop counter
+} DiscoveryPulseCounters;
 
 /**
  * The node address in the network. It is spread from the origin node which assigns itself
  * the first address (row=1, column=1).
  */
 typedef struct {
-    unsigned char row;
-    unsigned char column;
-} NodeId;
+    uint8_t row;
+    uint8_t column;
+} NodeAddress;
+
+/**
+ * Describes the node state type and address.
+ */
+typedef struct {
+    StateType state;
+    NodeType type;
+    NodeAddress address;
+} Node;
 
 /**
  * The global particle state with references to the most important states, buffers, counters,
  * etc.
  */
 typedef struct {
-    StateType state;
-    NodeType type;
-    NodeId nodeId;
-    TxBitBuffer txBitBuffer;
-    RxBitBuffer rxBitBuffer;
-    RxDiscoveryPulseCounter rxDiscoveryPulseCounters;
-    ReceptionCounterParameters rxCounterArguments;
+    Node node;
+    DiscoveryPulseCounters discoveryPulseCounters;
+    Ports ports;
 } ParticleState;
 
 #endif

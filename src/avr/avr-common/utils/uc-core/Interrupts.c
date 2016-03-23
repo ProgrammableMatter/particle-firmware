@@ -17,31 +17,20 @@
 #include "discovery/Discovery.c"
 #include "communication/Communication.c"
 #include "simulation/SimulationMacros.h"
+#include "../../../particle-simulation-io-test/libs/uc-core/communication/CommunicationTypes.h"
 
 extern volatile ParticleState ParticleAttributes;
-
 
 /**
  * south RX pin change interrupt on logical pin change
  */
-#ifdef __AVR_ATtiny1634__
-
-ISR(PCINT2_vect)
-#else
-#  if defined(__AVR_ATmega16__)
-
-ISR(INT0_vect)
-#  else
-#    error
-#  endif
-#endif
-{
-    switch (ParticleAttributes.state) {
+ISR(SOUTH_PIN_CHANGE_INTERRUPT_VECT) {
+    switch (ParticleAttributes.node.state) {
         // on discovery pulse
         case STATE_TYPE_NEIGHBOURS_DISCOVERY:
             if (SOUTH_RX_IS_LO) {
                 TIMER_NEIGHBOUR_SENSE_DISABLE;
-                dispatchFallingDiscoveryFlank(&ParticleAttributes.rxDiscoveryPulseCounters.south);
+                dispatchFallingDiscoveryEdge(&ParticleAttributes.discoveryPulseCounters.south);
                 TIMER_NEIGHBOUR_SENSE_ENABLE;
             }
             break;
@@ -51,8 +40,7 @@ ISR(INT0_vect)
         case STATE_TYPE_TX_START:
         case STATE_TYPE_TX_DONE:
         case STATE_TYPE_SCHEDULE_COMMAND:
-            dispatchReceivedDataFlank(&ParticleAttributes.rxBitBuffer.south,
-                                      &ParticleAttributes.rxCounterArguments.south, SOUTH_RX_IS_LO);
+            dispatchReceivedDataEdge(&ParticleAttributes.ports.rx.south, SOUTH_RX_IS_HI);
             break;
 
         default:
@@ -65,24 +53,13 @@ ISR(INT0_vect)
 /**
  * east RX pin change interrupt on logical pin change
  */
-#ifdef __AVR_ATtiny1634__
-
-ISR(PCINT0_vect)
-#else
-#  if defined(__AVR_ATmega16__)
-
-ISR(INT1_vect)
-#  else
-#    error
-#  endif
-#endif
-{
-    switch (ParticleAttributes.state) {
+ISR(EAST_PIN_CHANGE_INTERRUPT_VECT) {
+    switch (ParticleAttributes.node.state) {
         // on discovery pulse
         case STATE_TYPE_NEIGHBOURS_DISCOVERY:
             if (EAST_RX_IS_LO) {
                 TIMER_NEIGHBOUR_SENSE_DISABLE;
-                dispatchFallingDiscoveryFlank(&ParticleAttributes.rxDiscoveryPulseCounters.east);
+                dispatchFallingDiscoveryEdge(&ParticleAttributes.discoveryPulseCounters.east);
                 TIMER_NEIGHBOUR_SENSE_ENABLE;
             }
             break;
@@ -92,9 +69,7 @@ ISR(INT1_vect)
         case STATE_TYPE_TX_START:
         case STATE_TYPE_TX_DONE:
         case STATE_TYPE_SCHEDULE_COMMAND:
-            dispatchReceivedDataFlank(
-                    &ParticleAttributes.rxBitBuffer.east,
-                    &ParticleAttributes.rxCounterArguments.east, EAST_RX_IS_LO);
+            dispatchReceivedDataEdge(&ParticleAttributes.ports.rx.east, EAST_RX_IS_HI);
             break;
         default:
             IF_SIMULATION_SWITCH_TO_ERRONEOUS_STATE;
@@ -106,24 +81,13 @@ ISR(INT1_vect)
 /**
  * north RX pin change interrupt on logical pin change
  */
-#ifdef __AVR_ATtiny1634__
-
-ISR(PCINT1_vect)
-#else
-#  if defined(__AVR_ATmega16__)
-
-ISR(INT2_vect)
-#  else
-#    error
-#  endif
-#endif
-{
-    switch (ParticleAttributes.state) {
+ISR(NORTH_PIN_CHANGE_INTERRUPT_VECT) {
+    switch (ParticleAttributes.node.state) {
         // on discovery pulse
         case STATE_TYPE_NEIGHBOURS_DISCOVERY:
             if (NORTH_RX_IS_LO) {
                 TIMER_NEIGHBOUR_SENSE_DISABLE;
-                dispatchFallingDiscoveryFlank(&ParticleAttributes.rxDiscoveryPulseCounters.north);
+                dispatchFallingDiscoveryEdge(&ParticleAttributes.discoveryPulseCounters.north);
                 TIMER_NEIGHBOUR_SENSE_ENABLE;
             }
             break;
@@ -133,9 +97,7 @@ ISR(INT2_vect)
         case STATE_TYPE_TX_START:
         case STATE_TYPE_TX_DONE:
         case STATE_TYPE_SCHEDULE_COMMAND:
-            dispatchReceivedDataFlank(
-                    &ParticleAttributes.rxBitBuffer.north, &ParticleAttributes.rxCounterArguments.north,
-                    NORTH_RX_IS_LO);
+            dispatchReceivedDataEdge(&ParticleAttributes.ports.rx.north, NORTH_RX_IS_HI);
             break;
 
         default:
@@ -146,28 +108,11 @@ ISR(INT2_vect)
 
 
 /**
- * On timer 0 compare interrupt.
- */
-#ifdef __AVR_ATtiny1634__
-
-ISR(TIM0_COMPA_vect)
-#else
-#  if defined(__AVR_ATmega16__)
-ISR(TIMER0_COMP_vect)
-#  else
-#    error
-#  endif
-#endif
-{
-}
-
-
-#if defined(__AVR_ATtiny1634__) || defined(__AVR_ATmega16__)
-/**
  * On timer_counter match with compare register A.
+ * In tx/rx states A equals DEFAULT_TX_RX_COMPARE_TOP_VALUE
  */
-ISR(TIMER1_COMPA_vect) {
-    switch (ParticleAttributes.state) {
+ISR(TX_RX_TIMER_TOP_INTERRUPT_VECT) {
+    switch (ParticleAttributes.node.state) {
         // on generate discovery pulse
         case STATE_TYPE_NEIGHBOURS_DISCOVERY:
         case STATE_TYPE_NEIGHBOURS_DISCOVERED:
@@ -187,7 +132,9 @@ ISR(TIMER1_COMPA_vect) {
         case STATE_TYPE_TX_START:
         case STATE_TYPE_TX_DONE:
         case STATE_TYPE_SCHEDULE_COMMAND:
-            TCNT1 = 0;
+            TIMER_TX_RX_COUNTER1 = 0;
+            TIMER_TX_RX_COUNTER0_RESUME;
+            // if sth. to transmit put !(bitMask & data) to the output
             break;
 
         default:
@@ -197,30 +144,50 @@ ISR(TIMER1_COMPA_vect) {
 
 /**
  * On timer_counter compare register B match.
+ * In tx/rx states B equals DEFAULT_TX_RX_COMPARE_TOP_VALUE/2.
  */
-ISR(TIMER1_COMPB_vect) {
-    switch (ParticleAttributes.state) {
+ISR(TX_RX_TIMER_CENTER_INTERRUPT_VECT) {
+    switch (ParticleAttributes.node.state) {
         // on receive data counter compare
         case STATE_TYPE_IDLE:
         case STATE_TYPE_TX_START:
         case STATE_TYPE_TX_DONE:
         case STATE_TYPE_SCHEDULE_COMMAND:
-            if (ParticleAttributes.rxCounterArguments.north.isReceiving != 0) {
-                --ParticleAttributes.rxCounterArguments.north.isReceiving;
-            }
-            if (ParticleAttributes.rxCounterArguments.east.isReceiving != 0) {
-                --ParticleAttributes.rxCounterArguments.east.isReceiving;
-            }
-            if (ParticleAttributes.rxCounterArguments.south.isReceiving != 0) {
-                --ParticleAttributes.rxCounterArguments.south.isReceiving;
-            }
+            // if sth. to transmit put (bitMask & data) to the output and >> mask
             break;
         default:
             break;
     }
 }
 
-#endif
+
+/**
+ * On timer 0 compare interrupt. In tx/rx states compare register equals DEFAULT_TX_RX_COMPARE_TOP_VALUE/8 and
+ * is used to determine a reception end.
+ */
+ISR(TX_RX_TIMER_EIGHTH_INTERRUPT_VECT) {
+    switch (ParticleAttributes.node.state) {
+        // on receive data counter compare
+        case STATE_TYPE_IDLE:
+        case STATE_TYPE_TX_START:
+        case STATE_TYPE_TX_DONE:
+        case STATE_TYPE_SCHEDULE_COMMAND:
+            TIMER_TX_RX_COUNTER0_PAUSE;
+            TIMER_TX_RX_COUNTER0 = 0;
+            if (ParticleAttributes.ports.rx.north.isReceiving != 0) {
+                --ParticleAttributes.ports.rx.north.isReceiving;
+            }
+            if (ParticleAttributes.ports.rx.east.isReceiving != 0) {
+                --ParticleAttributes.ports.rx.east.isReceiving;
+            }
+            if (ParticleAttributes.ports.rx.south.isReceiving != 0) {
+                --ParticleAttributes.ports.rx.south.isReceiving;
+            }
+            break;
+        default:
+            break;
+    }
+}
 
 #ifdef IS_SIMULATION
 

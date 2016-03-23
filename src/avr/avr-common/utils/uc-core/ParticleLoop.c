@@ -23,10 +23,10 @@ int particleLoop(void) {
     _delay_ms(1); // wait for all nodes to be ready
 #endif
 
-    ParticleAttributes.state = STATE_TYPE_START;
+    ParticleAttributes.node.state = STATE_TYPE_START;
     forever {
         particleTick();
-        if (ParticleAttributes.state == STATE_TYPE_ERRONEOUS) {
+        if (ParticleAttributes.node.state == STATE_TYPE_ERRONEOUS) {
             return 1;
         }
     }
