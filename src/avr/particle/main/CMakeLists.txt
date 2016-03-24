@@ -10,7 +10,7 @@ add_executable(${BINARY}
         main.c
         )
 
-LINK_DIRECTORIES(
+link_directories(
         ${PROJECT_SOURCE_DIR}/libs/uc-core
 )
 

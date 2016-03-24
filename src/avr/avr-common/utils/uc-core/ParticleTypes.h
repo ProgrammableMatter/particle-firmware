@@ -52,7 +52,8 @@ typedef enum {
 typedef struct {
     uint8_t counter : 4; //pulse counter
     uint8_t isConnected : 1; // connectivity flag
-} PulseCounter;
+    uint8_t :3;
+} PulseCounter; // 1 byte total
 
 /**
  * Stores the amount of incoming pulses for each communication channel. The isConnected flags are set
@@ -60,10 +61,10 @@ typedef struct {
  */
 typedef struct {
     PulseCounter north;
-    PulseCounter south;
     PulseCounter east;
+    PulseCounter south;
     uint8_t loopCount; // particle loop counter
-} DiscoveryPulseCounters;
+} DiscoveryPulseCounters; // 3 + 1 = 4 byte total
 
 /**
  * The node address in the network. It is spread from the origin node which assigns itself
@@ -72,7 +73,7 @@ typedef struct {
 typedef struct {
     uint8_t row;
     uint8_t column;
-} NodeAddress;
+} NodeAddress; // 2 byte total
 
 /**
  * Describes the node state type and address.
@@ -81,7 +82,7 @@ typedef struct {
     StateType state;
     NodeType type;
     NodeAddress address;
-} Node;
+} Node; // 2 + 2 + 2 = 6 byte total
 
 /**
  * The global particle state with references to the most important states, buffers, counters,
@@ -91,6 +92,6 @@ typedef struct {
     Node node;
     DiscoveryPulseCounters discoveryPulseCounters;
     Ports ports;
-} ParticleState;
+} ParticleState; // 6 + 4 + 45 = 55 bytes total
 
 #endif

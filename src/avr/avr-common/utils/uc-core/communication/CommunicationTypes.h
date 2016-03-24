@@ -12,8 +12,9 @@
  */
 typedef struct {
     uint8_t byteNumber : 2; // byte number
+    uint8_t : 6;
     uint8_t bitMask; // the bit in the byte
-} BufferBitPointer;
+} BufferBitPointer; // 1 + 1 = 2 bytes total
 
 /**
  * Provides a linear 4 byte buffer and a bit pointer per communication channel.
@@ -22,34 +23,35 @@ typedef struct {
 typedef struct {
     uint8_t bytes[4]; // reception buffer
     BufferBitPointer pointer; // points to the next free position
-} PortBuffer;
+} PortBuffer; // 4 + 2 = 6 bytes total
 
 
 typedef struct {
     PortBuffer buffer;
-} TxPort;
+} TxPort; // 6 bytes total
 
 typedef struct {
     TxPort north;
     TxPort east;
     TxPort south;
-} TxPorts;
+} TxPorts; // 3 * 6 = 18 bytes total
 
 typedef struct {
-    PortBuffer buffer;
-    uint8_t isReceiving : 2; // is decremented on each expected coding flank, set to top on reception
     uint16_t receptionSyncOffset; // synchronization offset of fist received bit relative to compare counter
-} RxPort;
+    uint8_t isReceiving : 2; // is decremented on each expected coding flank, set to top on reception
+    uint8_t : 6;
+    PortBuffer buffer;
+} RxPort; // 2 + 1 + 6 = 9 bytes total
 
 typedef struct {
     RxPort north;
     RxPort east;
     RxPort south;
-} RxPorts;
+} RxPorts; // 3 * 9 = 27 bytes total
 
 typedef struct {
-    RxPorts rx;
     TxPorts tx;
-} Ports;
+    RxPorts rx;
+} Ports; // 18 + 27 = 45 bytes total
 
 #endif

@@ -4,7 +4,11 @@
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
-#include "../../avr-common/utils/common/common.h"
+#include <common/common.h>
+#include <uc-core/IoDefinitions.h>
+#include <uc-core/Globals.h>
+
+extern volatile ParticleState ParticleAttributes;
 
 /**
  * PORTD2 - pin 19 - compare B interrupt handler duration
@@ -14,29 +18,13 @@
  * PORTA1 - pin 23 - data out bit pin
  */
 
-
-typedef struct {
-    const uint16_t top; // the max value the counter 1 is counting to - OCR1A
-    const uint16_t center; // top / 2
-    const uint8_t prescaler; // OCCR prescaler
-    const uint8_t transmissionPauseDelay; // amount of package clocks to pause after byte is sent
-} CounterSettings;
-
-const CounterSettings Counter1Settings = { //
-        .top = 500, //
-        .center = 500 / 2, //
-        // const uint8_t TimerClk = (0 << CS12) | (0 << CS11) | (0 << CS10), // disconnected
-        .prescaler = (0 << CS12) | (0 << CS11) | (1 << CS10), // clk/1
-        // const uint8_t prescaler = (0 << CS12) | (1 << CS11) | (0 << CS10), // clk/8
-        // const uint8_t prescaler = (0 << CS12) | (1 << CS11) | (1 << CS10), // clk/64
-        // const uint8_t prescaler = (1 << CS12) | (0 << CS11) | (0 << CS10), // clk/256
-        // const uint8_t prescaler = (1 << CS12) | (0 << CS11) | (1 << CS10), // clk/1024
-        .transmissionPauseDelay = 10, //
-};
-
+#define COUNTER_1_SETTINGS_TOP 500
+#define COUNTER_1_SETTINGS_CENTER (500 / 2)
+#define COUNTER_1_SETTINGS_PRESCALER (0 << CS12) | (0 << CS11) | (1 << CS10)
+#define COUNTER_1_SETTINGS_TRANSMISSION_PAUSE_DELAY 10
 
 uint8_t bitMask = 0;
-uint8_t data = 0b11100101;
+uint8_t data;
 uint8_t transmissionPauseCounter;
 
 
@@ -49,7 +37,7 @@ ISR(TIMER1_COMPA_vect) {
         PORTA &= ~(1 << PORTA0);
         PORTA &= ~(1 << PORTA1);
         PORTD |= (1 << PORTD0);
-        transmissionPauseCounter = Counter1Settings.transmissionPauseDelay;
+        transmissionPauseCounter = COUNTER_1_SETTINGS_TRANSMISSION_PAUSE_DELAY;
     } else {
         // clock out high
         PORTA |= (1 << PORTA0);
@@ -64,9 +52,11 @@ ISR(TIMER1_COMPA_vect) {
 
         // generated signal out
         if (!(bitMask & data)) {
-            PORTD |= (1 << PORTD0);
+//            PORTD |= (1 << PORTD0);
+            SOUTH_TX_LO;
         } else {
-            PORTD &= ~(1 << PORTD0);
+//            PORTD &= ~(1 << PORTD0);
+            SOUTH_TX_HI;
         }
     }
     PORTD &= ~(1 << PORTD1);
@@ -91,9 +81,12 @@ ISR(TIMER1_COMPB_vect) {
 
             // generated signal out
             if ((bitMask & data)) {
-                PORTD |= (1 << PORTD0);
+//                PORTD |= (1 << PORTD0);
+                SOUTH_TX_LO;
+
             } else {
-                PORTD &= ~(1 << PORTD0);
+//                PORTD &= ~(1 << PORTD0);
+                SOUTH_TX_HI;
             }
             bitMask <<= 1;
         }
@@ -101,7 +94,7 @@ ISR(TIMER1_COMPB_vect) {
         // pause transmission
         if (--transmissionPauseCounter == 0) {
             bitMask = 1;
-            TCNT1 = Counter1Settings.center + 1;
+            TCNT1 = COUNTER_1_SETTINGS_CENTER + 1;
             TIMSK |= (1 << OCIE1A);
         } else { // start transmission
             TCNT1 = 0;
@@ -114,14 +107,18 @@ ISR(TIMER1_COMPB_vect) {
 
 
 void init(void) {
-    transmissionPauseCounter = Counter1Settings.transmissionPauseDelay;
+    data = 0b11100101;
+    transmissionPauseCounter = COUNTER_1_SETTINGS_TRANSMISSION_PAUSE_DELAY;
 
-    DDRD setOut Pin0;
-    PORTD setHi Pin0;
-    DDRA setOut Pin0;
-    DDRA setOut Pin1;
-    DDRD setOut Pin1;
-    DDRD setOut Pin2;
+    SOUTH_TX_SETUP;
+    SOUTH_TX_HI;
+
+    DDir setOut Pin0;
+    DOut setHi Pin0;
+    ADir setOut Pin0;
+    ADir setOut Pin1;
+    DDir setOut Pin1;
+    DDir setOut Pin2;
 
     TCCR1A = (0 << COM1A1) | (0 << COM1A0) | (0 << COM1B1) | (0 << COM1B0);
     TCCR1B = (0 << ICNC1) | (0 << ICES1) | (0 << CS12) | (0 << CS11) | (0 << CS10);
@@ -131,15 +128,13 @@ void init(void) {
 
     TIMSK |= (1 << OCIE1B) | (0 << OCIE1A) | (0 << TOIE1);
 
-    OCR1B = Counter1Settings.center;
-    OCR1A = Counter1Settings.top;
+    OCR1B = COUNTER_1_SETTINGS_CENTER;
+    OCR1A = COUNTER_1_SETTINGS_TOP;
     sei();
-    TCCR1B |= Counter1Settings.prescaler;
+    TCCR1B |= COUNTER_1_SETTINGS_PRESCALER;
 }
 
 int main(void) {
-    transmissionPauseCounter = 0;
     while (1);
-    transmissionPauseCounter = 1;
     return 0;
 }
