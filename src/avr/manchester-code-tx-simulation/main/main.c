@@ -21,6 +21,7 @@ extern volatile ParticleState ParticleAttributes;
 #define COUNTER_1_SETTINGS_TOP 500
 #define COUNTER_1_SETTINGS_CENTER (500 / 2)
 #define COUNTER_1_SETTINGS_PRESCALER (0 << CS12) | (0 << CS11) | (1 << CS10)
+#define COUNTER_1_SETTINGS_PRESCALER_DISCONNECT (1 << CS12) | (1 << CS11) | (1 << CS10)
 #define COUNTER_1_SETTINGS_TRANSMISSION_PAUSE_DELAY 10
 
 uint8_t bitMask = 0;
@@ -107,6 +108,8 @@ ISR(TIMER1_COMPB_vect) {
 
 
 void init(void) {
+
+    ParticleAttributes.node.type = NODE_TYPE_MASTER;
     data = 0b11100101;
     transmissionPauseCounter = COUNTER_1_SETTINGS_TRANSMISSION_PAUSE_DELAY;
 
@@ -130,11 +133,22 @@ void init(void) {
 
     OCR1B = COUNTER_1_SETTINGS_CENTER;
     OCR1A = COUNTER_1_SETTINGS_TOP;
-    sei();
-    TCCR1B |= COUNTER_1_SETTINGS_PRESCALER;
 }
 
+#include <util/delay.h>
+
 int main(void) {
+    init();
+    _delay_ms(4.5);
+
+    SREG setBit bit(SREG_I);
+    TCCR1B |= COUNTER_1_SETTINGS_PRESCALER;
+
+// TODO:
+// 1) transmit one byte
+// 2) disable interrupt:
+// SREG unsetBit bit(SREG_I);
+// TCCR1B &= ~COUNTER_1_SETTINGS_PRESCALER_DISCONNECT;
     while (1);
     return 0;
 }

@@ -42,7 +42,8 @@ typedef enum {
     NODE_TYPE_INTER_HEAD, // connected at north and south and east
     NODE_TYPE_INTER_NODE, // connected at north and south
     NODE_TYPE_TAIL, // connected at north
-    NODE_TYPE_INVALID // invalid note type
+    NODE_TYPE_INVALID, // invalid note type
+    NODE_TYPE_MASTER // for testing purposes when the node is attached to the NODE_TYPE_ORIGIN node
 } NodeType;
 
 

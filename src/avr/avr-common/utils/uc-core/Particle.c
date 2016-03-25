@@ -26,7 +26,10 @@ static inline void heartBeatToggle(void);
  * changes, work and communication.
  */
 void particleTick(void) {
-    ParticleAttributes.discoveryPulseCounters.loopCount++;
+
+    if (ParticleAttributes.discoveryPulseCounters.loopCount < (UINT8_MAX)) {
+        ParticleAttributes.discoveryPulseCounters.loopCount++;
+    }
     heartBeatToggle();
 
     // STATE_TYPE_START: state before initialization
@@ -59,7 +62,7 @@ void particleTick(void) {
 
             // prevent exhausting cpu clocks for reception interrupts unless rx is not needed but keep pulsing
         case STATE_TYPE_NEIGHBOURS_DISCOVERED:
-        RX_INTERRUPTS_DISABLE;
+            RX_INTERRUPTS_DISABLE;
             ParticleAttributes.node.state = STATE_TYPE_DISCOVERY_PULSING;
             break;
 
