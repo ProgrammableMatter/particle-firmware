@@ -5,13 +5,15 @@
 #ifndef PARTICLE_TYPES_H
 #define PARTICLE_TYPES_H
 
-#include "./communication/CommunicationTypes.h"
 #include <common/PortInteraction.h>
+#include "ParticleTypes.h"
+#include "./communication/CommunicationTypes.h"
 
 /**
  * Possible particle's state machine states are listed in this enum.
  */
 typedef enum {
+    STATE_TYPE_UNDEFINED = 0, // uninitialized state
     STATE_TYPE_START, // particle is initialized
     STATE_TYPE_ACTIVE, // start neighbour discovery
     STATE_TYPE_NEIGHBOURS_DISCOVERY, // evaluates comm. port pulse counters
@@ -30,7 +32,8 @@ typedef enum {
     STATE_TYPE_SCHEDULE_COMMAND,
     STATE_TYPE_EXECUTE_COMMAND,
     STATE_TYPE_COMMAND_SCHEDULED_ACK,
-    STATE_TYPE_ERRONEOUS // erroneous state machine state
+    STATE_TYPE_ERRONEOUS, // erroneous state machine state
+    STATE_TYPE_STALE // dead lock state after all operations, usually before shutdown
 } StateType;
 
 /**
@@ -94,5 +97,35 @@ typedef struct {
     DiscoveryPulseCounters discoveryPulseCounters;
     Ports ports;
 } ParticleState; // 6 + 4 + 45 = 55 bytes total
+
+
+inline void constructPulseCounter(volatile PulseCounter *o) {
+    o->counter = 0;
+    o->isConnected = false;
+}
+
+inline void constructDiscoveryPulseCounters(volatile DiscoveryPulseCounters *o) {
+    constructPulseCounter(&(o->north));
+    constructPulseCounter(&(o->east));
+    constructPulseCounter(&(o->south));
+    o->loopCount = 0;
+}
+
+inline void constructNodeAddress(volatile NodeAddress *o) {
+    o->row = 0;
+    o->column = 0;
+}
+
+inline void constructNode(volatile Node *o) {
+    o->state = STATE_TYPE_UNDEFINED;
+    o->type = NODE_TYPE_INVALID;
+    constructNodeAddress(&(o->address));
+}
+
+inline void constructParticleState(volatile ParticleState *o) {
+    constructNode(&(o->node));
+    constructDiscoveryPulseCounters(&(o->discoveryPulseCounters));
+    constructPorts(&(o->ports));
+}
 
 #endif

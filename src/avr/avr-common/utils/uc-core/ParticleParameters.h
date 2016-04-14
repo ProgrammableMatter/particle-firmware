@@ -59,7 +59,7 @@
  * Counter top constant acceptance interval range.
  */
 #define DEFAULT_TX_RX_COUNTER_LEFT_OF_TOP_VALUE (DEFAULT_TX_RX_COMPARE_TOP_VALUE - TX_RX_RECEPTION_DELTA)
-#define DEFAULT_TX_RX_COUNTER_RIGHT_OF_TOP_VALUE (DEFAULT_TX_RX_COMPARE_TOP_VALUE + TX_RX_RECEPTION_DELTA)
+#define DEFAULT_TX_RX_COUNTER_RIGHT_OF_TOP_VALUE (0 + TX_RX_RECEPTION_DELTA)
 
 /**
  * Initial counter compare interrupt value for updating the ongoing reception timeout.

@@ -8,16 +8,14 @@
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
 #include <uc-core/ParticleTypes.h>
-#include <uc-core/communication/CommunicationTypes.h>
 
 #include "Globals.h"
 #include "IoDefinitions.h"
-#include "Interrupts.h"
+#include "InterruptDefinitions.h"
 #include "simulation/SimulationUtils.h"
-#include "discovery/Discovery.c"
-#include "communication/Communication.c"
+#include "discovery/Discovery.h"
+#include "communication/Communication.h"
 #include "simulation/SimulationMacros.h"
-#include "../../../particle-simulation-io-test/libs/uc-core/communication/CommunicationTypes.h"
 
 extern volatile ParticleState ParticleAttributes;
 
