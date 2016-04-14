@@ -7,114 +7,61 @@
 #include <common/common.h>
 #include <uc-core/IoDefinitions.h>
 #include <uc-core/Globals.h>
+#include <util/delay.h>
 
 extern volatile ParticleState ParticleAttributes;
 
-/**
- * PORTD2 - pin 19 - compare B interrupt handler duration
- * PORTD1 - pin 20 - compare A interrupt handler duration
- * PORTD0 - pin 21 - signal output pin - manchester code
- * PORTA0 - pin 22 - clock out pin
- * PORTA1 - pin 23 - data out bit pin
- */
-
 #define COUNTER_1_SETTINGS_TOP 500
 #define COUNTER_1_SETTINGS_CENTER (500 / 2)
-#define COUNTER_1_SETTINGS_PRESCALER (0 << CS12) | (0 << CS11) | (1 << CS10)
-#define COUNTER_1_SETTINGS_PRESCALER_DISCONNECT (1 << CS12) | (1 << CS11) | (1 << CS10)
-#define COUNTER_1_SETTINGS_TRANSMISSION_PAUSE_DELAY 10
+#define COUNTER_1_SETTINGS_PRESCALER ((0 << CS12) | (0 << CS11) | (1 << CS10))
+#define COUNTER_1_SETTINGS_PRESCALER_DISCONNECT ((1 << CS12) | (1 << CS11) | (1 << CS10))
 
 uint8_t bitMask = 0;
-uint8_t data;
-uint8_t transmissionPauseCounter;
 
-
-// trigger clock
+// triggers on signal clock (signal rectification)
 ISR(TIMER1_COMPA_vect) {
-    PORTD |= (1 << PORTD1);
     TCNT1 = 0;
-
     if (bitMask == 0) {
-        PORTA &= ~(1 << PORTA0);
-        PORTA &= ~(1 << PORTA1);
-        PORTD |= (1 << PORTD0);
-        transmissionPauseCounter = COUNTER_1_SETTINGS_TRANSMISSION_PAUSE_DELAY;
+        // stop after one transmission
+        TCCR1B &= ~COUNTER_1_SETTINGS_PRESCALER_DISCONNECT;
+        TIMSK unsetBit((1 << OCIE1A) | (1 << OCIE1B));
+        ParticleAttributes.node.state = STATE_TYPE_TX_DONE;
+        // mock tx timeout and return signal to default (high on receiver side)
+        _delay_us(1.0);
+        SOUTH_TX_LO;
     } else {
-        // clock out high
-        PORTA |= (1 << PORTA0);
-
-        // bit value out
-        uint8_t bitValue = ((bitMask & data));
-        if (bitValue) {
-            PORTA |= (1 << PORTA1);
-        } else {
-            PORTA &= ~(1 << PORTA1);
-        }
-
-        // generated signal out
-        if (!(bitMask & data)) {
-//            PORTD |= (1 << PORTD0);
+        // rectify signal for upcoming tranzition
+        if (!(bitMask & ParticleAttributes.ports.tx.south.buffer.bytes[0])) {
             SOUTH_TX_LO;
         } else {
-//            PORTD &= ~(1 << PORTD0);
             SOUTH_TX_HI;
         }
     }
-    PORTD &= ~(1 << PORTD1);
 }
 
-// trigger transmission
+// triggers on bit transmission
+// reception on receptor of this transmission is inverted
 ISR(TIMER1_COMPB_vect) {
-    PORTD |= (1 << PORTD2);
-
-    if (transmissionPauseCounter == 0) {
-        if (bitMask != 0) {
-            // clock out low
-            PORTA &= ~(1 << PORTA0);
-
-            // bit value out
-//            uint8_t bitValue = ((bitMask & data));
-            if (bitMask & data) {
-                PORTA |= (1 << PORTA1);
-            } else {
-                PORTA &= ~(1 << PORTA1);
-            }
-
-            // generated signal out
-            if ((bitMask & data)) {
-//                PORTD |= (1 << PORTD0);
-                SOUTH_TX_LO;
-
-            } else {
-//                PORTD &= ~(1 << PORTD0);
-                SOUTH_TX_HI;
-            }
-            bitMask <<= 1;
-        }
+    // write data bit to output
+    if ((bitMask & ParticleAttributes.ports.tx.south.buffer.bytes[0])) {
+        SOUTH_TX_LO;
     } else {
-        // pause transmission
-        if (--transmissionPauseCounter == 0) {
-            bitMask = 1;
-            TCNT1 = COUNTER_1_SETTINGS_CENTER + 1;
-            TIMSK |= (1 << OCIE1A);
-        } else { // start transmission
-            TCNT1 = 0;
-            TIMSK &= ~(1 << OCIE1A);
-        }
-
+        SOUTH_TX_HI;
     }
-    PORTD &= ~(1 << PORTD2);
+    bitMask <<= 1;
+    TIMSK setBit (1 << OCIE1A);
 }
 
 
-void init(void) {
-
+inline void __init(void) {
+    ParticleAttributes.node.state = STATE_TYPE_START;
     ParticleAttributes.node.type = NODE_TYPE_MASTER;
-    data = 0b11100101;
-    transmissionPauseCounter = COUNTER_1_SETTINGS_TRANSMISSION_PAUSE_DELAY;
+    // the byte to transmit
+    ParticleAttributes.ports.tx.south.buffer.bytes[0] = 0b11100101;
 
     SOUTH_TX_SETUP;
-    SOUTH_TX_HI;
+    // return signal to default (high on receiver side)
+    SOUTH_TX_LO;
 
     DDir setOut Pin0;
     DOut setHi Pin0;
@@ -131,24 +78,24 @@ void init(void) {
 
     TIMSK |= (1 << OCIE1B) | (0 << OCIE1A) | (0 << TOIE1);
 
-    OCR1B = COUNTER_1_SETTINGS_CENTER;
     OCR1A = COUNTER_1_SETTINGS_TOP;
+    OCR1B = COUNTER_1_SETTINGS_CENTER;
+
+
+    bitMask = 1;
 }
 
-#include <util/delay.h>
 
 int main(void) {
-    init();
-    _delay_ms(4.5);
-
+    __init();
+    // wait until receiver is ready
+    _delay_us(15.0);
+    ParticleAttributes.node.state = STATE_TYPE_TX_START;
     SREG setBit bit(SREG_I);
     TCCR1B |= COUNTER_1_SETTINGS_PRESCALER;
 
-// TODO:
-// 1) transmit one byte
-// 2) disable interrupt:
-// SREG unsetBit bit(SREG_I);
-// TCCR1B &= ~COUNTER_1_SETTINGS_PRESCALER_DISCONNECT;
-    while (1);
+    while (ParticleAttributes.node.state != STATE_TYPE_TX_DONE);
+    SREG unsetBit bit(SREG_I);
+    ParticleAttributes.node.state = STATE_TYPE_STALE;
     return 0;
 }
