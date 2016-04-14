@@ -10,7 +10,7 @@
 /**
  * free function declarations
  */
-void init(void);
+void __init(void);
 
 
 int main(void) {
@@ -44,6 +44,6 @@ int main(void) {
 /**
  * initialization before main is called
  */
-void init() {
+void __init() {
 }
 
