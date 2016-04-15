@@ -23,14 +23,9 @@ ISR(TIMER1_COMPA_vect) {
     TCNT1 = 0;
     if (bitMask == 0) {
         // stop after one transmission
-        TCCR1B &= ~COUNTER_1_SETTINGS_PRESCALER_DISCONNECT;
-        TIMSK unsetBit((1 << OCIE1A) | (1 << OCIE1B));
-        ParticleAttributes.node.state = STATE_TYPE_TX_DONE;
-        // mock tx timeout and return signal to default (high on receiver side)
-        _delay_us(1.0);
-        SOUTH_TX_LO;
+        TIMSK unsetBit(1 << OCIE1A);
     } else {
-        // rectify signal for upcoming tranzition
+        // rectify (invert accordint to next data bit) signal before upcoming data transition
         if (!(bitMask & ParticleAttributes.ports.tx.south.buffer.bytes[0])) {
             SOUTH_TX_LO;
         } else {
@@ -42,14 +37,25 @@ ISR(TIMER1_COMPA_vect) {
 // triggers on bit transmission
 // reception on receptor of this transmission is inverted
 ISR(TIMER1_COMPB_vect) {
-    // write data bit to output
-    if ((bitMask & ParticleAttributes.ports.tx.south.buffer.bytes[0])) {
-        SOUTH_TX_LO;
+
+    if (bitMask == 0) {
+        // stop after one transmission
+        TIMSK unsetBit(1 << OCIE1B);
+        TCCR1B &= ~COUNTER_1_SETTINGS_PRESCALER_DISCONNECT;
+        // return signal to default
+        SOUTH_TX_LO; // inverted on receiver side
+        ParticleAttributes.node.state = STATE_TYPE_TX_DONE;
     } else {
-        SOUTH_TX_HI;
+        // write data bit to output (inverted)
+        if ((bitMask & ParticleAttributes.ports.tx.south.buffer.bytes[0])) {
+            SOUTH_TX_LO;
+        } else {
+            SOUTH_TX_HI;
+        }
+        bitMask <<= 1;
+        TIMSK setBit (1 << OCIE1A);
+
     }
-    bitMask <<= 1;
-    TIMSK setBit (1 << OCIE1A);
 }
 
 
@@ -80,7 +86,8 @@ inline void __init(void) {
 
     OCR1A = COUNTER_1_SETTINGS_TOP;
     OCR1B = COUNTER_1_SETTINGS_CENTER;
-
+    // start transmission with compare A interrupt
+    TCNT1 = COUNTER_1_SETTINGS_CENTER + 1;
 
     bitMask = 1;
 }
@@ -89,9 +96,10 @@ inline void __init(void) {
 int main(void) {
     __init();
     // wait until receiver is ready
-    _delay_us(15.0);
-    ParticleAttributes.node.state = STATE_TYPE_TX_START;
+    _delay_us(37.0);
+
     SREG setBit bit(SREG_I);
+    ParticleAttributes.node.state = STATE_TYPE_TX_START;
     TCCR1B |= COUNTER_1_SETTINGS_PRESCALER;
 
     while (ParticleAttributes.node.state != STATE_TYPE_TX_DONE);

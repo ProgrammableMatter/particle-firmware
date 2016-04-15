@@ -1,8 +1,8 @@
 /**
  * @author Raoul Rubien 2015
  */
-#ifndef PARTICLEMAINLOOP_H
-#define PARTICLEMAINLOOP_H
+#ifndef __PARTICLE_MAIN_LOOP_H
+#define __PARTICLE_MAIN_LOOP_H
 
 /**
 * @author Raoul Rubien 2015
@@ -12,7 +12,7 @@
 #include <avr/interrupt.h>
 #include <common/common.h>
 #include "IoDefinitions.h"
-#include "InterruptDefinitions.h"
+#include "interrupts/InterruptDefinitions.jail"
 //#include "Interrupts.c"
 #include "ParticleTypes.h"
 #include "Globals.h"

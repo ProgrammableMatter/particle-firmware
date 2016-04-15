@@ -2,8 +2,8 @@
  * @author Raoul Rubien 2016
  */
 
-#ifndef PARTICLE_GLOBALS_H
-#define PARTICLE_GLOBALS_H
+#ifndef __PARTICLE_GLOBALS_H
+#define __PARTICLE_GLOBALS_H
 
 #include <uc-core/ParticleTypes.h>
 

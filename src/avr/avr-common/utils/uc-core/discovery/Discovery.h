@@ -1,8 +1,8 @@
 /**
  * @author Raoul Rubien 2015
  */
-#ifndef DISCOVERY_H
-#define DISCOVERY_H
+#ifndef __DISCOVERY_H
+#define __DISCOVERY_H
 
 /**
  * increments the port counter

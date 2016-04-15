@@ -2,13 +2,12 @@
  * @author Raoul Rubien 2015
  */
 
-#ifndef PARTICLE_H
-#define PARTICLE_H
+#ifndef __PARTICLE_H
+#define __PARTICLE_H
 
 #include "Particle.h"
 #include "Globals.h"
 #include "IoDefinitions.h"
-#include "InterruptDefinitions.h"
 #include <util/delay.h>
 #include <common/common.h>
 #include <uc-core/ParticleTypes.h>
@@ -82,8 +81,9 @@ static inline void __init(void) {
  * Sets up reception timer/counter interrupt and enables the interrupt.
  */
 static inline void __enableReception(void) {
-    TIMER_TX_RX_SETUP;
-    TIMER_TX_RX_ENABLE;
+    TIMER_TX_RX_SETUP; // set up reception and timeout counter interrupts
+    TIMER_TX_RX_ENABLE; // enable reception counter interrupt
+    TIMER_TX_RX_TIMEOUT_ENABLE; // enable timeout counter interrupt
 }
 
 

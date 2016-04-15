@@ -2,8 +2,8 @@
  * @author: Raoul Rubien 2011
  */
 
-#ifndef PORT_INTERACTION_H
-#define PORT_INTERACTION_H
+#ifndef __PORT_INTERACTION_H
+#define __PORT_INTERACTION_H
 
 /**
  * pin definition

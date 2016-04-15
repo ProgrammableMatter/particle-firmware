@@ -2,8 +2,8 @@
  * @author Raoul Rubien 2016
  */
 
-#ifndef PARTICLE_PARAMETERS_H
-#define PARTICLE_PARAMETERS_H
+#ifndef __PARTICLE_PARAMETERS_H
+#define __PARTICLE_PARAMETERS_H
 
 /**
  * The maximum numbers of pulses generated for neighbour discovery.
@@ -64,7 +64,7 @@
 /**
  * Initial counter compare interrupt value for updating the ongoing reception timeout.
  */
-#define DEFAULT_RX_TIMEOUT_INTERRUPT_COMPARE_VALUE (DEFAULT_TX_RX_COUNTER_CENTER_VALUE / 4)
+#define DEFAULT_RX_TIMEOUT_INTERRUPT_COMPARE_VALUE (DEFAULT_TX_RX_COMPARE_TOP_VALUE / 8)
 
 /**
  * Heartbeat LED toggles every main-loop count

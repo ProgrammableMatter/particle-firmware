@@ -1,21 +1,23 @@
 /**
  * @author Raoul Rubien 2015
  */
-#ifndef DEFAULT_ISR_H
-#define DEFAULT_ISR_H
+#ifndef __DEFAULT_ISR_H
+#define __DEFAULT_ISR_H
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
 #include <uc-core/ParticleTypes.h>
 
-#include "Globals.h"
-#include "IoDefinitions.h"
-#include "InterruptDefinitions.h"
-#include "simulation/SimulationUtils.h"
-#include "discovery/Discovery.h"
-#include "communication/Communication.h"
-#include "simulation/SimulationMacros.h"
+#include "Vectors.h"
+#include "Reception.h"
+#include "TimerCounter.h"
+
+#include "../Globals.h"
+#include "../IoDefinitions.h"
+#include "../../simulation/SimulationUtils.h"
+#include "../discovery/Discovery.h"
+#include "../communication/Communication.h"
 
 extern volatile ParticleState ParticleAttributes;
 
@@ -27,9 +29,9 @@ ISR(SOUTH_PIN_CHANGE_INTERRUPT_VECT) {
         // on discovery pulse
         case STATE_TYPE_NEIGHBOURS_DISCOVERY:
             if (SOUTH_RX_IS_LO) {
-                TIMER_NEIGHBOUR_SENSE_DISABLE;
+                TIMER_NEIGHBOUR_SENSE_PAUSE;
                 dispatchFallingDiscoveryEdge(&ParticleAttributes.discoveryPulseCounters.south);
-                TIMER_NEIGHBOUR_SENSE_ENABLE;
+                TIMER_NEIGHBOUR_SENSE_RESUME;
             }
             break;
 
@@ -56,9 +58,9 @@ ISR(EAST_PIN_CHANGE_INTERRUPT_VECT) {
         // on discovery pulse
         case STATE_TYPE_NEIGHBOURS_DISCOVERY:
             if (EAST_RX_IS_LO) {
-                TIMER_NEIGHBOUR_SENSE_DISABLE;
+                TIMER_NEIGHBOUR_SENSE_PAUSE;
                 dispatchFallingDiscoveryEdge(&ParticleAttributes.discoveryPulseCounters.east);
-                TIMER_NEIGHBOUR_SENSE_ENABLE;
+                TIMER_NEIGHBOUR_SENSE_RESUME;
             }
             break;
 
@@ -84,9 +86,9 @@ ISR(NORTH_PIN_CHANGE_INTERRUPT_VECT) {
         // on discovery pulse
         case STATE_TYPE_NEIGHBOURS_DISCOVERY:
             if (NORTH_RX_IS_LO) {
-                TIMER_NEIGHBOUR_SENSE_DISABLE;
+                TIMER_NEIGHBOUR_SENSE_PAUSE;
                 dispatchFallingDiscoveryEdge(&ParticleAttributes.discoveryPulseCounters.north);
-                TIMER_NEIGHBOUR_SENSE_ENABLE;
+                TIMER_NEIGHBOUR_SENSE_RESUME;
             }
             break;
 
@@ -115,14 +117,14 @@ ISR(TX_RX_TIMER_TOP_INTERRUPT_VECT) {
         case STATE_TYPE_NEIGHBOURS_DISCOVERY:
         case STATE_TYPE_NEIGHBOURS_DISCOVERED:
         case STATE_TYPE_DISCOVERY_PULSING:
-        TIMER_NEIGHBOUR_SENSE_DISABLE;
+            TIMER_NEIGHBOUR_SENSE_PAUSE;
             TIMER_NEIGHBOUR_SENSE_COUNTER = 0;
 
             NORTH_TX_TOGGLE;
             SOUTH_TX_TOGGLE;
             EAST_TX_TOGGLE;
 
-            TIMER_NEIGHBOUR_SENSE_ENABLE;
+            TIMER_NEIGHBOUR_SENSE_RESUME;
             break;
 
             // on receive data counter compare
@@ -130,8 +132,8 @@ ISR(TX_RX_TIMER_TOP_INTERRUPT_VECT) {
         case STATE_TYPE_TX_START:
         case STATE_TYPE_TX_DONE:
         case STATE_TYPE_SCHEDULE_COMMAND:
-            TIMER_TX_RX_COUNTER1 = 0;
-            TIMER_TX_RX_COUNTER0_RESUME;
+            TIMER_TX_RX_COUNTER = 0;
+//            TIMER_TX_RX_SYNC_COUNTER_RESUME;
             // if sth. to transmit put !(bitMask & data) to the output
             break;
 
@@ -141,17 +143,17 @@ ISR(TX_RX_TIMER_TOP_INTERRUPT_VECT) {
 }
 
 /**
- * On timer_counter compare register B match.
- * In tx/rx states B equals DEFAULT_TX_RX_COMPARE_TOP_VALUE/2.
+ * On timer_counter compare register B match. If there are bits to transmit, this interrupt
+ * generates the signal(s) according to the state.
  */
-ISR(TX_RX_TIMER_CENTER_INTERRUPT_VECT) {
+ISR(TX_TIMER_CENTER_INTERRUPT_VECT) {
     switch (ParticleAttributes.node.state) {
         // on receive data counter compare
         case STATE_TYPE_IDLE:
         case STATE_TYPE_TX_START:
         case STATE_TYPE_TX_DONE:
         case STATE_TYPE_SCHEDULE_COMMAND:
-            // if sth. to transmit put (bitMask & data) to the output and >> mask
+            // TODO: if sth. to transmit put (bitMask & data) to the correct output port and >> mask
             break;
         default:
             break;
@@ -160,27 +162,31 @@ ISR(TX_RX_TIMER_CENTER_INTERRUPT_VECT) {
 
 
 /**
- * On timer 0 compare interrupt. In tx/rx states compare register equals DEFAULT_TX_RX_COMPARE_TOP_VALUE/8 and
- * is used to determine a reception end.
+ * On timer 0 compare interrupt. The interrupt is called multiple times (i.e. 8x) per
+ * TX_RX_TIMER_TOP_INTERRUPT_VECT. The implementation updates the timeout per reception
+ * port. A timeout indicates a fully received transmission.
  */
-ISR(TX_RX_TIMER_EIGHTH_INTERRUPT_VECT) {
+ISR(TX_RX_TIMEOUT_INTERRUPT_VECT) {
     switch (ParticleAttributes.node.state) {
-        // on receive data counter compare
         case STATE_TYPE_IDLE:
         case STATE_TYPE_TX_START:
         case STATE_TYPE_TX_DONE:
         case STATE_TYPE_SCHEDULE_COMMAND:
-            TIMER_TX_RX_COUNTER0_PAUSE;
-            TIMER_TX_RX_COUNTER0 = 0;
+            TIMER_TX_RX_TIMEOUT_COUNTER_PAUSE;
+            TIMER_TX_RX_TIMEOUT_COUNTER = 0;
             if (ParticleAttributes.ports.rx.north.isReceiving != 0) {
                 --ParticleAttributes.ports.rx.north.isReceiving;
+                UDR = 'N';
             }
             if (ParticleAttributes.ports.rx.east.isReceiving != 0) {
                 --ParticleAttributes.ports.rx.east.isReceiving;
+                UDR = 'E';
             }
             if (ParticleAttributes.ports.rx.south.isReceiving != 0) {
                 --ParticleAttributes.ports.rx.south.isReceiving;
+                UDR = 'S';
             }
+            TIMER_TX_RX_TIMEOUT_COUNTER_RESUME;
             break;
         default:
             break;

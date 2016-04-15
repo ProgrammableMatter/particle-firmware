@@ -2,8 +2,8 @@
  * @author Raoul Rubien 2015
  */
 
-#ifndef PROJECT_PARTICLE_PORT_DEFINITIONS_H
-#define PROJECT_PARTICLE_PORT_DEFINITIONS_H
+#ifndef __PARTICLE_PORT_DEFINITIONS_H
+#define __PARTICLE_PORT_DEFINITIONS_H
 
 #include <common/PortADefinition.h>
 #include <common/PortBDefinition.h>

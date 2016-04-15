@@ -2,8 +2,8 @@
  * @author Raoul Rubien 2016
  */
 
-#ifndef COMMUNICATION_TYPES_H
-#define COMMUNICATION_TYPES_H
+#ifndef __COMMUNICATION_TYPES_H
+#define __COMMUNICATION_TYPES_H
 
 #include <inttypes.h>
 #include <stdbool.h>
@@ -39,8 +39,8 @@ typedef struct {
 
 typedef struct {
     uint16_t receptionSyncOffset; // synchronization offset of fist received bit relative to compare counter
-    uint8_t isReceiving : 2; // is decremented on each expected coding flank, set to top on reception
-    uint8_t : 6;
+    uint8_t isReceiving : 4; // is decremented on each expected coding flank, set to top on reception
+    uint8_t : 4;
     PortBuffer buffer;
 } RxPort; // 2 + 1 + 6 = 9 bytes total
 

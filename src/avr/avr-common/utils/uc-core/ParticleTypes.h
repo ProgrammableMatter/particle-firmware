@@ -2,8 +2,8 @@
  * @author Raoul Rubien 2015
  */
 
-#ifndef PARTICLE_TYPES_H
-#define PARTICLE_TYPES_H
+#ifndef __PARTICLE_TYPES_H
+#define __PARTICLE_TYPES_H
 
 #include <common/PortInteraction.h>
 #include "ParticleTypes.h"
@@ -40,12 +40,12 @@ typedef enum {
  * The node type describes node's connectivity or in other words the position in the network.
  */
 typedef enum {
+    NODE_TYPE_INVALID = 0, // invalid or uninitialized note type
     NODE_TYPE_ORPHAN, // no connection
     NODE_TYPE_ORIGIN, // connected at south or south and east
     NODE_TYPE_INTER_HEAD, // connected at north and south and east
     NODE_TYPE_INTER_NODE, // connected at north and south
     NODE_TYPE_TAIL, // connected at north
-    NODE_TYPE_INVALID, // invalid note type
     NODE_TYPE_MASTER // for testing purposes when the node is attached to the NODE_TYPE_ORIGIN node
 } NodeType;
 

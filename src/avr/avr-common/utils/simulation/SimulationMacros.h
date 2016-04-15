@@ -2,9 +2,8 @@
  * @author Raoul Rubien 2016
  */
 
-#ifndef SIMULATION_MACROS_H
-#define SIMULATION_MACROS_H
-
+#ifndef __SIMULATION_MACROS_H
+#define __SIMULATION_MACROS_H
 
 #if defined(__AVR_ATmega16__)
 #include "../uc-core/Globals.h"

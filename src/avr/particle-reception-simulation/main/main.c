@@ -3,9 +3,10 @@
  */
 #include <avr/interrupt.h>
 #include <common/common.h>
+#include <uc-core/ParticleTypes.h>
 #include "uc-core/IoDefinitions.h"
-#include "uc-core/InterruptDefinitions.h"
-#include "uc-core/Interrupts.c"
+//#include "uc-core/InterruptDefinitions.h"
+#include "uc-core/interrupts/Interrupts.c"
 #include "uc-core/Particle.h"
 
 
@@ -31,10 +32,13 @@ int main(void) {
     // setup and enable reception counter interrupt
     TIMER_TX_RX_SETUP;
     TIMER_TX_RX_ENABLE;
+    TIMER_TX_RX_TIMEOUT_ENABLE;
 
-    constructParticleState(&ParticleAttributes);
-    ParticleAttributes.node.state = STATE_TYPE_IDLE;
     ParticleAttributes.discoveryPulseCounters.loopCount = UINT8_MAX;
+    constructParticleState(&ParticleAttributes);
+
+    ParticleAttributes.node.type = NODE_TYPE_ORIGIN;
+    ParticleAttributes.node.state = STATE_TYPE_IDLE;
 
     return particleLoop();
 }
