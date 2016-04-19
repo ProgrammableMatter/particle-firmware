@@ -5,7 +5,7 @@
 #ifndef __PARTICLE_GLOBALS_H
 #define __PARTICLE_GLOBALS_H
 
-#include <uc-core/ParticleTypes.h>
+#include "./ParticleTypes.h"
 
 // DO NOT DECLARE GLOBALS BEFORE PARTICLE ATTRIBUTES!
 

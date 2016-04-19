@@ -7,13 +7,16 @@
 
 #include <inttypes.h>
 #include <stdbool.h>
+#include "../../simulation/SimulationMacros.h"
+
+#  define FUNC_ATTRS // inline
 
 /**
  * Describes a bit within a 4 byte buffer.
  */
 typedef struct {
     uint8_t byteNumber : 2; // byte number
-    uint8_t : 6;
+    uint8_t __pad: 6;
     uint8_t bitMask; // the bit in the byte
 } BufferBitPointer; // 1 + 1 = 2 bytes total
 
@@ -38,27 +41,43 @@ typedef struct {
 } TxPorts; // 3 * 6 = 18 bytes total
 
 typedef struct {
-    uint16_t receptionSyncOffset; // synchronization offset of fist received bit relative to compare counter
-    uint8_t isReceiving : 4; // is decremented on each expected coding flank, set to top on reception
-    uint8_t : 4;
+    uint16_t receptionOffset; // synchronization offset of fist received bit relative to compare counter
+    uint16_t estimatedCounterTop; // the estimated reception counter's top value
+    uint16_t estimatedCounterCenter;
+    uint16_t receptionDelta; // time span for reception classification: center|top +/- delta
+#ifdef IS_SIMULATION
+    int8_t estimatedTopCounterOffset; // an approximated counter offset
+    //uint8_t estimatedScaleFactor; // scale factor according to the approximated counter offset
+// factor to percent: {(0.5 - (uint8_max - estimatedScaleFactor) / uint8_max) / 2.0]% in [-0.25, #0.25]
+#endif
+} TimerCounterAdjustment; // 2 + 1 + (+ 1) = 4 bytes total
+
+
+typedef struct {
+    // port specific reception offsets and factors according to tis port's reception
+    TimerCounterAdjustment adjustment;
     PortBuffer buffer;
-} RxPort; // 2 + 1 + 6 = 9 bytes total
+    uint8_t isReceiving : 4; // is decremented on each expected coding flank, set to top on reception
+    uint8_t __pad: 4;
+} RxPort; // 4 + 6 + 1 = 11 bytes total
+
 
 typedef struct {
     RxPort north;
     RxPort east;
     RxPort south;
-} RxPorts; // 3 * 9 = 27 bytes total
+} RxPorts; // 3 * 11 = 33 bytes total
 
 typedef struct {
     TxPorts tx;
     RxPorts rx;
-} Ports; // 18 + 27 = 45 bytes total
+} Ports; // 18 + 33 = 51 bytes total
+
 
 /**
  * returns true if the pointer points at the very first position, else false
  */
-inline uint8_t isBufferEmpty(volatile BufferBitPointer *bufferPointer) {
+FUNC_ATTRS uint8_t isBufferEmpty(volatile BufferBitPointer *bufferPointer) {
     if (bufferPointer->bitMask == 0 && bufferPointer->byteNumber == 0) {
         return true;
     }
@@ -68,7 +87,7 @@ inline uint8_t isBufferEmpty(volatile BufferBitPointer *bufferPointer) {
 /**
  * returns true if the pointer points at the very last position, else false
  */
-inline uint8_t isBufferFull(volatile BufferBitPointer *bufferPointer) {
+FUNC_ATTRS uint8_t isBufferFull(volatile BufferBitPointer *bufferPointer) {
     if (bufferPointer->bitMask == (1 << 7) &&
         bufferPointer->byteNumber == sizeof(((PortBuffer *) 0)->bytes)) {
         return true;
@@ -76,44 +95,59 @@ inline uint8_t isBufferFull(volatile BufferBitPointer *bufferPointer) {
     return false;
 }
 
+#include "../ParticleParameters.h"
 
-inline void constructBufferBitPointer(volatile BufferBitPointer *o) {
+FUNC_ATTRS void constructTimerCounterAdjustment(volatile TimerCounterAdjustment *o) {
+    o->receptionOffset = 0;
+    o->estimatedCounterTop = DEFAULT_TX_RX_COMPARE_TOP_VALUE;
+    o->estimatedCounterCenter = DEFAULT_TX_RX_COMPARE_TOP_VALUE / TX_RX_COUNTER_CENTER_VALUE_DIVISOR;
+    o->receptionDelta = DEFAULT_TX_RX_COMPARE_TOP_VALUE / TX_RX_RECEPTION_DELTA_VALUE_DIVISOR - 1;
+#ifdef IS_SIMULATION
+    o->estimatedTopCounterOffset = 0;
+//    o->estimatedScaleFactor = 127;
+#endif
+}
+
+FUNC_ATTRS void constructBufferBitPointer(volatile BufferBitPointer *o) {
     o->byteNumber = 0;
     o->bitMask = 1;
 }
 
-inline void constructPortBuffer(volatile PortBuffer *o) {
+FUNC_ATTRS void constructPortBuffer(volatile PortBuffer *o) {
     for (int i = 0; i < sizeof(o->bytes); i++) {
         o->bytes[i] = 0;
     }
     constructBufferBitPointer(&(o->pointer));
 }
 
-inline void constructTxPort(volatile TxPort *o) {
+FUNC_ATTRS void constructTxPort(volatile TxPort *o) {
     constructPortBuffer(&(o->buffer));
 }
 
-inline void constructTxPorts(volatile TxPorts *o) {
+FUNC_ATTRS void constructTxPorts(volatile TxPorts *o) {
     constructTxPort(&(o->north));
     constructTxPort(&(o->east));
     constructTxPort(&(o->south));
 }
 
-inline void constructRxPort(volatile RxPort *o) {
-    o->receptionSyncOffset = 0;
+FUNC_ATTRS void constructRxPort(volatile RxPort *o) {
+    constructTimerCounterAdjustment(&(o->adjustment));
     o->isReceiving = 0;
     constructPortBuffer(&(o->buffer));
 }
 
-inline void constructRxPorts(volatile RxPorts *o) {
+FUNC_ATTRS void constructRxPorts(volatile RxPorts *o) {
     constructRxPort(&(o->north));
     constructRxPort(&(o->east));
     constructRxPort(&(o->south));
 }
 
-inline void constructPorts(volatile Ports *o) {
+FUNC_ATTRS void constructPorts(volatile Ports *o) {
     constructTxPorts(&(o->tx));
     constructRxPorts(&(o->rx));
 }
 
+#  ifdef FUNC_ATTRS
+#    undef FUNC_ATTRS
+#  endif
 #endif

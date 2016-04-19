@@ -4,33 +4,31 @@
 #ifndef __DEFAULT_ISR_H
 #define __DEFAULT_ISR_H
 
-#include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
 #include <uc-core/ParticleTypes.h>
 
 #include "Vectors.h"
-#include "Reception.h"
 #include "TimerCounter.h"
 
 #include "../Globals.h"
 #include "../IoDefinitions.h"
-#include "../../simulation/SimulationUtils.h"
 #include "../discovery/Discovery.h"
 #include "../communication/Communication.h"
 
+#  define FUNC_ATTRS // inline
+
 extern volatile ParticleState ParticleAttributes;
 
-/**
- * south RX pin change interrupt on logical pin change
- */
-ISR(SOUTH_PIN_CHANGE_INTERRUPT_VECT) {
+
+FUNC_ATTRS void handleIoInterrupt(volatile PulseCounter *discoveryPulseCounter, volatile RxPort *rxPort,
+                                  volatile unsigned char *isRxHigh) {
     switch (ParticleAttributes.node.state) {
         // on discovery pulse
         case STATE_TYPE_NEIGHBOURS_DISCOVERY:
             if (SOUTH_RX_IS_LO) {
                 TIMER_NEIGHBOUR_SENSE_PAUSE;
-                dispatchFallingDiscoveryEdge(&ParticleAttributes.discoveryPulseCounters.south);
+                dispatchFallingDiscoveryEdge(discoveryPulseCounter);
                 TIMER_NEIGHBOUR_SENSE_RESUME;
             }
             break;
@@ -40,70 +38,42 @@ ISR(SOUTH_PIN_CHANGE_INTERRUPT_VECT) {
         case STATE_TYPE_TX_START:
         case STATE_TYPE_TX_DONE:
         case STATE_TYPE_SCHEDULE_COMMAND:
-            dispatchReceivedDataEdge(&ParticleAttributes.ports.rx.south, SOUTH_RX_IS_HI);
+            dispatchReceivedDataEdge(rxPort, *isRxHigh);
             break;
 
         default:
             IF_SIMULATION_SWITCH_TO_ERRONEOUS_STATE;
             break;
     }
+}
+
+/**
+ * south RX pin change interrupt on logical pin change
+ */
+ISR(SOUTH_PIN_CHANGE_INTERRUPT_VECT) { // int. #2
+    unsigned char isRxHigh = SOUTH_RX_IS_HI;
+    handleIoInterrupt(&ParticleAttributes.discoveryPulseCounters.south, &ParticleAttributes.ports.rx.south,
+                      &isRxHigh);
 }
 
 
 /**
  * east RX pin change interrupt on logical pin change
  */
-ISR(EAST_PIN_CHANGE_INTERRUPT_VECT) {
-    switch (ParticleAttributes.node.state) {
-        // on discovery pulse
-        case STATE_TYPE_NEIGHBOURS_DISCOVERY:
-            if (EAST_RX_IS_LO) {
-                TIMER_NEIGHBOUR_SENSE_PAUSE;
-                dispatchFallingDiscoveryEdge(&ParticleAttributes.discoveryPulseCounters.east);
-                TIMER_NEIGHBOUR_SENSE_RESUME;
-            }
-            break;
-
-            // on data received
-        case STATE_TYPE_IDLE:
-        case STATE_TYPE_TX_START:
-        case STATE_TYPE_TX_DONE:
-        case STATE_TYPE_SCHEDULE_COMMAND:
-            dispatchReceivedDataEdge(&ParticleAttributes.ports.rx.east, EAST_RX_IS_HI);
-            break;
-        default:
-            IF_SIMULATION_SWITCH_TO_ERRONEOUS_STATE;
-            break;
-    }
+ISR(EAST_PIN_CHANGE_INTERRUPT_VECT) { // int. #3
+    unsigned char isRxHigh = EAST_RX_IS_HI;
+    handleIoInterrupt(&ParticleAttributes.discoveryPulseCounters.east, &ParticleAttributes.ports.rx.east,
+                      &isRxHigh);
 }
 
 
 /**
  * north RX pin change interrupt on logical pin change
  */
-ISR(NORTH_PIN_CHANGE_INTERRUPT_VECT) {
-    switch (ParticleAttributes.node.state) {
-        // on discovery pulse
-        case STATE_TYPE_NEIGHBOURS_DISCOVERY:
-            if (NORTH_RX_IS_LO) {
-                TIMER_NEIGHBOUR_SENSE_PAUSE;
-                dispatchFallingDiscoveryEdge(&ParticleAttributes.discoveryPulseCounters.north);
-                TIMER_NEIGHBOUR_SENSE_RESUME;
-            }
-            break;
-
-            // on data received
-        case STATE_TYPE_IDLE:
-        case STATE_TYPE_TX_START:
-        case STATE_TYPE_TX_DONE:
-        case STATE_TYPE_SCHEDULE_COMMAND:
-            dispatchReceivedDataEdge(&ParticleAttributes.ports.rx.north, NORTH_RX_IS_HI);
-            break;
-
-        default:
-            IF_SIMULATION_SWITCH_TO_ERRONEOUS_STATE;
-            break;
-    }
+ISR(NORTH_PIN_CHANGE_INTERRUPT_VECT) { // int. #19
+    unsigned char isRxHigh = NORTH_RX_IS_HI;
+    handleIoInterrupt(&ParticleAttributes.discoveryPulseCounters.north, &ParticleAttributes.ports.rx.north,
+                      &isRxHigh);
 }
 
 
@@ -111,7 +81,7 @@ ISR(NORTH_PIN_CHANGE_INTERRUPT_VECT) {
  * On timer_counter match with compare register A.
  * In tx/rx states A equals DEFAULT_TX_RX_COMPARE_TOP_VALUE
  */
-ISR(TX_RX_TIMER_TOP_INTERRUPT_VECT) {
+ISR(TX_RX_TIMER_TOP_INTERRUPT_VECT) { // int. #7
     switch (ParticleAttributes.node.state) {
         // on generate discovery pulse
         case STATE_TYPE_NEIGHBOURS_DISCOVERY:
@@ -146,7 +116,7 @@ ISR(TX_RX_TIMER_TOP_INTERRUPT_VECT) {
  * On timer_counter compare register B match. If there are bits to transmit, this interrupt
  * generates the signal(s) according to the state.
  */
-ISR(TX_TIMER_CENTER_INTERRUPT_VECT) {
+ISR(TX_TIMER_CENTER_INTERRUPT_VECT) { // int. #8
     switch (ParticleAttributes.node.state) {
         // on receive data counter compare
         case STATE_TYPE_IDLE:
@@ -166,7 +136,7 @@ ISR(TX_TIMER_CENTER_INTERRUPT_VECT) {
  * TX_RX_TIMER_TOP_INTERRUPT_VECT. The implementation updates the timeout per reception
  * port. A timeout indicates a fully received transmission.
  */
-ISR(TX_RX_TIMEOUT_INTERRUPT_VECT) {
+ISR(TX_RX_TIMEOUT_INTERRUPT_VECT) { // int. #20
     switch (ParticleAttributes.node.state) {
         case STATE_TYPE_IDLE:
         case STATE_TYPE_TX_START:
@@ -176,15 +146,12 @@ ISR(TX_RX_TIMEOUT_INTERRUPT_VECT) {
             TIMER_TX_RX_TIMEOUT_COUNTER = 0;
             if (ParticleAttributes.ports.rx.north.isReceiving != 0) {
                 --ParticleAttributes.ports.rx.north.isReceiving;
-                UDR = 'N';
             }
             if (ParticleAttributes.ports.rx.east.isReceiving != 0) {
                 --ParticleAttributes.ports.rx.east.isReceiving;
-                UDR = 'E';
             }
             if (ParticleAttributes.ports.rx.south.isReceiving != 0) {
                 --ParticleAttributes.ports.rx.south.isReceiving;
-                UDR = 'S';
             }
             TIMER_TX_RX_TIMEOUT_COUNTER_RESUME;
             break;
@@ -193,7 +160,7 @@ ISR(TX_RX_TIMEOUT_INTERRUPT_VECT) {
     }
 }
 
-#ifdef IS_SIMULATION
+#  ifdef IS_SIMULATION
 
 const char isrVector0Msg[] PROGMEM = "ISR(_VECTOR(0))";
 /**
@@ -203,6 +170,8 @@ ISR(_VECTOR(0)) {
     writeToUart((PGM_P) pgm_read_word(&(isrVector0Msg)));
 }
 
-#endif
-
+#  endif
+#  ifdef FUNC_ATTRS
+#    undef FUNC_ATTRS
+#  endif
 #endif

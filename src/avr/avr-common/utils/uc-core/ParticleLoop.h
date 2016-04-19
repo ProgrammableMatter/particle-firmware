@@ -4,36 +4,30 @@
 #ifndef __PARTICLE_MAIN_LOOP_H
 #define __PARTICLE_MAIN_LOOP_H
 
-/**
-* @author Raoul Rubien 2015
-*/
-#include "ParticleLoop.h"
-
 #include <avr/interrupt.h>
 #include <common/common.h>
 #include "IoDefinitions.h"
-#include "interrupts/InterruptDefinitions.jail"
-//#include "Interrupts.c"
 #include "ParticleTypes.h"
 #include "Globals.h"
 #include "Particle.h"
+#include "./delay/delay.h"
 
-#ifdef __AVR_ATtiny1634__
+//#  define FUNC_ATTRS static inline
+#  define FUNC_ATTRS inline
+#  ifdef __AVR_ATtiny1634__
+#    include <util/delay.h>
+#  endif
 
-#  include <util/delay.h>
-
-#endif
-
-static inline int particleLoop(void);
+FUNC_ATTRS int particleLoop(void);
 
 /**
  * The particle loop. It changes particle states and performs/execute tasks.
  */
-static inline int particleLoop(void) {
+FUNC_ATTRS int particleLoop(void) {
     IO_PORTS_SETUP; // configure input/output pins
-#ifdef __AVR_ATtiny1634__
-    _delay_ms(1); // wait for all nodes to be ready
-#endif
+#  ifdef __AVR_ATtiny1634__
+    DELAY_MS_1; // wait for all nodes to be ready
+#  endif
 
     ParticleAttributes.node.state = STATE_TYPE_START;
     forever {
@@ -44,5 +38,7 @@ static inline int particleLoop(void) {
     }
 }
 
-
+#  ifdef FUNC_ATTRS
+#    undef FUNC_ATTRS
+#  endif
 #endif

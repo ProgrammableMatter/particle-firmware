@@ -5,15 +5,16 @@
 #include <common/common.h>
 #include <uc-core/ParticleTypes.h>
 #include "uc-core/IoDefinitions.h"
-//#include "uc-core/InterruptDefinitions.h"
 #include "uc-core/interrupts/Interrupts.c"
+#include "uc-core/interrupts/Reception.h"
 #include "uc-core/Particle.h"
 
+#define FUNC_ATTRS inline
 
 /**
  * A mocked up particle loop. It puts the particle in an initialized reception state.
  */
-int particleLoop(void) {
+FUNC_ATTRS int particleLoop(void) {
     SREG setBit bit(SREG_I);
     forever {
         particleTick();
@@ -42,4 +43,8 @@ int main(void) {
 
     return particleLoop();
 }
+
+#ifdef FUNC_ATTRS
+#  undef FUNC_ATTRS
+#endif
 

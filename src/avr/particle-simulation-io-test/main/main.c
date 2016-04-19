@@ -2,11 +2,11 @@
  * @author Raoul Rubien 2016
  */
 
-#include <uc-core/IoDefinitions.h>
-#include <common/common.h>
-#include <simulation/SimulationUtils.h>
-#include <uc-core/Globals.h>
 #include <avr/pgmspace.h>
+#include <uc-core/IoDefinitions.h>
+#include <simulation/SimulationMacros.h>
+#include <uc-core/Globals.h>
+#include "../libs/common/common.h"
 
 extern volatile ParticleState ParticleAttributes;
 

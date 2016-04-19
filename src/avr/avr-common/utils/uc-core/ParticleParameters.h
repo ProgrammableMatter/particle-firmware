@@ -42,29 +42,24 @@
 
 /**
  * Accepted deviation (constant) on reception:
- * Bits received within [DEFAULT_NEIGHBOUR_SENSING_COMPARE_VALUE +/- deviation] are
- * synchronization/rectification bits.
- * Bits received within [DEFAULT_TX_RX_COUNTER_CENTER_VALUE +/- deviation] are data bits.
+ * Signals received within [DEFAULT_TX_RX_COMPARE_TOP_VALUE +/- TX_RX_RECEPTION_DELTA_DIVISOR ] time span are
+ * classified synchronization/rectification bits.
+ * Signals received within [DEFAULT_TX_RX_COMPARE_TOP_VALUE / DEFAULT_TX_RX_COUNTER_CENTER_VALUE_DIVISOR +/- TX_RX_RECEPTION_DELTA_DIVISOR ] time span are classified as data bits.
  */
-#define TX_RX_RECEPTION_DELTA ((DEFAULT_TX_RX_COMPARE_TOP_VALUE/4)-1)
+#define TX_RX_RECEPTION_DELTA_VALUE_DIVISOR 4
 
 /**
- * Initial counter center value and constant acceptance interval range.
+ * Divisor for calculating the center of DEFAULT_TX_RX_COMPARE_TOP_VALUE.
  */
-#define DEFAULT_TX_RX_COUNTER_CENTER_VALUE (DEFAULT_TX_RX_COMPARE_TOP_VALUE / 2)
-#define DEFAULT_TX_RX_COUNTER_LEFT_OF_CENTER_VALUE (DEFAULT_TX_RX_COUNTER_CENTER_VALUE - TX_RX_RECEPTION_DELTA)
-#define DEFAULT_TX_RX_COUNTER_RIGHT_OF_CENTER_VALUE (DEFAULT_TX_RX_COUNTER_CENTER_VALUE + TX_RX_RECEPTION_DELTA)
-
-/**
- * Counter top constant acceptance interval range.
- */
-#define DEFAULT_TX_RX_COUNTER_LEFT_OF_TOP_VALUE (DEFAULT_TX_RX_COMPARE_TOP_VALUE - TX_RX_RECEPTION_DELTA)
-#define DEFAULT_TX_RX_COUNTER_RIGHT_OF_TOP_VALUE (0 + TX_RX_RECEPTION_DELTA)
+#define TX_RX_COUNTER_CENTER_VALUE_DIVISOR 2
 
 /**
  * Initial counter compare interrupt value for updating the ongoing reception timeout.
  */
-#define DEFAULT_RX_TIMEOUT_INTERRUPT_COMPARE_VALUE (DEFAULT_TX_RX_COMPARE_TOP_VALUE / 8)
+#define RX_TIMEOUT_INTERRUPT_VALUE_DIVISOR 8
+
+// TODO: remove
+//#define DEFAULT_RX_TIMEOUT_INTERRUPT_COMPARE_VALUE (DEFAULT_TX_RX_COMPARE_TOP_VALUE / RX_TIMEOUT_INTERRUPT_DIVISOR)
 
 /**
  * Heartbeat LED toggles every main-loop count

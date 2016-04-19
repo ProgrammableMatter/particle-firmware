@@ -5,22 +5,23 @@
 #ifndef __PARTICLE_H
 #define __PARTICLE_H
 
-#include "Particle.h"
-#include "Globals.h"
-#include "IoDefinitions.h"
-#include <util/delay.h>
 #include <common/common.h>
 #include <uc-core/ParticleTypes.h>
-#include <uc-core/communication/CommunicationTypes.h>
-//#include "ParticleTypes.h"
+#include "Globals.h"
+#include "IoDefinitions.h"
+#include "./delay/delay.h"
+#include "./interrupts/Reception.h"
+#include "./discovery/Discovery.h"
+#include "./interrupts/TimerCounter.h"
 
+#  define FUNC_ATTRS inline
 
 /**
  * Updates the node type according to the amount of incoming pulses. The type {@link NodeType} is stored to
  * {@link ParticleAttributes.type}.
  * @return 1 if the node is fully connected, else 0
  */
-static inline uint8_t __updateNodeType(void) {
+FUNC_ATTRS uint8_t __updateNodeType(void) {
     uint8_t hasNorthNeighbour =
             (uint8_t) ((ParticleAttributes.discoveryPulseCounters.north.counter >=
                         MIN_RX_NEIGHBOUR_SIGNALS_SENSE) ? 1 : 0);
@@ -69,7 +70,7 @@ static inline uint8_t __updateNodeType(void) {
 /**
  * Sets up ports and interrupts but does not enable the global interrupt (I-flag in SREG)
  */
-static inline void __init(void) {
+FUNC_ATTRS void __init(void) {
     RX_INTERRUPTS_SETUP; // configure input pins interrupts
     RX_INTERRUPTS_ENABLE; // enable input pin interrupts
     TIMER_NEIGHBOUR_SENSE_SETUP; // configure timer interrupt for neighbour sensing
@@ -80,7 +81,7 @@ static inline void __init(void) {
 /**
  * Sets up reception timer/counter interrupt and enables the interrupt.
  */
-static inline void __enableReception(void) {
+FUNC_ATTRS void __enableReception(void) {
     TIMER_TX_RX_SETUP; // set up reception and timeout counter interrupts
     TIMER_TX_RX_ENABLE; // enable reception counter interrupt
     TIMER_TX_RX_TIMEOUT_ENABLE; // enable timeout counter interrupt
@@ -90,16 +91,15 @@ static inline void __enableReception(void) {
 /**
  * Toggles heartbeat LED
  */
-static inline void __heartBeatToggle(void) {
-    static uint8_t loopCounter = 0;
-    loopCounter++;
-    if (0 == (loopCounter % HEARTBEAT_LOOP_COUNT_TOGGLE)) {
+FUNC_ATTRS void __heartBeatToggle(void) {
+    ParticleAttributes.periphery.loopCount++;
+    if (0 == (ParticleAttributes.periphery.loopCount % HEARTBEAT_LOOP_COUNT_TOGGLE)) {
         LED_HEARTBEAT_TOGGLE;
-        loopCounter = 0;
+        ParticleAttributes.periphery.loopCount = 0;
     }
 }
 
-static inline void particleTick(void) {
+FUNC_ATTRS void particleTick(void) {
 
     if (ParticleAttributes.discoveryPulseCounters.loopCount < (UINT8_MAX)) {
         ParticleAttributes.discoveryPulseCounters.loopCount++;
@@ -158,7 +158,7 @@ static inline void particleTick(void) {
 
             // reset state disables timers and switches back to the very first state
         case STATE_TYPE_RESET:
-        TIMER_NEIGHBOUR_SENSE_DISABLE;
+            TIMER_NEIGHBOUR_SENSE_DISABLE;
             TIMER_TX_RX_DISABLE;
             ParticleAttributes.node.state = STATE_TYPE_ACTIVE;
             break;
@@ -236,9 +236,9 @@ static inline void particleTick(void) {
         case STATE_TYPE_ERRONEOUS:
             forever {
                 LED_STATUS0_ON;
-                _delay_ms(200);
+                DELAY_MS_196;
                 LED_STATUS0_OFF;
-                _delay_ms(200);
+                DELAY_MS_196;
             }
             break;
         default:
@@ -247,4 +247,7 @@ static inline void particleTick(void) {
     }
 }
 
+#  ifdef FUNC_ATTRS
+#    undef FUNC_ATTRS
+#  endif
 #endif

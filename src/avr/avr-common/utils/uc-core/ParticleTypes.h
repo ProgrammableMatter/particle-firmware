@@ -1,13 +1,14 @@
-/**
+/*
  * @author Raoul Rubien 2015
  */
 
 #ifndef __PARTICLE_TYPES_H
 #define __PARTICLE_TYPES_H
 
-#include <common/PortInteraction.h>
-#include "ParticleTypes.h"
+#include "../common/PortInteraction.h"
 #include "./communication/CommunicationTypes.h"
+
+#  define FUNC_ATTRS // inline
 
 /**
  * Possible particle's state machine states are listed in this enum.
@@ -56,7 +57,7 @@ typedef enum {
 typedef struct {
     uint8_t counter : 4; //pulse counter
     uint8_t isConnected : 1; // connectivity flag
-    uint8_t :3;
+    uint8_t __pad :3;
 } PulseCounter; // 1 byte total
 
 /**
@@ -89,6 +90,13 @@ typedef struct {
 } Node; // 2 + 2 + 2 = 6 byte total
 
 /**
+ * Counters/resources needed for platform's periphery.
+ */
+typedef struct {
+    uint8_t loopCount; // particle loop counter
+} Periphery;
+
+/**
  * The global particle state with references to the most important states, buffers, counters,
  * etc.
  */
@@ -96,36 +104,46 @@ typedef struct {
     Node node;
     DiscoveryPulseCounters discoveryPulseCounters;
     Ports ports;
-} ParticleState; // 6 + 4 + 45 = 55 bytes total
+    Periphery periphery;
+} ParticleState; // 6 + 4 + 51 = 61 bytes total
 
 
-inline void constructPulseCounter(volatile PulseCounter *o) {
+FUNC_ATTRS void constructPulseCounter(volatile PulseCounter *o) {
     o->counter = 0;
     o->isConnected = false;
 }
 
-inline void constructDiscoveryPulseCounters(volatile DiscoveryPulseCounters *o) {
+FUNC_ATTRS void constructDiscoveryPulseCounters(volatile DiscoveryPulseCounters *o) {
     constructPulseCounter(&(o->north));
     constructPulseCounter(&(o->east));
     constructPulseCounter(&(o->south));
     o->loopCount = 0;
 }
 
-inline void constructNodeAddress(volatile NodeAddress *o) {
+FUNC_ATTRS void constructNodeAddress(volatile NodeAddress *o) {
     o->row = 0;
     o->column = 0;
 }
 
-inline void constructNode(volatile Node *o) {
+FUNC_ATTRS void constructNode(volatile Node *o) {
     o->state = STATE_TYPE_UNDEFINED;
     o->type = NODE_TYPE_INVALID;
     constructNodeAddress(&(o->address));
 }
 
-inline void constructParticleState(volatile ParticleState *o) {
+FUNC_ATTRS void constructPeriphery(volatile Periphery *o) {
+    o->loopCount = 0;
+}
+
+FUNC_ATTRS void constructParticleState(volatile ParticleState *o) {
     constructNode(&(o->node));
     constructDiscoveryPulseCounters(&(o->discoveryPulseCounters));
     constructPorts(&(o->ports));
+    constructPeriphery(&(o->periphery));
 }
 
+
+#  ifdef FUNC_ATTRS
+#    undef FUNC_ATTRS
+#  endif
 #endif
