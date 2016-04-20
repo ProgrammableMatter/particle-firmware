@@ -13,15 +13,20 @@
 #include "./interrupts/Reception.h"
 #include "./discovery/Discovery.h"
 #include "./interrupts/TimerCounter.h"
+#include "./ParticleParameters.h"
 
-#  define FUNC_ATTRS inline
+#  ifdef TRY_INLINE
+#    define FUNC_ATTRS inline
+#  else
+#    define FUNC_ATTRS
+#  endif
 
 /**
  * Updates the node type according to the amount of incoming pulses. The type {@link NodeType} is stored to
  * {@link ParticleAttributes.type}.
- * @return 1 if the node is fully connected, else 0
+ * @return true if the node is fully connected, else false
  */
-FUNC_ATTRS uint8_t __updateNodeType(void) {
+FUNC_ATTRS bool __updateNodeType(void) {
     uint8_t hasNorthNeighbour =
             (uint8_t) ((ParticleAttributes.discoveryPulseCounters.north.counter >=
                         MIN_RX_NEIGHBOUR_SIGNALS_SENSE) ? 1 : 0);
@@ -35,14 +40,14 @@ FUNC_ATTRS uint8_t __updateNodeType(void) {
         if (hasSouthNeighbour) { // N, S
             if (hasEastNeighbour) { // N, S, E
                 ParticleAttributes.node.type = NODE_TYPE_INTER_HEAD;
-                return 1;
+                return true;
             } else { // N,S,!E
                 ParticleAttributes.node.type = NODE_TYPE_INTER_NODE;
             }
         } else { // N, !S
             if (hasEastNeighbour) { // N, !S, E
                 ParticleAttributes.node.type = NODE_TYPE_INVALID;
-                return 1;
+                return true;
             } else { // N, !S, !E
                 ParticleAttributes.node.type = NODE_TYPE_TAIL;
             }
@@ -63,14 +68,14 @@ FUNC_ATTRS uint8_t __updateNodeType(void) {
             }
         }
     }
-    return 0;
+    return false;
 }
 
 
 /**
  * Sets up ports and interrupts but does not enable the global interrupt (I-flag in SREG)
  */
-FUNC_ATTRS void __init(void) {
+FUNC_ATTRS void __initParticle(void) {
     RX_INTERRUPTS_SETUP; // configure input pins interrupts
     RX_INTERRUPTS_ENABLE; // enable input pin interrupts
     TIMER_NEIGHBOUR_SENSE_SETUP; // configure timer interrupt for neighbour sensing
@@ -109,7 +114,7 @@ FUNC_ATTRS void particleTick(void) {
     // STATE_TYPE_START: state before initialization
     switch (ParticleAttributes.node.state) {
         case STATE_TYPE_START:
-            __init();
+            __initParticle();
             ParticleAttributes.node.state = STATE_TYPE_ACTIVE;
             break;
 
@@ -130,7 +135,7 @@ FUNC_ATTRS void particleTick(void) {
                 ParticleAttributes.node.state = STATE_TYPE_NEIGHBOURS_DISCOVERED;
             } else if (ParticleAttributes.discoveryPulseCounters.loopCount >=
                        MIN_NEIGHBOURS_DISCOVERY_LOOPS) {
-                if (__updateNodeType() == 1) {
+                if (__updateNodeType()) {
                     ParticleAttributes.node.state = STATE_TYPE_NEIGHBOURS_DISCOVERED;
                 }
             }
