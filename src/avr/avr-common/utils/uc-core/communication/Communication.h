@@ -9,12 +9,17 @@
 #include "../../simulation/SimulationMacros.h"
 #include "CommunicationTypes.h"
 #include "../../common/common.h"
+#include "../ParticleParameters.h"
 
-#  define FUNC_ATTRS // inline
+#  ifdef TRY_INLINE_ISR_RELEVANT
+#    define FUNC_ATTRS inline
+#  else
+#    define FUNC_ATTRS
+#  endif
 /**
  * Translates the hardware counter to a specific port counter according to the provided TimerCounterAdjustment.
  */
-FUNC_ATTRS uint16_t __toPortCounter(volatile const uint16_t *hardwareCounter,
+FUNC_ATTRS uint16_t __toPortCounter(const volatile uint16_t *hardwareCounter,
                                     volatile TimerCounterAdjustment *portTimerArguments) {
     return *hardwareCounter + portTimerArguments->receptionOffset;
 }
@@ -22,7 +27,7 @@ FUNC_ATTRS uint16_t __toPortCounter(volatile const uint16_t *hardwareCounter,
 /**
  * returns true if the captureCounter is within the center interval of the given port arguments
  */
-FUNC_ATTRS bool __isInCenterInterval(volatile const uint16_t *hardwareCounter,
+FUNC_ATTRS bool __isInCenterInterval(const volatile uint16_t *hardwareCounter,
                                      volatile TimerCounterAdjustment *portTimerArguments) {
     uint16_t captureCounter = __toPortCounter(hardwareCounter, portTimerArguments);
 
@@ -48,7 +53,7 @@ FUNC_ATTRS bool __isInCenterInterval(volatile const uint16_t *hardwareCounter,
 /**
  * returns true if the captureCounter is within the top interval of the given port arguments
  */
-FUNC_ATTRS bool __isInTopInterval(volatile const uint16_t *hardwareCounter,
+FUNC_ATTRS bool __isInTopInterval(const volatile uint16_t *hardwareCounter,
                                   volatile TimerCounterAdjustment *portTimerArguments) {
     uint16_t captureCounter = __toPortCounter(hardwareCounter, portTimerArguments);
     IF_SIMULATION_CHAR_OUT('a');
@@ -62,15 +67,14 @@ FUNC_ATTRS bool __isInTopInterval(volatile const uint16_t *hardwareCounter,
 }
 
 
-//static inline void reApproximateTimerCounterMaximumValueOnCenter(const uint16_t *synchronizedCaptureCounter);
 /**
  * Adjusts the timer counter maximum value according to the current deviation. The arithmetic average of
  * the current value and the newly estimated one is weighted by a third since the re-approximation depends
  * on three reception channels.
  */
-FUNC_ATTRS void __estimateAdjustmentOnCenter(volatile const uint16_t *hardwareCounter,
+FUNC_ATTRS void __estimateAdjustmentOnCenter(const volatile uint16_t *hardwareCounter,
                                              volatile TimerCounterAdjustment *receptionAdjustment) {
-#  ifdef IS_SIMULATION
+#  ifdef SIMULATION
     uint16_t portTime = __toPortCounter(hardwareCounter, receptionAdjustment);
     uint16_t estimatedTop = 2 * portTime;
     uint16_t estimatedOffset = (estimatedTop - TIMER_TX_RX_COMPARE_TOP_VALUE) / 2.0;
@@ -93,7 +97,6 @@ FUNC_ATTRS void __estimateAdjustmentOnCenter(volatile const uint16_t *hardwareCo
 }
 
 
-//static inline void storeDataBit(volatile RxPort *rxBuffer, uint8_t isRisingEdge);
 /**
  * Stores the data bit to the reception buffer unless the buffer is saturated.
  */
@@ -123,9 +126,9 @@ FUNC_ATTRS void __storeDataBit(volatile RxPort *rxPort, volatile uint8_t isRisin
  * timer/counter.
  */
 FUNC_ATTRS void dispatchReceivedDataEdge(volatile RxPort *rxPort, volatile uint8_t isRisingEdge) {
+    IF_SIMULATION_CHAR_OUT('D');
     uint16_t hardwareCounter = TIMER_TX_RX_COUNTER;
 
-    IF_SIMULATION_CHAR_OUT('D');
     // if there is no ongoing reception thus this this call is the first signal of a package
     if (rxPort->isReceiving == 0) {
         IF_SIMULATION_CHAR_OUT('s');
@@ -139,32 +142,33 @@ FUNC_ATTRS void dispatchReceivedDataEdge(volatile RxPort *rxPort, volatile uint8
     }
 
     else { // reception is ongoing thus this signal belongs to the current emission
-//        // reconstruct the synchronized counter
-//        // if signal occurs approx. at 1/2 of a package clock:
-//        if (__isInCenterInterval(&hardwareCounter, &(rxPort->adjustment))) {
+        // reconstruct the synchronized counter
+        // if signal occurs approx. at 1/2 of a package clock:
+        if (__isInCenterInterval(&hardwareCounter, &(rxPort->adjustment))) {
 //            __estimateAdjustmentOnCenter(&hardwareCounter, &(rxPort->adjustment));
 //            __storeDataBit(rxPort, isRisingEdge);
-//        }
-//        else // if signal occurs approx. at the end/beginning of a package clock:
-//        if (__isInTopInterval(&hardwareCounter, &(rxPort->adjustment))) {
-//            // TODO: re-synchronize channel counter offset
-//            // __estimateAdjustmentOnTop(&hardwareCounter, &(rxPort->adjustment));
-//
-//            // TODO: scale/update DEFAULT_TX_RX_COMPARE_TOP_VALUE in TX_RX_COMPARE_A_VALUE according to all port adjustments
-//            // ---- investigate why ~26 is a good offset value
-//            // ---- rxPort->adjustment.receptionOffset = TIMER_TX_RX_COUNTER_MAX - hardwareCounter + 26;
-//            // TODO: update TIMER_TX_RX_TIMEOUT_COUNTER according to DEFAULT_TX_RX_COMPARE_TOP_VALUE:
-//        }
-//#  ifdef IS_SIMULATION
-//        else {
-//            IF_SIMULATION_SWITCH_TO_ERRONEOUS_STATE;
-//        }
-//#  endif
+        }
+        else // if signal occurs approx. at the end/beginning of a package clock:
+        if (__isInTopInterval(&hardwareCounter, &(rxPort->adjustment))) {
+            // TODO: re-synchronize channel counter offset
+            // __estimateAdjustmentOnTop(&hardwareCounter, &(rxPort->adjustment));
+
+            // TODO: scale/update DEFAULT_TX_RX_COMPARE_TOP_VALUE in TX_RX_COMPARE_A_VALUE according to all port adjustments
+            // ---- investigate why ~26 is a good offset value
+            // ---- rxPort->adjustment.receptionOffset = TIMER_TX_RX_COUNTER_MAX - hardwareCounter + 26;
+            // TODO: update TIMER_TX_RX_TIMEOUT_COUNTER according to DEFAULT_TX_RX_COMPARE_TOP_VALUE:
+        }
+#  ifdef IS_SIMULATION
+        else {
+            IF_SIMULATION_SWITCH_TO_ERRONEOUS_STATE;
+        }
+#  endif
     }
 
     // data bit separation: 4; safety: 2 => 6
     rxPort->isReceiving = 6;
     TIMER_TX_RX_COUNTER_CLEAR_PENDING_INTERRUPTS;
+    TIMER_TX_RX_TIMEOUT_COUNTER_RESUME;
 }
 
 

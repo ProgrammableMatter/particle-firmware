@@ -9,7 +9,11 @@
 #include "uc-core/interrupts/Reception.h"
 #include "uc-core/Particle.h"
 
-#define FUNC_ATTRS inline
+#  ifdef TRY_INLINE
+#    define FUNC_ATTRS inline
+#  else
+#    define FUNC_ATTRS
+#  endif
 
 /**
  * A mocked up particle loop. It puts the particle in an initialized reception state.
@@ -33,7 +37,7 @@ int main(void) {
     // setup and enable reception counter interrupt
     TIMER_TX_RX_SETUP;
     TIMER_TX_RX_ENABLE;
-    TIMER_TX_RX_TIMEOUT_ENABLE;
+    //TIMER_TX_RX_TIMEOUT_ENABLE;
 
     ParticleAttributes.discoveryPulseCounters.loopCount = UINT8_MAX;
     constructParticleState(&ParticleAttributes);

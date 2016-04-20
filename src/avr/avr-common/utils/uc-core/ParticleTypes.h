@@ -7,8 +7,13 @@
 
 #include "../common/PortInteraction.h"
 #include "./communication/CommunicationTypes.h"
+#include "./ParticleParameters.h"
 
-#  define FUNC_ATTRS // inline
+#  ifdef TRY_INLINE
+#    define FUNC_ATTRS inline
+#  else
+#    define FUNC_ATTRS
+#  endif
 
 /**
  * Possible particle's state machine states are listed in this enum.
@@ -105,6 +110,9 @@ typedef struct {
     DiscoveryPulseCounters discoveryPulseCounters;
     Ports ports;
     Periphery periphery;
+#ifdef SIMULATION
+    uint8_t magicEndByte;
+#endif
 } ParticleState; // 6 + 4 + 51 = 61 bytes total
 
 
@@ -140,6 +148,9 @@ FUNC_ATTRS void constructParticleState(volatile ParticleState *o) {
     constructDiscoveryPulseCounters(&(o->discoveryPulseCounters));
     constructPorts(&(o->ports));
     constructPeriphery(&(o->periphery));
+#ifdef SIMULATION
+    o->magicEndByte = 0xaa;
+#endif
 }
 
 

@@ -58,12 +58,15 @@
  */
 #define RX_TIMEOUT_INTERRUPT_VALUE_DIVISOR 8
 
-// TODO: remove
-//#define DEFAULT_RX_TIMEOUT_INTERRUPT_COMPARE_VALUE (DEFAULT_TX_RX_COMPARE_TOP_VALUE / RX_TIMEOUT_INTERRUPT_DIVISOR)
-
 /**
  * Heartbeat LED toggles every main-loop count
  */
 #define HEARTBEAT_LOOP_COUNT_TOGGLE ((uint8_t)20)
+
+/**
+ * comment if functions should not be inline
+ */
+//#define TRY_INLINE
+//#define TRY_INLINE_ISR_RELEVANT
 
 #endif

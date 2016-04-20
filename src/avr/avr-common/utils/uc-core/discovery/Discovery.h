@@ -4,7 +4,14 @@
 #ifndef __DISCOVERY_H
 #define __DISCOVERY_H
 
-#  define FUNC_ATTRS inline
+#include "../ParticleParameters.h"
+
+#  ifdef TRY_INLINE_ISR_RELEVANT
+#    define FUNC_ATTRS inline
+#  else
+#    define FUNC_ATTRS
+#  endif
+// inline
 /**
  * increments the port counter
  */

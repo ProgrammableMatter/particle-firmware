@@ -8,8 +8,13 @@
 #include <inttypes.h>
 #include <stdbool.h>
 #include "../../simulation/SimulationMacros.h"
+#include "../ParticleParameters.h"
 
-#  define FUNC_ATTRS // inline
+#  ifdef TRY_INLINE
+#    define FUNC_ATTRS inline
+#  else
+#    define FUNC_ATTRS
+#  endif
 
 /**
  * Describes a bit within a 4 byte buffer.
@@ -45,11 +50,7 @@ typedef struct {
     uint16_t estimatedCounterTop; // the estimated reception counter's top value
     uint16_t estimatedCounterCenter;
     uint16_t receptionDelta; // time span for reception classification: center|top +/- delta
-#ifdef IS_SIMULATION
     int8_t estimatedTopCounterOffset; // an approximated counter offset
-    //uint8_t estimatedScaleFactor; // scale factor according to the approximated counter offset
-// factor to percent: {(0.5 - (uint8_max - estimatedScaleFactor) / uint8_max) / 2.0]% in [-0.25, #0.25]
-#endif
 } TimerCounterAdjustment; // 2 + 1 + (+ 1) = 4 bytes total
 
 
@@ -102,10 +103,7 @@ FUNC_ATTRS void constructTimerCounterAdjustment(volatile TimerCounterAdjustment 
     o->estimatedCounterTop = DEFAULT_TX_RX_COMPARE_TOP_VALUE;
     o->estimatedCounterCenter = DEFAULT_TX_RX_COMPARE_TOP_VALUE / TX_RX_COUNTER_CENTER_VALUE_DIVISOR;
     o->receptionDelta = DEFAULT_TX_RX_COMPARE_TOP_VALUE / TX_RX_RECEPTION_DELTA_VALUE_DIVISOR - 1;
-#ifdef IS_SIMULATION
     o->estimatedTopCounterOffset = 0;
-//    o->estimatedScaleFactor = 127;
-#endif
 }
 
 FUNC_ATTRS void constructBufferBitPointer(volatile BufferBitPointer *o) {

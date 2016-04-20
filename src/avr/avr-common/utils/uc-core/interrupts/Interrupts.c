@@ -16,13 +16,14 @@
 #include "../discovery/Discovery.h"
 #include "../communication/Communication.h"
 
-#  define FUNC_ATTRS // inline
+#  ifdef TRY_INLINE_ISR_RELEVANT
+#    define FUNC_ATTRS inline
+#  else
+#    define FUNC_ATTRS
+#  endif
 
-extern volatile ParticleState ParticleAttributes;
-
-
-FUNC_ATTRS void handleIoInterrupt(volatile PulseCounter *discoveryPulseCounter, volatile RxPort *rxPort,
-                                  volatile unsigned char *isRxHigh) {
+FUNC_ATTRS void handleInputInterrupt(volatile PulseCounter *discoveryPulseCounter, volatile RxPort *rxPort,
+                                     volatile unsigned char *isRxHigh) {
     switch (ParticleAttributes.node.state) {
         // on discovery pulse
         case STATE_TYPE_NEIGHBOURS_DISCOVERY:
@@ -52,8 +53,8 @@ FUNC_ATTRS void handleIoInterrupt(volatile PulseCounter *discoveryPulseCounter, 
  */
 ISR(SOUTH_PIN_CHANGE_INTERRUPT_VECT) { // int. #2
     unsigned char isRxHigh = SOUTH_RX_IS_HI;
-    handleIoInterrupt(&ParticleAttributes.discoveryPulseCounters.south, &ParticleAttributes.ports.rx.south,
-                      &isRxHigh);
+    handleInputInterrupt(&ParticleAttributes.discoveryPulseCounters.south, &ParticleAttributes.ports.rx.south,
+                         &isRxHigh);
 }
 
 
@@ -62,8 +63,8 @@ ISR(SOUTH_PIN_CHANGE_INTERRUPT_VECT) { // int. #2
  */
 ISR(EAST_PIN_CHANGE_INTERRUPT_VECT) { // int. #3
     unsigned char isRxHigh = EAST_RX_IS_HI;
-    handleIoInterrupt(&ParticleAttributes.discoveryPulseCounters.east, &ParticleAttributes.ports.rx.east,
-                      &isRxHigh);
+    handleInputInterrupt(&ParticleAttributes.discoveryPulseCounters.east, &ParticleAttributes.ports.rx.east,
+                         &isRxHigh);
 }
 
 
@@ -72,8 +73,8 @@ ISR(EAST_PIN_CHANGE_INTERRUPT_VECT) { // int. #3
  */
 ISR(NORTH_PIN_CHANGE_INTERRUPT_VECT) { // int. #19
     unsigned char isRxHigh = NORTH_RX_IS_HI;
-    handleIoInterrupt(&ParticleAttributes.discoveryPulseCounters.north, &ParticleAttributes.ports.rx.north,
-                      &isRxHigh);
+    handleInputInterrupt(&ParticleAttributes.discoveryPulseCounters.north, &ParticleAttributes.ports.rx.north,
+                         &isRxHigh);
 }
 
 
@@ -103,7 +104,6 @@ ISR(TX_RX_TIMER_TOP_INTERRUPT_VECT) { // int. #7
         case STATE_TYPE_TX_DONE:
         case STATE_TYPE_SCHEDULE_COMMAND:
             TIMER_TX_RX_COUNTER = 0;
-//            TIMER_TX_RX_SYNC_COUNTER_RESUME;
             // if sth. to transmit put !(bitMask & data) to the output
             break;
 
@@ -144,16 +144,24 @@ ISR(TX_RX_TIMEOUT_INTERRUPT_VECT) { // int. #20
         case STATE_TYPE_SCHEDULE_COMMAND:
             TIMER_TX_RX_TIMEOUT_COUNTER_PAUSE;
             TIMER_TX_RX_TIMEOUT_COUNTER = 0;
+            uint8_t isCounterPending = false;
             if (ParticleAttributes.ports.rx.north.isReceiving != 0) {
                 --ParticleAttributes.ports.rx.north.isReceiving;
+                isCounterPending = true;
             }
             if (ParticleAttributes.ports.rx.east.isReceiving != 0) {
                 --ParticleAttributes.ports.rx.east.isReceiving;
+                isCounterPending = true;
             }
             if (ParticleAttributes.ports.rx.south.isReceiving != 0) {
                 --ParticleAttributes.ports.rx.south.isReceiving;
+                isCounterPending = true;
             }
-            TIMER_TX_RX_TIMEOUT_COUNTER_RESUME;
+
+            if (isCounterPending == true) {
+                TIMER_TX_RX_TIMEOUT_COUNTER_RESUME;
+            }
+
             break;
         default:
             break;

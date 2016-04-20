@@ -11,9 +11,14 @@
 #include "Globals.h"
 #include "Particle.h"
 #include "./delay/delay.h"
+#include "./ParticleParameters.h"
 
-//#  define FUNC_ATTRS static inline
-#  define FUNC_ATTRS inline
+#  ifdef TRY_INLINE
+#    define FUNC_ATTRS inline
+#  else
+#    define FUNC_ATTRS
+#  endif
+
 #  ifdef __AVR_ATtiny1634__
 #    include <util/delay.h>
 #  endif
