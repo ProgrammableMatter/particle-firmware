@@ -10,11 +10,11 @@
 
 #include "Vectors.h"
 #include "TimerCounter.h"
-
 #include "../Globals.h"
-#include "../IoDefinitions.h"
 #include "../discovery/Discovery.h"
 #include "../communication/Communication.h"
+#include "../IoDefinitions.h"
+
 
 #  ifdef TRY_INLINE_ISR_RELEVANT
 #    define FUNC_ATTRS inline
@@ -23,11 +23,11 @@
 #  endif
 
 FUNC_ATTRS void handleInputInterrupt(volatile PulseCounter *discoveryPulseCounter, volatile RxPort *rxPort,
-                                     volatile unsigned char *isRxHigh) {
+                                     const uint8_t isRxHigh) {
     switch (ParticleAttributes.node.state) {
         // on discovery pulse
         case STATE_TYPE_NEIGHBOURS_DISCOVERY:
-            if (SOUTH_RX_IS_LO) {
+            if (isRxHigh) {
                 TIMER_NEIGHBOUR_SENSE_PAUSE;
                 dispatchFallingDiscoveryEdge(discoveryPulseCounter);
                 TIMER_NEIGHBOUR_SENSE_RESUME;
@@ -39,7 +39,7 @@ FUNC_ATTRS void handleInputInterrupt(volatile PulseCounter *discoveryPulseCounte
         case STATE_TYPE_TX_START:
         case STATE_TYPE_TX_DONE:
         case STATE_TYPE_SCHEDULE_COMMAND:
-            dispatchReceivedDataEdge(rxPort, *isRxHigh);
+            dispatchReceivedDataEdge(rxPort, isRxHigh);
             break;
 
         default:
@@ -52,9 +52,8 @@ FUNC_ATTRS void handleInputInterrupt(volatile PulseCounter *discoveryPulseCounte
  * south RX pin change interrupt on logical pin change
  */
 ISR(SOUTH_PIN_CHANGE_INTERRUPT_VECT) { // int. #2
-    unsigned char isRxHigh = SOUTH_RX_IS_HI;
     handleInputInterrupt(&ParticleAttributes.discoveryPulseCounters.south, &ParticleAttributes.ports.rx.south,
-                         &isRxHigh);
+                         SOUTH_RX_IS_HI);
 }
 
 
@@ -62,9 +61,8 @@ ISR(SOUTH_PIN_CHANGE_INTERRUPT_VECT) { // int. #2
  * east RX pin change interrupt on logical pin change
  */
 ISR(EAST_PIN_CHANGE_INTERRUPT_VECT) { // int. #3
-    unsigned char isRxHigh = EAST_RX_IS_HI;
     handleInputInterrupt(&ParticleAttributes.discoveryPulseCounters.east, &ParticleAttributes.ports.rx.east,
-                         &isRxHigh);
+                         EAST_RX_IS_HI);
 }
 
 
@@ -72,9 +70,8 @@ ISR(EAST_PIN_CHANGE_INTERRUPT_VECT) { // int. #3
  * north RX pin change interrupt on logical pin change
  */
 ISR(NORTH_PIN_CHANGE_INTERRUPT_VECT) { // int. #19
-    unsigned char isRxHigh = NORTH_RX_IS_HI;
     handleInputInterrupt(&ParticleAttributes.discoveryPulseCounters.north, &ParticleAttributes.ports.rx.north,
-                         &isRxHigh);
+                         NORTH_RX_IS_HI);
 }
 
 
