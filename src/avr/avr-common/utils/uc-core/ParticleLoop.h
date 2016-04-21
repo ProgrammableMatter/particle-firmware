@@ -20,7 +20,7 @@
 #  endif
 
 #  ifdef __AVR_ATtiny1634__
-#    include <util/delay.h>
+#    include "./delay/delay.h"
 #  endif
 
 FUNC_ATTRS int particleLoop(void);
