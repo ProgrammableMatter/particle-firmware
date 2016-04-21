@@ -66,7 +66,7 @@
 /**
  * comment if functions should not be inline
  */
-//#define TRY_INLINE
-//#define TRY_INLINE_ISR_RELEVANT
+#define TRY_INLINE
+#define TRY_INLINE_ISR_RELEVANT
 
 #endif
