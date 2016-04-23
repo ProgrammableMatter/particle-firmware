@@ -19,83 +19,14 @@
 /**
  * Translates the hardware counter to a specific port counter according to the provided TimerCounterAdjustment.
  */
-FUNC_ATTRS uint16_t __toPortCounter(const volatile uint16_t *hardwareCounter,
+FUNC_ATTRS uint16_t __toPortCounter(const uint16_t *hardwareCounter,
                                     volatile TimerCounterAdjustment *portTimerArguments) {
-    return *hardwareCounter + portTimerArguments->receptionOffset;
-}
-
-/**
- * returns true if the captureCounter is within the center interval of the given port arguments
- */
-FUNC_ATTRS bool __isInCenterInterval(const volatile uint16_t *hardwareCounter,
-                                     volatile TimerCounterAdjustment *portTimerArguments) {
-    uint16_t captureCounter = __toPortCounter(hardwareCounter, portTimerArguments);
-
-    IF_SIMULATION_INT16_OUT(*hardwareCounter);
-    IF_SIMULATION_CHAR_OUT('b');
-    IF_SIMULATION_INT16_OUT(portTimerArguments->estimatedCounterCenter - portTimerArguments->receptionDelta);
-    IF_SIMULATION_INT16_OUT(portTimerArguments->estimatedCounterCenter + portTimerArguments->receptionDelta);
-
-    if (
-            ((portTimerArguments->estimatedCounterCenter - portTimerArguments->receptionDelta) <=
-             captureCounter)
-            &&
-            (captureCounter <=
-             (portTimerArguments->estimatedCounterCenter + portTimerArguments->receptionDelta))
-            ) {
-        IF_SIMULATION_CHAR_OUT('B');
-        return true;
+    uint16_t accumulatedOffset = *hardwareCounter + portTimerArguments->receptionOffset;
+    if (accumulatedOffset > TIMER_TX_RX_COMPARE_TOP_VALUE) {
+        return accumulatedOffset - TIMER_TX_RX_COMPARE_TOP_VALUE;
     }
-    return false;
+    return accumulatedOffset;
 }
-
-
-/**
- * returns true if the captureCounter is within the top interval of the given port arguments
- */
-FUNC_ATTRS bool __isInTopInterval(const volatile uint16_t *hardwareCounter,
-                                  volatile TimerCounterAdjustment *portTimerArguments) {
-    uint16_t captureCounter = __toPortCounter(hardwareCounter, portTimerArguments);
-    IF_SIMULATION_CHAR_OUT('a');
-    IF_SIMULATION_INT16_OUT(*hardwareCounter);
-    if (((portTimerArguments->estimatedCounterTop - portTimerArguments->receptionDelta) <= captureCounter) &&
-        (captureCounter <= (portTimerArguments->receptionDelta))) {
-        IF_SIMULATION_CHAR_OUT('A');
-        return true;
-    }
-    return false;
-}
-
-
-/**
- * Adjusts the timer counter maximum value according to the current deviation. The arithmetic average of
- * the current value and the newly estimated one is weighted by a third since the re-approximation depends
- * on three reception channels.
- */
-FUNC_ATTRS void __estimateAdjustmentOnCenter(const volatile uint16_t *hardwareCounter,
-                                             volatile TimerCounterAdjustment *receptionAdjustment) {
-#  ifdef SIMULATION
-    uint16_t portTime = __toPortCounter(hardwareCounter, receptionAdjustment);
-    uint16_t estimatedTop = 2 * portTime;
-    uint16_t estimatedOffset = (estimatedTop - TIMER_TX_RX_COMPARE_TOP_VALUE) / 2.0;
-    if (estimatedOffset > UINT8_MAX) {
-        IF_SIMULATION_SWITCH_TO_ERRONEOUS_STATE;
-    }
-    receptionAdjustment->estimatedCounterTop = TIMER_TX_RX_COMPARE_TOP_VALUE + estimatedOffset;
-    receptionAdjustment->estimatedTopCounterOffset = estimatedOffset;
-#  else
-    receptionAdjustment->estimatedCounterTop = (uint8_t) (
-            (2 * (*hardwareCounter - receptionAdjustment->receptionOffset) - TIMER_TX_RX_COMPARE_TOP_VALUE) /
-            2.0);
-    receptionAdjustment->estimatedTopCounterOffset =
-            receptionAdjustment->estimatedCounterTop - TIMER_TX_RX_COMPARE_TOP_VALUE;
-#  endif
-    receptionAdjustment->estimatedCounterCenter =
-            receptionAdjustment->estimatedCounterTop / TX_RX_COUNTER_CENTER_VALUE_DIVISOR;
-    receptionAdjustment->receptionDelta =
-            receptionAdjustment->estimatedCounterTop / TX_RX_RECEPTION_DELTA_VALUE_DIVISOR - 1;
-}
-
 
 /**
  * Stores the data bit to the reception buffer unless the buffer is saturated.
@@ -105,11 +36,11 @@ FUNC_ATTRS void __storeDataBit(volatile RxPort *rxPort, volatile uint8_t isRisin
     if (isBufferFull(&(rxPort->buffer.pointer)) == false) {
         // save bit to buffer
         if (isRisingEdge == 0) {
-            rxPort->buffer.bytes[rxPort->buffer.pointer.byteNumber] unsetBit rxPort->buffer.pointer.bitMask;
             IF_SIMULATION_CHAR_OUT('0');
+            rxPort->buffer.bytes[rxPort->buffer.pointer.byteNumber] unsetBit rxPort->buffer.pointer.bitMask;
         } else {
-            rxPort->buffer.bytes[rxPort->buffer.pointer.byteNumber] setBit rxPort->buffer.pointer.bitMask;
             IF_SIMULATION_CHAR_OUT('1');
+            rxPort->buffer.bytes[rxPort->buffer.pointer.byteNumber] setBit rxPort->buffer.pointer.bitMask;
         }
         // increment pointer
         if (rxPort->buffer.pointer.bitMask != (1 << 7)) {
@@ -122,41 +53,66 @@ FUNC_ATTRS void __storeDataBit(volatile RxPort *rxPort, volatile uint8_t isRisin
 }
 
 /**
+ * Returns the timer counter or in case the timer counter compare interrupt was missed it trims the counter
+ * and returns the new counter.
+ */
+FUNC_ATTRS uint16_t __getTrimmedCounter(void) {
+#ifdef SIMULATION
+    if (TIMER_TX_RX_COUNTER > (2 * TIMER_TX_RX_COMPARE_TOP_VALUE)) {
+        IF_SIMULATION_SWITCH_TO_ERRONEOUS_STATE;
+    }
+#endif
+    if (TIMER_TX_RX_COUNTER > TIMER_TX_RX_COMPARE_TOP_VALUE) {
+        TIMER_TX_RX_COUNTER -= TIMER_TX_RX_COMPARE_TOP_VALUE;
+    }
+    return TIMER_TX_RX_COUNTER;
+}
+
+/**
  * Handles received data flanks and stores them according to the received time relative to the reception
  * timer/counter.
  */
-FUNC_ATTRS void dispatchReceivedDataEdge(volatile RxPort *rxPort, volatile uint8_t isRisingEdge) {
-    IF_SIMULATION_CHAR_OUT('D');
-    uint16_t hardwareCounter = TIMER_TX_RX_COUNTER;
+FUNC_ATTRS void dispatchReceivedDataEdge(volatile RxPort *rxPort, volatile uint16_t *receptionDelta,
+                                         uint8_t isRisingEdge) {
+    uint16_t hardwareCounter = TIMER_TX_RX_COUNTER; //__getTrimmedCounter();
+//    IF_SIMULATION_CHAR_OUT('D');
+    IF_SIMULATION_INT16_OUT(hardwareCounter);
 
     // if there is no ongoing reception thus this this call is the first signal of a package
-    if (rxPort->isReceiving == 0) {
-        IF_SIMULATION_CHAR_OUT('s');
-        if (isRisingEdge == 0) {
-            IF_SIMULATION_CHAR_OUT('S');
+    if (rxPort->isReceiving == false) {
+//        IF_SIMULATION_CHAR_OUT('s');
+        if (isRisingEdge == false) {
+//            IF_SIMULATION_CHAR_OUT('S');
             // synchronize the counter for this channel by using an offset
-            // TODO: investigate why ~9 is a good offset value
-            rxPort->adjustment.receptionOffset = UINT16_MAX - hardwareCounter;// + 9;
-        } else {
+            rxPort->adjustment.receptionOffset = TIMER_TX_RX_COMPARE_TOP_VALUE - hardwareCounter; // + 9;
+//            IF_SIMULATION_CHAR_OUT('o');
+//            IF_SIMULATION_INT16_OUT(rxPort->adjustment.receptionOffset);
         }
     }
-
     else { // reception is ongoing thus this signal belongs to the current emission
-        // reconstruct the synchronized counter
-        // if signal occurs approx. at 1/2 of a package clock:
-        if (__isInCenterInterval(&hardwareCounter, &(rxPort->adjustment))) {
-//            __estimateAdjustmentOnCenter(&hardwareCounter, &(rxPort->adjustment));
-//            __storeDataBit(rxPort, isRisingEdge);
-        }
-        else // if signal occurs approx. at the end/beginning of a package clock:
-        if (__isInTopInterval(&hardwareCounter, &(rxPort->adjustment))) {
-            // TODO: re-synchronize channel counter offset
-            // __estimateAdjustmentOnTop(&hardwareCounter, &(rxPort->adjustment));
 
-            // TODO: scale/update DEFAULT_TX_RX_COMPARE_TOP_VALUE in TX_RX_COMPARE_A_VALUE according to all port adjustments
-            // ---- investigate why ~26 is a good offset value
-            // ---- rxPort->adjustment.receptionOffset = TIMER_TX_RX_COUNTER_MAX - hardwareCounter + 26;
-            // TODO: update TIMER_TX_RX_TIMEOUT_COUNTER according to DEFAULT_TX_RX_COMPARE_TOP_VALUE:
+        // reconstruct the synchronized counter
+        uint16_t captureCounter = __toPortCounter(&hardwareCounter, &(rxPort->adjustment));
+
+        // if signal occurs approx. at 1/2 of a package clock:
+        if ((rxPort->adjustment.leftOfCenter >= captureCounter) &&
+            (captureCounter <= rxPort->adjustment.rightOfCenter)) {
+            __storeDataBit(rxPort, isRisingEdge);
+
+            rxPort->isReceiving = 6;
+            TIMER_TX_RX_COUNTER_CLEAR_PENDING_INTERRUPTS;
+            TIMER_TX_RX_TIMEOUT_COUNTER_RESUME;
+        }
+
+        else // if signal occurs approx. at the end/beginning of a package clock:
+        if (((rxPort->adjustment.leftOfTop <= captureCounter) &&
+             (captureCounter <= TIMER_TX_RX_COMPARE_TOP_VALUE)) ||
+            (captureCounter <= *receptionDelta)) {
+
+            rxPort->isReceiving = 6;
+            TIMER_TX_RX_COUNTER_CLEAR_PENDING_INTERRUPTS;
+            __getTrimmedCounter();
+            TIMER_TX_RX_TIMEOUT_COUNTER_RESUME;
         }
 #  ifdef IS_SIMULATION
         else {
@@ -164,11 +120,6 @@ FUNC_ATTRS void dispatchReceivedDataEdge(volatile RxPort *rxPort, volatile uint8
         }
 #  endif
     }
-
-    // data bit separation: 4; safety: 2 => 6
-    rxPort->isReceiving = 6;
-    TIMER_TX_RX_COUNTER_CLEAR_PENDING_INTERRUPTS;
-    TIMER_TX_RX_TIMEOUT_COUNTER_RESUME;
 }
 
 

@@ -55,7 +55,6 @@ typedef enum {
     NODE_TYPE_MASTER // for testing purposes when the node is attached to the NODE_TYPE_ORIGIN node
 } NodeType;
 
-
 /**
  * A pulse counter and it's connectivity state.
  */
@@ -65,6 +64,11 @@ typedef struct {
     uint8_t __pad :3;
 } PulseCounter; // 1 byte total
 
+FUNC_ATTRS void constructPulseCounter(volatile PulseCounter *o) {
+    o->counter = 0;
+    o->isConnected = false;
+}
+
 /**
  * Stores the amount of incoming pulses for each communication channel. The isConnected flags are set
  * if the number of incoming pulses exceeds a specific threshold.
@@ -73,8 +77,15 @@ typedef struct {
     PulseCounter north;
     PulseCounter east;
     PulseCounter south;
-    uint8_t loopCount; // particle loop counter
+    uint8_t loopCount; // discovery loop counter
 } DiscoveryPulseCounters; // 3 + 1 = 4 byte total
+
+FUNC_ATTRS void constructDiscoveryPulseCounters(volatile DiscoveryPulseCounters *o) {
+    constructPulseCounter(&(o->north));
+    constructPulseCounter(&(o->east));
+    constructPulseCounter(&(o->south));
+    o->loopCount = 0;
+}
 
 /**
  * The node address in the network. It is spread from the origin node which assigns itself
@@ -85,6 +96,11 @@ typedef struct {
     uint8_t column;
 } NodeAddress; // 2 byte total
 
+FUNC_ATTRS void constructNodeAddress(volatile NodeAddress *o) {
+    o->row = 1;
+    o->column = 2;
+}
+
 /**
  * Describes the node state type and address.
  */
@@ -94,12 +110,22 @@ typedef struct {
     NodeAddress address;
 } Node; // 2 + 2 + 2 = 6 byte total
 
+FUNC_ATTRS void constructNode(volatile Node *o) {
+    o->state = STATE_TYPE_UNDEFINED;
+    o->type = NODE_TYPE_INVALID;
+    constructNodeAddress(&(o->address));
+}
+
 /**
  * Counters/resources needed for platform's periphery.
  */
 typedef struct {
     uint8_t loopCount; // particle loop counter
 } Periphery;
+
+FUNC_ATTRS void constructPeriphery(volatile Periphery *o) {
+    o->loopCount = 0;
+}
 
 /**
  * The global particle state with references to the most important states, buffers, counters,
@@ -114,34 +140,6 @@ typedef struct {
     uint8_t magicEndByte;
 #endif
 } ParticleState; // 6 + 4 + 51 = 61 bytes total
-
-
-FUNC_ATTRS void constructPulseCounter(volatile PulseCounter *o) {
-    o->counter = 0;
-    o->isConnected = false;
-}
-
-FUNC_ATTRS void constructDiscoveryPulseCounters(volatile DiscoveryPulseCounters *o) {
-    constructPulseCounter(&(o->north));
-    constructPulseCounter(&(o->east));
-    constructPulseCounter(&(o->south));
-    o->loopCount = 0;
-}
-
-FUNC_ATTRS void constructNodeAddress(volatile NodeAddress *o) {
-    o->row = 0;
-    o->column = 0;
-}
-
-FUNC_ATTRS void constructNode(volatile Node *o) {
-    o->state = STATE_TYPE_UNDEFINED;
-    o->type = NODE_TYPE_INVALID;
-    constructNodeAddress(&(o->address));
-}
-
-FUNC_ATTRS void constructPeriphery(volatile Periphery *o) {
-    o->loopCount = 0;
-}
 
 FUNC_ATTRS void constructParticleState(volatile ParticleState *o) {
     constructNode(&(o->node));
