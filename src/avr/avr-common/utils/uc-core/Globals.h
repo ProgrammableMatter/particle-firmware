@@ -12,7 +12,7 @@
 /**
  * The particle global attributes describe states and contains reception buffers.
  */
-volatile ParticleState ParticleAttributes;
+volatile ParticleState ParticleAttributes __attribute__ ((section (".noinit")));
 
 // OTHER GLOBALS CAN BE SAFELY DECLARED HERE:
 
