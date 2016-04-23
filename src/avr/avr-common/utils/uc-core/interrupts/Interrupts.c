@@ -7,6 +7,7 @@
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
 #include <uc-core/ParticleTypes.h>
+#include <uc-core/communication/CommunicationTypes.h>
 
 #include "Vectors.h"
 #include "TimerCounter.h"
@@ -39,7 +40,7 @@ FUNC_ATTRS void handleInputInterrupt(volatile PulseCounter *discoveryPulseCounte
         case STATE_TYPE_TX_START:
         case STATE_TYPE_TX_DONE:
         case STATE_TYPE_SCHEDULE_COMMAND:
-            dispatchReceivedDataEdge(rxPort, isRxHigh);
+            dispatchReceivedDataEdge(rxPort, &ParticleAttributes.ports.rx.receptionDelta, isRxHigh);
             break;
 
         default:
@@ -167,12 +168,29 @@ ISR(TX_RX_TIMEOUT_INTERRUPT_VECT) { // int. #20
 
 #  ifdef IS_SIMULATION
 
-const char isrVector0Msg[] PROGMEM = "ISR(_VECTOR(0))";
+const char isrVector0Msg[] PROGMEM = "BAD ISR";
 /**
  * On external pin, power-on reset, brown-out reset, watchdog reset.
  */
 ISR(_VECTOR(0)) {
     writeToUart((PGM_P) pgm_read_word(&(isrVector0Msg)));
+    IF_SIMULATION_SWITCH_TO_ERRONEOUS_STATE;
+}
+
+/**
+ * on tx/rx timeout timer overflow
+ */
+ISR(TX_RX_TIMEOUT_OVERFLOW_INTERRUPT) { // int #10
+    writeToUart((PGM_P) pgm_read_word(&(isrVector0Msg)));
+    IF_SIMULATION_SWITCH_TO_ERRONEOUS_STATE;
+}
+
+/**
+ * on tx/rx timer overflow
+ */
+ISR(TX_RX_OVERFLOW_INTERRUPT) { // int #9
+    writeToUart((PGM_P) pgm_read_word(&(isrVector0Msg)));
+    IF_SIMULATION_SWITCH_TO_ERRONEOUS_STATE;
 }
 
 #  endif
