@@ -9,7 +9,7 @@
 #include <uc-core/Globals.h>
 #include <util/delay.h>
 
-extern volatile ParticleState ParticleAttributes;
+extern volatile ParticleState ParticleAttributes __attribute__ ((section (".noinit")));
 
 #define COUNTER_1_SETTINGS_TOP 500
 #define COUNTER_1_SETTINGS_CENTER (500 / 2)
@@ -54,12 +54,12 @@ ISR(TIMER1_COMPB_vect) {
         }
         bitMask <<= 1;
         TIMSK setBit (1 << OCIE1A);
-
     }
 }
 
 
-inline void __init(void) {
+inline void initTransmission(void) {
+    constructParticleState(&ParticleAttributes);
     ParticleAttributes.node.state = STATE_TYPE_START;
     ParticleAttributes.node.type = NODE_TYPE_MASTER;
     // the byte to transmit
@@ -94,12 +94,12 @@ inline void __init(void) {
 
 
 int main(void) {
-    __init();
+    initTransmission();
     // wait until receiver is ready
     _delay_us(37.0);
 
-    SREG setBit bit(SREG_I);
     ParticleAttributes.node.state = STATE_TYPE_TX_START;
+    SREG setBit bit(SREG_I);
     TCCR1B |= COUNTER_1_SETTINGS_PRESCALER;
 
     while (ParticleAttributes.node.state != STATE_TYPE_TX_DONE);
