@@ -75,14 +75,14 @@ FUNC_ATTRS uint16_t __getTrimmedCounter(void) {
 FUNC_ATTRS void dispatchReceivedDataEdge(volatile RxPort *rxPort, volatile uint16_t *receptionDelta,
                                          uint8_t isRisingEdge) {
     uint16_t hardwareCounter = TIMER_TX_RX_COUNTER; //__getTrimmedCounter();
-//    IF_SIMULATION_CHAR_OUT('D');
+    IF_SIMULATION_CHAR_OUT('x');
     IF_SIMULATION_INT16_OUT(hardwareCounter);
 
     // if there is no ongoing reception thus this this call is the first signal of a package
     if (rxPort->isReceiving == false) {
 //        IF_SIMULATION_CHAR_OUT('s');
         if (isRisingEdge == false) {
-//            IF_SIMULATION_CHAR_OUT('S');
+            IF_SIMULATION_CHAR_OUT('S');
             // synchronize the counter for this channel by using an offset
             rxPort->adjustment.receptionOffset = TIMER_TX_RX_COMPARE_TOP_VALUE - hardwareCounter; // + 9;
 //            IF_SIMULATION_CHAR_OUT('o');
@@ -94,9 +94,12 @@ FUNC_ATTRS void dispatchReceivedDataEdge(volatile RxPort *rxPort, volatile uint1
         // reconstruct the synchronized counter
         uint16_t captureCounter = __toPortCounter(&hardwareCounter, &(rxPort->adjustment));
 
+        IF_SIMULATION_INT16_OUT(captureCounter);
+
         // if signal occurs approx. at 1/2 of a package clock:
         if ((rxPort->adjustment.leftOfCenter >= captureCounter) &&
             (captureCounter <= rxPort->adjustment.rightOfCenter)) {
+            IF_SIMULATION_CHAR_OUT('B');
             __storeDataBit(rxPort, isRisingEdge);
 
             rxPort->isReceiving = 6;
@@ -108,7 +111,7 @@ FUNC_ATTRS void dispatchReceivedDataEdge(volatile RxPort *rxPort, volatile uint1
         if (((rxPort->adjustment.leftOfTop <= captureCounter) &&
              (captureCounter <= TIMER_TX_RX_COMPARE_TOP_VALUE)) ||
             (captureCounter <= *receptionDelta)) {
-
+            IF_SIMULATION_CHAR_OUT('A');
             rxPort->isReceiving = 6;
             TIMER_TX_RX_COUNTER_CLEAR_PENDING_INTERRUPTS;
             __getTrimmedCounter();

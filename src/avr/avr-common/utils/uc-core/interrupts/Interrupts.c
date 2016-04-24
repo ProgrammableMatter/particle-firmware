@@ -50,6 +50,23 @@ FUNC_ATTRS void handleInputInterrupt(volatile PulseCounter *discoveryPulseCounte
 }
 
 /**
+ * Resets the counter. In case the interrupt was shifted (less than 1x compare value), the counter is trimmed,
+ * else in case of simulation it switches to erroneous state.
+ */
+FUNC_ATTRS void __resetCounter(void) {
+#ifdef SIMULATION
+    if (TIMER_TX_RX_COUNTER > (2 * TIMER_TX_RX_COMPARE_TOP_VALUE)) {
+        IF_SIMULATION_SWITCH_TO_ERRONEOUS_STATE;
+    }
+#endif
+    if (TIMER_TX_RX_COUNTER > TIMER_TX_RX_COMPARE_TOP_VALUE) {
+        TIMER_TX_RX_COUNTER -= TIMER_TX_RX_COMPARE_TOP_VALUE;
+    } else {
+        TIMER_TX_RX_COUNTER = 0;
+    }
+}
+
+/**
  * south RX pin change interrupt on logical pin change
  */
 ISR(SOUTH_PIN_CHANGE_INTERRUPT_VECT) { // int. #2
@@ -101,7 +118,7 @@ ISR(TX_RX_TIMER_TOP_INTERRUPT_VECT) { // int. #7
         case STATE_TYPE_TX_START:
         case STATE_TYPE_TX_DONE:
         case STATE_TYPE_SCHEDULE_COMMAND:
-            TIMER_TX_RX_COUNTER = 0;
+            __resetCounter();
             // if sth. to transmit put !(bitMask & data) to the output
             break;
 
