@@ -1,6 +1,8 @@
 /**
  * @author Raoul Rubien 2016
  */
+
+
 #include <avr/interrupt.h>
 #include <common/common.h>
 #include <uc-core/ParticleTypes.h>
@@ -9,6 +11,7 @@
 #include "uc-core/interrupts/Reception.h"
 #include "uc-core/Particle.h"
 
+unsigned char __stuff __attribute__((section(".noinit")));
 #  ifdef TRY_INLINE
 #    define FUNC_ATTRS inline
 #  else

@@ -9,14 +9,15 @@
 #include <uc-core/Globals.h>
 #include <util/delay.h>
 
-extern volatile ParticleState ParticleAttributes __attribute__ ((section (".noinit")));
+extern volatile ParticleState ParticleAttributes;
+uint8_t bitMask  __attribute__((section(".noinit")));
+//unsigned char__stuff __attribute__((section(".noinit")));
 
 #define COUNTER_1_SETTINGS_TOP 500
 #define COUNTER_1_SETTINGS_CENTER (500 / 2)
 #define COUNTER_1_SETTINGS_PRESCALER ((0 << CS12) | (0 << CS11) | (1 << CS10))
 #define COUNTER_1_SETTINGS_PRESCALER_DISCONNECT ((1 << CS12) | (1 << CS11) | (1 << CS10))
 
-uint8_t bitMask = 0;
 
 // triggers on signal clock (signal rectification)
 ISR(TIMER1_COMPA_vect) {
@@ -59,6 +60,7 @@ ISR(TIMER1_COMPB_vect) {
 
 
 inline void initTransmission(void) {
+    bitMask = 0;
     constructParticleState(&ParticleAttributes);
     ParticleAttributes.node.state = STATE_TYPE_START;
     ParticleAttributes.node.type = NODE_TYPE_MASTER;
