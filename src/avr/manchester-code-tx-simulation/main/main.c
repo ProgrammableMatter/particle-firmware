@@ -26,11 +26,11 @@ ISR(TIMER1_COMPA_vect) {
         // stop after one transmission
         TIMSK unsetBit(1 << OCIE1A);
     } else {
-        // rectify (invert accordint to next data bit) signal before upcoming data transition
-        if (!(bitMask & ParticleAttributes.ports.tx.south.buffer.bytes[0])) {
-            SOUTH_TX_LO;
-        } else {
+        // rectify (invert according to next data bit) signal before upcoming data transition
+        if (bitMask & ParticleAttributes.ports.tx.south.buffer.bytes[0]) {
             SOUTH_TX_HI;
+        } else {
+            SOUTH_TX_LO;
         }
     }
 }
@@ -48,16 +48,14 @@ ISR(TIMER1_COMPB_vect) {
         ParticleAttributes.node.state = STATE_TYPE_TX_DONE;
     } else {
         // write data bit to output (inverted)
-        if ((bitMask & ParticleAttributes.ports.tx.south.buffer.bytes[0])) {
+        if (bitMask & ParticleAttributes.ports.tx.south.buffer.bytes[0]) {
             SOUTH_TX_LO;
         } else {
             SOUTH_TX_HI;
         }
         bitMask <<= 1;
-        TIMSK setBit (1 << OCIE1A);
     }
 }
-
 
 inline void initTransmission(void) {
     bitMask = 0;
@@ -84,7 +82,12 @@ inline void initTransmission(void) {
     TCCR1A |= (0 << WGM11) | (0 << WGM10);
     TCCR1B |= (0 << WGM13) | (0 << WGM12);
 
-    TIMSK |= (1 << OCIE1B) | (0 << OCIE1A) | (0 << TOIE1);
+    TIMSK |= (1 << OCIE1B) | (1 << OCIE1A) | (0 << TOIE1);
+
+    if ((TIFR & (1 << OCF1A)) != 0)
+        TIFR = (1 << OCF1A);
+    if ((TIFR & (1 << OCF1B)) != 0)
+        TIFR = (1 << OCF1B);
 
     OCR1A = COUNTER_1_SETTINGS_TOP;
     OCR1B = COUNTER_1_SETTINGS_CENTER;
@@ -94,17 +97,17 @@ inline void initTransmission(void) {
     bitMask = 1;
 }
 
-
 int main(void) {
     initTransmission();
     // wait until receiver is ready
-    _delay_us(37.0);
+    _delay_us(15.0);
 
     ParticleAttributes.node.state = STATE_TYPE_TX_START;
     SREG setBit bit(SREG_I);
-    TCCR1B |= COUNTER_1_SETTINGS_PRESCALER;
 
+    TCCR1B |= COUNTER_1_SETTINGS_PRESCALER; // start transmission
     while (ParticleAttributes.node.state != STATE_TYPE_TX_DONE);
+
     SREG unsetBit bit(SREG_I);
     ParticleAttributes.node.state = STATE_TYPE_STALE;
     return 0;
