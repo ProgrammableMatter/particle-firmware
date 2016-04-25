@@ -34,7 +34,6 @@ class Filter:
         self.wireTimeStamps = []
         self.discreteToValueMapping = discreteMapping
         self.nodeIdToDomainToNameToSamples = {}
-
         # line example: ' 0  0:00:00.00251216824  WIRE[HEARTBEAT] <- (low)'
         # line example: ' 0  0:00:00.00007337535  INT[#19] <- (unposted) // INT1 COMPB'
         #                   1       2                    3       4               5        6
@@ -44,6 +43,9 @@ class Filter:
 
         self.lineMatcher = re.compile(lineRegexp)
         self.timeStampMatcher = re.compile(timestampRegexp)
+
+    def setValueMapping(self, discreteMapping):
+        self.discreteToValueMapping = discreteMapping
 
     def show(self):
         for id in self.nodeIdToDomainToNameToSamples:
@@ -66,7 +68,7 @@ class Filter:
         for line in open(self.fileName):
             matched = self.lineMatcher.match(line)
 
-            print (line)
+            # print (line)
             if matched.group(1) == str(sampleFilter.nodeId) \
                     and matched.group(3).lower() == sampleFilter.domain.lower() and ((matched.group(
                 4).lower() == sampleFilter.name.lower() or matched.group(4).lower() == sampleFilter.nameAlias)):
@@ -99,7 +101,7 @@ class Filter:
 
                     sampleAsTuple = Sample.toTuple(Sample(picoSeconds, self.__toDoubleValue(state)))
                     self.nodeIdToDomainToNameToSamples[nodeId][domain][name].append(sampleAsTuple)
-                    print("%s == %s" % (SampleFilter.toString(sampleFilter), state))
+                    #print("%s == %s" % (SampleFilter.toString(sampleFilter), state))
 
     def __timeStampToPicoSeconds(self, matchedTimeStampRegexpGroups):
 
@@ -117,7 +119,6 @@ class Filter:
             return self.discreteToValueMapping[value]
         else:
             return float(value)
-
 
 class Plotter:
     def __init__(self):
@@ -179,7 +180,7 @@ class Plotter:
 
 if __name__ == "__main__":
     def addInterruptPlot(title, nodeId=0, facet="post", interruptName="TX_RX_TIMER_TOP", interruptNameAlias=None,
-                         xAxisDescription="", yAxisDescription=""):
+                         xAxisDescription=""):
         name = interruptToNumber[interruptName] + "-" + facet
         interruptSampleFilter = SampleFilter(domain="INT",
                                              name=name,
@@ -203,12 +204,12 @@ if __name__ == "__main__":
             print("cannot add plot [" + title + "] for %s[%s]" % (domain, name))
 
 
-    stringToDiscreteValue = {"high": 1.0, "low": 0.0,
-                             "hi": 1.0, "lo": 0.0,
-                             "posted": 1.0, "unposted": 0.0,
+    wireValueMapping = {"high": 1.0, "low": 0.0,
+                        "hi": 1.0, "lo": 0.0,}
+
+    interruptValueMapping = {"posted": 1.0, "unposted": 0.0,
                              "enabled": 1.0, "disabled": 0.0,
-                             "invoke": 1.0, "return": 0.0,
-                             "'1'": 1.0, "'0'": 0.0, "'x'": 0.5, "'S'": 1.0, "'B'": 0.2, "'A'": 1.0}
+                             "invoke": 1.0, "return": 0.0,}
 
     interruptToNumber = {"TX_RX_TIMER_TOP": "#7",
                          "TX_RX_TIMER_CENTER": "#8",
@@ -224,7 +225,7 @@ if __name__ == "__main__":
                              "enable": "en-/disabling",
                              "invoke": "call/return"}
 
-    filter = Filter("/tmp/particle-state.log", stringToDiscreteValue)
+    filter = Filter("/tmp/particle-state.log", wireValueMapping)
 
     p = Plotter()
 
@@ -242,32 +243,37 @@ if __name__ == "__main__":
 
     # interrupt: timer/counter1 plots
     interruptName = "NORTH_RECEPTION"
+    filter.setValueMapping(interruptValueMapping)
     addInterruptPlot(title="un-/posting", nodeId=0, facet="post", interruptName=interruptName)
     # addInterruptPlot(title="en-/disabling", nodeId=0, domain="enable", interruptName=interruptName,
-    #                  interruptNameAlias="#0-enable",
-    #                  xAxisDescription="")
+    #                  interruptNameAlias="#0-enable")
     addInterruptPlot(title="call/return", nodeId=0, facet="invoke", interruptName=interruptName)
 
     interruptName = "TX_RX_TIMER_TOP"
     addInterruptPlot(title="un-/posting", nodeId=0, facet="post", interruptName=interruptName,
                      xAxisDescription="")
     # addInterruptPlot(title="en-/disabling", nodeId=0, domain="enable", interruptName=interruptName,
-    #                  interruptNameAlias="#0-enable",
-    #                  xAxisDescription="")
+    #                  interruptNameAlias="#0-enable")
     addInterruptPlot(title="call/return", nodeId=0, facet="invoke", interruptName=interruptName)
 
     interruptName = "TX_RX_TIMER_CENTER"
     addInterruptPlot(title="un-/posting", nodeId=0, facet="post", interruptName=interruptName)
     # addInterruptPlot(title="en-/disabling", nodeId=0, domain="enable", interruptName=interruptName,
-    #                  interruptNameAlias="#0-enable",
-    #                  xAxisDescription="")
+    #                  interruptNameAlias="#0-enable")
     addInterruptPlot(title="call/return", nodeId=0, facet="invoke", interruptName=interruptName)
 
     addInterruptPlot(title="call/return", nodeId=0, facet="invoke", interruptName="TX_RX_TIMEOUT_INTERRUPT")
 
-    addPlot(title="SRAM[char-out]", nodeId=0, domain="SRAM", name="char-out", yAxisDescription="")
-
     addPlot(title="SRAM[int16-out]", nodeId=0, domain="SRAM", name="int16-out", yAxisDescription="")
+
+    receptionInterruptValueMapping = {"'U'": 0.0, "'S'": 0.2,
+                                     "'A'": 0.6, "'B'": 0.4, "'x'": 0.0, "'0'": 1.0, "'1'": 1.2}
+    filter.setValueMapping(receptionInterruptValueMapping)
+    addPlot(title="SRAM[char-out] - States", nodeId=0, domain="SRAM", name="char-out", yAxisDescription="")
+
+    # interruptByteValues = {'0': 0.0, '1': 1.0}
+    # filter.setValueMapping(interruptByteValues)
+    # addPlot(title="SRAM[char-out] - Bytes", nodeId=0, domain="SRAM", name="char-out", yAxisDescription="")
 
     filter.show()
     p.plot()
