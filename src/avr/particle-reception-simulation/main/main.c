@@ -8,7 +8,6 @@
 #include <uc-core/ParticleTypes.h>
 #include "uc-core/IoDefinitions.h"
 #include "uc-core/interrupts/Interrupts.c"
-#include "uc-core/interrupts/Reception.h"
 #include "uc-core/Particle.h"
 
 unsigned char __stuff __attribute__((section(".noinit")));
@@ -22,7 +21,6 @@ unsigned char __stuff __attribute__((section(".noinit")));
  * A mocked up particle loop. It puts the particle in an initialized reception state.
  */
 FUNC_ATTRS int particleLoop(void) {
-    SREG setBit bit(SREG_I);
     forever {
         particleTick();
         if (ParticleAttributes.node.state == STATE_TYPE_ERRONEOUS) {
@@ -33,6 +31,7 @@ FUNC_ATTRS int particleLoop(void) {
 
 
 int main(void) {
+    IF_SIMULATION_CHAR_OUT('0');
     IO_PORTS_SETUP; // configure input/output pins
     // setup and enable reception (on pin change) interrupts
     RX_INTERRUPTS_SETUP;
@@ -45,6 +44,8 @@ int main(void) {
     ParticleAttributes.discoveryPulseCounters.loopCount = UINT8_MAX;
     constructParticleState(&ParticleAttributes);
 
+    SREG setBit bit(SREG_I);
+    IF_SIMULATION_CHAR_OUT('1');
     ParticleAttributes.node.type = NODE_TYPE_ORIGIN;
     ParticleAttributes.node.state = STATE_TYPE_IDLE;
 
