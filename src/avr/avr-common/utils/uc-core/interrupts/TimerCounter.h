@@ -24,7 +24,7 @@
  * define timer / counter 0 interrupt macros for RX
  */
 #ifdef __AVR_ATtiny1634__
-#    define __TIMER0_INTERRUPT_CLEAR_PENDING TIFR = (1 << OCF0A)
+#    define __TIMER0_INTERRUPT_CLEAR_PENDING ((TIFR & (1 << OCF0A)) != 0) ? TIFR = (1 << OCF0A) : 0
 #  define __TIMER0_INTERRUPT_OUTPUT_MODE_DISCONNECTED_SETUP TCCR0A unsetBit \
     ((1 << COM0A1) | (1 << COM0A0) | (1 << COM0B1) | (1 << COM0B0))
 #  define __TIMER0_INTERRUPT_WAVE_GENERATION_MODE_NORMAL_SETUP TCCR0A unsetBit \
@@ -36,7 +36,7 @@
 #  define __TIMER0_COMPARE_INTERRUPT_DISABLE TIMSK unsetBit (1 << OCIE0A)
 #else
 #  ifdef __AVR_ATmega16__
-#    define __TIMER0_INTERRUPT_CLEAR_PENDING TIFR = (1 << OCF0)
+#    define __TIMER0_INTERRUPT_CLEAR_PENDING ((TIFR & (1 << OCF0)) != 0) ? TIFR = (1 << OCF0) : 0
 #    define __TIMER0_INTERRUPT_OUTPUT_MODE_DISCONNECTED_SETUP TCCR0 unsetBit \
       ((1 << COM00) | (1 << COM01))
 #    define __TIMER0_INTERRUPT_WAVE_GENERATION_MODE_NORMAL_SETUP TCCR0 unsetBit \
@@ -55,7 +55,14 @@
  * define timer / counter 1 interrupt macros
  */
 #if  defined(__AVR_ATtiny1634__) || defined(__AVR_ATmega16__)
-#  define __TIMER1_INTERRUPT_CLEAR_PENDING TIFR = ((1 << OCF1B) | (1 << OCF1A))
+
+#  define __TIMER1_INTERRUPT_CLEAR_PENDING_COMPARE_A ((TIFR & (1 << OCF1A)) != 0) ? TIFR = (1 << OCF1A) : 0
+#  define __TIMER1_INTERRUPT_CLEAR_PENDING_COMPARE_B ((TIFR & (1 << OCF1B)) != 0) ? TIFR = (1 << OCF1B) : 0
+
+#  define __TIMER1_INTERRUPT_CLEAR_PENDING \
+    __TIMER1_INTERRUPT_CLEAR_PENDING_COMPARE_A; \
+    __TIMER1_INTERRUPT_CLEAR_PENDING_COMPARE_B
+
 #  define __TIMER1_INTERRUPT_OUTPUT_MODE_DISCONNECTED_SETUP TCCR1A unsetBit \
     ((1 << COM1A1) | (1 << COM1A0) | (1 << COM1B1) | (1 << COM1B0))
 
