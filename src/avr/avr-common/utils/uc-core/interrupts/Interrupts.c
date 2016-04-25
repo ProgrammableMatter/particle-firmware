@@ -7,10 +7,10 @@
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
 #include <uc-core/ParticleTypes.h>
-#include <uc-core/communication/CommunicationTypes.h>
 
-#include "Vectors.h"
-#include "TimerCounter.h"
+#include "./Vectors.h"
+#include "./TimerCounter.h"
+#include "./Reception.h"
 #include "../Globals.h"
 #include "../discovery/Discovery.h"
 #include "../communication/Communication.h"
@@ -50,20 +50,34 @@ FUNC_ATTRS void handleInputInterrupt(volatile PulseCounter *discoveryPulseCounte
 }
 
 /**
- * Resets the counter. In case the interrupt was shifted (less than 1x compare value), the counter is trimmed,
- * else in case of simulation it switches to erroneous state.
+ *
  */
-FUNC_ATTRS void __resetCounter(void) {
-#ifdef SIMULATION
-    if (TIMER_TX_RX_COUNTER > (2 * TIMER_TX_RX_COMPARE_TOP_VALUE)) {
-        IF_SIMULATION_SWITCH_TO_ERRONEOUS_STATE;
-    }
-#endif
-    if (TIMER_TX_RX_COUNTER > TIMER_TX_RX_COMPARE_TOP_VALUE) {
-        TIMER_TX_RX_COUNTER -= TIMER_TX_RX_COMPARE_TOP_VALUE;
-    } else {
-        TIMER_TX_RX_COUNTER = 0;
-    }
+FUNC_ATTRS void __advanceTimeoutCounters(void) {
+    ParticleAttributes.ports.rx.north.isReceiving >>= 1;
+
+    if (ParticleAttributes.ports.rx.north.isReceiving == 0)
+        IF_SIMULATION_CHAR_OUT('U');
+    ParticleAttributes.ports.rx.east.isReceiving >>= 1;
+    ParticleAttributes.ports.rx.south.isReceiving >>= 1;
+
+}
+
+/**
+ * north RX pin change interrupt on logical pin change
+ */
+ISR(NORTH_PIN_CHANGE_INTERRUPT_VECT) { // int. #19
+    handleInputInterrupt(&ParticleAttributes.discoveryPulseCounters.north, &ParticleAttributes.ports.rx.north,
+                         NORTH_RX_IS_HI);
+    RX_INTERRUPTS_CLEAR_PENDING_NORTH;
+}
+
+/**
+ * east RX pin change interrupt on logical pin change
+ */
+ISR(EAST_PIN_CHANGE_INTERRUPT_VECT) { // int. #3
+    handleInputInterrupt(&ParticleAttributes.discoveryPulseCounters.east, &ParticleAttributes.ports.rx.east,
+                         EAST_RX_IS_HI);
+    RX_INTERRUPTS_CLEAR_PENDING_EAST;
 }
 
 /**
@@ -72,26 +86,8 @@ FUNC_ATTRS void __resetCounter(void) {
 ISR(SOUTH_PIN_CHANGE_INTERRUPT_VECT) { // int. #2
     handleInputInterrupt(&ParticleAttributes.discoveryPulseCounters.south, &ParticleAttributes.ports.rx.south,
                          SOUTH_RX_IS_HI);
+    RX_INTERRUPTS_CLEAR_PENDING_SOUTH;
 }
-
-
-/**
- * east RX pin change interrupt on logical pin change
- */
-ISR(EAST_PIN_CHANGE_INTERRUPT_VECT) { // int. #3
-    handleInputInterrupt(&ParticleAttributes.discoveryPulseCounters.east, &ParticleAttributes.ports.rx.east,
-                         EAST_RX_IS_HI);
-}
-
-
-/**
- * north RX pin change interrupt on logical pin change
- */
-ISR(NORTH_PIN_CHANGE_INTERRUPT_VECT) { // int. #19
-    handleInputInterrupt(&ParticleAttributes.discoveryPulseCounters.north, &ParticleAttributes.ports.rx.north,
-                         NORTH_RX_IS_HI);
-}
-
 
 /**
  * On timer_counter match with compare register A.
@@ -118,7 +114,8 @@ ISR(TX_RX_TIMER_TOP_INTERRUPT_VECT) { // int. #7
         case STATE_TYPE_TX_START:
         case STATE_TYPE_TX_DONE:
         case STATE_TYPE_SCHEDULE_COMMAND:
-            __resetCounter();
+            resetReceptionCounter();
+            __advanceTimeoutCounters();
             // if sth. to transmit put !(bitMask & data) to the output
             break;
 
@@ -139,6 +136,7 @@ ISR(TX_TIMER_CENTER_INTERRUPT_VECT) { // int. #8
         case STATE_TYPE_TX_DONE:
         case STATE_TYPE_SCHEDULE_COMMAND:
             // TODO: if sth. to transmit put (bitMask & data) to the correct output port and >> mask
+            __advanceTimeoutCounters();
             break;
         default:
             break;
@@ -157,25 +155,25 @@ ISR(TX_RX_TIMEOUT_INTERRUPT_VECT) { // int. #20
         case STATE_TYPE_TX_START:
         case STATE_TYPE_TX_DONE:
         case STATE_TYPE_SCHEDULE_COMMAND:
-            TIMER_TX_RX_TIMEOUT_COUNTER_PAUSE;
-            TIMER_TX_RX_TIMEOUT_COUNTER = 0;
-            uint8_t isCounterPending = false;
-            if (ParticleAttributes.ports.rx.north.isReceiving != 0) {
-                --ParticleAttributes.ports.rx.north.isReceiving;
-                isCounterPending = true;
-            }
-            if (ParticleAttributes.ports.rx.east.isReceiving != 0) {
-                --ParticleAttributes.ports.rx.east.isReceiving;
-                isCounterPending = true;
-            }
-            if (ParticleAttributes.ports.rx.south.isReceiving != 0) {
-                --ParticleAttributes.ports.rx.south.isReceiving;
-                isCounterPending = true;
-            }
-
-            if (isCounterPending == true) {
-                TIMER_TX_RX_TIMEOUT_COUNTER_RESUME;
-            }
+//            TIMER_TX_RX_TIMEOUT_COUNTER_PAUSE;
+//            TIMER_TX_RX_TIMEOUT_COUNTER = 0;
+//            uint8_t isCounterPending = false;
+//            if (ParticleAttributes.ports.rx.north.isReceiving != 0) {
+//                --ParticleAttributes.ports.rx.north.isReceiving;
+//                isCounterPending = true;
+//            }
+//            if (ParticleAttributes.ports.rx.east.isReceiving != 0) {
+//                --ParticleAttributes.ports.rx.east.isReceiving;
+//                isCounterPending = true;
+//            }
+//            if (ParticleAttributes.ports.rx.south.isReceiving != 0) {
+//                --ParticleAttributes.ports.rx.south.isReceiving;
+//                isCounterPending = true;
+//            }
+//
+//            if (isCounterPending == true) {
+//                TIMER_TX_RX_TIMEOUT_COUNTER_RESUME;
+//            }
 
             break;
         default:
