@@ -11,7 +11,9 @@
 
 #    define SIMULATION
 #    define IS_SIMULATION true
-#    define IF_SIMULATION_SWITCH_TO_ERRONEOUS_STATE ParticleAttributes.node.state = STATE_TYPE_ERRONEOUS
+#    define IF_SIMULATION_SWITCH_TO_ERRONEOUS_STATE \
+    SREG unsetBit bit(SREG_I); \
+    ParticleAttributes.node.state = STATE_TYPE_ERRONEOUS
 #    define IF_SIMULATION_CHAR_OUT(value) UDR=(value)
 #    define IF_SIMULATION_INT16_OUT(value) \
         EEARL=((value) & 0xff00) >> 8; \
