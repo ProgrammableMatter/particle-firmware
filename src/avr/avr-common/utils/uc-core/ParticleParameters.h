@@ -38,7 +38,7 @@
  * that (2*DEFAULT_TX_RX_COMPARE_TOP_VALUE + 2*ParticleAttributes.rxArguments.receptionDelta) must
  * fit into uint16_t.
  */
-#define DEFAULT_TX_RX_COMPARE_TOP_VALUE ((uint16_t)500)
+#define DEFAULT_TX_RX_COMPARE_TOP_VALUE ((uint16_t)750)
 
 /**
  * Accepted deviation (constant) on reception:
@@ -53,9 +53,15 @@
  */
 #define TX_RX_COUNTER_CENTER_VALUE_DIVISOR 2
 
+#define TX_RX_RECEPTION_VALUE_CENTER 375 // == DEFAULT_TX_RX_COMPARE_TOP_VALUE / TX_RX_COUNTER_CENTER_VALUE_DIVISOR
+#define TX_RX_RECEPTION_VALUE_LEFT_OF_CENTER 188 // == DEFAULT_TX_RX_COMPARE_TOP_VALUE / TX_RX_RECEPTION_DELTA_VALUE_DIVISOR
+#define TX_RX_RECEPTION_VALUE_RIGHT_OF_CENTER 562 // == TX_RX_RECEPTION_VALUE_CENTER + TX_RX_RECEPTION_VALUE_LEFT_OF_CENTER
+
+
 /**
  * Initial counter compare interrupt value for updating the ongoing reception timeout.
  */
+// TODO: timeout has been removed from timer/counter0 interrupt -> remove timeout related macros
 #define RX_TIMEOUT_INTERRUPT_VALUE_DIVISOR 8
 
 /**
