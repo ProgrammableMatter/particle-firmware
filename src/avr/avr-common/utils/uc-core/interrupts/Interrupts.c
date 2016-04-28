@@ -23,8 +23,8 @@
 #    define FUNC_ATTRS
 #  endif
 
-FUNC_ATTRS void handleInputInterrupt(volatile PulseCounter *discoveryPulseCounter, volatile RxPort *rxPort,
-                                     const uint8_t isRxHigh) {
+FUNC_ATTRS void __handleInputInterrupt(volatile PulseCounter *discoveryPulseCounter, volatile RxPort *rxPort,
+                                       const uint8_t isRxHigh) {
     switch (ParticleAttributes.node.state) {
         // on discovery pulse
         case STATE_TYPE_NEIGHBOURS_DISCOVERY:
@@ -50,6 +50,24 @@ FUNC_ATTRS void handleInputInterrupt(volatile PulseCounter *discoveryPulseCounte
 }
 
 /**
+ * Resets the counter. In case the interrupt was shifted (less than 1x compare value), the counter is trimmed,
+ * else in case of simulation it switches to erroneous state.
+ */
+FUNC_ATTRS void __resetReceptionCounter(void) {
+//#ifdef SIMULATION
+//    if (TIMER_TX_RX_COUNTER > (2 * TIMER_TX_RX_COMPARE_TOP_VALUE)) {
+//        IF_SIMULATION_CHAR_OUT('r');
+//        IF_SIMULATION_SWITCH_TO_ERRONEOUS_STATE;
+//    }
+//#endif
+    if (TIMER_TX_RX_COUNTER > TIMER_TX_RX_COMPARE_TOP_VALUE) {
+        TIMER_TX_RX_COUNTER -= TIMER_TX_RX_COMPARE_TOP_VALUE;
+    } else {
+        TIMER_TX_RX_COUNTER = 0;
+    }
+}
+
+/**
  *
  */
 FUNC_ATTRS void __advanceTimeoutCounters(void) {
@@ -66,8 +84,9 @@ FUNC_ATTRS void __advanceTimeoutCounters(void) {
  * north RX pin change interrupt on logical pin change
  */
 ISR(NORTH_PIN_CHANGE_INTERRUPT_VECT) { // int. #19
-    handleInputInterrupt(&ParticleAttributes.discoveryPulseCounters.north, &ParticleAttributes.ports.rx.north,
-                         NORTH_RX_IS_HI);
+    __handleInputInterrupt(&ParticleAttributes.discoveryPulseCounters.north,
+                           &ParticleAttributes.ports.rx.north,
+                           NORTH_RX_IS_HI);
     RX_INTERRUPTS_CLEAR_PENDING_NORTH;
 }
 
@@ -75,8 +94,8 @@ ISR(NORTH_PIN_CHANGE_INTERRUPT_VECT) { // int. #19
  * east RX pin change interrupt on logical pin change
  */
 ISR(EAST_PIN_CHANGE_INTERRUPT_VECT) { // int. #3
-    handleInputInterrupt(&ParticleAttributes.discoveryPulseCounters.east, &ParticleAttributes.ports.rx.east,
-                         EAST_RX_IS_HI);
+    __handleInputInterrupt(&ParticleAttributes.discoveryPulseCounters.east, &ParticleAttributes.ports.rx.east,
+                           EAST_RX_IS_HI);
     RX_INTERRUPTS_CLEAR_PENDING_EAST;
 }
 
@@ -84,8 +103,9 @@ ISR(EAST_PIN_CHANGE_INTERRUPT_VECT) { // int. #3
  * south RX pin change interrupt on logical pin change
  */
 ISR(SOUTH_PIN_CHANGE_INTERRUPT_VECT) { // int. #2
-    handleInputInterrupt(&ParticleAttributes.discoveryPulseCounters.south, &ParticleAttributes.ports.rx.south,
-                         SOUTH_RX_IS_HI);
+    __handleInputInterrupt(&ParticleAttributes.discoveryPulseCounters.south,
+                           &ParticleAttributes.ports.rx.south,
+                           SOUTH_RX_IS_HI);
     RX_INTERRUPTS_CLEAR_PENDING_SOUTH;
 }
 
@@ -114,7 +134,7 @@ ISR(TX_RX_TIMER_TOP_INTERRUPT_VECT) { // int. #7
         case STATE_TYPE_TX_START:
         case STATE_TYPE_TX_DONE:
         case STATE_TYPE_SCHEDULE_COMMAND:
-            resetReceptionCounter();
+            __resetReceptionCounter();
             __advanceTimeoutCounters();
             // if sth. to transmit put !(bitMask & data) to the output
             break;
@@ -181,7 +201,7 @@ ISR(TX_RX_TIMEOUT_INTERRUPT_VECT) { // int. #20
     }
 }
 
-#  ifdef IS_SIMULATION
+#  ifdef SIMULATION
 
 const char isrVector0Msg[] PROGMEM = "BAD ISR";
 /**
