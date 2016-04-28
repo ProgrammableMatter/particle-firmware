@@ -10,7 +10,7 @@
 #include "uc-core/interrupts/Interrupts.c"
 #include "uc-core/Particle.h"
 
-unsigned char __stuff __attribute__((section(".noinit")));
+//unsigned char __stuff __attribute__((section(".noinit")));
 #  ifdef TRY_INLINE
 #    define FUNC_ATTRS inline
 #  else
@@ -44,8 +44,9 @@ int main(void) {
     ParticleAttributes.discoveryPulseCounters.loopCount = UINT8_MAX;
     constructParticleState(&ParticleAttributes);
 
-    SREG setBit bit(SREG_I);
     IF_SIMULATION_CHAR_OUT('1');
+    RX_INTERRUPTS_CLEAR_PENDING;
+    SREG setBit bit(SREG_I);
     ParticleAttributes.node.type = NODE_TYPE_ORIGIN;
     ParticleAttributes.node.state = STATE_TYPE_IDLE;
 
