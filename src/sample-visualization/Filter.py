@@ -101,7 +101,7 @@ class Filter:
 
                     sampleAsTuple = Sample.toTuple(Sample(picoSeconds, self.__toDoubleValue(state)))
                     self.nodeIdToDomainToNameToSamples[nodeId][domain][name].append(sampleAsTuple)
-                    #print("%s == %s" % (SampleFilter.toString(sampleFilter), state))
+                    # print("%s == %s" % (SampleFilter.toString(sampleFilter), state))
 
     def __timeStampToPicoSeconds(self, matchedTimeStampRegexpGroups):
 
@@ -120,8 +120,16 @@ class Filter:
         else:
             return float(value)
 
+
 class Plotter:
     def __init__(self):
+
+        self.topMargin = 0.96
+        self.bottomMargin = 0.03
+        self.leftMargin = 0.03
+        self.rightMargin = 0.99
+        self.hSpace = 0
+        self.wSpace = 0
         self.plots = []
         self.maxX = 0
         self.maxY = 0
@@ -136,7 +144,7 @@ class Plotter:
         plt.ylabel(yLabel)
         plt.grid()
 
-    def addPlot(self, xData, yData, title, xLabel, yLabel):
+    def addPlot(self, xData, yData, title, xLabel="", yLabel=""):
 
         sortedSamples = [(x, y) for (x, y) in sorted(zip(xData, yData))]
 
@@ -157,7 +165,7 @@ class Plotter:
         self.plots.append((xData, yData, title, xLabel, yLabel, maxY))
 
     def plot(self):
-        plt.figure()
+        figure = plt.figure()
         plt.subplots_adjust(hspace=0.6)
 
         rows = len(self.plots)
@@ -175,12 +183,15 @@ class Plotter:
             self.__newSubplot(xData, yData, title, xLabel, yLabel)
             row = row + 1
             plt.axis([0, self.maxX, -0.2, yMax + 0.2])
+        figure.tight_layout()
+        plt.subplots_adjust(left=self.leftMargin, right=self.rightMargin, top=self.topMargin, bottom=self.bottomMargin,
+                            hspace=self.hSpace, wspace=self.wSpace)
         plt.show()
 
 
 if __name__ == "__main__":
     def addInterruptPlot(title, nodeId=0, facet="post", interruptName="TX_RX_TIMER_TOP", interruptNameAlias=None,
-                         xAxisDescription=""):
+                         yAxisDescription=""):
         name = interruptToNumber[interruptName] + "-" + facet
         interruptSampleFilter = SampleFilter(domain="INT",
                                              name=name,
@@ -188,8 +199,8 @@ if __name__ == "__main__":
         filter.filter(interruptSampleFilter)
         try:
             xData, yData = filter.getData(interruptSampleFilter)
-            p.addPlot(xData, yData, interruptToName[interruptName] + " - " + title, xAxisDescription,
-                      interruptDomainToName[facet])
+            p.addPlot(xData, yData, interruptToName[interruptName] + " - " + title)  # , yAxisDescription,
+            # interruptDomainToName[facet])
         except:
             print("cannot add plot [" + title + "] for %s[%s]" % ("INT", name))
 
@@ -233,13 +244,13 @@ if __name__ == "__main__":
     transmissionWirefilter = SampleFilter(domain="WIRE", name="tx-south", nodeId=1)
     filter.filter(transmissionWirefilter)
     xData, yData = filter.getData(transmissionWirefilter)
-    p.addPlot(xData, yData, "tx-south", "", "tx signal")
+    p.addPlot(xData, yData, "tx-south")
 
     # reception wire plot
     receptionWireFilter = SampleFilter(domain="WIRE", name="rx-north", nodeId=0)
     filter.filter(receptionWireFilter)
     xData, yData = filter.getData(receptionWireFilter)
-    p.addPlot(xData, yData, "rx-north 1", "", "rx signal")
+    p.addPlot(xData, yData, "rx-north")
 
     # interrupt: timer/counter1 plots
     interruptName = "NORTH_RECEPTION"
@@ -250,8 +261,7 @@ if __name__ == "__main__":
     addInterruptPlot(title="call/return", nodeId=0, facet="invoke", interruptName=interruptName)
 
     interruptName = "TX_RX_TIMER_TOP"
-    addInterruptPlot(title="un-/posting", nodeId=0, facet="post", interruptName=interruptName,
-                     xAxisDescription="")
+    addInterruptPlot(title="un-/posting", nodeId=0, facet="post", interruptName=interruptName)
     # addInterruptPlot(title="en-/disabling", nodeId=0, domain="enable", interruptName=interruptName,
     #                  interruptNameAlias="#0-enable")
     addInterruptPlot(title="call/return", nodeId=0, facet="invoke", interruptName=interruptName)
@@ -264,12 +274,12 @@ if __name__ == "__main__":
 
     addInterruptPlot(title="call/return", nodeId=0, facet="invoke", interruptName="TX_RX_TIMEOUT_INTERRUPT")
 
-    addPlot(title="SRAM[int16-out]", nodeId=0, domain="SRAM", name="int16-out", yAxisDescription="")
+    addPlot(title="SRAM[int16-out]", nodeId=0, domain="SRAM", name="int16-out")
 
     receptionInterruptValueMapping = {"'U'": 0.0, "'S'": 0.2,
-                                     "'A'": 0.6, "'B'": 0.4, "'x'": 0.0, "'0'": 1.0, "'1'": 1.2}
+                                      "'A'": 0.6, "'B'": 0.4, "'x'": 0.0, "'0'": 1.2, "'1'": 1.4}
     filter.setValueMapping(receptionInterruptValueMapping)
-    addPlot(title="SRAM[char-out] - States", nodeId=0, domain="SRAM", name="char-out", yAxisDescription="")
+    addPlot(title="SRAM[char-out] - States", nodeId=0, domain="SRAM", name="char-out")
 
     # interruptByteValues = {'0': 0.0, '1': 1.0}
     # filter.setValueMapping(interruptByteValues)
