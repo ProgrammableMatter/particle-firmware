@@ -61,7 +61,7 @@ typedef enum {
 typedef struct {
     uint8_t counter : 4; //pulse counter
     uint8_t isConnected : 1; // connectivity flag
-    uint8_t __pad :3;
+    uint8_t __pad : 3;
 } PulseCounter; // 1 byte total
 
 FUNC_ATTRS void constructPulseCounter(volatile PulseCounter *o) {
