@@ -24,7 +24,7 @@
 #  endif
 
 FUNC_ATTRS void __handleInputInterrupt(volatile PulseCounter *discoveryPulseCounter, volatile RxPort *rxPort,
-                                       const uint8_t isRxHigh) {
+                                       const bool isRxHigh) {
     switch (ParticleAttributes.node.state) {
         // on discovery pulse
         case STATE_TYPE_NEIGHBOURS_DISCOVERY:
@@ -40,7 +40,7 @@ FUNC_ATTRS void __handleInputInterrupt(volatile PulseCounter *discoveryPulseCoun
         case STATE_TYPE_TX_START:
         case STATE_TYPE_TX_DONE:
         case STATE_TYPE_SCHEDULE_COMMAND:
-            dispatchReceivedDataEdge(rxPort, &ParticleAttributes.ports.rx.receptionDelta, isRxHigh);
+            dispatchReceivedDataEdge(rxPort, isRxHigh);
             break;
 
         default:
