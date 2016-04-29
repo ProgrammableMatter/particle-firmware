@@ -132,15 +132,20 @@ FUNC_ATTRS void constructPorts(volatile Ports *o) {
     constructRxPorts(&(o->rx));
 }
 
+#include "../../simulation/SimulationMacros.h"
+
+
 /**
  * Decrements the bit mask and the byte number accordingly. Does not verify underflow.
  */
 // TODO: should decrement the pointer until mask == 0 and byte number == 0
 FUNC_ATTRS void txBufferBitPointerNext(volatile BufferBitPointer *o) {
     o->bitMask >>= 1;
-    if (o->bitMask == 0) {
+    if ((o->bitMask == 0) && (o->byteNumber > 0)) {
         o->bitMask = 0x80;
         o->byteNumber--;
+    } else if ((o->bitMask == 0) && (o->byteNumber == 0)) {
+        IF_SIMULATION_CHAR_OUT('y');
     }
 }
 
@@ -149,9 +154,11 @@ FUNC_ATTRS void txBufferBitPointerNext(volatile BufferBitPointer *o) {
  */
 FUNC_ATTRS void rxBufferBitPointerNext(volatile BufferBitPointer *o) {
     o->bitMask <<= 1;
-    if (o->bitMask == 0) {
+    if ((o->bitMask == 0) && (o->byteNumber < (sizeof(((PortBuffer *) 0)->bytes) - 1))) {
         o->bitMask = 1;
         o->byteNumber++;
+    } else if ((o->bitMask == 0) && (o->byteNumber == (sizeof(((PortBuffer *) 0)->bytes) - 1))) {
+        IF_SIMULATION_CHAR_OUT('z');
     }
 }
 
@@ -173,12 +180,12 @@ FUNC_ATTRS void rxBufferBitPointerStart(volatile BufferBitPointer *o) {
 }
 
 
-/**
- * points the reception buffer pointer to the last position (lowest bit)
- */
-FUNC_ATTRS void rxBufferBitPointerEnd(volatile BufferBitPointer *o) {
-    __setToHighestPosition(o);
-}
+///**
+// * points the reception buffer pointer to the last position (lowest bit)
+// */
+//FUNC_ATTRS void rxBufferBitPointerEnd(volatile BufferBitPointer *o) {
+//    __setToHighestPosition(o);
+//}
 
 /**
  * points the reception buffer pointer to the start position (lowest bit)
@@ -187,57 +194,57 @@ FUNC_ATTRS void txBufferBitPointerStart(volatile BufferBitPointer *o) {
     __setToHighestPosition(o);
 }
 
-/**
- * points the reception buffer pointer to the last position (lowest bit)
- */
-FUNC_ATTRS void txBufferBitPointerEnd(volatile BufferBitPointer *o) {
-    __setToLowestPosition(o);
-}
+///**
+// * points the reception buffer pointer to the last position (lowest bit)
+// */
+//FUNC_ATTRS void txBufferBitPointerEnd(volatile BufferBitPointer *o) {
+//    __setToLowestPosition(o);
+//}
 
-inline bool __isBufferFull(volatile BufferBitPointer *o) {
-    return (o->byteNumber + 1 > sizeof(((PortBuffer *) 0)->bytes));
-}
+//inline bool __isBufferFull(volatile BufferBitPointer *o) {
+//    return (o->byteNumber + 1 > sizeof(((PortBuffer *) 0)->bytes));
+//}
 
-inline bool __isBufferEnd(volatile BufferBitPointer *o) {
-    return (o->bitMask == (1 << 7) &&
-            o->byteNumber + 1 == sizeof(((PortBuffer *) 0)->bytes));
-}
+//inline bool __isBufferEnd(volatile BufferBitPointer *o) {
+//    return (o->bitMask == (1 << 7) &&
+//            o->byteNumber + 1 == sizeof(((PortBuffer *) 0)->bytes));
+//}
+//
+//inline bool __isBufferStart(volatile BufferBitPointer *o) {
+//    return (o->bitMask == 1 && o->byteNumber == 0);
+//}
+//
+//inline bool __isBufferEmpty(volatile BufferBitPointer *o) {
+//    return (o->bitMask == 0 && o->byteNumber == 0);
+//}
 
-inline bool __isBufferStart(volatile BufferBitPointer *o) {
-    return (o->bitMask == 1 && o->byteNumber == 0);
-}
-
-inline bool __isBufferEmpty(volatile BufferBitPointer *o) {
-    return (o->bitMask == 0 && o->byteNumber == 0);
-}
-
-/**
- * returns true if the pointer points at no position
- */
-FUNC_ATTRS bool isRxBufferEmpty(volatile BufferBitPointer *o) {
-    return __isBufferEmpty(o);
-}
+///**
+// * returns true if the pointer points at no position
+// */
+//FUNC_ATTRS bool isRxBufferEmpty(volatile BufferBitPointer *o) {
+//    return __isBufferEmpty(o);
+//}
 
 /**
  * returns true if the pointer points at the beyond the maximum buffer position
  */
 FUNC_ATTRS bool isRxBufferFull(volatile BufferBitPointer *o) {
-    return __isBufferFull(o);
+    return o->bitMask == 0;
 }
 
 /**
  * returns true if the buffer points to no position
  */
 FUNC_ATTRS bool isTxBufferEmpty(volatile BufferBitPointer *o) {
-    return __isBufferEmpty(o);
+    return o->bitMask == 0;
 }
-
-/**
- * returns true if the pointer points beyond the maximum buffer position
- */
-FUNC_ATTRS bool isTxBufferFull(volatile BufferBitPointer *o) {
-    return __isBufferFull(o);
-}
+//
+///**
+// * returns true if the pointer points beyond the maximum buffer position
+// */
+//FUNC_ATTRS bool isTxBufferFull(volatile BufferBitPointer *o) {
+//    return __isBufferFull(o);
+//}
 
 #  ifdef FUNC_ATTRS
 #    undef FUNC_ATTRS
