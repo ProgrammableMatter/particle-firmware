@@ -56,7 +56,7 @@ add_custom_command(OUTPUT avrora_simulate
                 -clockspeed=8000000
 #                -monitors=calls,call-profile,profile,stack,interrupts,memory,break,leds,real-time,retaddr
 #                -monitors=calls,call-profile,profile,stack,interrupts,memory,break,leds,retaddr
-                -monitors=calls,retaddr,particle,interrupts,memory,break
+        -monitors=calls,retaddr,particle-states,interrupts,memory,break
 #                    -ioregs=all
 #                -monitors=calls,retaddr,particle
 #                    -low-addresses=true
