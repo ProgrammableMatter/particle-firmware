@@ -38,7 +38,7 @@
  * that (2*DEFAULT_TX_RX_COMPARE_TOP_VALUE + 2*ParticleAttributes.rxArguments.receptionDelta) must
  * fit into uint16_t.
  */
-#define DEFAULT_TX_RX_COMPARE_TOP_VALUE ((uint16_t)750)
+#define DEFAULT_TX_RX_COMPARE_TOP_VALUE ((uint16_t) 950)
 
 /**
  * Accepted deviation (constant) on reception:
