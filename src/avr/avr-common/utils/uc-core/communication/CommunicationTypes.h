@@ -70,12 +70,14 @@ FUNC_ATTRS void constructTxPorts(volatile TxPorts *o) {
 
 typedef struct {
     uint16_t receptionOffset; // synchronization offset of fist received bit relative to compare counter
+    // TODO: deprecated
     uint16_t center; // center, usually DEFAULT_TX_RX_COMPARE_TOP_VALUE / TX_RX_COUNTER_CENTER_VALUE_DIVISOR
+    // TODO: deprecated
     uint16_t leftOfCenter; // left border of center classification
+    // TODO: deprecated
     uint16_t rightOfCenter; // right border of center classification
-    // TODO: remove left of top
+    // TODO: deprecated
     uint16_t leftOfTop; // left border of top classification
-    // top equals to TIMER_TX_RX_COMPARE_TOP_VALUE
 } TimerCounterAdjustment;
 
 FUNC_ATTRS void constructTimerCounterAdjustment(volatile TimerCounterAdjustment *o,
@@ -144,8 +146,6 @@ FUNC_ATTRS void txBufferBitPointerNext(volatile BufferBitPointer *o) {
     if ((o->bitMask == 0) && (o->byteNumber > 0)) {
         o->bitMask = 0x80;
         o->byteNumber--;
-    } else if ((o->bitMask == 0) && (o->byteNumber == 0)) {
-        IF_SIMULATION_CHAR_OUT('y');
     }
 }
 
@@ -157,8 +157,6 @@ FUNC_ATTRS void rxBufferBitPointerNext(volatile BufferBitPointer *o) {
     if ((o->bitMask == 0) && (o->byteNumber < (sizeof(((PortBuffer *) 0)->bytes) - 1))) {
         o->bitMask = 1;
         o->byteNumber++;
-    } else if ((o->bitMask == 0) && (o->byteNumber == (sizeof(((PortBuffer *) 0)->bytes) - 1))) {
-        IF_SIMULATION_CHAR_OUT('z');
     }
 }
 
