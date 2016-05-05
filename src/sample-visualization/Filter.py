@@ -275,9 +275,10 @@ if __name__ == "__main__":
     addInterruptPlot(title="call/return", nodeId=0, facet="invoke", interruptName="TX_RX_TIMEOUT_INTERRUPT")
 
     addPlot(title="SRAM[int16-out]", nodeId=0, domain="SRAM", name="int16-out")
+    #addPlot(title="tx - SRAM[int16-out]", nodeId=1, domain="SRAM", name="int16-out")
 
     receptionInterruptValueMapping = {"'U'": 0.0, "'S'": 0.2,
-                                      "'A'": 0.6, "'B'": 0.4, "'x'": 0.0, "'0'": 1.2, "'1'": 1.4}
+                                      "'A'": 0.6, "'B'": 0.4, "'x'": 0.0,"'0'": 1.2, "'1'": 1.4}
     filter.setValueMapping(receptionInterruptValueMapping)
     addPlot(title="SRAM[char-out] - States", nodeId=0, domain="SRAM", name="char-out")
 
