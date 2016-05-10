@@ -34,10 +34,12 @@ FUNC_ATTRS uint16_t __toPortCounter(const volatile uint16_t *hardwareCounter,
  * Stores the data bit to the reception buffer unless the buffer is saturated.
  */
 FUNC_ATTRS void __storeDataBit(volatile RxPort *rxPort, const volatile uint8_t isRisingEdge) {
-
-//    if (isRxBufferFull(&(rxPort->buffer.pointer)) == false) {
     // save bit to buffer
-    if (isRisingEdge) {
+    if (isRxBufferFull(&(rxPort->buffer.pointer))) {
+        rxPort->isOverflowed = true;
+        return;
+    }
+    else if (isRisingEdge) {
         IF_SIMULATION_CHAR_OUT('1');
         rxPort->buffer.bytes[rxPort->buffer.pointer.byteNumber] setBit rxPort->buffer.pointer.bitMask;
     } else {
@@ -45,7 +47,6 @@ FUNC_ATTRS void __storeDataBit(volatile RxPort *rxPort, const volatile uint8_t i
         rxPort->buffer.bytes[rxPort->buffer.pointer.byteNumber] unsetBit rxPort->buffer.pointer.bitMask;
     }
     rxBufferBitPointerNext(&(rxPort->buffer.pointer));
-//    }
 }
 
 /**
