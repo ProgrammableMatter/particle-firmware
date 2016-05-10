@@ -22,25 +22,28 @@ extern volatile ParticleState ParticleAttributes;
 
 
 // triggers on signal clock (signal rectification)
-ISR(TIMER1_COMPA_vect) {
+#define TX_COUNTER_TOP TIMER1_COMPA_vect
+
+ISR(TX_COUNTER_TOP) {
     TCNT1 = 0;
     // rectify (invert according to next data bit) signal before upcoming data transition
     //if (ParticleAttributes.ports.tx.south.buffer.pointer.bitMask & ParticleAttributes.ports.tx.south.buffer.bytes[0]) {
     if (ParticleAttributes.ports.tx.south.buffer.pointer.bitMask &
         ParticleAttributes.ports.tx.south.buffer.bytes[ParticleAttributes.ports.tx.
                 south.buffer.pointer.byteNumber]) {
-            SOUTH_TX_HI;
+        SOUTH_TX_HI;
 //            IF_SIMULATION_INT16_OUT(TCNT1);
-        } else {
-            SOUTH_TX_LO;
+    } else {
+        SOUTH_TX_LO;
 //            IF_SIMULATION_INT16_OUT(TCNT1);
-        }
-//    }
+    }
 }
 
 // triggers on bit transmission:
 // reception at the receiver side of this transmission is inverted
-ISR(TIMER1_COMPB_vect) {
+#define TX_COUNTER_CENTER TIMER1_COMPB_vect
+
+ISR(TX_COUNTER_CENTER) {
 
     if (isTxBufferEmpty(&ParticleAttributes.ports.tx.south.buffer.pointer)) {
         // stop after one transmission

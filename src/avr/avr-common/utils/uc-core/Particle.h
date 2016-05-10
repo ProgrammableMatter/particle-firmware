@@ -98,17 +98,22 @@ FUNC_ATTRS void __enableReception(void) {
  */
 FUNC_ATTRS void __heartBeatToggle(void) {
     ParticleAttributes.periphery.loopCount++;
+    // TODO: replace/approximate modulo by sth. else because of time consuming floating point calculation
     if (0 == (ParticleAttributes.periphery.loopCount % HEARTBEAT_LOOP_COUNT_TOGGLE)) {
         LED_HEARTBEAT_TOGGLE;
         ParticleAttributes.periphery.loopCount = 0;
     }
 }
 
-FUNC_ATTRS void particleTick(void) {
-
+FUNC_ATTRS void discoveryLoopCount(void) {
     if (ParticleAttributes.discoveryPulseCounters.loopCount < (UINT8_MAX)) {
         ParticleAttributes.discoveryPulseCounters.loopCount++;
     }
+}
+
+FUNC_ATTRS void particleTick(void) {
+
+//    discoveryLoopCount();
     __heartBeatToggle();
 
     // STATE_TYPE_START: state before initialization
@@ -130,6 +135,7 @@ FUNC_ATTRS void particleTick(void) {
             // STATE_TYPE_NEIGHBOURS_DISCOVERY: stay in discovery state for
             // MAX_NEIGHBOURS_DISCOVERY_LOOPS but at least MIN_NEIGHBOURS_DISCOVERY_LOOPS loops
         case STATE_TYPE_NEIGHBOURS_DISCOVERY:
+            discoveryLoopCount();
             if (ParticleAttributes.discoveryPulseCounters.loopCount >= MAX_NEIGHBOURS_DISCOVERY_LOOPS) {
                 // discovery timeout
                 ParticleAttributes.node.state = STATE_TYPE_NEIGHBOURS_DISCOVERED;
@@ -143,6 +149,7 @@ FUNC_ATTRS void particleTick(void) {
 
             // prevent exhausting cpu clocks for reception interrupts unless rx is not needed but keep pulsing
         case STATE_TYPE_NEIGHBOURS_DISCOVERED:
+            discoveryLoopCount();
             RX_INTERRUPTS_DISABLE;
             ParticleAttributes.node.state = STATE_TYPE_DISCOVERY_PULSING;
             break;

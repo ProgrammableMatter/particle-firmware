@@ -30,6 +30,9 @@ FUNC_ATTRS int particleLoop(void) {
 }
 
 
+/**
+ * starts
+ */
 int main(void) {
     IF_SIMULATION_CHAR_OUT('0');
     IO_PORTS_SETUP; // configure input/output pins
@@ -46,9 +49,9 @@ int main(void) {
 
     IF_SIMULATION_CHAR_OUT('1');
     RX_INTERRUPTS_CLEAR_PENDING;
-    SREG setBit bit(SREG_I);
     ParticleAttributes.node.type = NODE_TYPE_ORIGIN;
     ParticleAttributes.node.state = STATE_TYPE_IDLE;
+    SREG setBit bit(SREG_I);
 
     return particleLoop();
 }

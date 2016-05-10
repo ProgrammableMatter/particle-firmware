@@ -44,7 +44,7 @@ FUNC_ATTRS void __handleInputInterrupt(volatile PulseCounter *discoveryPulseCoun
             break;
 
         default:
-            IF_SIMULATION_SWITCH_TO_ERRONEOUS_STATE;
+        IF_SIMULATION_SWITCH_TO_ERRONEOUS_STATE;
             break;
     }
 }
@@ -67,10 +67,71 @@ FUNC_ATTRS void __resetReceptionCounter(void) {
     }
 }
 
+FUNC_ATTRS void __southTxHi(void) {
+    SOUTH_TX_HI;
+}
+
+FUNC_ATTRS void __southTxLo(void) {
+    SOUTH_TX_LO;
+}
+
+FUNC_ATTRS void __northTxHi(void) {
+    NORTH_TX_HI;
+}
+
+FUNC_ATTRS void __northTxLo(void) {
+    NORTH_TX_LO;
+}
+
+FUNC_ATTRS void __eastTxHi(void) {
+    EAST_TX_HI;
+}
+
+FUNC_ATTRS void __eastTxLo(void) {
+    EAST_TX_LO;
+}
+
+
 /**
- *
+ * rectifies/modulates the transmission signal according to the upcoming bit
  */
-FUNC_ATTRS void __advanceTimeoutCounters(void) {
+FUNC_ATTRS void __rectifyTransmissionBit(volatile PortBuffer *buffer, void (txHiImpl)(void),
+                                         void (txLoImpl)(void)) {
+    if (buffer->pointer.bitMask &
+        buffer->bytes[buffer->pointer.byteNumber]) {
+        txHiImpl();
+//            IF_SIMULATION_INT16_OUT(TCNT1);
+    } else {
+        txLoImpl();
+//            IF_SIMULATION_INT16_OUT(TCNT1);
+    }
+}
+
+/**
+ * modulates the transmission signal according to the crrent bit and increments the buffer pointer
+ */
+FUNC_ATTRS void __modulateTransmissionBit(volatile PortBuffer *buffer, void (txHiImpl)(void),
+                                          void (txLowImpl)(void)) {
+    if (isTxBufferEmpty(&buffer->pointer)) {
+        // return signal to default
+        SOUTH_TX_LO; // inverted on receiver side
+//        IF_SIMULATION_INT16_OUT(TCNT1);
+    } else {
+        // write data bit to output (inverted)
+        if (buffer->pointer.bitMask & buffer->bytes[buffer->pointer.byteNumber]) {
+            txLowImpl();
+//            IF_SIMULATION_INT16_OUT(TCNT1);
+        } else {
+            txHiImpl();
+//            IF_SIMULATION_INT16_OUT(TCNT1);
+        }
+        txBufferBitPointerNext(&buffer->pointer);
+    }
+}
+/**
+ * increments the timeout counters
+ */
+FUNC_ATTRS void __advanceReceptionTimeoutCounters(void) {
     ParticleAttributes.ports.rx.north.isReceiving >>= 1;
 
     if (ParticleAttributes.ports.rx.north.isReceiving == 0)
@@ -135,7 +196,11 @@ ISR(TX_RX_TIMER_TOP_INTERRUPT_VECT) { // int. #7
         case STATE_TYPE_TX_DONE:
         case STATE_TYPE_SCHEDULE_COMMAND:
             __resetReceptionCounter();
-            __advanceTimeoutCounters();
+            __advanceReceptionTimeoutCounters();
+            __rectifyTransmissionBit(&ParticleAttributes.ports.tx.north.buffer, __northTxHi, __northTxLo);
+            __rectifyTransmissionBit(&ParticleAttributes.ports.tx.east.buffer, __eastTxHi, __eastTxLo);
+            __rectifyTransmissionBit(&ParticleAttributes.ports.tx.south.buffer, __southTxHi, __southTxLo);
+
             // if sth. to transmit put !(bitMask & data) to the output
             break;
 
@@ -143,6 +208,7 @@ ISR(TX_RX_TIMER_TOP_INTERRUPT_VECT) { // int. #7
             break;
     }
 }
+
 
 /**
  * On timer_counter compare register B match. If there are bits to transmit, this interrupt
@@ -155,8 +221,10 @@ ISR(TX_TIMER_CENTER_INTERRUPT_VECT) { // int. #8
         case STATE_TYPE_TX_START:
         case STATE_TYPE_TX_DONE:
         case STATE_TYPE_SCHEDULE_COMMAND:
-            // TODO: if sth. to transmit put (bitMask & data) to the correct output port and >> mask
-            __advanceTimeoutCounters();
+            __advanceReceptionTimeoutCounters();
+            __modulateTransmissionBit(&ParticleAttributes.ports.tx.north.buffer, __northTxHi, __northTxLo);
+            __modulateTransmissionBit(&ParticleAttributes.ports.tx.east.buffer, __eastTxHi, __eastTxLo);
+            __modulateTransmissionBit(&ParticleAttributes.ports.tx.south.buffer, __southTxHi, __southTxLo);
             break;
         default:
             break;

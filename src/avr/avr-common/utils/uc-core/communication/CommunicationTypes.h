@@ -143,9 +143,9 @@ FUNC_ATTRS void constructPorts(volatile Ports *o) {
  * Decrements the bit mask and the byte number accordingly. Does not verify underflow.
  */
 FUNC_ATTRS void txBufferBitPointerNext(volatile BufferBitPointer *o) {
-    o->bitMask >>= 1;
+    o->bitMask >>= 0b00000001;
     if ((o->bitMask == 0) && (o->byteNumber > 0)) {
-        o->bitMask = 0x80;
+        o->bitMask = 0b10000000;
         o->byteNumber--;
     }
 }
