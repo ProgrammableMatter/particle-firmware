@@ -175,26 +175,6 @@ ISR(TX_RX_TIMEOUT_INTERRUPT_VECT) { // int. #20
         case STATE_TYPE_TX_START:
         case STATE_TYPE_TX_DONE:
         case STATE_TYPE_SCHEDULE_COMMAND:
-//            TIMER_TX_RX_TIMEOUT_COUNTER_PAUSE;
-//            TIMER_TX_RX_TIMEOUT_COUNTER = 0;
-//            uint8_t isCounterPending = false;
-//            if (ParticleAttributes.ports.rx.north.isReceiving != 0) {
-//                --ParticleAttributes.ports.rx.north.isReceiving;
-//                isCounterPending = true;
-//            }
-//            if (ParticleAttributes.ports.rx.east.isReceiving != 0) {
-//                --ParticleAttributes.ports.rx.east.isReceiving;
-//                isCounterPending = true;
-//            }
-//            if (ParticleAttributes.ports.rx.south.isReceiving != 0) {
-//                --ParticleAttributes.ports.rx.south.isReceiving;
-//                isCounterPending = true;
-//            }
-//
-//            if (isCounterPending == true) {
-//                TIMER_TX_RX_TIMEOUT_COUNTER_RESUME;
-//            }
-
             break;
         default:
             break;
