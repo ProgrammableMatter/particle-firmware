@@ -43,10 +43,13 @@ int main(void) {
     ParticleAttributes.discoveryPulseCounters.loopCount = UINT8_MAX;
     constructParticleState(&ParticleAttributes);
     txBufferBitPointerStart(&ParticleAttributes.ports.tx.south.buffer.pointer);
-    ParticleAttributes.ports.tx.south.buffer.bytes[3] = 0b10100111;
-    ParticleAttributes.ports.tx.south.buffer.bytes[2] = 0xaa;
-    ParticleAttributes.ports.tx.south.buffer.bytes[1] = 0xaa;
-    ParticleAttributes.ports.tx.south.buffer.bytes[0] = 0b10100111;
+    ParticleAttributes.ports.tx.south.buffer.bytes[6] = 0b10100111; // == 0xa7 => 0xe5
+    ParticleAttributes.ports.tx.south.buffer.bytes[5] = 0b10101010; // == 0xaa => 0x55
+    ParticleAttributes.ports.tx.south.buffer.bytes[4] = 0b10101010; // == 0xaa => 0x55
+    ParticleAttributes.ports.tx.south.buffer.bytes[3] = 0b10100111; // == 0xa7 => 0xe5
+    ParticleAttributes.ports.tx.south.buffer.bytes[2] = 0b10101010; // == 0xaa => 0x55
+    ParticleAttributes.ports.tx.south.buffer.bytes[1] = 0b10101010; // == 0xaa => 0x55
+    ParticleAttributes.ports.tx.south.buffer.bytes[0] = 0b10100111; // == 0xa7 => 0xe5
 
     ParticleAttributes.node.type = NODE_TYPE_MASTER;
     ParticleAttributes.node.state = STATE_TYPE_TX_START;

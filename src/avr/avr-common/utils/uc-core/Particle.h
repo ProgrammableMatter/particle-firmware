@@ -15,6 +15,8 @@
 #include "./interrupts/TimerCounter.h"
 #include "./ParticleParameters.h"
 
+#include "./communication-protocol/CommunicationProtocolTypes.h"
+
 #  ifdef TRY_INLINE
 #    define FUNC_ATTRS inline
 #  else
@@ -113,7 +115,6 @@ FUNC_ATTRS void discoveryLoopCount(void) {
 
 FUNC_ATTRS void particleTick(void) {
 
-//    discoveryLoopCount();
     __heartBeatToggle();
 
     // STATE_TYPE_START: state before initialization

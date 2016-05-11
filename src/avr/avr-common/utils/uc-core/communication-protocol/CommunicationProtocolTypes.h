@@ -22,10 +22,6 @@ typedef struct {
     uint8_t __pad : 4;
 } PackageHeader;
 
-FUNC_ATTRS void constructPackageHeader(volatile PackageHeader *o) {
-
-}
-
 typedef struct {
     uint8_t isStream : 1;
     uint8_t isCommand : 1;
@@ -158,6 +154,23 @@ typedef struct {
     uint8_t __pad : 1;
 } PackageHeaderAddressrangeData19;
 
+typedef union {
+    PackageHeader asBroadcastHeader;
+    PackageHeaderAddress asHader;
+    PackageHeaderAddressrange asMulticastHeader;
+
+    PackageHeaderData7 asBroadcastData7;
+    PackageHeaderData11 asBroadcastData11;
+    PackageHeaderData19 asBroadcastData19;
+
+    PackageHeaderAddressData7 asData7;
+    PackageHeaderAddressData11 asData11;
+    PackageHeaderAddressData19 asData19;
+
+    PackageHeaderAddressrangeData7 asMulticastData7;
+    PackageHeaderAddressrangeData11 asMulticastData11;
+    PackageHeaderAddressrangeData19 asMulticastData19;
+} Package;
 
 #  ifdef FUNC_ATTRS
 #    undef FUNC_ATTRS

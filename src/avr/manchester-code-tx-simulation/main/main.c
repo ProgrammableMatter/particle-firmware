@@ -75,10 +75,13 @@ inline void initTransmission(void) {
     txBufferBitPointerStart(&ParticleAttributes.ports.tx.south.buffer.pointer);
 
     // the byte to transmit
-    ParticleAttributes.ports.tx.south.buffer.bytes[3] = 0b10100111;
-    ParticleAttributes.ports.tx.south.buffer.bytes[2] = 0xaa;
-    ParticleAttributes.ports.tx.south.buffer.bytes[1] = 0xaa;
-    ParticleAttributes.ports.tx.south.buffer.bytes[0] = 0b10100111;
+    ParticleAttributes.ports.tx.south.buffer.bytes[6] = 0b10100111; // == 0xa7 => 0xe5
+    ParticleAttributes.ports.tx.south.buffer.bytes[5] = 0b10101010; // == 0xaa => 0x55
+    ParticleAttributes.ports.tx.south.buffer.bytes[4] = 0b10101010; // == 0xaa => 0x55
+    ParticleAttributes.ports.tx.south.buffer.bytes[3] = 0b10100111; // == 0xa7 => 0xe5
+    ParticleAttributes.ports.tx.south.buffer.bytes[2] = 0b10101010; // == 0xaa => 0x55
+    ParticleAttributes.ports.tx.south.buffer.bytes[1] = 0b10101010; // == 0xaa => 0x55
+    ParticleAttributes.ports.tx.south.buffer.bytes[0] = 0b10100111; // == 0xa7 => 0xe5
 
     SOUTH_TX_SETUP;
     // return signal to default (high on receiver side)

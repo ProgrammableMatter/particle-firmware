@@ -21,8 +21,8 @@
  * Describes a bit within a 4 byte buffer.
  */
 typedef struct {
-    uint8_t byteNumber : 2; // byte number
-    uint8_t __pad: 6;
+    uint8_t byteNumber : 3; // byte number
+    uint8_t __pad: 5;
     uint8_t bitMask; // the bit in the byte
 } BufferBitPointer; // 1 + 1 = 2 bytes total
 
@@ -36,7 +36,7 @@ FUNC_ATTRS void constructBufferBitPointer(volatile BufferBitPointer *o) {
  * The struct is used for transmission and reception as well.
  */
 typedef struct {
-    uint8_t bytes[4]; // reception buffer
+    uint8_t bytes[7]; // reception buffer
     BufferBitPointer pointer; // points to the next free position
 } PortBuffer; // 4 + 2 = 6 bytes total
 
@@ -71,13 +71,13 @@ FUNC_ATTRS void constructTxPorts(volatile TxPorts *o) {
 typedef struct {
     uint16_t receptionOffset; // synchronization offset of fist received bit relative to compare counter
     // TODO: deprecated
-    uint16_t center__; // center, usually DEFAULT_TX_RX_COMPARE_TOP_VALUE / TX_RX_COUNTER_CENTER_VALUE_DIVISOR
+    uint16_t __pad; //center__; // center, usually DEFAULT_TX_RX_COMPARE_TOP_VALUE / TX_RX_COUNTER_CENTER_VALUE_DIVISOR
     // TODO: deprecated
-    uint16_t leftOfCenter__; // left border of center classification
+    uint16_t __pad1; //leftOfCenter__; // left border of center classification
     // TODO: deprecated
-    uint16_t rightOfCenter__; // right border of center classification
+    uint16_t __pad2; //rightOfCenter__; // right border of center classification
     // TODO: deprecated
-    uint16_t leftOfTop__; // left border of top classification
+    uint16_t __pad3; // leftOfTop__; // left border of top classification
 } TimerCounterAdjustment;
 
 FUNC_ATTRS void constructTimerCounterAdjustment(volatile TimerCounterAdjustment *o,
