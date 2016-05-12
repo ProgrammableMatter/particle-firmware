@@ -81,7 +81,6 @@ FUNC_ATTRS void __initParticle(void) {
     RX_INTERRUPTS_SETUP; // configure input pins interrupts
     RX_INTERRUPTS_ENABLE; // enable input pin interrupts
     TIMER_NEIGHBOUR_SENSE_SETUP; // configure timer interrupt for neighbour sensing
-    constructParticleState(&ParticleAttributes);
 }
 
 
@@ -100,14 +99,13 @@ FUNC_ATTRS void __enableReception(void) {
  */
 FUNC_ATTRS void __heartBeatToggle(void) {
     ParticleAttributes.periphery.loopCount++;
-    // TODO: replace/approximate modulo by sth. else because of time consuming floating point calculation
-    if (0 == (ParticleAttributes.periphery.loopCount % HEARTBEAT_LOOP_COUNT_TOGGLE)) {
+    if (ParticleAttributes.periphery.loopCount > HEARTBEAT_LOOP_COUNT_TOGGLE) {
         LED_HEARTBEAT_TOGGLE;
         ParticleAttributes.periphery.loopCount = 0;
     }
 }
 
-FUNC_ATTRS void discoveryLoopCount(void) {
+FUNC_ATTRS void __discoveryLoopCount(void) {
     if (ParticleAttributes.discoveryPulseCounters.loopCount < (UINT8_MAX)) {
         ParticleAttributes.discoveryPulseCounters.loopCount++;
     }
@@ -126,17 +124,15 @@ FUNC_ATTRS void particleTick(void) {
 
             // STATE_TYPE_ACTIVE: switch to state discovery and enable interrupt
         case STATE_TYPE_ACTIVE:
-            ParticleAttributes.node.state = STATE_TYPE_NEIGHBOURS_DISCOVERY;
             // enable pulsing on north and south tx wires
             TIMER_NEIGHBOUR_SENSE_ENABLE;
             SREG setBit bit(SREG_I); // finally enable interrupts
-            ParticleAttributes.node.state = STATE_TYPE_NEIGHBOURS_DISCOVERY;
             break;
 
             // STATE_TYPE_NEIGHBOURS_DISCOVERY: stay in discovery state for
             // MAX_NEIGHBOURS_DISCOVERY_LOOPS but at least MIN_NEIGHBOURS_DISCOVERY_LOOPS loops
         case STATE_TYPE_NEIGHBOURS_DISCOVERY:
-            discoveryLoopCount();
+            __discoveryLoopCount();
             if (ParticleAttributes.discoveryPulseCounters.loopCount >= MAX_NEIGHBOURS_DISCOVERY_LOOPS) {
                 // discovery timeout
                 ParticleAttributes.node.state = STATE_TYPE_NEIGHBOURS_DISCOVERED;
@@ -150,7 +146,7 @@ FUNC_ATTRS void particleTick(void) {
 
             // prevent exhausting cpu clocks for reception interrupts unless rx is not needed but keep pulsing
         case STATE_TYPE_NEIGHBOURS_DISCOVERED:
-            discoveryLoopCount();
+            __discoveryLoopCount();
             RX_INTERRUPTS_DISABLE;
             ParticleAttributes.node.state = STATE_TYPE_DISCOVERY_PULSING;
             break;
