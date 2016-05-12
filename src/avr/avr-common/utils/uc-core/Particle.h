@@ -12,6 +12,7 @@
 #include "./delay/delay.h"
 #include "./interrupts/Reception.h"
 #include "./discovery/Discovery.h"
+#include "./interrupts/Interrupts.h"
 #include "./interrupts/TimerCounter.h"
 #include "./ParticleParameters.h"
 
