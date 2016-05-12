@@ -33,7 +33,7 @@ FUNC_ATTRS int particleLoop(void) {
 #  ifdef __AVR_ATtiny1634__
     DELAY_MS_1; // wait for all nodes to be ready
 #  endif
-
+    constructParticleState(&ParticleAttributes);
     ParticleAttributes.node.state = STATE_TYPE_START;
     forever {
         particleTick();
