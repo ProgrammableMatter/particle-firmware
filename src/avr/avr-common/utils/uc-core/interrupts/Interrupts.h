@@ -1,8 +1,8 @@
 /**
  * @author Raoul Rubien 2015
  */
-#ifndef __DEFAULT_ISR_H
-#define __DEFAULT_ISR_H
+#ifndef __DEFAULT_PARTICLE_ISR_H__
+#define __DEFAULT_PARTICLE_ISR_H__
 
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
@@ -95,7 +95,7 @@ FUNC_ATTRS void __eastTxLo(void) {
 /**
  * rectifies/modulates the transmission signal according to the upcoming bit
  */
-FUNC_ATTRS void __rectifyTransmissionBit(volatile PortBuffer *buffer, void (txHiImpl)(void),
+FUNC_ATTRS void __rectifyTransmissionBit(volatile PortBuffer *buffer, void (*txHiImpl)(void),
                                          void (txLoImpl)(void)) {
     if (buffer->pointer.bitMask &
         buffer->bytes[buffer->pointer.byteNumber]) {
@@ -110,7 +110,7 @@ FUNC_ATTRS void __rectifyTransmissionBit(volatile PortBuffer *buffer, void (txHi
 /**
  * modulates the transmission signal according to the crrent bit and increments the buffer pointer
  */
-FUNC_ATTRS void __modulateTransmissionBit(volatile PortBuffer *buffer, void (txHiImpl)(void),
+FUNC_ATTRS void __modulateTransmissionBit(volatile PortBuffer *buffer, void (*txHiImpl)(void),
                                           void (txLowImpl)(void)) {
     if (isTxBufferEmpty(&buffer->pointer)) {
         // return signal to default
@@ -143,8 +143,9 @@ FUNC_ATTRS void __advanceReceptionTimeoutCounters(void) {
 
 /**
  * north RX pin change interrupt on logical pin change
+ * int. #19
  */
-ISR(NORTH_PIN_CHANGE_INTERRUPT_VECT) { // int. #19
+ISR(NORTH_PIN_CHANGE_INTERRUPT_VECT) {
     __handleInputInterrupt(&ParticleAttributes.discoveryPulseCounters.north,
                            &ParticleAttributes.ports.rx.north,
                            NORTH_RX_IS_HI);
@@ -153,8 +154,9 @@ ISR(NORTH_PIN_CHANGE_INTERRUPT_VECT) { // int. #19
 
 /**
  * east RX pin change interrupt on logical pin change
+ * int. #3
  */
-ISR(EAST_PIN_CHANGE_INTERRUPT_VECT) { // int. #3
+ISR(EAST_PIN_CHANGE_INTERRUPT_VECT) {
     __handleInputInterrupt(&ParticleAttributes.discoveryPulseCounters.east, &ParticleAttributes.ports.rx.east,
                            EAST_RX_IS_HI);
     RX_INTERRUPTS_CLEAR_PENDING_EAST;
@@ -162,19 +164,24 @@ ISR(EAST_PIN_CHANGE_INTERRUPT_VECT) { // int. #3
 
 /**
  * south RX pin change interrupt on logical pin change
+ * int. #2
  */
-ISR(SOUTH_PIN_CHANGE_INTERRUPT_VECT) { // int. #2
+ISR(SOUTH_PIN_CHANGE_INTERRUPT_VECT) {
     __handleInputInterrupt(&ParticleAttributes.discoveryPulseCounters.south,
                            &ParticleAttributes.ports.rx.south,
                            SOUTH_RX_IS_HI);
     RX_INTERRUPTS_CLEAR_PENDING_SOUTH;
 }
 
+
+
+
 /**
  * On timer_counter match with compare register A.
  * In tx/rx states A equals DEFAULT_TX_RX_COMPARE_TOP_VALUE
+ * int. #7
  */
-ISR(TX_RX_TIMER_TOP_INTERRUPT_VECT) { // int. #7
+ISR(TIMER1_COMPA_vect) {
     switch (ParticleAttributes.node.state) {
         // on generate discovery pulse
         case STATE_TYPE_NEIGHBOURS_DISCOVERY:
@@ -190,21 +197,21 @@ ISR(TX_RX_TIMER_TOP_INTERRUPT_VECT) { // int. #7
             TIMER_NEIGHBOUR_SENSE_RESUME;
             break;
 
-            // on receive data counter compare
         case STATE_TYPE_IDLE:
         case STATE_TYPE_TX_START:
         case STATE_TYPE_TX_DONE:
         case STATE_TYPE_SCHEDULE_COMMAND:
+            // reception
             __resetReceptionCounter();
             __advanceReceptionTimeoutCounters();
+            // transmission
             __rectifyTransmissionBit(&ParticleAttributes.ports.tx.north.buffer, __northTxHi, __northTxLo);
             __rectifyTransmissionBit(&ParticleAttributes.ports.tx.east.buffer, __eastTxHi, __eastTxLo);
             __rectifyTransmissionBit(&ParticleAttributes.ports.tx.south.buffer, __southTxHi, __southTxLo);
-
-            // if sth. to transmit put !(bitMask & data) to the output
             break;
 
         default:
+
             break;
     }
 }
@@ -213,15 +220,20 @@ ISR(TX_RX_TIMER_TOP_INTERRUPT_VECT) { // int. #7
 /**
  * On timer_counter compare register B match. If there are bits to transmit, this interrupt
  * generates the signal(s) according to the state.
+ * int. #8
  */
-ISR(TX_TIMER_CENTER_INTERRUPT_VECT) { // int. #8
+ISR(TIMER1_COMPB_vect) {
+//TX_TIMER_CENTER_INTERRUPT_VECT) {
+    IF_SIMULATION_CHAR_OUT('i');
     switch (ParticleAttributes.node.state) {
         // on receive data counter compare
         case STATE_TYPE_IDLE:
         case STATE_TYPE_TX_START:
         case STATE_TYPE_TX_DONE:
         case STATE_TYPE_SCHEDULE_COMMAND:
+            // reception
             __advanceReceptionTimeoutCounters();
+            // transmission
             __modulateTransmissionBit(&ParticleAttributes.ports.tx.north.buffer, __northTxHi, __northTxLo);
             __modulateTransmissionBit(&ParticleAttributes.ports.tx.east.buffer, __eastTxHi, __eastTxLo);
             __modulateTransmissionBit(&ParticleAttributes.ports.tx.south.buffer, __southTxHi, __southTxLo);
@@ -236,8 +248,9 @@ ISR(TX_TIMER_CENTER_INTERRUPT_VECT) { // int. #8
  * On timer 0 compare interrupt. The interrupt is called multiple times (i.e. 8x) per
  * TX_RX_TIMER_TOP_INTERRUPT_VECT. The implementation updates the timeout per reception
  * port. A timeout indicates a fully received transmission.
+ * int. #20
  */
-ISR(TX_RX_TIMEOUT_INTERRUPT_VECT) { // int. #20
+ISR(TX_RX_TIMEOUT_INTERRUPT_VECT) {
     switch (ParticleAttributes.node.state) {
         case STATE_TYPE_IDLE:
         case STATE_TYPE_TX_START:
@@ -249,7 +262,7 @@ ISR(TX_RX_TIMEOUT_INTERRUPT_VECT) { // int. #20
     }
 }
 
-#  ifdef SIMULATION
+# ifdef SIMULATION
 
 const char isrVector0Msg[] PROGMEM = "BAD ISR";
 /**
@@ -262,17 +275,24 @@ ISR(_VECTOR(0)) {
 
 /**
  * on tx/rx timeout timer overflow
+ * int #10
  */
-ISR(TX_RX_TIMEOUT_OVERFLOW_INTERRUPT) { // int #10
+ISR(TX_RX_TIMEOUT_OVERFLOW_INTERRUPT) {
     writeToUart((PGM_P) pgm_read_word(&(isrVector0Msg)));
     IF_SIMULATION_SWITCH_TO_ERRONEOUS_STATE;
 }
 
 /**
  * on tx/rx timer overflow
+ * int #9
  */
-ISR(TX_RX_OVERFLOW_INTERRUPT) { // int #9
+ISR(TX_RX_OVERFLOW_INTERRUPT) {
     writeToUart((PGM_P) pgm_read_word(&(isrVector0Msg)));
+    IF_SIMULATION_SWITCH_TO_ERRONEOUS_STATE;
+}
+
+
+ISR(BADISR_vect) {
     IF_SIMULATION_SWITCH_TO_ERRONEOUS_STATE;
 }
 

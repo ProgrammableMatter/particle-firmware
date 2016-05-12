@@ -16,7 +16,7 @@ link_directories(
 )
 
 target_link_libraries(${BINARY}
-        ${PROJECT_NAME}_uccore
+        #        ${PROJECT_NAME}_uccore
         #        ${PROJECT_NAME}_simulation
         )
 include(${PROJECTS_SOURCE_ROOT}/avr-common/scripts/post_binary_build.cmake)
