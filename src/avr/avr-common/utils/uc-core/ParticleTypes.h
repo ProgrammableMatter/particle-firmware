@@ -65,8 +65,9 @@ typedef struct {
 } PulseCounter; // 1 byte total
 
 FUNC_ATTRS void constructPulseCounter(volatile PulseCounter *o) {
-    o->counter = 0;
-    o->isConnected = false;
+//    o->counter = 0;
+//    o->isConnected = false;
+    *(uint8_t *) o = 0;
 }
 
 /**
@@ -97,8 +98,9 @@ typedef struct {
 } NodeAddress; // 2 byte total
 
 FUNC_ATTRS void constructNodeAddress(volatile NodeAddress *o) {
-    o->row = 1;
-    o->column = 2;
+//    o->row = 0;
+//    o->column = 0;
+    *(uint16_t *) o = 0;
 }
 
 /**
