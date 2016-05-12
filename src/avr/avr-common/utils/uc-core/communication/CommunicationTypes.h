@@ -161,21 +161,13 @@ FUNC_ATTRS void rxBufferBitPointerNext(volatile BufferBitPointer *o) {
     }
 }
 
-inline void __setToLowestPosition(volatile BufferBitPointer *o) {
-    o->bitMask = 1;
-    o->byteNumber = 0;
-}
-
-inline void __setToHighestPosition(volatile BufferBitPointer *o) {
-    o->bitMask = 0x80;
-    o->byteNumber = (sizeof(((PortBuffer *) 0)->bytes) - 1);
-}
 
 /**
  * points the reception buffer pointer to the start position (lowest bit)
  */
 FUNC_ATTRS void rxBufferBitPointerStart(volatile BufferBitPointer *o) {
-    __setToLowestPosition(o);
+    o->bitMask = 1;
+    o->byteNumber = 0;
 }
 
 
@@ -183,7 +175,8 @@ FUNC_ATTRS void rxBufferBitPointerStart(volatile BufferBitPointer *o) {
  * points the reception buffer pointer to the start position (lowest bit)
  */
 FUNC_ATTRS void txBufferBitPointerStart(volatile BufferBitPointer *o) {
-    __setToHighestPosition(o);
+    o->bitMask = 0x80;
+    o->byteNumber = (sizeof(((PortBuffer *) 0)->bytes) - 1);
 }
 
 
