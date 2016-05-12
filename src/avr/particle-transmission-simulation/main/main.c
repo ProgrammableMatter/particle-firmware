@@ -8,7 +8,6 @@
 #include <uc-core/ParticleTypes.h>
 #include <util/delay.h>
 #include "uc-core/IoDefinitions.h"
-#include "uc-core/interrupts/Interrupts.h"
 #include "uc-core/Particle.h"
 
 //unsigned char __stuff __attribute__((section(".noinit")));
