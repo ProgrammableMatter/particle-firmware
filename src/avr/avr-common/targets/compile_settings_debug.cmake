@@ -1,3 +1,3 @@
 # @author: Raoul Rubien 2016
 
-SET(CDEBUG    "-gstabs")
+SET(CDEBUG "${CDEBUG} -gstabs")
