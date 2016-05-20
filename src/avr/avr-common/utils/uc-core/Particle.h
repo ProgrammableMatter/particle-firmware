@@ -10,10 +10,10 @@
 #include "Globals.h"
 #include "IoDefinitions.h"
 #include "./delay/delay.h"
-#include "./interrupts/Reception.h"
 #include "./discovery/Discovery.h"
-#include "./interrupts/Interrupts.h"
+#include "./interrupts/Reception.h"
 #include "./interrupts/TimerCounter.h"
+#include "./interrupts/Interrupts.h"
 #include "./ParticleParameters.h"
 
 #include "./communication-protocol/CommunicationProtocolTypes.h"
@@ -29,42 +29,31 @@
  * {@link ParticleAttributes.type}.
  * @return true if the node is fully connected, else false
  */
-FUNC_ATTRS bool __updateNodeType(void) {
-    uint8_t hasNorthNeighbour =
-            (uint8_t) ((ParticleAttributes.discoveryPulseCounters.north.counter >=
-                        MIN_RX_NEIGHBOUR_SIGNALS_SENSE) ? 1 : 0);
-    uint8_t hasSouthNeighbour =
-            (uint8_t) ((ParticleAttributes.discoveryPulseCounters.south.counter >=
-                        MIN_RX_NEIGHBOUR_SIGNALS_SENSE) ? 1 : 0);
-    uint8_t hasEastNeighbour =
-            (uint8_t) ((ParticleAttributes.discoveryPulseCounters.east.counter >=
-                        MIN_RX_NEIGHBOUR_SIGNALS_SENSE) ? 1 : 0);
-    if (hasNorthNeighbour) { // N
-        if (hasSouthNeighbour) { // N, S
-            if (hasEastNeighbour) { // N, S, E
+FUNC_ATTRS bool __updateAndDetermineNodeType(void) {
+    if (ParticleAttributes.discoveryPulseCounters.north.isConnected) { // N
+        if (ParticleAttributes.discoveryPulseCounters.south.isConnected) { // N, S
+            if (ParticleAttributes.discoveryPulseCounters.east.isConnected) { // N, S, E
                 ParticleAttributes.node.type = NODE_TYPE_INTER_HEAD;
                 return true;
             } else { // N,S,!E
                 ParticleAttributes.node.type = NODE_TYPE_INTER_NODE;
             }
         } else { // N, !S
-            if (hasEastNeighbour) { // N, !S, E
+            if (ParticleAttributes.discoveryPulseCounters.east.isConnected) { // N, !S, E
                 ParticleAttributes.node.type = NODE_TYPE_INVALID;
-                return true;
             } else { // N, !S, !E
                 ParticleAttributes.node.type = NODE_TYPE_TAIL;
             }
-
         }
     } else { // !N
-        if (hasSouthNeighbour) { // !N, S
-            if (hasEastNeighbour) { // !N, S, E
+        if (ParticleAttributes.discoveryPulseCounters.south.isConnected) { // !N, S
+            if (ParticleAttributes.discoveryPulseCounters.east.isConnected) { // !N, S, E
                 ParticleAttributes.node.type = NODE_TYPE_ORIGIN;
             } else { // !N, S, !E
                 ParticleAttributes.node.type = NODE_TYPE_ORIGIN;
             }
         } else { // !N, !S
-            if (hasEastNeighbour) { // !N, !S, E
+            if (ParticleAttributes.discoveryPulseCounters.east.isConnected) { // !N, !S, E
                 ParticleAttributes.node.type = NODE_TYPE_INVALID;
             } else { // !N, !S, !E
                 ParticleAttributes.node.type = NODE_TYPE_ORPHAN;
@@ -91,7 +80,7 @@ FUNC_ATTRS void __initParticle(void) {
 FUNC_ATTRS void __enableReception(void) {
     TIMER_TX_RX_SETUP; // set up reception and timeout counter interrupts
     TIMER_TX_RX_ENABLE; // enable reception counter interrupt
-    TIMER_TX_RX_TIMEOUT_ENABLE; // enable timeout counter interrupt
+//    TIMER_TX_RX_TIMEOUT_ENABLE; // enable timeout counter interrupt
 }
 
 
@@ -126,6 +115,7 @@ FUNC_ATTRS void particleTick(void) {
             // STATE_TYPE_ACTIVE: switch to state discovery and enable interrupt
         case STATE_TYPE_ACTIVE:
             // enable pulsing on north and south tx wires
+            ParticleAttributes.node.state = STATE_TYPE_NEIGHBOURS_DISCOVERY;
             TIMER_NEIGHBOUR_SENSE_ENABLE;
             SREG setBit bit(SREG_I); // finally enable interrupts
             break;
@@ -136,11 +126,18 @@ FUNC_ATTRS void particleTick(void) {
             __discoveryLoopCount();
             if (ParticleAttributes.discoveryPulseCounters.loopCount >= MAX_NEIGHBOURS_DISCOVERY_LOOPS) {
                 // discovery timeout
+                RX_INTERRUPTS_DISABLE;
                 ParticleAttributes.node.state = STATE_TYPE_NEIGHBOURS_DISCOVERED;
             } else if (ParticleAttributes.discoveryPulseCounters.loopCount >=
                        MIN_NEIGHBOURS_DISCOVERY_LOOPS) {
-                if (__updateNodeType()) {
+                if (__updateAndDetermineNodeType()) {
+                    RX_INTERRUPTS_DISABLE;
                     ParticleAttributes.node.state = STATE_TYPE_NEIGHBOURS_DISCOVERED;
+                } else {
+                    DELAY_US_15;
+                    DELAY_US_15;
+                    DELAY_US_15;
+                    DELAY_US_15;
                 }
             }
             break;
@@ -148,7 +145,6 @@ FUNC_ATTRS void particleTick(void) {
             // prevent exhausting cpu clocks for reception interrupts unless rx is not needed but keep pulsing
         case STATE_TYPE_NEIGHBOURS_DISCOVERED:
             __discoveryLoopCount();
-            RX_INTERRUPTS_DISABLE;
             ParticleAttributes.node.state = STATE_TYPE_DISCOVERY_PULSING;
             break;
 
