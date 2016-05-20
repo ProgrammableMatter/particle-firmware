@@ -6,7 +6,7 @@
 #include <avr/interrupt.h>
 #include <common/common.h>
 #include <uc-core/ParticleTypes.h>
-#include <util/delay.h>
+#include <uc-core/delay/delay.h>
 #include "uc-core/IoDefinitions.h"
 #include "uc-core/Particle.h"
 
@@ -34,14 +34,12 @@ FUNC_ATTRS int particleLoop(void) {
  * starts a configured node in transmission state with preset transmission buffer
  */
 int main(void) {
-    _delay_us(15.0);
-    _delay_us(15.0);
-    _delay_us(15.0);
-    _delay_us(15.0);
-
-    ParticleAttributes.discoveryPulseCounters.loopCount = UINT8_MAX;
     constructParticleState(&ParticleAttributes);
+    ParticleAttributes.discoveryPulseCounters.loopCount = UINT8_MAX;
+    ParticleAttributes.node.state = STATE_TYPE_TX_START;
+    ParticleAttributes.node.type = NODE_TYPE_MASTER;
     txBufferBitPointerStart(&ParticleAttributes.ports.tx.south.buffer.pointer);
+
     ParticleAttributes.ports.tx.south.buffer.bytes[6] = 0b10100111; // == 0xa7 => 0xe5
     ParticleAttributes.ports.tx.south.buffer.bytes[5] = 0b10101010; // == 0xaa => 0x55
     ParticleAttributes.ports.tx.south.buffer.bytes[4] = 0b10101010; // == 0xaa => 0x55
@@ -50,15 +48,29 @@ int main(void) {
     ParticleAttributes.ports.tx.south.buffer.bytes[1] = 0b10101010; // == 0xaa => 0x55
     ParticleAttributes.ports.tx.south.buffer.bytes[0] = 0b10100111; // == 0xa7 => 0xe5
 
-    ParticleAttributes.node.type = NODE_TYPE_MASTER;
-    ParticleAttributes.node.state = STATE_TYPE_TX_START;
-
-    IO_PORTS_SETUP; // configure input/output pins
-
+    // configure input/output pins
+    IO_PORTS_SETUP;
+    SOUTH_TX_LO;
     // setup and enable transmission/reception counter interrupt
     TIMER_TX_RX_SETUP;
-    TIMER_TX_RX_ENABLE;
     RX_INTERRUPTS_CLEAR_PENDING;
+    TIMER_TX_RX_ENABLE;
+
+    DELAY_US_15
+    DELAY_US_15
+    DELAY_US_15
+    DELAY_US_15
+    DELAY_US_15
+
+    DELAY_US_15
+    DELAY_US_15
+    DELAY_US_15
+    DELAY_US_15
+    DELAY_US_15
+
+    ParticleAttributes.ports.tx.south.retainTransmission = true;
+    ParticleAttributes.ports.tx.south.enableTransmission = true;
+
     SREG setBit bit(SREG_I);
 
     particleLoop();

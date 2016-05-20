@@ -7,7 +7,7 @@
 #include <common/common.h>
 #include <uc-core/IoDefinitions.h>
 #include <uc-core/Globals.h>
-#include <util/delay.h>
+#include <uc-core/delay/delay.h>
 //#include <simulation/SimulationMacros.h>
 
 extern volatile ParticleState ParticleAttributes;
@@ -26,6 +26,7 @@ extern volatile ParticleState ParticleAttributes;
 
 ISR(TX_COUNTER_TOP) {
     TCNT1 = 0;
+
     // rectify (invert according to next data bit) signal before upcoming data transition
     //if (ParticleAttributes.ports.tx.south.buffer.pointer.bitMask & ParticleAttributes.ports.tx.south.buffer.bytes[0]) {
     if (ParticleAttributes.ports.tx.south.buffer.pointer.bitMask &
@@ -113,10 +114,12 @@ inline void initTransmission(void) {
     TCNT1 = COUNTER_1_SETTINGS_CENTER + 1;
 }
 
+extern inline void initTransmission(void);
+
 int main(void) {
     initTransmission();
     // wait until receiver is ready
-    _delay_us(15.0);
+    DELAY_US_15;
 
     ParticleAttributes.node.state = STATE_TYPE_TX_START;
 

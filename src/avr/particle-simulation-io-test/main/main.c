@@ -10,6 +10,8 @@
 
 extern volatile ParticleState ParticleAttributes;
 
+extern inline void writeToUart(const char *string);
+
 const char testMessage[] PROGMEM = "test";
 
 /**

@@ -40,7 +40,6 @@ int main(void) {
     RX_INTERRUPTS_ENABLE;
     // setup and enable reception counter interrupt
     TIMER_TX_RX_SETUP;
-    TIMER_TX_RX_ENABLE;
     //TIMER_TX_RX_TIMEOUT_ENABLE;
 
     ParticleAttributes.discoveryPulseCounters.loopCount = UINT8_MAX;
@@ -50,6 +49,7 @@ int main(void) {
     RX_INTERRUPTS_CLEAR_PENDING;
     ParticleAttributes.node.type = NODE_TYPE_ORIGIN;
     ParticleAttributes.node.state = STATE_TYPE_IDLE;
+    TIMER_TX_RX_ENABLE;
     SREG setBit bit(SREG_I);
 
     return particleLoop();
