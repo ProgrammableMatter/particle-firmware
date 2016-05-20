@@ -14,7 +14,7 @@
  * Minimum signals to be detected per communication channel until this side is recognized as
  * connected to a neighbour.
  */
-#define MIN_RX_NEIGHBOUR_SIGNALS_SENSE ((uint8_t)(6))
+#define MIN_RX_NEIGHBOUR_SIGNALS_SENSE ((uint8_t)(10))
 /**
  * Earliest particle loop when local node discovery may be finished.
  */
@@ -31,14 +31,14 @@
 /**
  * Neighbour discovery counter 1 compare A value.
  */
-#define DEFAULT_NEIGHBOUR_SENSING_COUNTER_COMPARE_VALUE ((uint16_t)0x10)
+#define DEFAULT_NEIGHBOUR_SENSING_COUNTER_COMPARE_VALUE ((uint16_t)0x80)
 
 /**
  * Initial value for reception counter compare value. Should be greater than 450 and less than 2032. Note
  * that (2*DEFAULT_TX_RX_COMPARE_TOP_VALUE + 2*ParticleAttributes.rxArguments.receptionDelta) must
  * fit into uint16_t.
  */
-#define DEFAULT_TX_RX_COMPARE_TOP_VALUE ((uint16_t) 950)
+#define DEFAULT_TX_RX_COMPARE_TOP_VALUE ((uint16_t) 1550)
 
 /**
  * Accepted deviation (constant) on reception:
@@ -76,7 +76,7 @@
 /**
  * comment if functions should not be inline
  */
-#define TRY_INLINE
-#define TRY_INLINE_ISR_RELEVANT
+//#define TRY_INLINE
+//#define TRY_INLINE_ISR_RELEVANT
 
 #endif
