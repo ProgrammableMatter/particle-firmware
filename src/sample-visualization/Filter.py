@@ -55,7 +55,7 @@ class Filter:
                         print("[%s][%s][%s] -> %s" % (id, domain, name, sample))
 
     def getData(self, sampleFilter):
-        if sampleFilter.nodeId in self.nodeIdToDomainToNameToSamples:
+        if sampleFilter.nodeId in self.nodeIdToDomainToNameToSamples.keys():
             if sampleFilter.domain in self.nodeIdToDomainToNameToSamples[sampleFilter.nodeId]:
                 if sampleFilter.name in self.nodeIdToDomainToNameToSamples[sampleFilter.nodeId][sampleFilter.domain]:
                     x, y = map(list, zip(*self.nodeIdToDomainToNameToSamples[sampleFilter.nodeId][sampleFilter.domain][
@@ -188,7 +188,7 @@ class Plotter:
                             hspace=self.hSpace, wspace=self.wSpace)
         plt.show()
 
-
+# TODO: remove __main__ implementation but leave nice read-able example
 if __name__ == "__main__":
     def addInterruptPlot(title, nodeId=0, facet="post", interruptName="TX_RX_TIMER_TOP", interruptNameAlias=None,
                          yAxisDescription=""):
