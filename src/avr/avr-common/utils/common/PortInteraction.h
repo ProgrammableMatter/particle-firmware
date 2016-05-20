@@ -8,14 +8,14 @@
 /**
  * pin definition
  */
-#define Pin0 0b00000001
-#define Pin1 0b00000010
-#define Pin2 0b00000100
-#define Pin3 0b00001000
-#define Pin4 0b00010000
-#define Pin5 0b00100000
-#define Pin6 0b01000000
-#define Pin7 0b10000000
+#define Pin0 1
+#define Pin1 2
+#define Pin2 4
+#define Pin3 8
+#define Pin4 16
+#define Pin5 32
+#define Pin6 64
+#define Pin7 128
 
 /**
  * better readable expressions for manipulating port direction

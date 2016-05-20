@@ -11,13 +11,15 @@
 #  else
 #    define FUNC_ATTRS
 #  endif
-// inline
+
 /**
  * increments the port counter
  */
 FUNC_ATTRS void dispatchFallingDiscoveryEdge(volatile PulseCounter *portCounter) {
     if (portCounter->counter < RX_DISCOVERY_PULSE_COUNTER_MAX) {
         portCounter->counter++;
+    } else {
+        portCounter->isConnected = true;
     }
 }
 

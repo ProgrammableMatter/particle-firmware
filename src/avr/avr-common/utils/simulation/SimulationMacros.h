@@ -2,8 +2,8 @@
  * @author Raoul Rubien 2016
  */
 
-#ifndef __SIMULATION_MACROS_H
-#define __SIMULATION_MACROS_H
+#ifndef __SIMULATION_MACROS_H__
+#define __SIMULATION_MACROS_H__
 
 #  ifdef __AVR_ATmega16__
 
@@ -37,12 +37,18 @@ inline void writeToUart(const char *string) {
     }
 }
 
+extern inline void writeToUart(const char *);
+
 #  else
 #    define IS_SIMULATION false
 #    define IF_SIMULATION_SWITCH_TO_ERRONEOUS_STATE
 #    define IF_SIMULATION_CHAR_OUT(value)
 #    define IF_SIMULATION_INT16_OUT(value)
-inline void writeToUart(const char *string) { }
+
+#define UNUSED(x) (void)(x)
+inline void writeToUart(const char *string) { UNUSED(string); }
+#undef UNUSED
+extern inline void writeToUart(const char *string);
 #  endif
 
 #endif

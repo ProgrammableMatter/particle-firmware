@@ -3,8 +3,6 @@
  */
 #ifndef __PARTICLE_MAIN_LOOP_H
 #define __PARTICLE_MAIN_LOOP_H
-
-#include <avr/interrupt.h>
 #include <common/common.h>
 #include "IoDefinitions.h"
 #include "ParticleTypes.h"
