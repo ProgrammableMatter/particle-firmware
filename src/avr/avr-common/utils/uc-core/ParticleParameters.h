@@ -53,9 +53,15 @@
  */
 #define TX_RX_COUNTER_CENTER_VALUE_DIVISOR 2
 
+/**
+ * The center interrupt is pre-scheduled by the offset to adjust the interrupt latency.
+ */
+#define TX_RX_COUNTER_CENTER_INTERRUPT_LATENCY_ADJUSTMENT 0
+
 
 /**
- *
+ * The left, center and right borders are classification limits which are used to determine whether a received
+ * signal represents a data bit or is the coding clock/rectification flank.
  */
 #define TX_RX_RECEPTION_CLASSIFICATION_VALUE_LEFT_BORDER ((uint16_t)(DEFAULT_TX_RX_COMPARE_TOP_VALUE / TX_RX_RECEPTION_DELTA_VALUE_DIVISOR))
 #define TX_RX_RECEPTION_CLASSIFICATION_VALUE_CENTER ((uint16_t)(DEFAULT_TX_RX_COMPARE_TOP_VALUE / TX_RX_COUNTER_CENTER_VALUE_DIVISOR))
