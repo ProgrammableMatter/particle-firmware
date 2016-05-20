@@ -26,10 +26,6 @@ typedef struct {
     uint8_t bitMask; // the bit in the byte
 } BufferBitPointer; // 1 + 1 = 2 bytes total
 
-FUNC_ATTRS void constructBufferBitPointer(volatile BufferBitPointer *o) {
-    o->byteNumber = 0;
-    o->bitMask = 1;
-}
 
 /**
  * Provides a linear 4 byte buffer and a bit pointer per communication channel.
@@ -41,26 +37,41 @@ typedef struct {
 } PortBuffer; // 4 + 2 = 6 bytes total
 
 
-FUNC_ATTRS void constructPortBuffer(volatile PortBuffer *o) {
-    for (int i = 0; i < sizeof(o->bytes); i++) {
+FUNC_ATTRS void constructBufferBitPointer(volatile BufferBitPointer *o, bool isTransmissionPointer) {
+    if (isTransmissionPointer) {
+        o->byteNumber = sizeof(((PortBuffer *) 0)->bytes) - 1;
+        o->bitMask = 0x80;
+    } else {
+        o->byteNumber = 0;
+        o->bitMask = 1;
+    }
+}
+
+FUNC_ATTRS void constructPortBuffer(volatile PortBuffer *o, bool isTransmissionBuffer) {
+    for (uint8_t i = 0; i < sizeof(o->bytes); i++) {
         o->bytes[i] = 0;
     }
-    constructBufferBitPointer(&(o->pointer));
+    constructBufferBitPointer(&(o->pointer), isTransmissionBuffer);
 }
 
 typedef struct {
     PortBuffer buffer;
-} TxPort; // 6 bytes total
+    uint8_t enableTransmission : 1; // user handled flag: if enabled transmission is scheduled
+    uint8_t retainTransmission : 1; // interrupt handled flag transmission starts after flag is cleared
+    uint8_t __pad: 6;
+} TxPort; // 6 + 1 bytes total
 
 FUNC_ATTRS void constructTxPort(volatile TxPort *o) {
-    constructPortBuffer(&(o->buffer));
+    constructPortBuffer(&(o->buffer), true);
+    o->enableTransmission = false;
+    o->retainTransmission = true;
 }
 
 typedef struct {
     TxPort north;
     TxPort east;
     TxPort south;
-} TxPorts; // 3 * 6 = 18 bytes total
+} TxPorts; // 3 * 7 = 21 bytes total
 
 FUNC_ATTRS void constructTxPorts(volatile TxPorts *o) {
     constructTxPort(&(o->north));
@@ -80,8 +91,7 @@ typedef struct {
     uint16_t __pad3; // leftOfTop__; // left border of top classification
 } TimerCounterAdjustment;
 
-FUNC_ATTRS void constructTimerCounterAdjustment(volatile TimerCounterAdjustment *o,
-                                                const volatile uint16_t *receptionDelta) {
+FUNC_ATTRS void constructTimerCounterAdjustment(volatile TimerCounterAdjustment *o) {
     o->receptionOffset = 0;
 //    o->center = (DEFAULT_TX_RX_COMPARE_TOP_VALUE / TX_RX_COUNTER_CENTER_VALUE_DIVISOR);
 //    o->leftOfCenter = o->center - *receptionDelta;
@@ -93,14 +103,15 @@ typedef struct {
     // port specific reception offsets and factors according to tis port's reception
     TimerCounterAdjustment adjustment;
     PortBuffer buffer;
-    uint8_t isReceiving : 4; // is decremented on each expected coding flank, set to top on reception
+    uint8_t isReceiving
+            : 4; // interrupt handled: is decremented on each expected but missing coding flank or refreshed on reception
     uint8_t isOverflowed : 1;
     uint8_t __pad: 3;
 } RxPort; // 4 + 6 + 1 = 11 bytes total
 
-FUNC_ATTRS void constructRxPort(volatile RxPort *o, volatile uint16_t *receptionDelta) {
-    constructTimerCounterAdjustment(&(o->adjustment), receptionDelta);
-    constructPortBuffer(&(o->buffer));
+FUNC_ATTRS void constructRxPort(volatile RxPort *o) {
+    constructTimerCounterAdjustment(&(o->adjustment));
+    constructPortBuffer(&(o->buffer), false);
     o->isReceiving = false;
     o->isOverflowed = false;
 }
@@ -121,15 +132,15 @@ typedef struct {
 
 FUNC_ATTRS void constructRxPorts(volatile RxPorts *o) {
     o->receptionDelta = DEFAULT_TX_RX_COMPARE_TOP_VALUE / TX_RX_RECEPTION_DELTA_VALUE_DIVISOR;
-    constructRxPort(&(o->north), &(o->receptionDelta));
-    constructRxPort(&(o->east), &(o->receptionDelta));
-    constructRxPort(&(o->south), &(o->receptionDelta));
+    constructRxPort(&(o->north));
+    constructRxPort(&(o->east));
+    constructRxPort(&(o->south));
 }
 
 typedef struct {
     TxPorts tx;
     RxPorts rx;
-} Ports; // 18 + 33 = 51 bytes total
+} Ports; // 21 + 33 = 54 bytes total
 
 FUNC_ATTRS void constructPorts(volatile Ports *o) {
     constructTxPorts(&(o->tx));
@@ -143,9 +154,9 @@ FUNC_ATTRS void constructPorts(volatile Ports *o) {
  * Decrements the bit mask and the byte number accordingly. Does not verify underflow.
  */
 FUNC_ATTRS void txBufferBitPointerNext(volatile BufferBitPointer *o) {
-    o->bitMask >>= 0b00000001;
+    o->bitMask >>= 1; //0b00000001;
     if ((o->bitMask == 0) && (o->byteNumber > 0)) {
-        o->bitMask = 0b10000000;
+        o->bitMask = 128; //0b10000000;
         o->byteNumber--;
     }
 }

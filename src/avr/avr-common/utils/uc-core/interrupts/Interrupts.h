@@ -16,6 +16,13 @@
 #include "../communication/Communication.h"
 #include "../IoDefinitions.h"
 
+#ifdef SIMULATION
+
+#  include "../../simulation/SimulationMacros.h"
+
+#endif
+
+#define TIMER_NEIGHBOUR_SENSE_COUNTER_ON_INTERRUPT_ROLLBACK 12
 
 #  ifdef TRY_INLINE_ISR_RELEVANT
 #    define FUNC_ATTRS inline
@@ -23,13 +30,16 @@
 #    define FUNC_ATTRS
 #  endif
 
+extern volatile ParticleState ParticleAttributes;
+
 FUNC_ATTRS void __handleInputInterrupt(volatile PulseCounter *discoveryPulseCounter, volatile RxPort *rxPort,
                                        const bool isRxHigh) {
     switch (ParticleAttributes.node.state) {
         // on discovery pulse
         case STATE_TYPE_NEIGHBOURS_DISCOVERY:
-            if (isRxHigh) {
+            if (!isRxHigh) {
                 TIMER_NEIGHBOUR_SENSE_PAUSE;
+                TIMER_NEIGHBOUR_SENSE_COUNTER -= TIMER_NEIGHBOUR_SENSE_COUNTER_ON_INTERRUPT_ROLLBACK;
                 dispatchFallingDiscoveryEdge(discoveryPulseCounter);
                 TIMER_NEIGHBOUR_SENSE_RESUME;
             }
@@ -95,37 +105,39 @@ FUNC_ATTRS void __eastTxLo(void) {
 /**
  * rectifies/modulates the transmission signal according to the upcoming bit
  */
-FUNC_ATTRS void __rectifyTransmissionBit(volatile PortBuffer *buffer, void (*txHiImpl)(void),
+FUNC_ATTRS void __rectifyTransmissionBit(volatile TxPort *txPort, void (*txHiImpl)(void),
                                          void (txLoImpl)(void)) {
-    if (buffer->pointer.bitMask &
-        buffer->bytes[buffer->pointer.byteNumber]) {
-        txHiImpl();
-//            IF_SIMULATION_INT16_OUT(TCNT1);
-    } else {
-        txLoImpl();
-//            IF_SIMULATION_INT16_OUT(TCNT1);
+    if (txPort->retainTransmission == false) {
+        if (txPort->buffer.pointer.bitMask &
+            txPort->buffer.bytes[txPort->buffer.pointer.byteNumber]) {
+            txHiImpl();
+        } else {
+            txLoImpl();
+        }
     }
 }
 
 /**
- * modulates the transmission signal according to the crrent bit and increments the buffer pointer
+ * modulates the transmission signal according to the current bit and increments the buffer pointer
  */
-FUNC_ATTRS void __modulateTransmissionBit(volatile PortBuffer *buffer, void (*txHiImpl)(void),
-                                          void (txLowImpl)(void)) {
-    if (isTxBufferEmpty(&buffer->pointer)) {
-        // return signal to default
-        SOUTH_TX_LO; // inverted on receiver side
-//        IF_SIMULATION_INT16_OUT(TCNT1);
-    } else {
-        // write data bit to output (inverted)
-        if (buffer->pointer.bitMask & buffer->bytes[buffer->pointer.byteNumber]) {
-            txLowImpl();
-//            IF_SIMULATION_INT16_OUT(TCNT1);
+FUNC_ATTRS void __modulateTransmissionBit(volatile TxPort *txPort, void (*txHiImpl)(void),
+                                          void (txLoImpl)(void)) {
+    if (txPort->retainTransmission == false) {
+        if (isTxBufferEmpty(&txPort->buffer.pointer)) {
+            // return signal to default
+            txLoImpl(); // inverted on receiver side
         } else {
-            txHiImpl();
-//            IF_SIMULATION_INT16_OUT(TCNT1);
+            // write data bit to output (inverted)
+            if (txPort->buffer.pointer.bitMask & txPort->buffer.bytes[txPort->buffer.pointer.byteNumber]) {
+                txLoImpl();
+            } else {
+                txHiImpl();
+            }
+            txBufferBitPointerNext(&txPort->buffer.pointer);
         }
-        txBufferBitPointerNext(&buffer->pointer);
+    }
+    else if (txPort->enableTransmission == true) {
+        txPort->retainTransmission = false;
     }
 }
 /**
@@ -134,8 +146,11 @@ FUNC_ATTRS void __modulateTransmissionBit(volatile PortBuffer *buffer, void (*tx
 FUNC_ATTRS void __advanceReceptionTimeoutCounters(void) {
     ParticleAttributes.ports.rx.north.isReceiving >>= 1;
 
-    if (ParticleAttributes.ports.rx.north.isReceiving == 0)
+#ifdef SIMULATION
+    if (ParticleAttributes.ports.rx.north.isReceiving == 0) {
         IF_SIMULATION_CHAR_OUT('U');
+    }
+#endif
     ParticleAttributes.ports.rx.east.isReceiving >>= 1;
     ParticleAttributes.ports.rx.south.isReceiving >>= 1;
 
@@ -157,7 +172,8 @@ ISR(NORTH_PIN_CHANGE_INTERRUPT_VECT) {
  * int. #3
  */
 ISR(EAST_PIN_CHANGE_INTERRUPT_VECT) {
-    __handleInputInterrupt(&ParticleAttributes.discoveryPulseCounters.east, &ParticleAttributes.ports.rx.east,
+    __handleInputInterrupt(&ParticleAttributes.discoveryPulseCounters.east,
+                           &ParticleAttributes.ports.rx.east,
                            EAST_RX_IS_HI);
     RX_INTERRUPTS_CLEAR_PENDING_EAST;
 }
@@ -181,7 +197,7 @@ ISR(SOUTH_PIN_CHANGE_INTERRUPT_VECT) {
  * In tx/rx states A equals DEFAULT_TX_RX_COMPARE_TOP_VALUE
  * int. #7
  */
-ISR(TIMER1_COMPA_vect) {
+ISR(TX_RX_TIMER_TOP_INTERRUPT_VECT) {
     switch (ParticleAttributes.node.state) {
         // on generate discovery pulse
         case STATE_TYPE_NEIGHBOURS_DISCOVERY:
@@ -205,9 +221,9 @@ ISR(TIMER1_COMPA_vect) {
             __resetReceptionCounter();
             __advanceReceptionTimeoutCounters();
             // transmission
-            __rectifyTransmissionBit(&ParticleAttributes.ports.tx.north.buffer, __northTxHi, __northTxLo);
-            __rectifyTransmissionBit(&ParticleAttributes.ports.tx.east.buffer, __eastTxHi, __eastTxLo);
-            __rectifyTransmissionBit(&ParticleAttributes.ports.tx.south.buffer, __southTxHi, __southTxLo);
+            __rectifyTransmissionBit(&ParticleAttributes.ports.tx.north, __northTxHi, __northTxLo);
+            __rectifyTransmissionBit(&ParticleAttributes.ports.tx.east, __eastTxHi, __eastTxLo);
+            __rectifyTransmissionBit(&ParticleAttributes.ports.tx.south, __southTxHi, __southTxLo);
             break;
 
         default:
@@ -222,9 +238,8 @@ ISR(TIMER1_COMPA_vect) {
  * generates the signal(s) according to the state.
  * int. #8
  */
-ISR(TIMER1_COMPB_vect) {
-//TX_TIMER_CENTER_INTERRUPT_VECT) {
-    IF_SIMULATION_CHAR_OUT('i');
+ISR(TX_TIMER_CENTER_INTERRUPT_VECT) {
+//    IF_SIMULATION_CHAR_OUT('i');
     switch (ParticleAttributes.node.state) {
         // on receive data counter compare
         case STATE_TYPE_IDLE:
@@ -234,9 +249,9 @@ ISR(TIMER1_COMPB_vect) {
             // reception
             __advanceReceptionTimeoutCounters();
             // transmission
-            __modulateTransmissionBit(&ParticleAttributes.ports.tx.north.buffer, __northTxHi, __northTxLo);
-            __modulateTransmissionBit(&ParticleAttributes.ports.tx.east.buffer, __eastTxHi, __eastTxLo);
-            __modulateTransmissionBit(&ParticleAttributes.ports.tx.south.buffer, __southTxHi, __southTxLo);
+            __modulateTransmissionBit(&ParticleAttributes.ports.tx.north, __northTxHi, __northTxLo);
+            __modulateTransmissionBit(&ParticleAttributes.ports.tx.east, __eastTxHi, __eastTxLo);
+            __modulateTransmissionBit(&ParticleAttributes.ports.tx.south, __southTxHi, __southTxLo);
             break;
         default:
             break;
@@ -277,7 +292,7 @@ ISR(_VECTOR(0)) {
  * on tx/rx timeout timer overflow
  * int #10
  */
-ISR(TX_RX_TIMEOUT_OVERFLOW_INTERRUPT) {
+ISR(TX_RX_TIMEOUT_OVERFLOW_INTERRUPT_VECT) {
     writeToUart((PGM_P) pgm_read_word(&(isrVector0Msg)));
     IF_SIMULATION_SWITCH_TO_ERRONEOUS_STATE;
 }
@@ -286,7 +301,7 @@ ISR(TX_RX_TIMEOUT_OVERFLOW_INTERRUPT) {
  * on tx/rx timer overflow
  * int #9
  */
-ISR(TX_RX_OVERFLOW_INTERRUPT) {
+ISR(TX_RX_OVERFLOW_INTERRUPT_VECT) {
     writeToUart((PGM_P) pgm_read_word(&(isrVector0Msg)));
     IF_SIMULATION_SWITCH_TO_ERRONEOUS_STATE;
 }
@@ -296,7 +311,19 @@ ISR(BADISR_vect) {
     IF_SIMULATION_SWITCH_TO_ERRONEOUS_STATE;
 }
 
+#  else
+
+EMPTY_INTERRUPT(_VECTOR(0))
+
+EMPTY_INTERRUPT(TX_RX_TIMEOUT_OVERFLOW_INTERRUPT_VECT)
+
+EMPTY_INTERRUPT(TX_RX_OVERFLOW_INTERRUPT_VECT)
+
+EMPTY_INTERRUPT(BADISR_vect)
+
 #  endif
+
+
 #  ifdef FUNC_ATTRS
 #    undef FUNC_ATTRS
 #  endif
