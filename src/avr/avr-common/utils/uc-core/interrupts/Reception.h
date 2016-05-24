@@ -30,8 +30,10 @@
 
 #  define RX_NORTH_INTERRUPT_DISABLE PCMSK2 unsetBit bit(PCINT17)
 #  define RX_NORTH_INTERRUPT_ENABLE PCMSK2 setBit bit(PCINT17)
-#  define RX_SOUTH_INTERRUPT_DISABLE PCMSK0 setBit bit(PCINT4)
+
+#  define RX_SOUTH_INTERRUPT_DISABLE PCMSK0 unsetBit bit(PCINT4)
 #  define RX_SOUTH_INTERRUPT_ENABLE PCMSK0 setBit bit(PCINT4)
+
 #  define RX_EAST_INTERRUPT_DISABLE PCMSK1 unsetBit bit(PCINT8)
 #  define RX_EAST_INTERRUPT_ENABLE PCMSK1 setBit bit(PCINT8)
 
@@ -63,10 +65,12 @@ MCUCSR setBit (1 << ISC2)
 
 #    define RX_NORTH_INTERRUPT_DISABLE GICR unsetBit bit(INT0);
 #    define RX_NORTH_INTERRUPT_ENABLE GICR setBit bit(INT0);
-#    define RX_SOUTH_INTERRUPT_DISABLE GICR setBit bit(INT1);
-#    define RX_SOUTH_INTERRUPT_ENABLE GICR unsetBit bit(INT1);
-#    define RX_EAST_INTERRUPT_DISABLE GICR setBit bit(INT2);
-#    define RX_EAST_INTERRUPT_ENABLE GICR unsetBit bit(INT2);
+
+#    define RX_SOUTH_INTERRUPT_DISABLE GICR unsetBit bit(INT1);
+#    define RX_SOUTH_INTERRUPT_ENABLE GICR setBit bit(INT1);
+
+#    define RX_EAST_INTERRUPT_DISABLE GICR unsetBit bit(INT2);
+#    define RX_EAST_INTERRUPT_ENABLE GICR setBit bit(INT2);
 
 #    define RX_INTERRUPTS_ENABLE GICR setBit ((1 << INT0) | (1 << INT1) | (1 << INT2))
 #    define RX_INTERRUPTS_DISABLE GICR unsetBit ((1 << INT0) | (1 << INT1) | (1 << INT2))
