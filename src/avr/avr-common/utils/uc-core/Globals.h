@@ -7,7 +7,7 @@
 
 #include "./ParticleTypes.h"
 
-// DO NOT DECLARE GLOBALS BEFORE PARTICLE ATTRIBUTES!
+// DO NOT DECLARE GLOBALS __BEFORE__ PARTICLE ATTRIBUTES!
 
 /**
  * The particle global attributes describe states and contains reception buffers.

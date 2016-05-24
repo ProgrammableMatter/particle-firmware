@@ -72,8 +72,8 @@
 
 #  define __TIMER1_INTERRUPT_PRESCALER_ENABLE(prescaler) TCCR1B setBit(prescaler)
 
-#  define __TIMER1_INTERRUPT_COMPARE_VALUE_A_SETUP(compareValue) OCR1A = compareValue
-#  define __TIMER1_INTERRUPT_COMPARE_VALUE_B_SETUP(compareValue) OCR1B = compareValue
+#  define __TIMER1_INTERRUPT_COMPARE_VALUE_A_SETUP(compareValue) OCR1A = (compareValue)
+#  define __TIMER1_INTERRUPT_COMPARE_VALUE_B_SETUP(compareValue) OCR1B = (compareValue)
 
 #  define __TIMER1_INTERRUPT_PRESCALER_DISABLE TCCR1B unsetBit((1 << CS02) | (1 << CS01) | (1 << CS00))
 

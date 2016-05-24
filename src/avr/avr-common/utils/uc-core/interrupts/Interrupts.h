@@ -46,6 +46,11 @@ FUNC_ATTRS void __handleInputInterrupt(volatile PulseCounter *discoveryPulseCoun
             break;
 
             // on data received
+        case STATE_TYPE_WAIT_FOR_BEING_ENUMERATED:
+        case STATE_TYPE_ENUMERATING_NEIGHBOURS:
+        case STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR:
+        case STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR:
+        case STATE_TYPE_ENUMERATED:
         case STATE_TYPE_IDLE:
         case STATE_TYPE_TX_START:
         case STATE_TYPE_TX_DONE:
@@ -147,11 +152,11 @@ FUNC_ATTRS void __modulateTransmissionBit(volatile TxPort *txPort, void (*txHiIm
 FUNC_ATTRS void __advanceReceptionTimeoutCounters(void) {
     ParticleAttributes.ports.rx.north.isReceiving >>= 1;
 
-#ifdef SIMULATION
-    if (ParticleAttributes.ports.rx.north.isReceiving == 0) {
-        IF_SIMULATION_CHAR_OUT('U');
-    }
-#endif
+//#ifdef SIMULATION
+//    if (ParticleAttributes.ports.rx.north.isReceiving == 0) {
+//        IF_SIMULATION_CHAR_OUT('U');
+//    }
+//#endif
     ParticleAttributes.ports.rx.east.isReceiving >>= 1;
     ParticleAttributes.ports.rx.south.isReceiving >>= 1;
 
@@ -214,6 +219,11 @@ ISR(TX_RX_TIMER_TOP_INTERRUPT_VECT) {
             TIMER_NEIGHBOUR_SENSE_RESUME;
             break;
 
+        case STATE_TYPE_WAIT_FOR_BEING_ENUMERATED:
+        case STATE_TYPE_ENUMERATING_NEIGHBOURS:
+        case STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR:
+        case STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR:
+        case STATE_TYPE_ENUMERATED:
         case STATE_TYPE_IDLE:
         case STATE_TYPE_TX_START:
         case STATE_TYPE_TX_DONE:
@@ -243,6 +253,11 @@ ISR(TX_TIMER_CENTER_INTERRUPT_VECT) {
 //    IF_SIMULATION_CHAR_OUT('i');
     switch (ParticleAttributes.node.state) {
         // on receive data counter compare
+        case STATE_TYPE_WAIT_FOR_BEING_ENUMERATED:
+        case STATE_TYPE_ENUMERATING_NEIGHBOURS:
+        case STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR:
+        case STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR:
+        case STATE_TYPE_ENUMERATED:
         case STATE_TYPE_IDLE:
         case STATE_TYPE_TX_START:
         case STATE_TYPE_TX_DONE:

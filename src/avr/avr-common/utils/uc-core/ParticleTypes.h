@@ -27,8 +27,9 @@ typedef enum {
     STATE_TYPE_DISCOVERY_PULSING, // keep pulsing post discovery
     STATE_TYPE_RESET, // state after reset command is received
     STATE_TYPE_WAIT_FOR_BEING_ENUMERATED, // waiting for network address assignment
-    STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR, // assigning network address to south neighbour
+    STATE_TYPE_ENUMERATING_NEIGHBOURS, // starting neighbour enumeration
     STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR, // assigning network address to east neighbour
+    STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR, // assigning network address to south neighbour
     STATE_TYPE_ENUMERATED, // local address assigned and neighbour/s enumerated
     STATE_TYPE_IDLE, // waiting for commands
     STATE_TYPE_INTERPRET_COMMAND, // interpret command

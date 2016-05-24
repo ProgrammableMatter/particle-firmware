@@ -15,157 +15,180 @@
 #  endif
 
 typedef struct {
-    uint8_t isStream : 1;
-    uint8_t isCommand : 1;
-    uint8_t isBroadcast : 1;
-    uint8_t reserved : 1;
-    uint8_t __pad : 4;
+    uint8_t headerIsStream : 1;
+    uint8_t headerIsCommand : 1;
+    uint8_t headerIsBroadcast : 1;
+    uint8_t headerIsReserved : 1;
+    uint8_t headerId : 4;
 } PackageHeader;
 
+#define PackageHeaderBufferPointerSize ((BufferBitPointer) {.byteNumber = 0, .bitMask = 0x80})
+
 typedef struct {
-    uint8_t isStream : 1;
-    uint8_t isCommand : 1;
-    uint8_t isBroadcast : 1;
-    uint8_t reserved : 1;
-    uint8_t row0 : 8;
-    uint8_t column1 : 8;
-    uint8_t __pad : 4;
+    uint8_t headerIsStream : 1;
+    uint8_t headerIsCommand : 1;
+    uint8_t headerIsBroadcast : 1;
+    uint8_t headerIsReserved : 1;
+    uint8_t headerId : 4;
+    uint8_t addressRow0 : 8;
+    uint8_t addressColumn0 : 8;
 } PackageHeaderAddress;
 
+#define PackageHeaderAddressBufferPointerSize ((BufferBitPointer) {.byteNumber = 2, .bitMask = 0x80})
+
 typedef struct {
-    uint8_t isStream : 1;
-    uint8_t isCommand : 1;
-    uint8_t isBroadcast : 1;
-    uint8_t reserved : 1;
-    uint8_t row0 : 8;
-    uint8_t column0 : 8;
-    uint8_t row1 : 8;
-    uint8_t column1 : 8;
-    uint8_t __pad : 4;
+    uint8_t headerIsStream : 1;
+    uint8_t headerIsCommand : 1;
+    uint8_t headerIsBroadcast : 1;
+    uint8_t headerIsReserved : 1;
+    uint8_t headerId : 4;
+    uint8_t addressRow0 : 8;
+    uint8_t addressColumn0 : 8;
+    uint8_t addressRow1 : 8;
+    uint8_t addressColumn1 : 8;
 } PackageHeaderAddressrange;
 
+#define PackageHeaderAddressrangeBufferPointerSize ((BufferBitPointer){.byteNumber = 4, .bitMask = 0x80})
+
 
 typedef struct {
-    uint8_t isStream : 1;
-    uint8_t isCommand : 1;
-    uint8_t isBroadcast : 1;
-    uint8_t reserved : 1;
+    uint8_t headerIsStream : 1;
+    uint8_t headerIsCommand : 1;
+    uint8_t headerIsBroadcast : 1;
+    uint8_t headerIsReserved : 1;
+    uint8_t headerId : 4;
     uint8_t dataLsb : 7;
-    uint8_t __pad : 5;
 } PackageHeaderData7;
 
+#define PackageHeaderData7BufferPointerSize ((BufferBitPointer){.byteNumber = 1, .bitMask = 0x40})
+
 typedef struct {
-    uint8_t isStream : 1;
-    uint8_t isCommand : 1;
-    uint8_t isBroadcast : 1;
-    uint8_t reserved : 1;
+    uint8_t headerIsStream : 1;
+    uint8_t headerIsCommand : 1;
+    uint8_t headerIsBroadcast : 1;
+    uint8_t headerIsReserved : 1;
+    uint8_t headerId : 4;
     uint8_t dataLsb : 8;
     uint8_t dataMsb : 3;
-    uint8_t __pad : 1;
 } PackageHeaderData11;
 
+#define PackageHeaderData11BufferPointerSize ((BufferBitPointer) {.byteNumber = 2, .bitMask = 0x04})
+
 typedef struct {
-    uint8_t isStream : 1;
-    uint8_t isCommand : 1;
-    uint8_t isBroadcast : 1;
-    uint8_t reserved : 1;
+    uint8_t headerIsStream : 1;
+    uint8_t headerIsCommand : 1;
+    uint8_t headerIsBroadcast : 1;
+    uint8_t headerIsReserved : 1;
+    uint8_t headerId : 4;
     uint8_t dataLsb : 8;
     uint8_t dataCeb : 8;
     uint8_t dataMsb : 3;
-    uint8_t __pad : 1;
 } PackageHeaderData19;
 
+#define PackageHeaderData19BufferPointerSize ((BufferBitPointer) {.byteNumber = 3, .bitMask = 0x04})
+
+
 typedef struct {
-    uint8_t isStream : 1;
-    uint8_t isCommand : 1;
-    uint8_t isBroadcast : 1;
-    uint8_t reserved : 1;
-    uint8_t row0 : 8;
-    uint8_t column1 : 8;
+    uint8_t headerIsStream : 1;
+    uint8_t headerIsCommand : 1;
+    uint8_t headerIsBroadcast : 1;
+    uint8_t headerIsReserved : 1;
+    uint8_t headerId : 4;
+    uint8_t addressRow0 : 8;
+    uint8_t addressColumn0 : 8;
     uint8_t dataLsb : 7;
-    uint8_t __pad : 5;
 } PackageHeaderAddressData7;
 
+#define PackageHeaderAddressData7BufferPointerSize ((BufferBitPointer){.byteNumber = 3, .bitMask = 0x40})
+
 typedef struct {
-    uint8_t isStream : 1;
-    uint8_t isCommand : 1;
-    uint8_t isBroadcast : 1;
-    uint8_t reserved : 1;
-    uint8_t row0 : 8;
-    uint8_t column1 : 8;
+    uint8_t headerIsStream : 1;
+    uint8_t headerIsCommand : 1;
+    uint8_t headerIsBroadcast : 1;
+    uint8_t headerIsReserved : 1;
+    uint8_t headerId : 4;
+    uint8_t addressRow0 : 8;
+    uint8_t addressColumn0 : 8;
     uint8_t dataMsb : 3;
-    uint8_t __pad : 1;
 } PackageHeaderAddressData11;
 
+#define PackageHeaderAddressData11BufferPointerSize ((BufferBitPointer){.byteNumber = 3, .bitMask = 0x04})
+
 typedef struct {
-    uint8_t isStream : 1;
-    uint8_t isCommand : 1;
-    uint8_t isBroadcast : 1;
-    uint8_t reserved : 1;
-    uint8_t row0 : 8;
-    uint8_t column1 : 8;
+    uint8_t headerIsStream : 1;
+    uint8_t headerIsCommand : 1;
+    uint8_t headerIsBroadcast : 1;
+    uint8_t headerIsReserved : 1;
+    uint8_t headerId : 4;
+    uint8_t addressRow0 : 8;
+    uint8_t addressColumn0 : 8;
     uint8_t dataLsb : 8;
     uint8_t dataCeb : 8;
     uint8_t dataMsb : 3;
-    uint8_t __pad : 1;
 } PackageHeaderAddressData19;
 
+#define PackageHeaderAddressData19BufferPointerSize ((BufferBitPointer){.byteNumber = 4, .bitMask = 0x04})
+
 typedef struct {
-    uint8_t isStream : 1;
-    uint8_t isCommand : 1;
-    uint8_t isBroadcast : 1;
-    uint8_t reserved : 1;
-    uint8_t row0 : 8;
-    uint8_t column0 : 8;
-    uint8_t row1 : 8;
-    uint8_t column1 : 8;
+    uint8_t headerIsStream : 1;
+    uint8_t headerIsCommand : 1;
+    uint8_t headerIsBroadcast : 1;
+    uint8_t headerIsReserved : 1;
+    uint8_t headerId : 4;
+    uint8_t addressRow0 : 8;
+    uint8_t addressColumn0 : 8;
+    uint8_t addressRow1 : 8;
+    uint8_t addressColumn1 : 8;
     uint8_t dataLsb : 7;
-    uint8_t __pad : 5;
 } PackageHeaderAddressrangeData7;
 
+#define PackageHeaderAddressrangeData7BufferPointerSize ((BufferBitPointer){.byteNumber = 5, .bitMask = 0x40})
 
 typedef struct {
-    uint8_t isStream : 1;
-    uint8_t isCommand : 1;
-    uint8_t isBroadcast : 1;
-    uint8_t reserved : 1;
-    uint8_t row0 : 8;
-    uint8_t column0 : 8;
-    uint8_t row1 : 8;
-    uint8_t column1 : 8;
+    uint8_t headerIsStream : 1;
+    uint8_t headerIsCommand : 1;
+    uint8_t headerIsBroadcast : 1;
+    uint8_t headerIsReserved : 1;
+    uint8_t headerId : 4;
+    uint8_t addressRow0 : 8;
+    uint8_t addressColumn0 : 8;
+    uint8_t addressRow1 : 8;
+    uint8_t addressColumn1 : 8;
     uint8_t dataLsb : 8;
     uint8_t dataMsb : 3;
-    uint8_t __pad : 1;
 } PackageHeaderAddressrangeData11;
 
+#define PackageHeaderAddressrangeData11BufferPointerSize ((BufferBitPointer){.byteNumber = 6, .bitMask = 0x04})
 
 typedef struct {
-    uint8_t isStream : 1;
-    uint8_t isCommand : 1;
-    uint8_t isBroadcast : 1;
-    uint8_t reserved : 1;
-    uint8_t row0 : 8;
-    uint8_t column0 : 8;
-    uint8_t row1 : 8;
-    uint8_t column1 : 8;
+    uint8_t headerIsStream : 1;
+    uint8_t headerIsCommand : 1;
+    uint8_t headerIsBroadcast : 1;
+    uint8_t headerIsReserved : 1;
+    uint8_t headerId : 4;
+    uint8_t addressRow0 : 8;
+    uint8_t addressColumn0 : 8;
+    uint8_t addressRow1 : 8;
+    uint8_t addressColumn1 : 8;
     uint8_t dataLsb : 8;
     uint8_t dataCeb : 8;
     uint8_t dataMsb : 3;
-    uint8_t __pad : 1;
 } PackageHeaderAddressrangeData19;
+
+#define PackageHeaderAddressrangeData19BufferPointerSize ((BufferBitPointer){.byteNumber = 7, .bitMask = 0x04})
 
 typedef union {
     PackageHeader asBroadcastHeader;
-    PackageHeaderAddress asHader;
+    PackageHeaderAddress asDedicatedHeader;
     PackageHeaderAddressrange asMulticastHeader;
 
     PackageHeaderData7 asBroadcastData7;
     PackageHeaderData11 asBroadcastData11;
     PackageHeaderData19 asBroadcastData19;
 
-    PackageHeaderAddressData7 asData7;
-    PackageHeaderAddressData11 asData11;
-    PackageHeaderAddressData19 asData19;
+    PackageHeaderAddressData7 asDedicatedData7;
+    PackageHeaderAddressData11 asDedicatedData11;
+    PackageHeaderAddressData19 asDedicatedData19;
 
     PackageHeaderAddressrangeData7 asMulticastData7;
     PackageHeaderAddressrangeData11 asMulticastData11;

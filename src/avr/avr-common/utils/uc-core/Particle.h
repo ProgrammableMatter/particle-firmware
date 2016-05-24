@@ -15,6 +15,7 @@
 #include "./interrupts/TimerCounter.h"
 #include "./interrupts/Interrupts.h"
 #include "./ParticleParameters.h"
+#include "uc-core/communication-protocol/CommunicationProtocol.h"
 
 #include "./communication-protocol/CommunicationProtocolTypes.h"
 
@@ -63,6 +64,15 @@ FUNC_ATTRS bool __updateAndDetermineNodeType(void) {
     return false;
 }
 
+FUNC_ATTRS void __disableDiscoverySensing(void) {
+    RX_INTERRUPTS_DISABLE;
+}
+
+FUNC_ATTRS void __disableDiscoveryPulsing(void) {
+    TIMER_NEIGHBOUR_SENSE_PAUSE;
+    TIMER_NEIGHBOUR_SENSE_DISABLE;
+}
+
 
 /**
  * Sets up ports and interrupts but does not enable the global interrupt (I-flag in SREG)
@@ -73,16 +83,58 @@ FUNC_ATTRS void __initParticle(void) {
     TIMER_NEIGHBOUR_SENSE_SETUP; // configure timer interrupt for neighbour sensing
 }
 
-
-/**
- * Sets up reception timer/counter interrupt and enables the interrupt.
- */
-FUNC_ATTRS void __enableReception(void) {
-    TIMER_TX_RX_SETUP; // set up reception and timeout counter interrupts
-    TIMER_TX_RX_ENABLE; // enable reception counter interrupt
-//    TIMER_TX_RX_TIMEOUT_ENABLE; // enable timeout counter interrupt
+FUNC_ATTRS void __disableReception(void) {
+    RX_NORTH_INTERRUPT_DISABLE;
+    RX_EAST_INTERRUPT_DISABLE;
+    RX_SOUTH_INTERRUPT_DISABLE;
 }
 
+FUNC_ATTRS void __enableReceptionNorth(void) {
+    if (ParticleAttributes.discoveryPulseCounters.north.isConnected) {
+        RX_INTERRUPTS_CLEAR_PENDING_NORTH;
+        RX_NORTH_INTERRUPT_ENABLE;
+    }
+}
+
+FUNC_ATTRS void __enableReceptionEast(void) {
+    if (ParticleAttributes.discoveryPulseCounters.east.isConnected) {
+        RX_INTERRUPTS_CLEAR_PENDING_EAST;
+        RX_EAST_INTERRUPT_ENABLE;
+    }
+}
+
+FUNC_ATTRS void __enableReceptionSouth(void) {
+    if (ParticleAttributes.discoveryPulseCounters.south.isConnected) {
+        RX_INTERRUPTS_CLEAR_PENDING_SOUTH;
+        RX_SOUTH_INTERRUPT_ENABLE;
+    }
+}
+
+FUNC_ATTRS void __enableXmissionTimer(void) {
+    TIMER_TX_RX_SETUP;
+    TIMER_TX_RX_ENABLE;
+}
+
+FUNC_ATTRS void __disableXmissionTimer(void) {
+    TIMER_TX_RX_DISABLE;
+}
+
+FUNC_ATTRS void __enableReception(void) {
+    RX_INTERRUPTS_ENABLE;
+    __enableReceptionNorth();
+    __enableReceptionEast();
+    __enableReceptionSouth();
+}
+
+FUNC_ATTRS void __disableXmission(void) {
+    __disableReception();
+    __disableXmissionTimer();
+}
+
+FUNC_ATTRS void __enableXmission(void) {
+    __enableXmissionTimer();
+    __enableReception();
+}
 
 /**
  * Toggles heartbeat LED
@@ -126,12 +178,12 @@ FUNC_ATTRS void particleTick(void) {
             __discoveryLoopCount();
             if (ParticleAttributes.discoveryPulseCounters.loopCount >= MAX_NEIGHBOURS_DISCOVERY_LOOPS) {
                 // discovery timeout
-                RX_INTERRUPTS_DISABLE;
+                __disableDiscoverySensing();
                 ParticleAttributes.node.state = STATE_TYPE_NEIGHBOURS_DISCOVERED;
             } else if (ParticleAttributes.discoveryPulseCounters.loopCount >=
                        MIN_NEIGHBOURS_DISCOVERY_LOOPS) {
                 if (__updateAndDetermineNodeType()) {
-                    RX_INTERRUPTS_DISABLE;
+                    __disableDiscoverySensing();
                     ParticleAttributes.node.state = STATE_TYPE_NEIGHBOURS_DISCOVERED;
                 } else {
                     DELAY_US_15;
@@ -152,93 +204,105 @@ FUNC_ATTRS void particleTick(void) {
             // then switch to enumeration state
         case STATE_TYPE_DISCOVERY_PULSING:
             if (ParticleAttributes.discoveryPulseCounters.loopCount >= MAX_NEIGHBOUR_PULSING_LOOPS) {
-                TIMER_NEIGHBOUR_SENSE_DISABLE;
-
+                __disableDiscoveryPulsing();
                 if (ParticleAttributes.node.type == NODE_TYPE_ORIGIN) {
-                    ParticleAttributes.node.state = STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR;
+                    ParticleAttributes.node.state = STATE_TYPE_ENUMERATING_NEIGHBOURS;
                 } else {
                     ParticleAttributes.node.state = STATE_TYPE_WAIT_FOR_BEING_ENUMERATED;
                 }
+                __enableXmission();
+            } else {
+                __discoveryLoopCount();
             }
             break;
 
             // reset state disables timers and switches back to the very first state
+            // without restarting the mcu
         case STATE_TYPE_RESET:
-            TIMER_NEIGHBOUR_SENSE_DISABLE;
-            TIMER_TX_RX_DISABLE;
-            ParticleAttributes.node.state = STATE_TYPE_ACTIVE;
+            __disableXmission();
+            constructParticleState(&ParticleAttributes);
+            ParticleAttributes.node.state = STATE_TYPE_START;
             break;
 
             // wait for incoming particle address from south neighbour
         case STATE_TYPE_WAIT_FOR_BEING_ENUMERATED:
-            __enableReception();
-            // wait for the start bit;
-            // on start bit received
-            //      * enable reception interrupts on both (falling and rising) edge
-            //      * start to alternate exactly 16 times the "receiving"
-            //      clock as expected in the differential manchester coding
-            //      * log transition occurrence of interrupt for each of the 16 clocks
-            // now we have received the local id -> is parity valid
-            //      true: switch state to STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR
-            //      false: switch state to STATE_TYPE_ERRONEOUS
-            break;
-        case STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR:
 
-            if (ParticleAttributes.discoveryPulseCounters.south.isConnected) {
-                // enumerate south
-            }
+            // receive data
+            // wait for rx-timeout
+            // cast received bytes to package
+            // interpret package
+            // execute interpretation
+            break;
+
+        case STATE_TYPE_ENUMERATING_NEIGHBOURS:
             ParticleAttributes.node.state = STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR;
-
-
-            // active enumerating, send start bit and send neighbour id
-            // enable receive interrupts on rising edges only
-            // send start bit
-            // wait (with timeout) for neighbours "receive"-clock
-            //      * on neighbours "receive"-clock rising edges
-            //          - do transmit a transition (toggle) to indicate the "1" byte
-            //          - else to indicate a "0" byte do nothing
-            // after exactly 16 "receive"-clock cycles switch state to STATE_TYPE_ENUMERATED
-
             break;
-        case STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR:
 
+        case STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR:
             if (ParticleAttributes.discoveryPulseCounters.east.isConnected) {
-                // enumerate south neighbour
+                ParticleAttributes.ports.tx.east.enableTransmission = false;
+                constructSendEnumeratePackageEast(ParticleAttributes.node.address.row, ParticleAttributes.node
+                                                                                               .address.column +
+                                                                                       1);
+                ParticleAttributes.ports.tx.east.retainTransmission = true;
+                ParticleAttributes.ports.tx.east.enableTransmission = true;
+            }
+            ParticleAttributes.node.state = STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR;
+            break;
+
+        case STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR:
+            if (ParticleAttributes.discoveryPulseCounters.south.isConnected) {
+                ParticleAttributes.ports.tx.south.enableTransmission = false;
+                constructSendEnumeratePackageSouth(ParticleAttributes.node.address.row + 1,
+                                                   ParticleAttributes.node
+                                                           .address.column);
+                ParticleAttributes.ports.tx.south.retainTransmission = true;
+                ParticleAttributes.ports.tx.south.enableTransmission = true;
             }
             ParticleAttributes.node.state = STATE_TYPE_ENUMERATED;
             break;
+
         case STATE_TYPE_ENUMERATED:
-            // switch to -> state idle
+            ParticleAttributes.node.state = STATE_TYPE_IDLE;
             break;
+
         case STATE_TYPE_IDLE:
             // if new rx buffer available -> interpret
             // if scheduled command available -> execute
             break;
+
         case STATE_TYPE_INTERPRET_COMMAND:
             // interpret command
             // schedule command -> switch to state schedule command
             // execute command -> switch to state execute command
             break;
+
             // setup and start transmission
         case STATE_TYPE_TX_START:
             // TODO: setup tx timer/counter
             break;
+
             // nothing to transmit any more
         case STATE_TYPE_TX_DONE:
             ParticleAttributes.node.state = STATE_TYPE_IDLE;
             break;
+
         case STATE_TYPE_FORWARD_PKG:
             break;
+
         case STATE_TYPE_SCHEDULE_COMMAND:
             // schedule command
             // switch to -> state idle
             break;
+
         case STATE_TYPE_COMMAND_SCHEDULED_ACK:
             break;
+
         case STATE_TYPE_EXECUTE_COMMAND:
             // execute command
             // switch to -> state idle
             break;
+
         case STATE_TYPE_ERRONEOUS:
             forever {
                 LED_STATUS0_ON;
@@ -247,6 +311,7 @@ FUNC_ATTRS void particleTick(void) {
                 DELAY_MS_196;
             }
             break;
+
         default:
             ParticleAttributes.node.state = STATE_TYPE_ERRONEOUS;
             break;
