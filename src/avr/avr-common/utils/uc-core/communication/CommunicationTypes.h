@@ -37,32 +37,29 @@ typedef struct {
 } PortBuffer; // 4 + 2 = 6 bytes total
 
 
-FUNC_ATTRS void constructBufferBitPointer(volatile BufferBitPointer *o, bool isTransmissionPointer) {
-    if (isTransmissionPointer) {
-        o->byteNumber = sizeof(((PortBuffer *) 0)->bytes) - 1;
-        o->bitMask = 0x80;
-    } else {
-        o->byteNumber = 0;
-        o->bitMask = 1;
-    }
+FUNC_ATTRS void constructBufferBitPointer(volatile BufferBitPointer *o) {
+    o->byteNumber = 0;
+    o->bitMask = 1;
 }
 
-FUNC_ATTRS void constructPortBuffer(volatile PortBuffer *o, bool isTransmissionBuffer) {
+FUNC_ATTRS void constructPortBuffer(volatile PortBuffer *o) {
     for (uint8_t i = 0; i < sizeof(o->bytes); i++) {
         o->bytes[i] = 0;
     }
-    constructBufferBitPointer(&(o->pointer), isTransmissionBuffer);
+    constructBufferBitPointer(&(o->pointer));
 }
 
 typedef struct {
     PortBuffer buffer;
+    BufferBitPointer dataEndPos; // data in between buffer start and dataEndPos is to be transmitted
     uint8_t enableTransmission : 1; // user handled flag: if enabled transmission is scheduled
     uint8_t retainTransmission : 1; // interrupt handled flag transmission starts after flag is cleared
     uint8_t __pad: 6;
-} TxPort; // 6 + 1 bytes total
+} TxPort; // 6 + 2 + 1 bytes total
 
 FUNC_ATTRS void constructTxPort(volatile TxPort *o) {
-    constructPortBuffer(&(o->buffer), true);
+    constructPortBuffer(&(o->buffer));
+    constructBufferBitPointer(&o->dataEndPos);
     o->enableTransmission = false;
     o->retainTransmission = true;
 }
@@ -71,7 +68,7 @@ typedef struct {
     TxPort north;
     TxPort east;
     TxPort south;
-} TxPorts; // 3 * 7 = 21 bytes total
+} TxPorts; // 3 * 9 = 27 bytes total
 
 FUNC_ATTRS void constructTxPorts(volatile TxPorts *o) {
     constructTxPort(&(o->north));
@@ -111,7 +108,7 @@ typedef struct {
 
 FUNC_ATTRS void constructRxPort(volatile RxPort *o) {
     constructTimerCounterAdjustment(&(o->adjustment));
-    constructPortBuffer(&(o->buffer), false);
+    constructPortBuffer(&(o->buffer));
     o->isReceiving = false;
     o->isOverflowed = false;
 }
@@ -140,31 +137,17 @@ FUNC_ATTRS void constructRxPorts(volatile RxPorts *o) {
 typedef struct {
     TxPorts tx;
     RxPorts rx;
-} Ports; // 21 + 33 = 54 bytes total
+} Ports; // 27 + 33 = 60 bytes total
 
 FUNC_ATTRS void constructPorts(volatile Ports *o) {
     constructTxPorts(&(o->tx));
     constructRxPorts(&(o->rx));
 }
 
-#include "../../simulation/SimulationMacros.h"
-
-
-/**
- * Decrements the bit mask and the byte number accordingly. Does not verify underflow.
- */
-FUNC_ATTRS void txBufferBitPointerNext(volatile BufferBitPointer *o) {
-    o->bitMask >>= 1; //0b00000001;
-    if ((o->bitMask == 0) && (o->byteNumber > 0)) {
-        o->bitMask = 128; //0b10000000;
-        o->byteNumber--;
-    }
-}
-
 /**
  * Increments the bit mask and the byte number accordingly. Does not verify the buffer boundary.
  */
-FUNC_ATTRS void rxBufferBitPointerNext(volatile BufferBitPointer *o) {
+FUNC_ATTRS void bufferBitPointerNext(volatile BufferBitPointer *o) {
     o->bitMask <<= 1;
     if ((o->bitMask == 0) && (o->byteNumber < (sizeof(((PortBuffer *) 0)->bytes) - 1))) {
         o->bitMask = 1;
@@ -176,35 +159,26 @@ FUNC_ATTRS void rxBufferBitPointerNext(volatile BufferBitPointer *o) {
 /**
  * points the reception buffer pointer to the start position (lowest bit)
  */
-FUNC_ATTRS void rxBufferBitPointerStart(volatile BufferBitPointer *o) {
+FUNC_ATTRS void bufferBitPointerStart(volatile BufferBitPointer *o) {
     o->bitMask = 1;
     o->byteNumber = 0;
 }
 
 
 /**
- * points the reception buffer pointer to the start position (lowest bit)
+ * returns true if the transmission buffer pointer position equals to the tx port's data end position
  */
-FUNC_ATTRS void txBufferBitPointerStart(volatile BufferBitPointer *o) {
-    o->bitMask = 0x80;
-    o->byteNumber = (sizeof(((PortBuffer *) 0)->bytes) - 1);
+FUNC_ATTRS bool isDataEnd(volatile TxPort *o) {
+    return o->dataEndPos.bitMask == o->buffer.pointer.bitMask &&
+           o->dataEndPos.byteNumber == o->buffer.pointer.byteNumber;
 }
-
 
 /**
  * returns true if the pointer points at the beyond the maximum buffer position
  */
-FUNC_ATTRS bool isRxBufferFull(volatile BufferBitPointer *o) {
+FUNC_ATTRS bool isBufferFull(volatile BufferBitPointer *o) {
     return o->bitMask == false;
 }
-
-/**
- * returns true if the buffer points to no position
- */
-FUNC_ATTRS bool isTxBufferEmpty(volatile BufferBitPointer *o) {
-    return o->bitMask == false;
-}
-
 
 #  ifdef FUNC_ATTRS
 #    undef FUNC_ATTRS

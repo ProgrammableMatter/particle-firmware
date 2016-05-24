@@ -38,7 +38,10 @@ int main(void) {
     ParticleAttributes.discoveryPulseCounters.loopCount = UINT8_MAX;
     ParticleAttributes.node.state = STATE_TYPE_TX_START;
     ParticleAttributes.node.type = NODE_TYPE_MASTER;
-    txBufferBitPointerStart(&ParticleAttributes.ports.tx.south.buffer.pointer);
+
+    bufferBitPointerStart(&ParticleAttributes.ports.tx.south.buffer.pointer);
+    ParticleAttributes.ports.tx.south.dataEndPos.byteNumber = 6;
+    ParticleAttributes.ports.tx.south.dataEndPos.bitMask = 0x80;
 
     ParticleAttributes.ports.tx.south.buffer.bytes[6] = 0b10100111; // == 0xa7 => 0xe5
     ParticleAttributes.ports.tx.south.buffer.bytes[5] = 0b10101010; // == 0xaa => 0x55

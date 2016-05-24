@@ -141,7 +141,7 @@ typedef struct {
 #ifdef SIMULATION
     uint8_t magicEndByte;
 #endif
-} ParticleState; // 6 + 4 + 54 = 64 bytes total
+} ParticleState; // 6 + 4 + 60 = 72 bytes total
 
 FUNC_ATTRS void constructParticleState(volatile ParticleState *o) {
     constructNode(&(o->node));

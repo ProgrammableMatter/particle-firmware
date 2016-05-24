@@ -46,7 +46,7 @@ ISR(TX_COUNTER_TOP) {
 
 ISR(TX_COUNTER_CENTER) {
 
-    if (isTxBufferEmpty(&ParticleAttributes.ports.tx.south.buffer.pointer)) {
+    if (isDataEnd(&ParticleAttributes.ports.tx.south)) {
         // stop after one transmission
 //        TIMSK unsetBit(1 << OCIE1B);
         TCCR1B unsetBit COUNTER_1_SETTINGS_PRESCALER_DISCONNECT;
@@ -64,7 +64,7 @@ ISR(TX_COUNTER_CENTER) {
             SOUTH_TX_HI;
 //            IF_SIMULATION_INT16_OUT(TCNT1);
         }
-        txBufferBitPointerNext(&ParticleAttributes.ports.tx.south.buffer.pointer);
+        bufferBitPointerNext(&ParticleAttributes.ports.tx.south.buffer.pointer);
     }
 }
 
@@ -73,7 +73,10 @@ inline void initTransmission(void) {
     ParticleAttributes.node.state = STATE_TYPE_START;
     ParticleAttributes.node.type = NODE_TYPE_MASTER;
 
-    txBufferBitPointerStart(&ParticleAttributes.ports.tx.south.buffer.pointer);
+    bufferBitPointerStart(&ParticleAttributes.ports.tx.south.buffer.pointer);
+    ParticleAttributes.ports.tx.south.dataEndPos.byteNumber = 6;
+    ParticleAttributes.ports.tx.south.dataEndPos.bitMask = 0x80;
+
 
     // the byte to transmit
     ParticleAttributes.ports.tx.south.buffer.bytes[6] = 0b10100111; // == 0xa7 => 0xe5

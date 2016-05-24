@@ -107,6 +107,7 @@ FUNC_ATTRS void __eastTxLo(void) {
  */
 FUNC_ATTRS void __rectifyTransmissionBit(volatile TxPort *txPort, void (*txHiImpl)(void),
                                          void (txLoImpl)(void)) {
+    // TODO: do not rectify if tx-buffer is empty
     if (txPort->retainTransmission == false) {
         if (txPort->buffer.pointer.bitMask &
             txPort->buffer.bytes[txPort->buffer.pointer.byteNumber]) {
@@ -123,7 +124,7 @@ FUNC_ATTRS void __rectifyTransmissionBit(volatile TxPort *txPort, void (*txHiImp
 FUNC_ATTRS void __modulateTransmissionBit(volatile TxPort *txPort, void (*txHiImpl)(void),
                                           void (txLoImpl)(void)) {
     if (txPort->retainTransmission == false) {
-        if (isTxBufferEmpty(&txPort->buffer.pointer)) {
+        if (isDataEnd(txPort)) {
             // return signal to default
             txLoImpl(); // inverted on receiver side
         } else {
@@ -133,7 +134,7 @@ FUNC_ATTRS void __modulateTransmissionBit(volatile TxPort *txPort, void (*txHiIm
             } else {
                 txHiImpl();
             }
-            txBufferBitPointerNext(&txPort->buffer.pointer);
+            bufferBitPointerNext(&txPort->buffer.pointer);
         }
     }
     else if (txPort->enableTransmission == true) {
