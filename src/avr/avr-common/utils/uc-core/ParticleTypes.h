@@ -125,7 +125,7 @@ FUNC_ATTRS void constructNode(volatile Node *o) {
  */
 typedef struct {
     uint8_t loopCount; // particle loop counter
-} Periphery;
+} Periphery; // 1 bytes total
 
 FUNC_ATTRS void constructPeriphery(volatile Periphery *o) {
     o->loopCount = 0;
@@ -136,15 +136,15 @@ FUNC_ATTRS void constructPeriphery(volatile Periphery *o) {
  * etc.
  */
 typedef struct {
-    Node node;
-    DiscoveryPulseCounters discoveryPulseCounters;
-    Ports ports;
-    Periphery periphery;
-    Interpreter interpreter;
+    Node node; // 6
+    DiscoveryPulseCounters discoveryPulseCounters; // 4
+    Ports ports; // 60
+    Periphery periphery; // 1
+    Interpreter interpreter; // 7
 #ifdef SIMULATION
-    uint8_t magicEndByte;
+    uint8_t magicEndByte; // 1
 #endif
-} ParticleState; // 6 + 4 + 60 = 72 bytes total
+} ParticleState; // 6 + 4 + 60 + 1 + 7 + 1 = 79 bytes total
 
 FUNC_ATTRS void constructParticleState(volatile ParticleState *o) {
     constructNode(&(o->node));

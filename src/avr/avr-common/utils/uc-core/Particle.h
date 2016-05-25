@@ -226,10 +226,7 @@ FUNC_ATTRS void particleTick(void) {
 
             // wait for incoming particle address from south neighbour
         case STATE_TYPE_WAIT_FOR_BEING_ENUMERATED:
-
-            interpretRxBuffer(&ParticleAttributes.ports.rx.north, &ParticleAttributes.interpreter);
-            interpretRxBuffer(&ParticleAttributes.ports.rx.east, &ParticleAttributes.interpreter);
-            interpretRxBuffer(&ParticleAttributes.ports.rx.south, &ParticleAttributes.interpreter);
+            interpretRxBuffers();
             break;
 
         case STATE_TYPE_ENUMERATING_NEIGHBOURS:

@@ -18,7 +18,7 @@
  */
 typedef struct {
     uint8_t buffer[sizeof(((PortBuffer *) 0)->bytes)];
-} Interpreter;
+} Interpreter; // 8 bytes total
 
 #  ifdef FUNC_ATTRS
 #    undef FUNC_ATTRS

@@ -37,7 +37,7 @@ typedef struct {
     uint8_t headerIsStream : 1;
     uint8_t headerIsCommand : 1;
     uint8_t headerIsBroadcast : 1;
-    uint8_t headerIsReserved : 1;
+    uint8_t __reserved : 1;
     uint8_t headerId : 4;
     uint8_t addressRow0 : 8;
     uint8_t addressColumn0 : 8;
@@ -248,6 +248,7 @@ typedef struct {
 #define PackageHeaderAddressRangeData19BufferPointerSize ((BufferBitPointer){.byteNumber = 7, .bitMask = (1 << 2)})
 
 typedef union {
+    PackageHeader asHeader;
     PackageHeader asBroadcastHeader;
     PackageHeaderAddress asDedicatedHeader;
     PackageHeaderAddressRange asMulticastHeader;
@@ -264,6 +265,29 @@ typedef union {
     PackageHeaderAddressData19 asDedicatedData19;
     PackageHeaderAddressRangeData19 asMulticastData19;
 } Package;
+
+
+/**
+ * describes possible header IDs
+ */
+typedef enum {
+    PACKAGE_HEADER_ID_TYPE_ENUMERATE = 0,
+    PACKAGE_HEADER_ID_TYPE_HEAT_WIRES = 1,
+    PACKAGE_HEADER_ID_TYPE_HEAT_WIRES_RANGE = 2,
+    PACKAGE_HEADER_ID_TYPE_FORWARDING_ON = 3,
+    PACKAGE_HEADER_ID_TYPE_FORWARDING_OFF = 4,
+    PACKAGE_HEADER_ID_TYPE_NETWORK_GEOMETRY_DISCLOSE = 5,
+    PACKAGE_HEADER_ID_TYPE_NETWORK_GEOMETRY_RESPONSE = 6,
+    PACKAGE_HEADER_ID_TYPE_NETWORK_GEOMETRY_REQUEST = 7,
+    PACKAGE_HEADER_ID_TYPE_RESET = 8,
+    PACKAGE_HEADER_ID_TYPE_VERBOSE_TOGGLE = 9,
+    PACKAGE_HEADER_ID_TYPE_PING_REQUEST = 10,
+    PACKAGE_HEADER_ID_TYPE_PING_RESPONSE = 11,
+    PACKAGE_HEADER_ID_TYPE_HEATING_MODE = 12,
+    PACKAGE_HEADER_ID_TYPE_RESERVED1 = 13,
+    PACKAGE_HEADER_ID_TYPE_RESERVED2 = 14,
+    PACKAGE_HEADER_ID_TYPE_EXTENDED_HEADER = 15
+} PACKAGE_HEADER_ID;
 
 #  ifdef FUNC_ATTRS
 #    undef FUNC_ATTRS

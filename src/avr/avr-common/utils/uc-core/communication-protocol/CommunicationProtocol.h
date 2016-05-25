@@ -18,30 +18,11 @@
 #  endif
 
 /**
+ * @param __TxPort a port instance i.e.: ParticleAttributes.ports.rx.{north, east, south}
  * @param PackageType see types enclosed by Package union in CommunicationProtocolTypes.h
- * @param portCardinalDirection {north, east, south}
- * @param transmissionDirection {tx, rx}
  */
-#define getXmissionPackage(__PackageType, __portCardinalDirection, __transmissionDirection) { \
-    ((__PackageType *) ParticleAttributes.ports.__transmissionDirection.__portCardinalDirection.buffer.bytes) \
-}
-
-/**
- * Evaluates to the properly casted pointer pointing at the beginning of the transmission buffer.
- * @param PackageType see types enclosed by Package union in CommunicationProtocolTypes.h
- * @param portCardinalDirection {north, east, south}
- */
-#define getTransmissionPackage(__PackageType, __portCardinalDirection) { \
-    getXmissionPackage(__PackageType, __portCardinalDirection, tx) \
-}
-
-/**
- * Evaluates to the properly casted pointer pointing at the beginning of the reception buffer.
- * @param PackageType see types enclosed by Package union in CommunicationProtocolTypes.h
- * @param portCardinalDirection {north, east, south}
- */
-#define getReceptionPackage(__PackageType, __portCardinalDirection) { \
-    getXmissionPackage(__PackageType, __portCardinalDirection, rx) \
+#define getReceptionPackage(__TxPort, __PackageType) { \
+    ((__PackageType *) ((__TxPort).buffer.bytes)) \
 }
 
 /**
@@ -52,6 +33,7 @@ FUNC_ATTRS void constructSendEnumeratePackage(volatile PackageHeaderAddress *o, 
     o->headerIsStream = false;
     o->headerIsCommand = true;
     o->headerIsBroadcast = false;
+    o->headerId = PACKAGE_HEADER_ID_TYPE_ENUMERATE;
     o->addressRow0 = localAddressRow;
     o->addressColumn0 = localAddressColumn;
 }
