@@ -30,8 +30,6 @@
 #    define FUNC_ATTRS
 #  endif
 
-extern volatile ParticleState ParticleAttributes;
-
 FUNC_ATTRS void __handleInputInterrupt(volatile PulseCounter *discoveryPulseCounter, volatile RxPort *rxPort,
                                        const bool isRxHigh) {
     switch (ParticleAttributes.node.state) {

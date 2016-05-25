@@ -16,8 +16,8 @@
 #include "./interrupts/Interrupts.h"
 #include "./ParticleParameters.h"
 #include "uc-core/communication-protocol/CommunicationProtocol.h"
+#include "uc-core/communication-protocol/Interpreter.h"
 
-#include "./communication-protocol/CommunicationProtocolTypes.h"
 
 #  ifdef TRY_INLINE
 #    define FUNC_ATTRS inline
@@ -227,11 +227,9 @@ FUNC_ATTRS void particleTick(void) {
             // wait for incoming particle address from south neighbour
         case STATE_TYPE_WAIT_FOR_BEING_ENUMERATED:
 
-            // receive data
-            // wait for rx-timeout
-            // cast received bytes to package
-            // interpret package
-            // execute interpretation
+            interpretRxBuffer(&ParticleAttributes.ports.rx.north, &ParticleAttributes.interpreter);
+            interpretRxBuffer(&ParticleAttributes.ports.rx.east, &ParticleAttributes.interpreter);
+            interpretRxBuffer(&ParticleAttributes.ports.rx.south, &ParticleAttributes.interpreter);
             break;
 
         case STATE_TYPE_ENUMERATING_NEIGHBOURS:

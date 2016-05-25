@@ -7,6 +7,7 @@
 
 #include "../common/PortInteraction.h"
 #include "./communication/CommunicationTypes.h"
+#include "./communication-protocol/InterpreterTypes.h"
 #include "./ParticleParameters.h"
 
 #  ifdef TRY_INLINE
@@ -139,6 +140,7 @@ typedef struct {
     DiscoveryPulseCounters discoveryPulseCounters;
     Ports ports;
     Periphery periphery;
+    Interpreter interpreter;
 #ifdef SIMULATION
     uint8_t magicEndByte;
 #endif
