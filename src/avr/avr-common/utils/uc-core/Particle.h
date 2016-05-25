@@ -186,6 +186,7 @@ FUNC_ATTRS void particleTick(void) {
                     __disableDiscoverySensing();
                     ParticleAttributes.node.state = STATE_TYPE_NEIGHBOURS_DISCOVERED;
                 } else {
+                    // TODO: find the lower bound and decide how log a good delay is
                     DELAY_US_15;
                     DELAY_US_15;
                     DELAY_US_15;
