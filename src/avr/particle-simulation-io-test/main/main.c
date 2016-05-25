@@ -5,12 +5,7 @@
 #include <avr/pgmspace.h>
 #include <uc-core/IoDefinitions.h>
 #include <simulation/SimulationMacros.h>
-#include <uc-core/Globals.h>
 #include "../libs/common/common.h"
-
-extern volatile ParticleState ParticleAttributes;
-
-extern inline void writeToUart(const char *string);
 
 const char testMessage[] PROGMEM = "test";
 

@@ -8,11 +8,8 @@
 #include <uc-core/IoDefinitions.h>
 #include <uc-core/Globals.h>
 #include <uc-core/delay/delay.h>
-//#include <simulation/SimulationMacros.h>
 
-extern volatile ParticleState ParticleAttributes;
-//uint8_t bitMask  __attribute__((section(".noinit")));
-//unsigned char__stuff __attribute__((section(".noinit")));
+//unsigned char__pad __attribute__((section(".noinit")));
 
 #define COUNTER_1_SETTINGS_TOP_INTERRUPT_LATENCY 18
 #define COUNTER_1_SETTINGS_TOP (DEFAULT_TX_RX_COMPARE_TOP_VALUE - COUNTER_1_SETTINGS_TOP_INTERRUPT_LATENCY)
