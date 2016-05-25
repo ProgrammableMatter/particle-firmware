@@ -8,6 +8,7 @@
 #ifndef __COMMUNICATION_PROTOCOL_PROTOCOL_H__
 #define __COMMUNICATION_PROTOCOL_PROTOCOL_H__
 
+#include <string.h>
 #include <uc-core/Globals.h>
 #include "CommunicationProtocolTypes.h"
 
@@ -86,6 +87,17 @@ FUNC_ATTRS void constructSendEnumeratePackageSouth(uint8_t localAddressRow, uint
     PackageHeaderAddress *pha = &package->asDedicatedHeader;
     constructSendEnumeratePackage(pha, localAddressRow, localAddressColumn);
     ParticleAttributes.ports.tx.south.dataEndPos = PackageHeaderAddressBufferPointerSize;
+}
+
+FUNC_ATTRS void interpretRxBuffer(volatile RxPort *o) {
+    // TODO: the copy should be in: ParticleAttributes.interpreter.buffer
+    uint8_t bufferCopy[sizeof(o->buffer.bytes)];
+    memcpy(bufferCopy, (uint8_t *) o->buffer.bytes, o->buffer.pointer.byteNumber + 1);
+
+    // TODO: interpret data
+
+    o->isDataBuffered = false;
+    o->isOverflowed = false;
 }
 
 #  ifdef FUNC_ATTRS

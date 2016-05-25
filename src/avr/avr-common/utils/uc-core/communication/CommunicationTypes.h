@@ -16,7 +16,6 @@
 #    define FUNC_ATTRS
 #  endif
 
-
 /**
  * Describes a bit within a 4 byte buffer.
  */
@@ -26,7 +25,6 @@ typedef struct {
     uint8_t bitMask; // the bit in the byte
 } BufferBitPointer; // 1 + 1 = 2 bytes total
 
-
 /**
  * Provides a linear 4 byte buffer and a bit pointer per communication channel.
  * The struct is used for transmission and reception as well.
@@ -35,7 +33,6 @@ typedef struct {
     uint8_t bytes[7]; // reception buffer
     BufferBitPointer pointer; // points to the next free position
 } PortBuffer; // 4 + 2 = 6 bytes total
-
 
 FUNC_ATTRS void constructBufferBitPointer(volatile BufferBitPointer *o) {
     o->byteNumber = 0;
@@ -103,7 +100,8 @@ typedef struct {
     uint8_t isReceiving
             : 4; // interrupt handled: is decremented on each expected but missing coding flank or refreshed on reception
     uint8_t isOverflowed : 1;
-    uint8_t __pad: 3;
+    uint8_t isDataBuffered : 1;
+    uint8_t __pad: 2;
 } RxPort; // 4 + 6 + 1 = 11 bytes total
 
 FUNC_ATTRS void constructRxPort(volatile RxPort *o) {
@@ -111,6 +109,7 @@ FUNC_ATTRS void constructRxPort(volatile RxPort *o) {
     constructPortBuffer(&(o->buffer));
     o->isReceiving = false;
     o->isOverflowed = false;
+    o->isDataBuffered = false;
 }
 
 /**
@@ -155,7 +154,6 @@ FUNC_ATTRS void bufferBitPointerNext(volatile BufferBitPointer *o) {
     }
 }
 
-
 /**
  * points the reception buffer pointer to the start position (lowest bit)
  */
@@ -163,7 +161,6 @@ FUNC_ATTRS void bufferBitPointerStart(volatile BufferBitPointer *o) {
     o->bitMask = 1;
     o->byteNumber = 0;
 }
-
 
 /**
  * returns true if the transmission buffer pointer position equals to the tx port's data end position

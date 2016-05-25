@@ -77,6 +77,12 @@ FUNC_ATTRS uint16_t __getTrimmedReceptionCounter(void) {
  */
 FUNC_ATTRS void dispatchReceivedDataEdge(volatile RxPort *rxPort,
                                          const bool isRisingEdge) {
+
+    if (rxPort->isDataBuffered) {
+        rxPort->isOverflowed = true;
+        return;
+    }
+
     uint16_t hardwareCounter = __getTrimmedReceptionCounter();
     uint16_t captureCounter = __toPortCounter(&hardwareCounter, &(rxPort->adjustment));
 

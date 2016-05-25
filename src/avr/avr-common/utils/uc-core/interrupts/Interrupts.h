@@ -150,9 +150,14 @@ FUNC_ATTRS void __modulateTransmissionBit(volatile TxPort *txPort, void (*txHiIm
  * increments the timeout counters
  */
 FUNC_ATTRS void __advanceReceptionTimeoutCounters(void) {
+
+    if (ParticleAttributes.ports.rx.north.isReceiving == 1) {
+        ParticleAttributes.ports.rx.north.isDataBuffered = true;
+    }
     ParticleAttributes.ports.rx.north.isReceiving >>= 1;
     if (ParticleAttributes.ports.rx.north.isReceiving == false) {
         bufferBitPointerStart(&ParticleAttributes.ports.rx.north.buffer.pointer);
+
     }
 
 //#ifdef SIMULATION
@@ -160,14 +165,23 @@ FUNC_ATTRS void __advanceReceptionTimeoutCounters(void) {
 //        IF_SIMULATION_CHAR_OUT('U');
 //    }
 //#endif
+
+    if (ParticleAttributes.ports.rx.east.isReceiving == 1) {
+        ParticleAttributes.ports.rx.east.isDataBuffered = true;
+    }
     ParticleAttributes.ports.rx.east.isReceiving >>= 1;
     if (ParticleAttributes.ports.rx.east.isReceiving == false) {
         bufferBitPointerStart(&ParticleAttributes.ports.rx.east.buffer.pointer);
+        ParticleAttributes.ports.rx.east.isDataBuffered = true;
     }
 
+    if (ParticleAttributes.ports.rx.south.isReceiving == 1) {
+        ParticleAttributes.ports.rx.south.isDataBuffered = true;
+    }
     ParticleAttributes.ports.rx.south.isReceiving >>= 1;
     if (ParticleAttributes.ports.rx.south.isReceiving == false) {
         bufferBitPointerStart(&ParticleAttributes.ports.rx.south.buffer.pointer);
+        ParticleAttributes.ports.rx.south.isDataBuffered = true;
     }
 
 }
