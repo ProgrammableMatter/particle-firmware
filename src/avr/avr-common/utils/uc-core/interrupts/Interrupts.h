@@ -151,6 +151,9 @@ FUNC_ATTRS void __modulateTransmissionBit(volatile TxPort *txPort, void (*txHiIm
  */
 FUNC_ATTRS void __advanceReceptionTimeoutCounters(void) {
     ParticleAttributes.ports.rx.north.isReceiving >>= 1;
+    if (ParticleAttributes.ports.rx.north.isReceiving == false) {
+        bufferBitPointerStart(&ParticleAttributes.ports.rx.north.buffer.pointer);
+    }
 
 //#ifdef SIMULATION
 //    if (ParticleAttributes.ports.rx.north.isReceiving == 0) {
@@ -158,7 +161,14 @@ FUNC_ATTRS void __advanceReceptionTimeoutCounters(void) {
 //    }
 //#endif
     ParticleAttributes.ports.rx.east.isReceiving >>= 1;
+    if (ParticleAttributes.ports.rx.east.isReceiving == false) {
+        bufferBitPointerStart(&ParticleAttributes.ports.rx.east.buffer.pointer);
+    }
+
     ParticleAttributes.ports.rx.south.isReceiving >>= 1;
+    if (ParticleAttributes.ports.rx.south.isReceiving == false) {
+        bufferBitPointerStart(&ParticleAttributes.ports.rx.south.buffer.pointer);
+    }
 
 }
 
@@ -170,7 +180,7 @@ ISR(NORTH_PIN_CHANGE_INTERRUPT_VECT) {
     __handleInputInterrupt(&ParticleAttributes.discoveryPulseCounters.north,
                            &ParticleAttributes.ports.rx.north,
                            NORTH_RX_IS_HI);
-    RX_INTERRUPTS_CLEAR_PENDING_NORTH;
+    RX_NORTH_INTERRUPT_CLEAR_PENDING;
 }
 
 /**
@@ -181,7 +191,7 @@ ISR(EAST_PIN_CHANGE_INTERRUPT_VECT) {
     __handleInputInterrupt(&ParticleAttributes.discoveryPulseCounters.east,
                            &ParticleAttributes.ports.rx.east,
                            EAST_RX_IS_HI);
-    RX_INTERRUPTS_CLEAR_PENDING_EAST;
+    RX_EAST_INTERRUPT_CLEAR_PENDING;
 }
 
 /**
@@ -192,7 +202,7 @@ ISR(SOUTH_PIN_CHANGE_INTERRUPT_VECT) {
     __handleInputInterrupt(&ParticleAttributes.discoveryPulseCounters.south,
                            &ParticleAttributes.ports.rx.south,
                            SOUTH_RX_IS_HI);
-    RX_INTERRUPTS_CLEAR_PENDING_SOUTH;
+    RX_SOUTH_INTERRUPT_CLEAR_PENDING;
 }
 
 

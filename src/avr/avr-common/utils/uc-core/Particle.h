@@ -91,21 +91,21 @@ FUNC_ATTRS void __disableReception(void) {
 
 FUNC_ATTRS void __enableReceptionNorth(void) {
     if (ParticleAttributes.discoveryPulseCounters.north.isConnected) {
-        RX_INTERRUPTS_CLEAR_PENDING_NORTH;
+        RX_NORTH_INTERRUPT_CLEAR_PENDING;
         RX_NORTH_INTERRUPT_ENABLE;
     }
 }
 
 FUNC_ATTRS void __enableReceptionEast(void) {
     if (ParticleAttributes.discoveryPulseCounters.east.isConnected) {
-        RX_INTERRUPTS_CLEAR_PENDING_EAST;
+        RX_EAST_INTERRUPT_CLEAR_PENDING;
         RX_EAST_INTERRUPT_ENABLE;
     }
 }
 
 FUNC_ATTRS void __enableReceptionSouth(void) {
     if (ParticleAttributes.discoveryPulseCounters.south.isConnected) {
-        RX_INTERRUPTS_CLEAR_PENDING_SOUTH;
+        RX_SOUTH_INTERRUPT_CLEAR_PENDING;
         RX_SOUTH_INTERRUPT_ENABLE;
     }
 }
@@ -119,7 +119,7 @@ FUNC_ATTRS void __disableXmissionTimer(void) {
     TIMER_TX_RX_DISABLE;
 }
 
-FUNC_ATTRS void __enableReception(void) {
+FUNC_ATTRS void __enableReceptionForConnectedPorts(void) {
     RX_INTERRUPTS_ENABLE;
     __enableReceptionNorth();
     __enableReceptionEast();
@@ -133,7 +133,7 @@ FUNC_ATTRS void __disableXmission(void) {
 
 FUNC_ATTRS void __enableXmission(void) {
     __enableXmissionTimer();
-    __enableReception();
+    __enableReceptionForConnectedPorts();
 }
 
 /**
@@ -235,6 +235,8 @@ FUNC_ATTRS void particleTick(void) {
             break;
 
         case STATE_TYPE_ENUMERATING_NEIGHBOURS:
+            // wait until neighbours reach state STATE_TYPE_WAIT_FOR_BEING_ENUMERATED
+            DELAY_US_15;
             ParticleAttributes.node.state = STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR;
             break;
 
