@@ -56,35 +56,35 @@ if __name__ == "__main__":
     transmissionWirefilter = Filter.SampleFilter(domain="WIRE", name="tx-south", nodeId=1)
     dataFilter.filter(transmissionWirefilter)
     xData, yData = dataFilter.getData(transmissionWirefilter)
-    dataPlotter.addPlot(xData, yData, "tx-south")
+    dataPlotter.addPlot(xData, yData, "tx-south [1]")
 
     # reception wire plot
     receptionWireFilter = Filter.SampleFilter(domain="WIRE", name="rx-north", nodeId=0)
     dataFilter.filter(receptionWireFilter)
     xData, yData = dataFilter.getData(receptionWireFilter)
-    dataPlotter.addPlot(xData, yData, "rx-north")
+    dataPlotter.addPlot(xData, yData, "rx-north [0]")
 
     # interrupt: timer/counter1 plots
     interruptName = "NORTH_RECEPTION"
     dataFilter.setValueMapping(interruptValueMapping)
-    addInterruptPlot(title="un-/posting", nodeId=0, facet="post", interruptName=interruptName)
+    addInterruptPlot(title="un-/posting [0]", nodeId=0, facet="post", interruptName=interruptName)
     # addInterruptPlot(title="en-/disabling", nodeId=0, domain="enable", interruptName=interruptName,
     #                  interruptNameAlias="#0-enable")
-    addInterruptPlot(title="call/return", nodeId=0, facet="invoke", interruptName=interruptName)
+    addInterruptPlot(title="call/return [0]", nodeId=0, facet="invoke", interruptName=interruptName)
 
     interruptName = "TX_RX_TIMER_TOP"
-    addInterruptPlot(title="un-/posting", nodeId=0, facet="post", interruptName=interruptName)
+    addInterruptPlot(title="un-/posting [0]", nodeId=0, facet="post", interruptName=interruptName)
     # addInterruptPlot(title="en-/disabling", nodeId=0, domain="enable", interruptName=interruptName,
     #                  interruptNameAlias="#0-enable")
     addInterruptPlot(title="call/return", nodeId=0, facet="invoke", interruptName=interruptName)
 
     interruptName = "TX_RX_TIMER_CENTER"
-    addInterruptPlot(title="un-/posting", nodeId=0, facet="post", interruptName=interruptName)
+    addInterruptPlot(title="un-/posting [0]", nodeId=0, facet="post", interruptName=interruptName)
     # addInterruptPlot(title="en-/disabling", nodeId=0, domain="enable", interruptName=interruptName,
     #                  interruptNameAlias="#0-enable")
-    addInterruptPlot(title="call/return", nodeId=0, facet="invoke", interruptName=interruptName)
+    addInterruptPlot(title="call/return [0]", nodeId=0, facet="invoke", interruptName=interruptName)
 
-    addInterruptPlot(title="call/return", nodeId=0, facet="invoke", interruptName="TX_RX_TIMEOUT_INTERRUPT")
+    addInterruptPlot(title="call/return [0]", nodeId=0, facet="invoke", interruptName="TX_RX_TIMEOUT_INTERRUPT")
 
     # TODO: isReceiving/isOverflowed plot: SRAM[globalState.ports.rx.XXX.( - [7:5] | isOverflowed [4]  | isReceiving [3:0])]
     addPlot(title="SRAM[int16-out]", nodeId=0, domain="SRAM", name="int16-out")
