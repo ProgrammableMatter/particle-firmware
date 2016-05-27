@@ -45,10 +45,12 @@ FUNC_ATTRS void __handleInputInterrupt(volatile PulseCounter *discoveryPulseCoun
 
             // on data received
         case STATE_TYPE_WAIT_FOR_BEING_ENUMERATED:
+        case STATE_TYPE_LOCALLY_ENUMERATED:
         case STATE_TYPE_ENUMERATING_NEIGHBOURS:
         case STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR:
         case STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR:
-        case STATE_TYPE_ENUMERATED:
+        case STATE_TYPE_WAIT_UNTIL_ENUMERATION_TRANSMISSIONS_FINISHED:
+        case STATE_TYPE_ENUMERATING_FINISHED:
         case STATE_TYPE_IDLE:
         case STATE_TYPE_TX_START:
         case STATE_TYPE_TX_DONE:
@@ -110,7 +112,6 @@ FUNC_ATTRS void __eastTxLo(void) {
  */
 FUNC_ATTRS void __rectifyTransmissionBit(volatile TxPort *txPort, void (*txHiImpl)(void),
                                          void (txLoImpl)(void)) {
-    // TODO: do not rectify if tx-buffer is empty
     if (txPort->retainTransmission == false) {
         if (txPort->buffer.pointer.bitMask &
             txPort->buffer.bytes[txPort->buffer.pointer.byteNumber]) {
@@ -128,8 +129,9 @@ FUNC_ATTRS void __modulateTransmissionBit(volatile TxPort *txPort, void (*txHiIm
                                           void (txLoImpl)(void)) {
     if (txPort->retainTransmission == false) {
         if (isDataEnd(txPort)) {
-            // return signal to default
-            txLoImpl(); // inverted on receiver side
+            txLoImpl(); // return signal to default (inverted on receiver side)
+            txPort->isTransmitting = false;
+            txPort->retainTransmission = true; // stop transmission on empty buffer
         } else {
             // write data bit to output (inverted)
             if (txPort->buffer.pointer.bitMask & txPort->buffer.bytes[txPort->buffer.pointer.byteNumber]) {
@@ -141,6 +143,8 @@ FUNC_ATTRS void __modulateTransmissionBit(volatile TxPort *txPort, void (*txHiIm
         }
     }
     else if (txPort->enableTransmission == true) {
+        txPort->isTransmitting = true;
+        txPort->enableTransmission = false;
         txPort->retainTransmission = false;
     }
 }
@@ -242,10 +246,12 @@ ISR(TX_RX_TIMER_TOP_INTERRUPT_VECT) {
             break;
 
         case STATE_TYPE_WAIT_FOR_BEING_ENUMERATED:
+        case STATE_TYPE_LOCALLY_ENUMERATED:
         case STATE_TYPE_ENUMERATING_NEIGHBOURS:
         case STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR:
         case STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR:
-        case STATE_TYPE_ENUMERATED:
+        case STATE_TYPE_WAIT_UNTIL_ENUMERATION_TRANSMISSIONS_FINISHED:
+        case STATE_TYPE_ENUMERATING_FINISHED:
         case STATE_TYPE_IDLE:
         case STATE_TYPE_TX_START:
         case STATE_TYPE_TX_DONE:
@@ -276,10 +282,12 @@ ISR(TX_TIMER_CENTER_INTERRUPT_VECT) {
     switch (ParticleAttributes.node.state) {
         // on receive data counter compare
         case STATE_TYPE_WAIT_FOR_BEING_ENUMERATED:
+        case STATE_TYPE_LOCALLY_ENUMERATED:
         case STATE_TYPE_ENUMERATING_NEIGHBOURS:
         case STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR:
         case STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR:
-        case STATE_TYPE_ENUMERATED:
+        case STATE_TYPE_WAIT_UNTIL_ENUMERATION_TRANSMISSIONS_FINISHED:
+        case STATE_TYPE_ENUMERATING_FINISHED:
         case STATE_TYPE_IDLE:
         case STATE_TYPE_TX_START:
         case STATE_TYPE_TX_DONE:
