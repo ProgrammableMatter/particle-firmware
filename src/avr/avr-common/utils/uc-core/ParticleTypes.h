@@ -28,10 +28,12 @@ typedef enum {
     STATE_TYPE_DISCOVERY_PULSING, // keep pulsing post discovery
     STATE_TYPE_RESET, // state after reset command is received
     STATE_TYPE_WAIT_FOR_BEING_ENUMERATED, // waiting for network address assignment
+    STATE_TYPE_LOCALLY_ENUMERATED, // local address is assigned, neighbours are to be enumerated
     STATE_TYPE_ENUMERATING_NEIGHBOURS, // starting neighbour enumeration
     STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR, // assigning network address to east neighbour
     STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR, // assigning network address to south neighbour
-    STATE_TYPE_ENUMERATED, // local address assigned and neighbour/s enumerated
+    STATE_TYPE_WAIT_UNTIL_ENUMERATION_TRANSMISSIONS_FINISHED, // wait until all port transmission are done
+    STATE_TYPE_ENUMERATING_FINISHED, // local address assigned and neighbour/s enumerated
     STATE_TYPE_IDLE, // waiting for commands
     STATE_TYPE_INTERPRET_COMMAND, // interpret command
     STATE_TYPE_TX_START, // transmitting data in buffers
@@ -100,9 +102,9 @@ typedef struct {
 } NodeAddress; // 2 byte total
 
 FUNC_ATTRS void constructNodeAddress(volatile NodeAddress *o) {
-    o->row = 0;
-    o->column = 0;
-//    *(uint16_t *) o = 0;
+//    o->row = 1;
+//    o->column = 1;
+    *((uint16_t *) o) = 0x0000;
 }
 
 /**
