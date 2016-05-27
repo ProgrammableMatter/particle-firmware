@@ -18,14 +18,6 @@
 #  endif
 
 /**
- * @param __TxPort a port instance i.e.: ParticleAttributes.ports.rx.{north, east, south}
- * @param PackageType see types enclosed by Package union in CommunicationProtocolTypes.h
- */
-#define getReceptionPackage(__TxPort, __PackageType) { \
-    ((__PackageType *) ((__TxPort).buffer.bytes)) \
-}
-
-/**
  * Constructs a SendEnumeratePackage at the beginning of parameter o.
  */
 FUNC_ATTRS void constructSendEnumeratePackage(volatile PackageHeaderAddress *o, uint8_t localAddressRow,

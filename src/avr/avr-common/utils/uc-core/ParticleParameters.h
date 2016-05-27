@@ -79,10 +79,4 @@
  */
 #define HEARTBEAT_LOOP_COUNT_TOGGLE ((uint8_t)20)
 
-/**
- * comment if functions should not be inline
- */
-//#define TRY_INLINE
-//#define TRY_INLINE_ISR_RELEVANT
-
 #endif
