@@ -12,13 +12,13 @@ SET(CWARN "-Wall -Werror -Wextra -Wshadow -Wstrict-prototypes -Waddress -Wredund
 SET(CXXWARN "-Wall -Werror -Wextra -Wshadow -Wstrict-prototypes -Waddress -Wredundant-decls")
 
 SET(CTUNING " ${CTUNING} -funsigned-char -funsigned-bitfields -fpack-struct")
-SET(COPT "-Os") # for simulation purpose
+SET(COPT "-Os -fno-inline-small-functions") # for simulation purpose
 #SET(COPT "-O3") # for real MCU
+#SET(DEFINED_MACROS "-DTRY_INLINE -DTRY_INLINE_ISR_RELEVANT ${DEFINED_MACROS}")
 #SET(COPT "-O1")  # for simulation purpose
 
 SET(CDEBUG "${CDEBUG}")
 
-#SET(DEFINED_MACROS "-DTRY_INLINE -DTRY_INLINE_ISR_RELEVANT ${DEFINED_MACROS}")
 
 SET(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "")
 SET(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS "")
