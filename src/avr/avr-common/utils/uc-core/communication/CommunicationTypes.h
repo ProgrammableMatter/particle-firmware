@@ -51,14 +51,18 @@ typedef struct {
     BufferBitPointer dataEndPos; // data in between buffer start and dataEndPos is to be transmitted
     uint8_t enableTransmission : 1; // user handled flag: if enabled transmission is scheduled
     uint8_t retainTransmission : 1; // interrupt handled flag transmission starts after flag is cleared
-    uint8_t __pad: 6;
+    uint8_t isTransmitting : 1; // true during transmission, else false
+    uint8_t __pad: 5;
 } TxPort; // 6 + 2 + 1 bytes total
 
 FUNC_ATTRS void constructTxPort(volatile TxPort *o) {
     constructPortBuffer(&(o->buffer));
     constructBufferBitPointer(&o->dataEndPos);
-    o->enableTransmission = false;
-    o->retainTransmission = true;
+    // TODO: why is the offset 1 instead of 2 (size of BufferBitPointer dataEndPos)
+    *((uint8_t *) (&o->dataEndPos + 1)) = 0x00;
+//    o->enableTransmission = false;
+//    o->retainTransmission = false;
+//    o->isTransmitting = false;
 }
 
 typedef struct {
