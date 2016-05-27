@@ -55,7 +55,7 @@ FUNC_ATTRS bool __updateAndDetermineNodeType(void) {
             }
         } else { // !N, !S
             if (ParticleAttributes.discoveryPulseCounters.east.isConnected) { // !N, !S, E
-                ParticleAttributes.node.type = NODE_TYPE_INVALID;
+                ParticleAttributes.node.type = NODE_TYPE_ORIGIN;
             } else { // !N, !S, !E
                 ParticleAttributes.node.type = NODE_TYPE_ORPHAN;
             }
@@ -153,6 +153,19 @@ FUNC_ATTRS void __discoveryLoopCount(void) {
     }
 }
 
+FUNC_ATTRS void __clearBufferedReceptionDataFlags(void) {
+    ParticleAttributes.ports.rx.north.isDataBuffered = false;
+    ParticleAttributes.ports.rx.east.isDataBuffered = false;
+    ParticleAttributes.ports.rx.south.isDataBuffered = false;
+}
+
+FUNC_ATTRS void __updateOriginNodeAddress(void) {
+    if (ParticleAttributes.node.type == NODE_TYPE_ORIGIN) {
+        ParticleAttributes.node.address.row = 1;
+        ParticleAttributes.node.address.column = 1;
+    }
+}
+
 FUNC_ATTRS void particleTick(void) {
 
     __heartBeatToggle();
@@ -192,6 +205,7 @@ FUNC_ATTRS void particleTick(void) {
                     DELAY_US_15;
                     DELAY_US_15;
                 }
+                __updateOriginNodeAddress();
             }
             break;
 
@@ -211,7 +225,24 @@ FUNC_ATTRS void particleTick(void) {
                 } else {
                     ParticleAttributes.node.state = STATE_TYPE_WAIT_FOR_BEING_ENUMERATED;
                 }
+                DELAY_US_15;
+                DELAY_US_15;
+                DELAY_US_15;
+                DELAY_US_15;
+                DELAY_US_15;
+                DELAY_US_15;
+                DELAY_US_15;
+                DELAY_US_15;
+                DELAY_US_15;
+                DELAY_US_15;
+                DELAY_US_15;
+                DELAY_US_15;
+                DELAY_US_15;
+                DELAY_US_15;
+                DELAY_US_15;
+                DELAY_US_15;
                 __enableXmission();
+                __clearBufferedReceptionDataFlags();
             } else {
                 __discoveryLoopCount();
             }
@@ -233,15 +264,23 @@ FUNC_ATTRS void particleTick(void) {
         case STATE_TYPE_ENUMERATING_NEIGHBOURS:
             // wait until neighbours reach state STATE_TYPE_WAIT_FOR_BEING_ENUMERATED
             DELAY_US_15;
+            DELAY_US_15;
+            DELAY_US_15;
+            DELAY_US_15;
+            DELAY_US_15;
+            ParticleAttributes.node.state = STATE_TYPE_LOCALLY_ENUMERATED;
+            break;
+
+        case STATE_TYPE_LOCALLY_ENUMERATED:
             ParticleAttributes.node.state = STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR;
             break;
 
         case STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR:
             if (ParticleAttributes.discoveryPulseCounters.east.isConnected) {
                 ParticleAttributes.ports.tx.east.enableTransmission = false;
-                constructSendEnumeratePackageEast(ParticleAttributes.node.address.row, ParticleAttributes.node
-                                                                                               .address.column +
-                                                                                       1);
+                constructSendEnumeratePackageEast(
+                        ParticleAttributes.node.address.row,
+                        ParticleAttributes.node.address.column + 1);
                 ParticleAttributes.ports.tx.east.retainTransmission = true;
                 ParticleAttributes.ports.tx.east.enableTransmission = true;
             }
@@ -251,16 +290,30 @@ FUNC_ATTRS void particleTick(void) {
         case STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR:
             if (ParticleAttributes.discoveryPulseCounters.south.isConnected) {
                 ParticleAttributes.ports.tx.south.enableTransmission = false;
-                constructSendEnumeratePackageSouth(ParticleAttributes.node.address.row + 1,
-                                                   ParticleAttributes.node
-                                                           .address.column);
+                constructSendEnumeratePackageSouth(
+                        ParticleAttributes.node.address.row + 1,
+                        ParticleAttributes.node.address.column);
                 ParticleAttributes.ports.tx.south.retainTransmission = true;
                 ParticleAttributes.ports.tx.south.enableTransmission = true;
             }
-            ParticleAttributes.node.state = STATE_TYPE_ENUMERATED;
+            ParticleAttributes.node.state = STATE_TYPE_WAIT_UNTIL_ENUMERATION_TRANSMISSIONS_FINISHED;
             break;
 
-        case STATE_TYPE_ENUMERATED:
+        case STATE_TYPE_WAIT_UNTIL_ENUMERATION_TRANSMISSIONS_FINISHED:
+            if (ParticleAttributes.ports.tx.east.isTransmitting ||
+                //                ParticleAttributes.ports.tx.east.retainTransmission ||
+                ParticleAttributes.ports.tx.east.enableTransmission ||
+                ParticleAttributes.ports.tx.south.isTransmitting ||
+                //                ParticleAttributes.ports.tx.south.retainTransmission ||
+                ParticleAttributes.ports.tx.south.enableTransmission
+                    ) {
+                break;
+            } else {
+                ParticleAttributes.node.state = STATE_TYPE_ENUMERATING_FINISHED;
+            }
+            break;
+
+        case STATE_TYPE_ENUMERATING_FINISHED:
             ParticleAttributes.node.state = STATE_TYPE_IDLE;
             break;
 
