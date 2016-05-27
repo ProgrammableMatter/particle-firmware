@@ -61,7 +61,7 @@ class Filter:
                     x, y = map(list, zip(*self.nodeIdToDomainToNameToSamples[sampleFilter.nodeId][sampleFilter.domain][
                         sampleFilter.name]))
                     return (x, y)
-        return None
+        return (None, None)
 
     def filter(self, sampleFilter):
 
@@ -145,6 +145,10 @@ class Plotter:
         plt.grid()
 
     def addPlot(self, xData, yData, title, xLabel="", yLabel=""):
+
+        if xData == None or yData == None:
+            return
+
 
         sortedSamples = [(x, y) for (x, y) in sorted(zip(xData, yData))]
 
