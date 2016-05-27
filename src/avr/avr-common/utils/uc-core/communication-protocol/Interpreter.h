@@ -6,6 +6,7 @@
 #define __PROJECT_INTERPRETER_H__
 
 #include "InterpreterTypes.h"
+#include "CommunicationProtocolTypes.h"
 
 #  ifdef TRY_INLINE
 #    define FUNC_ATTRS inline
@@ -19,23 +20,25 @@
  * reception is possible immediately after copying from reception buffer.
  */
 FUNC_ATTRS void __interpretBuffer(volatile RxPort *o) {
-    if (!o->isDataBuffered) {
+    if (!o->isDataBuffered) { // if no data available
         return;
     }
 
-    // TODO: to improve performance copy just received data, thus received bytes must be counted
+    // copy buffer
     for (uint8_t idx = 0; idx < sizeof(o->buffer.bytes); idx++) {
         ParticleAttributes.interpreter.buffer[idx] = o->buffer.bytes[idx];
     }
+    // prepare reception buffer for reception
     o->isDataBuffered = false;
     o->isOverflowed = false;
 
-
-    PackageHeader *header = getReceptionPackage(*o, PackageHeader);
-    switch (header->headerId) {
-        // TODO: interpret packages
-
+    Package *package = (Package *) ParticleAttributes.interpreter.buffer;
+    // interpret package header id
+    switch (package->asHeader.headerId) {
         case PACKAGE_HEADER_ID_TYPE_ENUMERATE:
+            ParticleAttributes.node.address.row = package->asDedicatedHeader.addressRow0;
+            ParticleAttributes.node.address.column = package->asDedicatedHeader.addressColumn0;
+            ParticleAttributes.node.state = STATE_TYPE_LOCALLY_ENUMERATED;
             break;
         case
             PACKAGE_HEADER_ID_TYPE_HEAT_WIRES:
