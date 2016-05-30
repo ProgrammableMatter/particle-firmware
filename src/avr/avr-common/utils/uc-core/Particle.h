@@ -110,12 +110,12 @@ FUNC_ATTRS void __enableReceptionSouth(void) {
     }
 }
 
-FUNC_ATTRS void __enableXmissionTimer(void) {
+FUNC_ATTRS void __enableTxRxTimer(void) {
     TIMER_TX_RX_SETUP;
     TIMER_TX_RX_ENABLE;
 }
 
-FUNC_ATTRS void __disableXmissionTimer(void) {
+FUNC_ATTRS void __disableTxRxTimer(void) {
     TIMER_TX_RX_DISABLE;
 }
 
@@ -126,13 +126,13 @@ FUNC_ATTRS void __enableReceptionForConnectedPorts(void) {
     __enableReceptionSouth();
 }
 
-FUNC_ATTRS void __disableXmission(void) {
+FUNC_ATTRS void __disableTxRx(void) {
     __disableReception();
-    __disableXmissionTimer();
+    __disableTxRxTimer();
 }
 
-FUNC_ATTRS void __enableXmission(void) {
-    __enableXmissionTimer();
+FUNC_ATTRS void __enableTxRx(void) {
+    __enableTxRxTimer();
     __enableReceptionForConnectedPorts();
 }
 
@@ -155,8 +155,16 @@ FUNC_ATTRS void __discoveryLoopCount(void) {
 
 FUNC_ATTRS void __clearBufferedReceptionDataFlags(void) {
     ParticleAttributes.ports.rx.north.isDataBuffered = false;
+    ParticleAttributes.ports.rx.north.isReceiving = false;
+    ParticleAttributes.ports.rx.north.isOverflowed = false;
+
     ParticleAttributes.ports.rx.east.isDataBuffered = false;
+    ParticleAttributes.ports.rx.east.isReceiving = false;
+    ParticleAttributes.ports.rx.east.isOverflowed = false;
+
     ParticleAttributes.ports.rx.south.isDataBuffered = false;
+    ParticleAttributes.ports.rx.south.isReceiving = false;
+    ParticleAttributes.ports.rx.south.isOverflowed = false;
 }
 
 FUNC_ATTRS void __updateOriginNodeAddress(void) {
@@ -220,28 +228,13 @@ FUNC_ATTRS void particleTick(void) {
         case STATE_TYPE_DISCOVERY_PULSING:
             if (ParticleAttributes.discoveryPulseCounters.loopCount >= MAX_NEIGHBOUR_PULSING_LOOPS) {
                 __disableDiscoveryPulsing();
+                DELAY_US_150;
                 if (ParticleAttributes.node.type == NODE_TYPE_ORIGIN) {
                     ParticleAttributes.node.state = STATE_TYPE_ENUMERATING_NEIGHBOURS;
                 } else {
                     ParticleAttributes.node.state = STATE_TYPE_WAIT_FOR_BEING_ENUMERATED;
                 }
-                DELAY_US_15;
-                DELAY_US_15;
-                DELAY_US_15;
-                DELAY_US_15;
-                DELAY_US_15;
-                DELAY_US_15;
-                DELAY_US_15;
-                DELAY_US_15;
-                DELAY_US_15;
-                DELAY_US_15;
-                DELAY_US_15;
-                DELAY_US_15;
-                DELAY_US_15;
-                DELAY_US_15;
-                DELAY_US_15;
-                DELAY_US_15;
-                __enableXmission();
+                __enableTxRx();
                 __clearBufferedReceptionDataFlags();
             } else {
                 __discoveryLoopCount();
@@ -251,7 +244,7 @@ FUNC_ATTRS void particleTick(void) {
             // reset state disables timers and switches back to the very first state
             // without restarting the mcu
         case STATE_TYPE_RESET:
-            __disableXmission();
+            __disableTxRx();
             constructParticleState(&ParticleAttributes);
             ParticleAttributes.node.state = STATE_TYPE_START;
             break;
