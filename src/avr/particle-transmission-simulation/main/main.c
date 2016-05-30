@@ -59,17 +59,17 @@ int main(void) {
     RX_INTERRUPTS_CLEAR_PENDING;
     TIMER_TX_RX_ENABLE;
 
-    DELAY_US_15
-    DELAY_US_15
-    DELAY_US_15
-    DELAY_US_15
-    DELAY_US_15
+    DELAY_US_15;
+    DELAY_US_15;
+    DELAY_US_15;
+    DELAY_US_15;
+    DELAY_US_15;
 
-    DELAY_US_15
-    DELAY_US_15
-    DELAY_US_15
-    DELAY_US_15
-    DELAY_US_15
+    DELAY_US_15;
+    DELAY_US_15;
+    DELAY_US_15;
+    DELAY_US_15;
+    DELAY_US_15;
 
     ParticleAttributes.ports.tx.south.retainTransmission = true;
     ParticleAttributes.ports.tx.south.enableTransmission = true;
