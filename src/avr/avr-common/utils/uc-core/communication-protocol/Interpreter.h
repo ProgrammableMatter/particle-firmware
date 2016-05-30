@@ -14,13 +14,51 @@
 #    define FUNC_ATTRS
 #  endif
 
+/**
+ * returns true if the buffer keeps reasonable number of bits, else false and
+ * releases the buffer
+ */
+FUNC_ATTRS uint8_t __isReasonableBufferSizeOrClearBuffer(volatile RxPort *o) {
+    // TODO: replace hardcoded values by macros
+    if (o->isReceiving == false) {
+        if (o->isDataBuffered) {
+            if (o->buffer.pointer.bitMask == (1 << 2)) { // packages with bit mask 0x04
+                // 2, 3, 4, 6, 7
+                // !1, !5, !8
+                if (o->buffer.pointer.byteNumber != 1 && o->buffer.pointer.byteNumber != 5 &&
+                    o->buffer.pointer.byteNumber != 8) {
+                    return true;
+                }
+            } else if (o->buffer.pointer.bitMask == (1 << 6)) { // packages with bit mask 0x40
+                // 1, 3, 5
+                if (o->buffer.pointer.byteNumber == 1 || o->buffer.pointer.byteNumber == 3 ||
+                    o->buffer.pointer.byteNumber == 5) {
+                    return true;
+                }
+            } else if (o->buffer.pointer.bitMask == (1 << 7)) { // packages with bit mask 0x80
+                // 0, 2, 4
+                if (o->buffer.pointer.byteNumber == 0 || o->buffer.pointer.byteNumber == 2 ||
+                    o->buffer.pointer.byteNumber == 4) {
+                    return true;
+                }
+            }
+            // TODO: possible race condition: testing & clearing flags vs. reception
+            // release buffer
+            o->isOverflowed = false;
+            o->isDataBuffered = false;
+            IF_SIMULATION_CHAR_OUT('p');
+        }
+    }
+    IF_SIMULATION_CHAR_OUT('P');
+    return false;
+}
 
 /**
  * Read, parse and interpret the specified buffer. The buffer is duplicated, thus
  * reception is possible immediately after copying from reception buffer.
  */
 FUNC_ATTRS void __interpretBuffer(volatile RxPort *o) {
-    if (!o->isDataBuffered) { // if no data available
+    if (!__isReasonableBufferSizeOrClearBuffer(o)) {
         return;
     }
 
