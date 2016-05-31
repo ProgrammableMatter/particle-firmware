@@ -120,6 +120,7 @@ FUNC_ATTRS void __disableTxRxTimerHardware(void) {
 }
 
 FUNC_ATTRS void __enableReceptionHardwareForConnectedPorts(void) {
+    RX_INTERRUPTS_SETUP;
     RX_INTERRUPTS_ENABLE;
     __enableReceptionHardwareNorth();
     __enableReceptionHardwareEast();
@@ -134,9 +135,9 @@ FUNC_ATTRS void __disableTxRx(void) {
 }
 
 FUNC_ATTRS void __enableTxRx(void) {
-    ParticleAttributes.ports.xmissionState = STATE_TYPE_XMISSION_TYPE_ENABLED_TX_RX;
     __enableTxRxTimerHardware();
     __enableReceptionHardwareForConnectedPorts();
+    ParticleAttributes.ports.xmissionState = STATE_TYPE_XMISSION_TYPE_ENABLED_TX_RX;
 }
 
 /**
@@ -191,10 +192,10 @@ FUNC_ATTRS void particleTick(void) {
 
             // STATE_TYPE_ACTIVE: switch to state discovery and enable interrupt
         case STATE_TYPE_ACTIVE:
-            // enable pulsing on north and south tx wires
+            ParticleAttributes.node.state = STATE_TYPE_NEIGHBOURS_DISCOVERY;
+            // enable pulsing on north, south and east tx wires
             TIMER_NEIGHBOUR_SENSE_ENABLE;
             SREG setBit bit(SREG_I); // finally enable interrupts
-            ParticleAttributes.node.state = STATE_TYPE_NEIGHBOURS_DISCOVERY;
             break;
 
             //// ---------------- discovery states ----------------
@@ -240,8 +241,8 @@ FUNC_ATTRS void particleTick(void) {
                 } else {
                     ParticleAttributes.node.state = STATE_TYPE_WAIT_FOR_BEING_ENUMERATED;
                 }
-                __enableTxRx();
                 clearReceptionBuffers();
+                __enableTxRx();
             } else {
                 __discoveryLoopCount();
             }
@@ -249,9 +250,9 @@ FUNC_ATTRS void particleTick(void) {
 
             //// ---------------- local enumeration states ----------------
 
-            // wait for incoming particle address from south neighbour
+            // wait for incoming particle address from north neighbour
         case STATE_TYPE_WAIT_FOR_BEING_ENUMERATED:
-            interpretNorthRxBuffer();
+            interpretRxBuffer(&ParticleAttributes.ports.rx.north);
             break;
 
         case STATE_TYPE_WAIT_FOR_BEING_ENUMERATED_SEND_ACK_RESPONSE_TO_PARENT:
@@ -267,7 +268,7 @@ FUNC_ATTRS void particleTick(void) {
             break;
 
         case STATE_TYPE_WAIT_FOR_BEING_ENUMERATED_ACK_RESPONSE_FROM_PARENT:
-            interpretNorthRxBuffer();
+            interpretRxBuffer(&ParticleAttributes.ports.rx.north);
             break;
 
         case STATE_TYPE_LOCALLY_ENUMERATED:
@@ -277,12 +278,10 @@ FUNC_ATTRS void particleTick(void) {
             //// ---------------- neighbour enumeration states ----------------
 
         case STATE_TYPE_ENUMERATING_NEIGHBOURS:
-            // wait until neighbours reach state STATE_TYPE_WAIT_FOR_BEING_ENUMERATED
-            DELAY_US_15;
-            DELAY_US_15;
-            DELAY_US_15;
-            DELAY_US_15;
-            DELAY_US_15;
+            // wait until neighbours reach state STATE_TYPE_WAIT_FOR_BEING_ENUMERATED and
+            // reception times out (discovery signals may be mistakenly interpreted as data)
+        DELAY_US_150;
+            DELAY_US_150;
             ParticleAttributes.node.state = STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR;
             break;
 
@@ -309,7 +308,7 @@ FUNC_ATTRS void particleTick(void) {
             break;
 
         case STATE_TYPE_ENUMERATING_EAST_WAIT_UNTIL_ACK_RESPONSE_FROM_EAST:
-            interpretEastRxBuffer();
+            interpretRxBuffer(&ParticleAttributes.ports.rx.east);
             break;
 
         case STATE_TYPE_ENUMERATING_EAST_SEND_ACK_RESPONSE_TO_EAST:
@@ -347,7 +346,7 @@ FUNC_ATTRS void particleTick(void) {
             break;
 
         case STATE_TYPE_ENUMERATING_SOUTH_WAIT_UNTIL_ACK_RESPONSE_FROM_SOUTH:
-            interpretSouthRxBuffer();
+            interpretRxBuffer(&ParticleAttributes.ports.rx.south);
             break;
 
         case STATE_TYPE_ENUMERATING_SOUTH_SEND_ACK_RESPONSE_TO_SOUTH:

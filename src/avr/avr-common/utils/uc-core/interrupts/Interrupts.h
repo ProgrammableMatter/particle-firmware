@@ -44,20 +44,20 @@ FUNC_ATTRS void __handleInputInterrupt(volatile PulseCounter *discoveryPulseCoun
             break;
 
         default:
-        IF_SIMULATION_SWITCH_TO_ERRONEOUS_STATE;
+            switch (ParticleAttributes.ports.xmissionState) {
+                // on data received
+                case STATE_TYPE_XMISSION_TYPE_ENABLED_TX_RX:
+                case STATE_TYPE_XMISSION_TYPE_ENABLED_RX:
+                    dispatchReceivedDataEdge(rxPort, isRxHigh);
+                    break;
+
+                default:
+                    break;
+            }
             break;
     }
 
-    switch (ParticleAttributes.ports.xmissionState) {
-            // on data received
-        case STATE_TYPE_XMISSION_TYPE_ENABLED_TX_RX:
-        case STATE_TYPE_XMISSION_TYPE_ENABLED_RX:
-            dispatchReceivedDataEdge(rxPort, isRxHigh);
-            break;
 
-        default:
-            break;
-    }
 }
 
 /**
@@ -158,11 +158,11 @@ FUNC_ATTRS void __advanceReceptionTimeoutCounters(void) {
 
     }
 
-//#ifdef SIMULATION
-//    if (ParticleAttributes.ports.rx.north.isReceiving == 0) {
-//        IF_SIMULATION_CHAR_OUT('U');
-//    }
-//#endif
+#ifdef SIMULATION
+    if (ParticleAttributes.ports.rx.north.isReceiving == 0) {
+        IF_SIMULATION_CHAR_OUT('U');
+    }
+#endif
 
     if (ParticleAttributes.ports.rx.east.isReceiving == 1) {
         ParticleAttributes.ports.rx.east.isDataBuffered = true;
@@ -226,8 +226,13 @@ ISR(SOUTH_PIN_CHANGE_INTERRUPT_VECT) {
  * int. #7
  */
 ISR(TX_RX_TIMER_TOP_INTERRUPT_VECT) {
+
     switch (ParticleAttributes.node.state) {
-        // on generate discovery pulse
+        case STATE_TYPE_START:
+        case STATE_TYPE_ACTIVE:
+            break;
+
+            // on generate discovery pulse
         case STATE_TYPE_NEIGHBOURS_DISCOVERY:
         case STATE_TYPE_NEIGHBOURS_DISCOVERED:
         case STATE_TYPE_DISCOVERY_PULSING:
@@ -241,23 +246,24 @@ ISR(TX_RX_TIMER_TOP_INTERRUPT_VECT) {
             TIMER_NEIGHBOUR_SENSE_RESUME;
             break;
 
+            // otherwise process transmission and reception
         default:
-            break;
-    }
-    switch (ParticleAttributes.ports.xmissionState) {
-        case STATE_TYPE_XMISSION_TYPE_ENABLED_TX_RX:
-        case STATE_TYPE_XMISSION_TYPE_ENABLED_TX:
-        case STATE_TYPE_XMISSION_TYPE_ENABLED_RX:
-            // process reception
-            __resetReceptionCounter();
-            __advanceReceptionTimeoutCounters();
-            // process transmission
-            __rectifyTransmissionBit(&ParticleAttributes.ports.tx.north, __northTxHi, __northTxLo);
-            __rectifyTransmissionBit(&ParticleAttributes.ports.tx.east, __eastTxHi, __eastTxLo);
-            __rectifyTransmissionBit(&ParticleAttributes.ports.tx.south, __southTxHi, __southTxLo);
-            break;
+            switch (ParticleAttributes.ports.xmissionState) {
+                case STATE_TYPE_XMISSION_TYPE_ENABLED_TX_RX:
+                case STATE_TYPE_XMISSION_TYPE_ENABLED_TX:
+                case STATE_TYPE_XMISSION_TYPE_ENABLED_RX:
+                    // process reception
+                    __resetReceptionCounter();
+                    __advanceReceptionTimeoutCounters();
+                    // process transmission
+                    __rectifyTransmissionBit(&ParticleAttributes.ports.tx.north, __northTxHi, __northTxLo);
+                    __rectifyTransmissionBit(&ParticleAttributes.ports.tx.east, __eastTxHi, __eastTxLo);
+                    __rectifyTransmissionBit(&ParticleAttributes.ports.tx.south, __southTxHi, __southTxLo);
+                    break;
 
-        default:
+                default:
+                    break;
+            }
             break;
     }
 }
