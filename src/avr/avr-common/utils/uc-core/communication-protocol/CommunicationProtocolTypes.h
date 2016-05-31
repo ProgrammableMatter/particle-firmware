@@ -249,6 +249,7 @@ typedef struct {
 
 typedef union {
     PackageHeader asHeader;
+    PackageHeader asACK;
     PackageHeader asBroadcastHeader;
     PackageHeaderAddress asDedicatedHeader;
     PackageHeaderAddressRange asMulticastHeader;
@@ -262,6 +263,7 @@ typedef union {
     PackageHeaderAddressRangeData11 asMulticastData11;
 
     PackageHeaderData19 asBroadcastData19;
+    PackageHeaderData19 asACKData19;
     PackageHeaderAddressData19 asDedicatedData19;
     PackageHeaderAddressRangeData19 asMulticastData19;
 } Package;
@@ -284,8 +286,8 @@ typedef enum {
     PACKAGE_HEADER_ID_TYPE_PING_REQUEST = 10,
     PACKAGE_HEADER_ID_TYPE_PING_RESPONSE = 11,
     PACKAGE_HEADER_ID_TYPE_HEATING_MODE = 12,
-    PACKAGE_HEADER_ID_TYPE_RESERVED1 = 13,
-    PACKAGE_HEADER_ID_TYPE_RESERVED2 = 14,
+    PACKAGE_HEADER_ID_TYPE_ACK = 13,
+    PACKAGE_HEADER_ID_TYPE_ACK_WITH_DATA = 14,
     PACKAGE_HEADER_ID_TYPE_EXTENDED_HEADER = 15
 } PACKAGE_HEADER_ID;
 
