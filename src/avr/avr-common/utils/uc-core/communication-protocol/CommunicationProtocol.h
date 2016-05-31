@@ -77,10 +77,10 @@ FUNC_ATTRS void constructSendACKPackage(volatile TxPort *txPort) {
 /**
  * Constructs an ACK package with 2 byte data payload (the local address) at the north tx buffer.
  */
-FUNC_ATTRS void constructSendEnumeratedACKNorth(void) {
+FUNC_ATTRS void constructSendEnumeratedACKWithAddressToNorth(void) {
     Package *package = (Package *) ParticleAttributes.ports.tx.north.buffer.bytes;
     PackageHeaderData19 *pha = &package->asACKData19;
-    pha->headerId = PACKAGE_HEADER_ID_TYPE_ACK;
+    pha->headerId = PACKAGE_HEADER_ID_TYPE_ACK_WITH_DATA;
     pha->dataLsb = ParticleAttributes.node.address.row;
     pha->dataCeb = ParticleAttributes.node.address.column;
     ParticleAttributes.ports.tx.north.dataEndPos = PackageHeaderData19BufferPointerSize;
@@ -127,6 +127,7 @@ FUNC_ATTRS void prepareTransmissionPortBuffer(volatile TxPort *o) {
  * sets flags to enable transmission of the given port
  */
 FUNC_ATTRS void releaseTransmissionPortBufferForTransmission(volatile TxPort *port) {
+//    DELAY_US_150;
     port->retainTransmission = true;
     port->enableTransmission = true;
 }
