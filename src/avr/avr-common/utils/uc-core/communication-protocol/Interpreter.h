@@ -54,94 +54,120 @@ FUNC_ATTRS uint8_t __isReasonableBufferSizeOrClearBuffer(volatile RxPort *o) {
 }
 
 /**
- * Read, parse and interpret the specified buffer. The buffer is duplicated, thus
- * reception is possible immediately after copying from reception buffer.
+ * interpret the interpreter buffer according to the particle state as context
  */
-FUNC_ATTRS void __interpretBuffer(volatile RxPort *o) {
-    if (!__isReasonableBufferSizeOrClearBuffer(o)) {
-        return;
-    }
+FUNC_ATTRS void __interpretBufferContextSensitive(volatile RxPort *rxPort, volatile Package *package) {
 
-    // copy buffer
-    for (uint8_t idx = 0; idx < sizeof(o->buffer.bytes); idx++) {
-        ParticleAttributes.interpreter.buffer[idx] = o->buffer.bytes[idx];
-    }
-    // prepare reception buffer for reception
-    o->isDataBuffered = false;
-    o->isOverflowed = false;
+    switch (ParticleAttributes.node.state) { // switch according to node state context
 
-    Package *package = (Package *) ParticleAttributes.interpreter.buffer;
-    // interpret package header id
-    switch (package->asHeader.headerId) {
-        case PACKAGE_HEADER_ID_TYPE_ENUMERATE:
-            ParticleAttributes.node.address.row = package->asDedicatedHeader.addressRow0;
-            ParticleAttributes.node.address.column = package->asDedicatedHeader.addressColumn0;
-            ParticleAttributes.node.state = STATE_TYPE_LOCALLY_ENUMERATED;
+        // state: wait for being enumerated
+        case STATE_TYPE_WAIT_FOR_BEING_ENUMERATED:
+            // expect enumeration package with new address to assign locally
+            switch (package->asHeader.headerId) {
+                case PACKAGE_HEADER_ID_TYPE_ENUMERATE:
+                    ParticleAttributes.node.address.row = package->asDedicatedHeader.addressRow0;
+                    ParticleAttributes.node.address.column = package->asDedicatedHeader.addressColumn0;
+                    ParticleAttributes.node.state = STATE_TYPE_WAIT_FOR_BEING_ENUMERATED_SEND_ACK_RESPONSE_TO_PARENT;
+                    clearReceptionBuffer(rxPort);
+                    break;
+                default:
+                    // otherwise remain in same state
+                    clearReceptionBuffer(rxPort);
+                    break;
+            }
             break;
-        case
-            PACKAGE_HEADER_ID_TYPE_HEAT_WIRES:
+
+            // state: wait for ack response from parent to finish enumeration
+        case STATE_TYPE_WAIT_FOR_BEING_ENUMERATED_ACK_RESPONSE_FROM_PARENT:
+            // expect ack package from parent, otherwise switch back to waiting for enumeration state
+            switch (package->asHeader.headerId) {
+                case PACKAGE_HEADER_ID_TYPE_ACK:
+                    clearReceptionBuffer(rxPort);
+                    // data ok, switch to next state
+                    ParticleAttributes.node.state = STATE_TYPE_LOCALLY_ENUMERATED;
+                    break;
+                case PACKAGE_HEADER_ID_TYPE_ENUMERATE:
+                    // on address reassignment, do not clear buffer but switch state
+                    ParticleAttributes.node.state = STATE_TYPE_WAIT_FOR_BEING_ENUMERATED;
+                    break;
+                default:
+                    // on any other package, clear buffer and switch state
+                    clearReceptionBuffer(rxPort);
+                    ParticleAttributes.node.state = STATE_TYPE_WAIT_FOR_BEING_ENUMERATED;
+                    break;
+            }
             break;
-        case
-            PACKAGE_HEADER_ID_TYPE_HEAT_WIRES_RANGE:
-            break;
-        case
-            PACKAGE_HEADER_ID_TYPE_FORWARDING_ON:
-            break;
-        case
-            PACKAGE_HEADER_ID_TYPE_FORWARDING_OFF:
-            break;
-        case
-            PACKAGE_HEADER_ID_TYPE_NETWORK_GEOMETRY_DISCLOSE:
-            break;
-        case
-            PACKAGE_HEADER_ID_TYPE_NETWORK_GEOMETRY_RESPONSE:
-            break;
-        case
-            PACKAGE_HEADER_ID_TYPE_NETWORK_GEOMETRY_REQUEST:
-            break;
-        case
-            PACKAGE_HEADER_ID_TYPE_RESET:
-            break;
-        case
-            PACKAGE_HEADER_ID_TYPE_VERBOSE_TOGGLE:
-            break;
-        case
-            PACKAGE_HEADER_ID_TYPE_PING_REQUEST:
-            break;
-        case
-            PACKAGE_HEADER_ID_TYPE_PING_RESPONSE:
-            break;
-        case
-            PACKAGE_HEADER_ID_TYPE_HEATING_MODE:
-            break;
-        case
-            PACKAGE_HEADER_ID_TYPE_RESERVED1:
-            break;
-        case
-            PACKAGE_HEADER_ID_TYPE_RESERVED2:
-            break;
-        case
-            PACKAGE_HEADER_ID_TYPE_EXTENDED_HEADER:
+
+            // state: wait for ack response with 2 byte data describing neighbour's address
+        case STATE_TYPE_ENUMERATING_EAST_WAIT_UNTIL_ACK_RESPONSE_FROM_EAST:
+            // if data is ok, then switch to next state, otherwise re-start enumeration
+            switch (package->asHeader.headerId) {
+                case PACKAGE_HEADER_ID_TYPE_ACK_WITH_DATA:
+                    if (package->asACKData19.dataLsb == ParticleAttributes.node.address.row &&
+                        package->asACKData19.dataCeb == (ParticleAttributes.node.address.column + 1)) {
+                        // data ok, switch to next state
+                        ParticleAttributes.node.state = STATE_TYPE_ENUMERATING_EAST_SEND_ACK_RESPONSE_TO_EAST;
+                    }
+                    clearReceptionBuffer(rxPort);
+                    break;
+                default:
+                    // otherwise re-start the enumeration
+                    clearReceptionBuffer(rxPort);
+                    ParticleAttributes.node.state = STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR;
+                    break;
+            }
             break;
         default:
             break;
     }
 }
 
-
 /**
- * interpret reception buffers of all connected ports
+ * Read, parse and interpret the specified buffer.
  */
-FUNC_ATTRS void interpretRxBuffers(void) {
-    if (ParticleAttributes.discoveryPulseCounters.north.isConnected) {
-        __interpretBuffer(&ParticleAttributes.ports.rx.north);
+FUNC_ATTRS void __interpretBuffer(volatile RxPort *rxPort) {
+    // TODO: remove check for received size to the appropriate state, because then
+    // the size can be checked context sensitive
+    if (!__isReasonableBufferSizeOrClearBuffer(rxPort)) {
+        return;
     }
-    if (ParticleAttributes.discoveryPulseCounters.east.isConnected) {
+
+    Package *package = (Package *) rxPort->buffer.bytes;
+    __interpretBufferContextSensitive(rxPort, package);
+}
+
+///**
+// * interpret reception buffers of all connected ports
+// */
+//FUNC_ATTRS void interpretRxBuffers(void) {
+//    if (ParticleAttributes.discoveryPulseCounters.north.isConnected) {
+//        __interpretBuffer(&ParticleAttributes.ports.rx.north);
+//    }
+//    if (ParticleAttributes.discoveryPulseCounters.east.isConnected) {
+//        __interpretBuffer(&ParticleAttributes.ports.rx.east);
+//    }
+//    if (ParticleAttributes.discoveryPulseCounters.south.isConnected) {
+//        __interpretBuffer(&ParticleAttributes.ports.rx.south);
+//    }
+//}
+
+
+FUNC_ATTRS void interpretNorthRxBuffer(void) {
+//    if (ParticleAttributes.discoveryPulseCounters.north.isConnected) {
+    __interpretBuffer(&ParticleAttributes.ports.rx.north);
+//    }
+}
+
+FUNC_ATTRS void interpretEastRxBuffer(void) {
+//    if (ParticleAttributes.discoveryPulseCounters.east.isConnected) {
         __interpretBuffer(&ParticleAttributes.ports.rx.east);
-    }
-    if (ParticleAttributes.discoveryPulseCounters.south.isConnected) {
+//    }
+}
+
+FUNC_ATTRS void interpretSouthRxBuffer(void) {
+//    if (ParticleAttributes.discoveryPulseCounters.south.isConnected) {
         __interpretBuffer(&ParticleAttributes.ports.rx.south);
-    }
+//    }
 }
 
 #  ifdef FUNC_ATTRS
