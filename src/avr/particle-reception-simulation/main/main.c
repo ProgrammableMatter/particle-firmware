@@ -34,13 +34,8 @@ FUNC_ATTRS int particleLoop(void) {
  */
 int main(void) {
     IF_SIMULATION_CHAR_OUT('0');
-    IO_PORTS_SETUP; // configure input/output pins
-    // setup and enable reception (on pin change) interrupts
-    RX_INTERRUPTS_SETUP;
-    RX_INTERRUPTS_ENABLE;
-    // setup and enable reception counter interrupt
-    TIMER_TX_RX_SETUP;
-    //TIMER_TX_RX_TIMEOUT_ENABLE;
+    // configure input/output pins
+    IO_PORTS_SETUP;
 
     ParticleAttributes.discoveryPulseCounters.loopCount = UINT8_MAX;
     constructParticleState(&ParticleAttributes);
@@ -49,9 +44,12 @@ int main(void) {
     RX_INTERRUPTS_CLEAR_PENDING;
     ParticleAttributes.node.type = NODE_TYPE_ORIGIN;
     ParticleAttributes.node.state = STATE_TYPE_IDLE;
-    TIMER_TX_RX_ENABLE;
-    SREG setBit bit(SREG_I);
 
+    clearReceptionBuffers();
+    // setup and enable reception and counter interrupts
+    __enableTxRx();
+
+    SREG setBit bit(SREG_I);
     return particleLoop();
 }
 

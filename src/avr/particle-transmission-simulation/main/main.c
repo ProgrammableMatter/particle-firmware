@@ -55,9 +55,7 @@ int main(void) {
     IO_PORTS_SETUP;
     SOUTH_TX_LO;
     // setup and enable transmission/reception counter interrupt
-    TIMER_TX_RX_SETUP;
-    RX_INTERRUPTS_CLEAR_PENDING;
-    TIMER_TX_RX_ENABLE;
+    __enableTxRx();
 
     DELAY_US_15;
     DELAY_US_15;
