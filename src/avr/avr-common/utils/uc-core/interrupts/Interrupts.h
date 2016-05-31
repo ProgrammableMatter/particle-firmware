@@ -43,23 +43,19 @@ FUNC_ATTRS void __handleInputInterrupt(volatile PulseCounter *discoveryPulseCoun
             }
             break;
 
+        default:
+        IF_SIMULATION_SWITCH_TO_ERRONEOUS_STATE;
+            break;
+    }
+
+    switch (ParticleAttributes.ports.xmissionState) {
             // on data received
-        case STATE_TYPE_WAIT_FOR_BEING_ENUMERATED:
-        case STATE_TYPE_LOCALLY_ENUMERATED:
-        case STATE_TYPE_ENUMERATING_NEIGHBOURS:
-        case STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR:
-        case STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR:
-        case STATE_TYPE_WAIT_UNTIL_ENUMERATION_TRANSMISSIONS_FINISHED:
-        case STATE_TYPE_ENUMERATING_FINISHED:
-        case STATE_TYPE_IDLE:
-        case STATE_TYPE_TX_START:
-        case STATE_TYPE_TX_DONE:
-        case STATE_TYPE_SCHEDULE_COMMAND:
+        case STATE_TYPE_XMISSION_TYPE_ENABLED_TX_RX:
+        case STATE_TYPE_XMISSION_TYPE_ENABLED_RX:
             dispatchReceivedDataEdge(rxPort, isRxHigh);
             break;
 
         default:
-        IF_SIMULATION_SWITCH_TO_ERRONEOUS_STATE;
             break;
     }
 }
@@ -245,28 +241,23 @@ ISR(TX_RX_TIMER_TOP_INTERRUPT_VECT) {
             TIMER_NEIGHBOUR_SENSE_RESUME;
             break;
 
-        case STATE_TYPE_WAIT_FOR_BEING_ENUMERATED:
-        case STATE_TYPE_LOCALLY_ENUMERATED:
-        case STATE_TYPE_ENUMERATING_NEIGHBOURS:
-        case STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR:
-        case STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR:
-        case STATE_TYPE_WAIT_UNTIL_ENUMERATION_TRANSMISSIONS_FINISHED:
-        case STATE_TYPE_ENUMERATING_FINISHED:
-        case STATE_TYPE_IDLE:
-        case STATE_TYPE_TX_START:
-        case STATE_TYPE_TX_DONE:
-        case STATE_TYPE_SCHEDULE_COMMAND:
-            // reception
+        default:
+            break;
+    }
+    switch (ParticleAttributes.ports.xmissionState) {
+        case STATE_TYPE_XMISSION_TYPE_ENABLED_TX_RX:
+        case STATE_TYPE_XMISSION_TYPE_ENABLED_TX:
+        case STATE_TYPE_XMISSION_TYPE_ENABLED_RX:
+            // process reception
             __resetReceptionCounter();
             __advanceReceptionTimeoutCounters();
-            // transmission
+            // process transmission
             __rectifyTransmissionBit(&ParticleAttributes.ports.tx.north, __northTxHi, __northTxLo);
             __rectifyTransmissionBit(&ParticleAttributes.ports.tx.east, __eastTxHi, __eastTxLo);
             __rectifyTransmissionBit(&ParticleAttributes.ports.tx.south, __southTxHi, __southTxLo);
             break;
 
         default:
-
             break;
     }
 }
@@ -274,31 +265,23 @@ ISR(TX_RX_TIMER_TOP_INTERRUPT_VECT) {
 
 /**
  * On timer_counter compare register B match. If there are bits to transmit, this interrupt
- * generates the signal(s) according to the state.
+ * generates the signal(s) according to the state, otherwise only timeout counters are processed.
  * int. #8
  */
-ISR(TX_TIMER_CENTER_INTERRUPT_VECT) {
+ISR(TX_RX_TIMER_CENTER_INTERRUPT_VECT) {
 //    IF_SIMULATION_CHAR_OUT('i');
-    switch (ParticleAttributes.node.state) {
-        // on receive data counter compare
-        case STATE_TYPE_WAIT_FOR_BEING_ENUMERATED:
-        case STATE_TYPE_LOCALLY_ENUMERATED:
-        case STATE_TYPE_ENUMERATING_NEIGHBOURS:
-        case STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR:
-        case STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR:
-        case STATE_TYPE_WAIT_UNTIL_ENUMERATION_TRANSMISSIONS_FINISHED:
-        case STATE_TYPE_ENUMERATING_FINISHED:
-        case STATE_TYPE_IDLE:
-        case STATE_TYPE_TX_START:
-        case STATE_TYPE_TX_DONE:
-        case STATE_TYPE_SCHEDULE_COMMAND:
-            // reception
+    switch (ParticleAttributes.ports.xmissionState) {
+        case STATE_TYPE_XMISSION_TYPE_ENABLED_TX_RX:
+        case STATE_TYPE_XMISSION_TYPE_ENABLED_TX:
+        case STATE_TYPE_XMISSION_TYPE_ENABLED_RX:
+            // process reception
             __advanceReceptionTimeoutCounters();
-            // transmission
+            // process transmission
             __modulateTransmissionBit(&ParticleAttributes.ports.tx.north, __northTxHi, __northTxLo);
             __modulateTransmissionBit(&ParticleAttributes.ports.tx.east, __eastTxHi, __eastTxLo);
             __modulateTransmissionBit(&ParticleAttributes.ports.tx.south, __southTxHi, __southTxLo);
             break;
+
         default:
             break;
     }
@@ -311,17 +294,18 @@ ISR(TX_TIMER_CENTER_INTERRUPT_VECT) {
  * port. A timeout indicates a fully received transmission.
  * int. #20
  */
-ISR(TX_RX_TIMEOUT_INTERRUPT_VECT) {
-    switch (ParticleAttributes.node.state) {
-        case STATE_TYPE_IDLE:
-        case STATE_TYPE_TX_START:
-        case STATE_TYPE_TX_DONE:
-        case STATE_TYPE_SCHEDULE_COMMAND:
-            break;
-        default:
-            break;
-    }
-}
+EMPTY_INTERRUPT(TX_RX_TIMEOUT_INTERRUPT_VECT)
+//{
+//    switch (ParticleAttributes.node.state) {
+//        case STATE_TYPE_IDLE:
+//        case STATE_TYPE_TX_START:
+//        case STATE_TYPE_TX_DONE:
+//        case STATE_TYPE_SCHEDULE_COMMAND:
+//            break;
+//        default:
+//            break;
+//    }
+//}
 
 # ifdef SIMULATION
 

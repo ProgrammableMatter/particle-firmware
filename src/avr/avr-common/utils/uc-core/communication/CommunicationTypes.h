@@ -17,6 +17,16 @@
 #  endif
 
 /**
+ * describes the transmission/reception states
+ */
+typedef enum {
+    STATE_TYPE_XMISSION_TYPE_ENABLED_TX = 0, // transmission only
+    STATE_TYPE_XMISSION_TYPE_ENABLED_TX_RX, // tx/rx
+    STATE_TYPE_XMISSION_TYPE_ENABLED_RX, // reception only
+    STATE_TYPE_XMISSION_TYPE_DISABLED_TX_RX // tx/rx disabled
+} XmissionType;
+
+/**
  * Describes a bit within a 4 byte buffer.
  */
 typedef struct {
@@ -140,11 +150,13 @@ FUNC_ATTRS void constructRxPorts(volatile RxPorts *o) {
 typedef struct {
     TxPorts tx;
     RxPorts rx;
+    XmissionType xmissionState;
 } Ports; // 27 + 33 = 60 bytes total
 
 FUNC_ATTRS void constructPorts(volatile Ports *o) {
     constructTxPorts(&(o->tx));
     constructRxPorts(&(o->rx));
+    o->xmissionState = STATE_TYPE_XMISSION_TYPE_DISABLED_TX_RX;
 }
 
 /**
