@@ -33,7 +33,7 @@
 
 #if defined(__AVR_ATtiny1634__) || defined(__AVR_ATmega16__)
 #  define TX_RX_TIMER_TOP_INTERRUPT_VECT TIMER1_COMPA_vect
-#  define TX_TIMER_CENTER_INTERRUPT_VECT TIMER1_COMPB_vect
+#  define TX_RX_TIMER_CENTER_INTERRUPT_VECT TIMER1_COMPB_vect
 #endif
 
 #endif
