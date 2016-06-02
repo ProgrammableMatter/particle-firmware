@@ -23,29 +23,17 @@ class Plotter:
         """
         Create a new figure and plot data using blue, square markers.
         """
-        points = plt.plot(xValues, yValues)  # line plot
+        points = plt.plot(xValues, yValues, linestyle="-", color="b", marker=".", picker=5)  # line plot
 
-        for x,y,a in zip(xValues, yValues, annotations) :
-            point, = plt.plot(x,y, ".r", picker=5)
-            annotation = point.axes.annotate("%s" % a, xy=(x, y), xycoords='data',
+        for x,y,a in zip(points[0]._x, points[0]._y, annotations):
+            annotation = points[0].axes.annotate("%s" % a, xy=(x, y), xycoords='data',
                                                  xytext=(x, y), textcoords='data',
                                                  horizontalalignment="center",
                                                  arrowprops=dict(arrowstyle="simple", connectionstyle="arc3,rad=-0.2"),
                                                  bbox=dict(boxstyle="round", facecolor="w", edgecolor="0.5", alpha=0.9)
                                                  )
             annotation.set_visible(False)
-            self.pointAnnotations.append([point, annotation])
-
-        #
-        # for x, y, a in zip(points[0]._x, points[0]._y, annotations):
-        #     annotation = points[0].axes.annotate("%s" % a, xy=(x, y), xycoords='data',
-        #                                      xytext=(x + 1, y), textcoords='data',
-        #                                      horizontalalignment="left",
-        #                                      arrowprops=dict(arrowstyle="simple", connectionstyle="arc3,rad=-0.2"),
-        #                                      bbox=dict(boxstyle="round", facecolor="w", edgecolor="0.5", alpha=0.9)
-        #                                      )
-        #     annotation.set_visible(False)
-        #     self.pointAnnotations.append([points[0], annotation])
+            self.pointAnnotations.append([(float(x),float(y)), annotation])
 
         plt.title(title)
         plt.xlabel(xLabel)
@@ -100,31 +88,35 @@ class Plotter:
         plt.subplots_adjust(left=self.leftMargin, right=self.rightMargin, top=self.topMargin, bottom=self.bottomMargin,
                             hspace=self.hSpace, wspace=self.wSpace)
 
+
         def __onPick(event):
-            visibility_changed = False
-            for point, annotation in self.pointAnnotations:
-                should_be_visible = (point.contains(event.mouseevent)[0] == True)
+            """
+            Changes the annotation's visibility according to the mous event
 
-                if should_be_visible != annotation.get_visible():
-                    visibility_changed = True
-                    annotation.set_visible(should_be_visible)
+            :param event:
+            :return:
+            """
+            thisline = event.artist
+            xdata = thisline.get_xdata()
+            ydata = thisline.get_ydata()
+            ind = event.ind
+            eventPoints = zip(xdata[ind], ydata[ind])
 
-            if visibility_changed:
+            for eventPoint in eventPoints:
+                isVisibilityChanged = False
+                for chartPoint, annotation in self.pointAnnotations:
+                    if (float(eventPoint[0]),float(eventPoint[1])) == (float(chartPoint[0]),float(chartPoint[1])):
+                        if annotation.get_visible() == False:
+                            annotation.set_visible(True)
+                            isVisibilityChanged = True
+                    else:
+                        if annotation.get_visible() == True:
+                            annotation.set_visible(False)
+                            isVisibilityChanged = True
+
+            if isVisibilityChanged:
                 plt.draw()
 
-        def __onMove(event):
-            visibility_changed = False
-            for point, annotation in self.pointAnnotations:
-                should_be_visible = (point.contains(event)[0] == True)
-
-                if should_be_visible != annotation.get_visible():
-                    visibility_changed = True
-                    annotation.set_visible(should_be_visible)
-
-            if visibility_changed:
-                plt.draw()
-
-        # on_move_id = figure.canvas.mpl_connect('motion_notify_event', __onMove)
         figure.canvas.mpl_connect('pick_event', __onPick)
         plt.show()
 
