@@ -7,15 +7,16 @@ class Sample:
 
     @staticmethod
     def toTuple(sample):
-        return (sample.timeStampPicoSeconds, float(sample.value))
+        return (sample.timeStampPicoSeconds, float(sample.value), sample.annotation)
 
     @staticmethod
     def fromTuple(tuple):
-        return Sample(tuple[0], tuple[1])
+        return Sample(tuple[0], tuple[1], tuple[2])
 
-    def __init__(self, timeStampPicoSeconds, value):
+    def __init__(self, timeStampPicoSeconds, value, annotation):
         self.timeStampPicoSeconds = timeStampPicoSeconds
         self.value = value
+        self.annotation = annotation
 
 
 class SampleFilter:
@@ -91,9 +92,9 @@ class Filter:
         if sampleFilter.nodeId in self.nodeIdToDomainToNameToSamples.keys():
             if sampleFilter.domain in self.nodeIdToDomainToNameToSamples[sampleFilter.nodeId]:
                 if sampleFilter.name in self.nodeIdToDomainToNameToSamples[sampleFilter.nodeId][sampleFilter.domain]:
-                    x, y = map(list, zip(*self.nodeIdToDomainToNameToSamples[sampleFilter.nodeId][sampleFilter.domain][
+                    x, y, annotation = map(list, zip(*self.nodeIdToDomainToNameToSamples[sampleFilter.nodeId][sampleFilter.domain][
                         sampleFilter.name]))
-                    return (x, y)
+                    return (x, y, annotation)
         return (None, None)
 
     def removeSamples(self, sampleFilter):
@@ -147,9 +148,11 @@ class Filter:
                         if Sample.fromTuple(lastSample[0]).timeStampPicoSeconds == picoSeconds:
                             picoSeconds = picoSeconds + 1
 
-                    sampleAsTuple = Sample.toTuple(Sample(picoSeconds, self.__toDoubleValue(state)))
-                    self.nodeIdToDomainToNameToSamples[nodeId][domain][name].append(sampleAsTuple)
-                    # print("%s == %s" % (SampleFilter.toString(sampleFilter), state))
+                    doubleValue = self.__toDoubleValue(state)
+                    if doubleValue != None:
+                        sampleAsTuple = Sample.toTuple(Sample(picoSeconds, doubleValue, state))
+                        self.nodeIdToDomainToNameToSamples[nodeId][domain][name].append(sampleAsTuple)
+                        # print("%s == %s" % (SampleFilter.toString(sampleFilter), state))
 
     def __timeStampToPicoSeconds(self, matchedTimeStampRegexpGroups):
         """
@@ -178,5 +181,8 @@ class Filter:
         if value in self.discreteToValueMapping.keys():
             return self.discreteToValueMapping[value]
         else:
-            return float(value)
+            try:
+                return float(value)
+            except:
+                return None
 
