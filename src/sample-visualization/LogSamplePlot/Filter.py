@@ -94,8 +94,8 @@ class Filter:
                 if sampleFilter.name in self.nodeIdToDomainToNameToSamples[sampleFilter.nodeId][sampleFilter.domain]:
                     x, y, annotation = map(list, zip(*self.nodeIdToDomainToNameToSamples[sampleFilter.nodeId][sampleFilter.domain][
                         sampleFilter.name]))
-                    return (x, y, annotation)
-        return (None, None)
+                    return x, y, annotation
+        return None, None, None
 
     def removeSamples(self, sampleFilter):
         """

@@ -11,14 +11,14 @@ if __name__ == "__main__":
     # transmission wire plot
     transmissionWirefilter = fltr.SampleFilter(domain="WIRE", name="tx-south", nodeId=1)
     filter.filter(transmissionWirefilter)
-    xData, yData = filter.getData(transmissionWirefilter)
-    plotter.addPlot(xData, yData, "tx-south [1]")
+    xData, yData, annotations = filter.getData(transmissionWirefilter)
+    plotter.addPlot(xData, yData, annotations, "tx-south [1]")
 
     # reception wire plot
     receptionWireFilter = fltr.SampleFilter(domain="WIRE", name="rx-north", nodeId=0)
     filter.filter(receptionWireFilter)
-    xData, yData = filter.getData(receptionWireFilter)
-    plotter.addPlot(xData, yData, "rx-north [0]")
+    xData, yData, annotations = filter.getData(receptionWireFilter)
+    plotter.addPlot(xData, yData, annotations, "rx-north [0]")
 
     # interrupt: timer/counter1 plots
     interruptName = "NORTH_RECEPTION"
