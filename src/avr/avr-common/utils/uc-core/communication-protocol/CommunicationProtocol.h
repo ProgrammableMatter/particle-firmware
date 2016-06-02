@@ -111,6 +111,7 @@ FUNC_ATTRS void clearReceptionBuffer(volatile RxPort *o) {
     o->isDataBuffered = false;
     o->isReceiving = false;
     o->isOverflowed = false;
+    IF_SIMULATION_CHAR_OUT('c');
 }
 
 
@@ -121,6 +122,7 @@ FUNC_ATTRS void prepareTransmissionPortBuffer(volatile TxPort *o) {
     o->enableTransmission = false;
     o->retainTransmission = true;
     o->isTransmitting = false;
+    bufferBitPointerStart(&o->buffer.pointer);
 }
 
 /**

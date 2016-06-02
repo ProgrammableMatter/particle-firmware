@@ -39,17 +39,18 @@ int main(void) {
     ParticleAttributes.node.state = STATE_TYPE_TX_START;
     ParticleAttributes.node.type = NODE_TYPE_MASTER;
 
-    bufferBitPointerStart(&ParticleAttributes.ports.tx.south.buffer.pointer);
-    ParticleAttributes.ports.tx.south.dataEndPos.byteNumber = 6;
-    ParticleAttributes.ports.tx.south.dataEndPos.bitMask = 0x80;
+    prepareTransmissionPortBuffer(&ParticleAttributes.ports.tx.south);
+    ParticleAttributes.ports.tx.south.dataEndPos.bitMask = 1;
+    ParticleAttributes.ports.tx.south.dataEndPos.byteNumber = 7;
 
-    ParticleAttributes.ports.tx.south.buffer.bytes[6] = 0b10100111; // == 0xa7 => 0xe5
-    ParticleAttributes.ports.tx.south.buffer.bytes[5] = 0b10101010; // == 0xaa => 0x55
-    ParticleAttributes.ports.tx.south.buffer.bytes[4] = 0b10101010; // == 0xaa => 0x55
-    ParticleAttributes.ports.tx.south.buffer.bytes[3] = 0b10100111; // == 0xa7 => 0xe5
-    ParticleAttributes.ports.tx.south.buffer.bytes[2] = 0b10101010; // == 0xaa => 0x55
-    ParticleAttributes.ports.tx.south.buffer.bytes[1] = 0b10101010; // == 0xaa => 0x55
-    ParticleAttributes.ports.tx.south.buffer.bytes[0] = 0b10100111; // == 0xa7 => 0xe5
+    ParticleAttributes.ports.tx.south.buffer.bytes[0] = 0b10100111; // == 0xa7
+    ParticleAttributes.ports.tx.south.buffer.bytes[1] = 0b10101010; // == 0xaa
+    ParticleAttributes.ports.tx.south.buffer.bytes[2] = 0b10101010; // == 0xaa
+    ParticleAttributes.ports.tx.south.buffer.bytes[3] = 0b10100111; // == 0xa7
+    ParticleAttributes.ports.tx.south.buffer.bytes[4] = 0b10101010; // == 0xaa
+    ParticleAttributes.ports.tx.south.buffer.bytes[5] = 0b10101010; // == 0xaa
+    ParticleAttributes.ports.tx.south.buffer.bytes[6] = 0b10100111; // == 0xa7
+    ParticleAttributes.ports.tx.south.enableTransmission = true;
 
     // configure input/output pins
     IO_PORTS_SETUP;
@@ -69,18 +70,14 @@ int main(void) {
     DELAY_US_15;
     DELAY_US_15;
 
-    ParticleAttributes.ports.tx.south.retainTransmission = true;
-    ParticleAttributes.ports.tx.south.enableTransmission = true;
-
     SREG setBit bit(SREG_I);
 
-    particleLoop();
+//    particleLoop();
     while (ParticleAttributes.node.state != STATE_TYPE_TX_DONE);
     TIMER_TX_RX_DISABLE;
     ParticleAttributes.node.state = STATE_TYPE_STALE;
 
     forever;
-    return 0;
 }
 
 #ifdef FUNC_ATTRS

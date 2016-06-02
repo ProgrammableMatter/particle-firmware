@@ -61,7 +61,7 @@ ISR(TX_COUNTER_CENTER) {
             SOUTH_TX_HI;
 //            IF_SIMULATION_INT16_OUT(TCNT1);
         }
-        bufferBitPointerNext(&ParticleAttributes.ports.tx.south.buffer.pointer);
+        bufferBitPointerIncrement(&ParticleAttributes.ports.tx.south.buffer.pointer);
     }
 }
 

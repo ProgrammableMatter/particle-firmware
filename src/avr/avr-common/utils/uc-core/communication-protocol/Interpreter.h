@@ -59,13 +59,11 @@ FUNC_ATTRS void interpretRxBuffer(volatile RxPort *rxPort) {
 
     IF_SIMULATION_CHAR_OUT('I');
     if (!isNotReceiving(rxPort)) {
+        IF_SIMULATION_CHAR_OUT('i');
         return;
     }
 
-    IF_SIMULATION_CHAR_OUT('i');
-
     Package *package = (Package *) rxPort->buffer.bytes;
-
     switch (ParticleAttributes.node.state) { // switch according to node state context
 
         // state: wait for being enumerated
@@ -81,6 +79,7 @@ FUNC_ATTRS void interpretRxBuffer(volatile RxPort *rxPort) {
                         ParticleAttributes.node.state = STATE_TYPE_WAIT_FOR_BEING_ENUMERATED_SEND_ACK_RESPONSE_TO_PARENT;
                     }
                     clearReceptionBuffer(rxPort);
+
                     break;
                 default:
                     IF_SIMULATION_CHAR_OUT('e');
@@ -95,14 +94,14 @@ FUNC_ATTRS void interpretRxBuffer(volatile RxPort *rxPort) {
             switch (package->asHeader.headerId) {
                 case PACKAGE_HEADER_ID_TYPE_ACK:
                     clearReceptionBuffer(rxPort);
-                    IF_SIMULATION_CHAR_OUT('A');
+                    IF_SIMULATION_CHAR_OUT('K');
                     // data ok, switch to next state
                     ParticleAttributes.node.state = STATE_TYPE_LOCALLY_ENUMERATED;
                     break;
                 case PACKAGE_HEADER_ID_TYPE_ENUMERATE:
                     // on address reassignment, do not clear buffer but switch state
                     ParticleAttributes.node.state = STATE_TYPE_WAIT_FOR_BEING_ENUMERATED;
-                    IF_SIMULATION_CHAR_OUT('w');
+                    IF_SIMULATION_CHAR_OUT('W');
                     break;
                 default:
                     // on any other package, clear buffer and switch state
@@ -118,7 +117,7 @@ FUNC_ATTRS void interpretRxBuffer(volatile RxPort *rxPort) {
             // if data is ok, then switch to next state, otherwise re-start enumeration
             switch (package->asHeader.headerId) {
                 case PACKAGE_HEADER_ID_TYPE_ACK_WITH_DATA:
-                    IF_SIMULATION_CHAR_OUT('R');
+                    IF_SIMULATION_CHAR_OUT('T');
                     if (package->asACKData19.dataLsb == ParticleAttributes.node.address.row &&
                         package->asACKData19.dataCeb == (ParticleAttributes.node.address.column + 1)) {
                         // data ok, switch to next state
@@ -128,7 +127,7 @@ FUNC_ATTRS void interpretRxBuffer(volatile RxPort *rxPort) {
                     break;
                 default:
                     // otherwise re-start the enumeration
-                    IF_SIMULATION_CHAR_OUT('r');
+                    IF_SIMULATION_CHAR_OUT('t');
                     clearReceptionBuffer(rxPort);
                     ParticleAttributes.node.state = STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR;
                     break;
@@ -137,6 +136,8 @@ FUNC_ATTRS void interpretRxBuffer(volatile RxPort *rxPort) {
         default:
             break;
     }
+
+    IF_SIMULATION_CHAR_OUT('i');
 }
 
 #  ifdef FUNC_ATTRS

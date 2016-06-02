@@ -45,7 +45,7 @@ FUNC_ATTRS void __storeDataBit(volatile RxPort *rxPort, const volatile uint8_t i
             IF_SIMULATION_CHAR_OUT('0');
             rxPort->buffer.bytes[rxPort->buffer.pointer.byteNumber] unsetBit rxPort->buffer.pointer.bitMask;
         }
-        bufferBitPointerNext(&(rxPort->buffer.pointer));
+        bufferBitPointerIncrement(&rxPort->buffer.pointer);
     } else {
         rxPort->isOverflowed = true;
     }
@@ -99,14 +99,14 @@ FUNC_ATTRS void dispatchReceivedDataEdge(volatile RxPort *rxPort,
     else { // if signal occurs approx. at 1/2 of a package clock
         if ((TX_RX_RECEPTION_CLASSIFICATION_VALUE_LEFT_BORDER <= captureCounter) &&
             (captureCounter <= TX_RX_RECEPTION_CLASSIFICATION_VALUE_RIGHT_BORDER)) {
-            IF_SIMULATION_CHAR_OUT('B');
+//            IF_SIMULATION_CHAR_OUT('B');
             __storeDataBit(rxPort, isRisingEdge);
         }
         else // if signal occurs approx. at the end/beginning of a package clock
         {
             // re-adjust reception offset
             rxPort->adjustment.receptionOffset = TIMER_TX_RX_COMPARE_TOP_VALUE - hardwareCounter;
-            IF_SIMULATION_CHAR_OUT('A');
+//            IF_SIMULATION_CHAR_OUT('A');
         }
     }
     rxPort->isReceiving = __RECEPTION_TIMEOUT_COUNTER_MAX;

@@ -162,9 +162,9 @@ FUNC_ATTRS void constructPorts(volatile Ports *o) {
 /**
  * Increments the bit mask and the byte number accordingly. Does not verify the buffer boundary.
  */
-FUNC_ATTRS void bufferBitPointerNext(volatile BufferBitPointer *o) {
+FUNC_ATTRS void bufferBitPointerIncrement(volatile BufferBitPointer *o) {
     o->bitMask <<= 1;
-    if ((o->bitMask == 0) && (o->byteNumber < (sizeof(((PortBuffer *) 0)->bytes) - 1))) {
+    if ((o->bitMask == 0) && (o->byteNumber < (sizeof(((PortBuffer *) 0)->bytes)))) {
         o->bitMask = 1;
         o->byteNumber++;
     }
@@ -179,7 +179,7 @@ FUNC_ATTRS void bufferBitPointerStart(volatile BufferBitPointer *o) {
 }
 
 /**
- * returns true if the transmission buffer pointer position equals to the tx port's data end position
+ * returns true if the transmission buffer pointer points beyond the tx port's data
  */
 FUNC_ATTRS bool isDataEnd(volatile TxPort *o) {
     return o->dataEndPos.bitMask == o->buffer.pointer.bitMask &&

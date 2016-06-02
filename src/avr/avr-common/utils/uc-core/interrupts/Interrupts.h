@@ -130,12 +130,13 @@ FUNC_ATTRS void __modulateTransmissionBit(volatile TxPort *txPort, void (*txHiIm
             txPort->retainTransmission = true; // stop transmission on empty buffer
         } else {
             // write data bit to output (inverted)
-            if (txPort->buffer.pointer.bitMask & txPort->buffer.bytes[txPort->buffer.pointer.byteNumber]) {
+            if (txPort->buffer.pointer.bitMask &
+                txPort->buffer.bytes[txPort->buffer.pointer.byteNumber]) {
                 txLoImpl();
             } else {
                 txHiImpl();
             }
-            bufferBitPointerNext(&txPort->buffer.pointer);
+            bufferBitPointerIncrement(&txPort->buffer.pointer);
         }
     }
     else if (txPort->enableTransmission == true) {
@@ -276,19 +277,33 @@ ISR(TX_RX_TIMER_TOP_INTERRUPT_VECT) {
  */
 ISR(TX_RX_TIMER_CENTER_INTERRUPT_VECT) {
 //    IF_SIMULATION_CHAR_OUT('i');
-    switch (ParticleAttributes.ports.xmissionState) {
-        case STATE_TYPE_XMISSION_TYPE_ENABLED_TX_RX:
-        case STATE_TYPE_XMISSION_TYPE_ENABLED_TX:
-        case STATE_TYPE_XMISSION_TYPE_ENABLED_RX:
-            // process reception
-            __advanceReceptionTimeoutCounters();
-            // process transmission
-            __modulateTransmissionBit(&ParticleAttributes.ports.tx.north, __northTxHi, __northTxLo);
-            __modulateTransmissionBit(&ParticleAttributes.ports.tx.east, __eastTxHi, __eastTxLo);
-            __modulateTransmissionBit(&ParticleAttributes.ports.tx.south, __southTxHi, __southTxLo);
+    switch (ParticleAttributes.node.state) {
+        case STATE_TYPE_START:
+        case STATE_TYPE_ACTIVE:
+            break;
+
+            // on generate discovery pulse
+        case STATE_TYPE_NEIGHBOURS_DISCOVERY:
+        case STATE_TYPE_NEIGHBOURS_DISCOVERED:
+        case STATE_TYPE_DISCOVERY_PULSING:
             break;
 
         default:
+            switch (ParticleAttributes.ports.xmissionState) {
+                case STATE_TYPE_XMISSION_TYPE_ENABLED_TX_RX:
+                case STATE_TYPE_XMISSION_TYPE_ENABLED_TX:
+                case STATE_TYPE_XMISSION_TYPE_ENABLED_RX:
+                    // process reception
+                    __advanceReceptionTimeoutCounters();
+                    // process transmission
+                    __modulateTransmissionBit(&ParticleAttributes.ports.tx.north, __northTxHi, __northTxLo);
+                    __modulateTransmissionBit(&ParticleAttributes.ports.tx.east, __eastTxHi, __eastTxLo);
+                    __modulateTransmissionBit(&ParticleAttributes.ports.tx.south, __southTxHi, __southTxLo);
+                    break;
+
+                default:
+                    break;
+            }
             break;
     }
 }
