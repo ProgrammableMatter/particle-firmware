@@ -52,7 +52,7 @@ class Plotter:
         lastSample = sortedSamples[0]
         discretizedSamples.append(lastSample)
         for sample in sortedSamples[1:]:
-            discretizedSamples.append((sample[0] - 1, lastSample[1], ""))
+            discretizedSamples.append((sample[0] - 1, lastSample[1], lastSample[2]))
             discretizedSamples.append(sample)
             lastSample = sample
 
