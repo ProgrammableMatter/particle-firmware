@@ -65,5 +65,6 @@ if __name__ == "__main__":
     filter.setValueMapping(receptionInterruptValueMapping)
     pltr.addPlot(filter, plotter, title="SRAM[char-out] - States", nodeId=0, domain="SRAM", name="char-out")
 
+    plotter.setWindowTitle("Transmission Simulation")
     filter.printValues()
     plotter.plot()

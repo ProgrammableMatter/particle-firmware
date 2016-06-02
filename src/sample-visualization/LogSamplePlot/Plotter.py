@@ -18,6 +18,7 @@ class Plotter:
         self.maxX = 0
         self.maxY = 0
         self.pointAnnotations = []
+        self.windowTitle = ""
 
     def __newSubplot(self, xValues, yValues, annotations, title="Title", xLabel="", yLabel=""):
         """
@@ -25,7 +26,8 @@ class Plotter:
         """
         points = plt.plot(xValues, yValues, linestyle="-", color="b", marker=".", picker=5)  # line plot
 
-        for x,y,a in zip(points[0]._x, points[0]._y, annotations):
+
+        for x, y, a in zip(points[0]._x, points[0]._y, annotations):
             annotation = points[0].axes.annotate("%s" % a, xy=(x, y), xycoords='data',
                                                  xytext=(x, y), textcoords='data',
                                                  horizontalalignment="center",
@@ -33,26 +35,29 @@ class Plotter:
                                                  bbox=dict(boxstyle="round", facecolor="w", edgecolor="0.5", alpha=0.9)
                                                  )
             annotation.set_visible(False)
-            self.pointAnnotations.append([(float(x),float(y)), annotation])
+            self.pointAnnotations.append([(float(x), float(y)), annotation])
 
         plt.title(title)
         plt.xlabel(xLabel)
         plt.ylabel(yLabel)
         plt.grid()
 
+    def setWindowTitle(self, title):
+        self.windowTitle = title
+
     def addPlot(self, xData, yData, annotations, title, xLabel="", yLabel=""):
 
         if xData == None or yData == None:
             return
 
-        sortedSamples = sorted(zip(xData,yData, annotations))
+        sortedSamples = sorted(zip(xData, yData, annotations))
 
         # to achieve a rectangular path on chart, before the next event we must add the last y value
         discretizedSamples = []
         lastSample = sortedSamples[0]
         discretizedSamples.append(lastSample)
         for sample in sortedSamples[1:]:
-            discretizedSamples.append((sample[0] - 1, lastSample[1], lastSample[2]))
+            discretizedSamples.append((sample[0] - 1, lastSample[1], "(" + lastSample[2] + ")"))
             discretizedSamples.append(sample)
             lastSample = sample
 
@@ -65,15 +70,19 @@ class Plotter:
         self.plots.append((xData, yData, title, xLabel, yLabel, maxY, annotations))
 
     def plot(self):
-        figure = plt.figure()
+        fig = plt.figure()
         plt.subplots_adjust(hspace=0.6)
 
         rows = len(self.plots)
         columns = 1
         row = 1
 
+        def formatCoord(x, y):
+            return 't={:1.9f}[ms], y={:}'.format(x * 10E-10, y)
+
         for plot in self.plots:
-            plt.subplot(rows, columns, row)
+            ax = plt.subplot(rows, columns, row)
+            ax.format_coord = formatCoord
             xData = plot[0]
             yData = plot[1]
             title = plot[2]
@@ -84,10 +93,10 @@ class Plotter:
             self.__newSubplot(xData, yData, annotations, title, xLabel, yLabel)
             row = row + 1
             plt.axis([0, self.maxX, -0.2, yMax + 0.2])
-        figure.tight_layout()
+        fig.tight_layout()
         plt.subplots_adjust(left=self.leftMargin, right=self.rightMargin, top=self.topMargin, bottom=self.bottomMargin,
                             hspace=self.hSpace, wspace=self.wSpace)
-
+        fig.canvas.set_window_title(self.windowTitle)
 
         def __onPick(event):
             """
@@ -105,7 +114,7 @@ class Plotter:
             for eventPoint in eventPoints:
                 isVisibilityChanged = False
                 for chartPoint, annotation in self.pointAnnotations:
-                    if (float(eventPoint[0]),float(eventPoint[1])) == (float(chartPoint[0]),float(chartPoint[1])):
+                    if (float(eventPoint[0]), float(eventPoint[1])) == (float(chartPoint[0]), float(chartPoint[1])):
                         if annotation.get_visible() == False:
                             annotation.set_visible(True)
                             isVisibilityChanged = True
@@ -117,9 +126,8 @@ class Plotter:
             if isVisibilityChanged:
                 plt.draw()
 
-        figure.canvas.mpl_connect('pick_event', __onPick)
+        fig.canvas.mpl_connect('pick_event', __onPick)
         plt.show()
-
 
 
 def addInterruptPlot(filter, plotter, title, nodeId=0, interruptToNumberMapping={}, facet="post",
@@ -254,3 +262,20 @@ if __name__ == "__main__":
 
     filter.printValues()
     plotter.plot()
+
+
+def reMapAnnotation(oldAnnotation, oldToNewMapping):
+    """
+    Maps an annotation list to a new according to the given mapping.
+    
+    :param oldAnnotation: the original annotation 
+    :param oldToNewMapping: the mapping
+    :return: the new annotation list
+    """
+    newAnnotationList = []
+    for a in oldAnnotation:
+        if oldToNewMapping[a] == None:
+            newAnnotationList.append(a)
+        else:
+            newAnnotationList.append(oldToNewMapping[a])
+    return newAnnotationList
