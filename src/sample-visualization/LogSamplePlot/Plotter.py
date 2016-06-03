@@ -40,7 +40,7 @@ class Plotter:
             annotation.set_visible(False)
             self.pointAnnotations.append([(float(x), float(y)), annotation])
 
-        plt.title(title)
+        plt.title(title, y=0.5)
         plt.xlabel(xLabel)
         plt.ylabel(yLabel)
         plt.grid()
@@ -168,8 +168,8 @@ def addInterruptPlot(filter, plotter, title, nodeId=0, interruptToNumberMapping=
     filter.filter(interruptSampleFilter)
     try:
         xData, yData, annotations = filter.getData(interruptSampleFilter)
-        plotter.addPlot(xData, yData, annotations,
-                        interruptToNumberMapping[interruptName] + " - " + title)  # , yAxisDescription),
+        plotter.addPlot(xData, yData, annotations, title + " " +
+                        interruptToNumberMapping[interruptName])  # , yAxisDescription),
         # interruptDomainToName[facet])
     except:
         print("cannot add plot [" + title + "] for %s[%s]" % ("INT", name))
