@@ -1,11 +1,10 @@
 from LogSamplePlot import Plotter as pltr
-
 from LogSamplePlot import Filter as fltr
-
-from Config import Mappings as config
+from Config import Mappings as mappingConfig
+from Config import Input as inputConfig
 
 if __name__ == "__main__":
-    filter = fltr.Filter("/tmp/particle-state.log", config.wireToFloatValueMapping)
+    filter = fltr.Filter(inputConfig.logFile, mappingConfig.wireToFloatValueMapping)
     plotter = pltr.Plotter()
 
     # transmission wire plot
@@ -22,39 +21,39 @@ if __name__ == "__main__":
 
     # interrupt: timer/counter1 plots
     interruptName = "NORTH_RECEPTION"
-    filter.setValueMapping(config.interruptToFloatValueMapping)
+    filter.setValueMapping(mappingConfig.interruptToFloatValueMapping)
 
     pltr.addInterruptPlot(filter, plotter, title="un-/posting [0]", nodeId=0,
-                          interruptToNumberMapping=config.interruptToNumberMapping, facet="post",
+                          interruptToNumberMapping=mappingConfig.interruptToNumberMapping, facet="post",
                           interruptName=interruptName)
     # addInterruptPlot(title="en-/disabling", nodeId=0, domain="enable", interruptName=interruptName,
     #                  interruptNameAlias="#0-enable")
     pltr.addInterruptPlot(filter, plotter, title="call/return [0]", nodeId=0,
-                          interruptToNumberMapping=config.interruptToNumberMapping, facet="invoke",
+                          interruptToNumberMapping=mappingConfig.interruptToNumberMapping, facet="invoke",
                           interruptName=interruptName)
 
     interruptName = "TX_RX_TIMER_TOP"
     pltr.addInterruptPlot(filter, plotter, title="un-/posting [0]", nodeId=0,
-                          interruptToNumberMapping=config.interruptToNumberMapping, facet="post",
+                          interruptToNumberMapping=mappingConfig.interruptToNumberMapping, facet="post",
                           interruptName=interruptName)
     # addInterruptPlot(title="en-/disabling", nodeId=0, domain="enable", interruptName=interruptName,
     #                  interruptNameAlias="#0-enable")
     pltr.addInterruptPlot(filter, plotter, title="call/return", nodeId=0,
-                          interruptToNumberMapping=config.interruptToNumberMapping, facet="invoke",
+                          interruptToNumberMapping=mappingConfig.interruptToNumberMapping, facet="invoke",
                           interruptName=interruptName)
 
     interruptName = "TX_RX_TIMER_CENTER"
     pltr.addInterruptPlot(filter, plotter, title="un-/posting [0]", nodeId=0,
-                          interruptToNumberMapping=config.interruptToNumberMapping, facet="post",
+                          interruptToNumberMapping=mappingConfig.interruptToNumberMapping, facet="post",
                           interruptName=interruptName)
     # addInterruptPlot(title="en-/disabling", nodeId=0, domain="enable", interruptName=interruptName,
     #                  interruptNameAlias="#0-enable")
     pltr.addInterruptPlot(filter, plotter, title="call/return [0]", nodeId=0,
-                          interruptToNumberMapping=config.interruptToNumberMapping, facet="invoke",
+                          interruptToNumberMapping=mappingConfig.interruptToNumberMapping, facet="invoke",
                           interruptName=interruptName)
 
     pltr.addInterruptPlot(filter, plotter, title="call/return [0]", nodeId=0,
-                          interruptToNumberMapping=config.interruptToNumberMapping, facet="invoke",
+                          interruptToNumberMapping=mappingConfig.interruptToNumberMapping, facet="invoke",
                           interruptName="TX_RX_TIMEOUT_INTERRUPT")
 
     pltr.addPlot(filter, plotter, title="SRAM[int16-out]", nodeId=0, domain="SRAM", name="int16-out")
