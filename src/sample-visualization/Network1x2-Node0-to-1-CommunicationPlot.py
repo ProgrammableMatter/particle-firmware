@@ -1,34 +1,32 @@
 from collections import OrderedDict
-
 from LogSamplePlot import Plotter as pltr
-
 from LogSamplePlot import Filter as fltr
-
-from Config import Mappings as config
+from Config import Mappings as mappingConfig
+from Config import Input as inputConfig
 
 if __name__ == "__main__":
-    dataFilter = fltr.Filter("/tmp/particle-state.log", config.wireToFloatValueMapping)
-    dataPlotter = pltr.Plotter()
+    filter = fltr.Filter(inputConfig.logFile, mappingConfig.wireToFloatValueMapping)
+    plotter = pltr.Plotter()
 
     # transmission wire plot
     transmissionWirefilter = fltr.SampleFilter(domain="WIRE", name="tx-south", nodeId=0)
-    dataFilter.filter(transmissionWirefilter)
-    xData, yData, annotations = dataFilter.getData(transmissionWirefilter)
-    dataPlotter.addPlot(xData, yData, annotations, "tx-south [0]")
+    filter.filter(transmissionWirefilter)
+    xData, yData, annotations = filter.getData(transmissionWirefilter)
+    plotter.addPlot(xData, yData, annotations, "tx-south [0]")
 
     # reception wire plot
     receptionWireFilter = fltr.SampleFilter(domain="WIRE", name="rx-north", nodeId=1)
-    dataFilter.filter(receptionWireFilter)
-    xData, yData, annotations = dataFilter.getData(receptionWireFilter)
-    dataPlotter.addPlot(xData, yData, annotations, "rx-north [1]")
+    filter.filter(receptionWireFilter)
+    xData, yData, annotations = filter.getData(receptionWireFilter)
+    plotter.addPlot(xData, yData, annotations, "rx-north [1]")
 
     # reception events plot
     receptionInterruptValueMapping = {"'U'": 0.0, "'S'": 0.2,
                                       "'A'": 0.6, "'B'": 0.4,
                                       "'0'": 1.2, "'1'": 1.4,
                                       "'R'": 1.0,}
-    dataFilter.setValueMapping(receptionInterruptValueMapping)
-    pltr.addPlot(dataFilter, dataPlotter, title="rx[1] - states", nodeId=1, domain="SRAM", name="char-out")
+    filter.setValueMapping(receptionInterruptValueMapping)
+    pltr.addPlot(filter, plotter, title="rx[1] - states", nodeId=1, domain="SRAM", name="char-out")
 
     # node 0 state plot
     nodeStateToFloatValueMapping = OrderedDict(
@@ -72,18 +70,18 @@ if __name__ == "__main__":
         nodeStateToFloatValueMapping[key] = idx;
         idx = idx + 1.0;
 
-    dataFilter.setValueMapping(nodeStateToFloatValueMapping)
+    filter.setValueMapping(nodeStateToFloatValueMapping)
     nodeStateFilter = fltr.SampleFilter(domain="SRAM", name="globalState.node.state", nodeId=0)
-    dataFilter.filter(nodeStateFilter)
-    xData, yData, annotations = dataFilter.getData(nodeStateFilter)
-    dataPlotter.addPlot(xData, yData, annotations, "node [0] states")
+    filter.filter(nodeStateFilter)
+    xData, yData, annotations = filter.getData(nodeStateFilter)
+    plotter.addPlot(xData, yData, annotations, "node [0] states")
 
     #
-    dataFilter.setValueMapping(nodeStateToFloatValueMapping)
+    filter.setValueMapping(nodeStateToFloatValueMapping)
     nodeStateFilter = fltr.SampleFilter(domain="SRAM", name="globalState.node.state", nodeId=1)
-    dataFilter.filter(nodeStateFilter)
-    xData, yData, annotations = dataFilter.getData(nodeStateFilter)
-    dataPlotter.addPlot(xData, yData, annotations, "node [1] states")
+    filter.filter(nodeStateFilter)
+    xData, yData, annotations = filter.getData(nodeStateFilter)
+    plotter.addPlot(xData, yData, annotations, "node [1] states")
 
     interpreterCharOutToHumanReadableAnnotation = {"'I'": "call", "'i'": "ret",
                                                    "'c'": "clr buff",
@@ -102,24 +100,24 @@ if __name__ == "__main__":
                               "'K'": 0.6, "'k'": 0.7,
                               "'W'": 0.9, "'w'": 1.0,
                               "'T'": 1.2, "'t'": 1.4,}
-    dataFilter.setValueMapping(rxCharOutToFloatValues)
+    filter.setValueMapping(rxCharOutToFloatValues)
     nodeCharOutFilter = fltr.SampleFilter(domain="SRAM", name="char-out", nodeId=1)
-    dataFilter.removeSamples(nodeCharOutFilter)
-    dataFilter.filter(nodeCharOutFilter)
-    xData, yData, annotations = dataFilter.getData(nodeCharOutFilter)
+    filter.removeSamples(nodeCharOutFilter)
+    filter.filter(nodeCharOutFilter)
+    xData, yData, annotations = filter.getData(nodeCharOutFilter)
     annotations = pltr.reMapAnnotation(annotations, interpreterCharOutToHumanReadableAnnotation)
-    dataPlotter.addPlot(xData, yData, annotations, "node [1] interpreter states")
+    plotter.addPlot(xData, yData, annotations, "node [1] interpreter states")
 
     # rx north sync plot
     rxCharOutToHumanReadableAnnotation = {"'U'": "rx timeouted", "'S'": "rx active"}
     rxCharOutToFloatValues = {"'U'": 0.0, "'S'": 1.0,}
-    dataFilter.setValueMapping(rxCharOutToFloatValues)
+    filter.setValueMapping(rxCharOutToFloatValues)
     nodeCharOutFilter = fltr.SampleFilter(domain="SRAM", name="char-out", nodeId=1)
-    dataFilter.removeSamples(nodeCharOutFilter)
-    dataFilter.filter(nodeCharOutFilter)
-    xData, yData, annotations = dataFilter.getData(nodeCharOutFilter)
+    filter.removeSamples(nodeCharOutFilter)
+    filter.filter(nodeCharOutFilter)
+    xData, yData, annotations = filter.getData(nodeCharOutFilter)
     annotations = pltr.reMapAnnotation(annotations, rxCharOutToHumanReadableAnnotation)
-    dataPlotter.addPlot(xData, yData, annotations, "node [1] is rx north sync.")
+    plotter.addPlot(xData, yData, annotations, "node [1] is rx north sync.")
 
     # SRAM[globalState.ports.xmissonState] < - (STATE_TYPE_XMISSION_TYPE_DISABLED_TX_RX)
     xmissionStatesToFloatValues = {
@@ -128,15 +126,27 @@ if __name__ == "__main__":
         "STATE_TYPE_XMISSION_TYPE_ENABLED_TX_RX": 3.0,
         "STATE_TYPE_XMISSION_TYPE_DISABLED_TX_RX": 0.0,
     }
-    dataFilter.setValueMapping(rxCharOutToFloatValues)
+    filter.setValueMapping(rxCharOutToFloatValues)
     nodeXmissionStatesFilter = fltr.SampleFilter(domain="SRAM", name="globalState.ports.xmissonState", nodeId=1)
     # dataFilter.removeSamples(nodeXmissionStatesFilter  utFilter)
-    dataFilter.setValueMapping(xmissionStatesToFloatValues)
-    dataFilter.filter(nodeXmissionStatesFilter )
-    xData, yData, annotations = dataFilter.getData(nodeXmissionStatesFilter )
+    filter.setValueMapping(xmissionStatesToFloatValues)
+    filter.filter(nodeXmissionStatesFilter)
+    xData, yData, annotations = filter.getData(nodeXmissionStatesFilter)
     # annotations = pltr.reMapAnnotation(annotations, rxCharOutToHumanReadableAnnotation)
-    dataPlotter.addPlot(xData, yData, annotations, "node [1] xmissoin")
+    plotter.addPlot(xData, yData, annotations, "node [1] xmissoin")
 
-    dataPlotter.setWindowTitle("Network 2x1 Simulation")
-    dataFilter.printValues()
-    dataPlotter.plot()
+
+    # plot tx/rx counter interrupts
+    filter.setValueMapping(mappingConfig.interruptToFloatValueMapping)
+    pltr.addInterruptPlot(filter, plotter, title="call/return [0]", nodeId=0,
+                          interruptToNumberMapping=mappingConfig.interruptToNumberMapping, facet="invoke",
+                          interruptName="TX_RX_TIMER_TOP")
+
+    pltr.addInterruptPlot(filter, plotter, title="call/return [0]", nodeId=0,
+                          interruptToNumberMapping=mappingConfig.interruptToNumberMapping, facet="invoke",
+                          interruptName="TX_RX_TIMER_CENTER")
+
+
+    plotter.setWindowTitle("Network 2x1 Simulation")
+    filter.printValues()
+    plotter.plot()
