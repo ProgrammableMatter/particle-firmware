@@ -39,10 +39,10 @@ FUNC_ATTRS void __storeDataBit(volatile RxPort *rxPort, const volatile uint8_t i
     // save bit to buffer
     if (!isBufferEndPosition(&(rxPort->buffer.pointer))) {
         if (isRisingEdge) {
-            IF_SIMULATION_CHAR_OUT('1');
+            DEBUG_CHAR_OUT('1');
             rxPort->buffer.bytes[rxPort->buffer.pointer.byteNumber] setBit rxPort->buffer.pointer.bitMask;
         } else {
-            IF_SIMULATION_CHAR_OUT('0');
+            DEBUG_CHAR_OUT('0');
             rxPort->buffer.bytes[rxPort->buffer.pointer.byteNumber] unsetBit rxPort->buffer.pointer.bitMask;
         }
         bufferBitPointerIncrement(&rxPort->buffer.pointer);
@@ -59,8 +59,8 @@ FUNC_ATTRS uint16_t __getTrimmedReceptionCounter(void) {
 
 #ifdef SIMULATION
     if (TIMER_TX_RX_COUNTER > (2 * TIMER_TX_RX_COMPARE_TOP_VALUE)) {
-        IF_SIMULATION_CHAR_OUT('R');
-        IF_SIMULATION_SWITCH_TO_ERRONEOUS_STATE;
+        DEBUG_CHAR_OUT('R');
+        IF_DEBUG_SWITCH_TO_ERRONEOUS_STATE;
     }
 #endif
 
@@ -87,11 +87,11 @@ FUNC_ATTRS void dispatchReceivedDataEdge(volatile RxPort *rxPort,
     uint16_t captureCounter = __toPortCounter(&hardwareCounter, &(rxPort->adjustment));
 
 //    IF_SIMULATION_INT16_OUT(hardwareCounter);
-    IF_SIMULATION_INT16_OUT(captureCounter);
+    DEBUG_INT16_OUT(captureCounter);
 
     if (isNotReceiving(rxPort)) { // if reception is timed out this call is the first signal of a transmission
         if (isRisingEdge == false) {
-            IF_SIMULATION_CHAR_OUT('S');
+            DEBUG_CHAR_OUT('S');
             // synchronize the counter offset for this channel
             rxPort->adjustment.receptionOffset = TIMER_TX_RX_COMPARE_TOP_VALUE - hardwareCounter;
         }
@@ -99,14 +99,14 @@ FUNC_ATTRS void dispatchReceivedDataEdge(volatile RxPort *rxPort,
     else { // if signal occurs approx. at 1/2 of a package clock
         if ((TX_RX_RECEPTION_CLASSIFICATION_VALUE_LEFT_BORDER <= captureCounter) &&
             (captureCounter <= TX_RX_RECEPTION_CLASSIFICATION_VALUE_RIGHT_BORDER)) {
-//            IF_SIMULATION_CHAR_OUT('B');
+//            DEBUG_CHAR_OUT('B');
             __storeDataBit(rxPort, isRisingEdge);
         }
         else // if signal occurs approx. at the end/beginning of a package clock
         {
             // re-adjust reception offset
             rxPort->adjustment.receptionOffset = TIMER_TX_RX_COMPARE_TOP_VALUE - hardwareCounter;
-//            IF_SIMULATION_CHAR_OUT('A');
+//            DEBUG_CHAR_OUT('A');
         }
     }
     rxPort->isReceiving = __RECEPTION_TIMEOUT_COUNTER_MAX;

@@ -5,17 +5,16 @@
 #ifndef __SIMULATION_MACROS_H__
 #define __SIMULATION_MACROS_H__
 
-#  ifdef __AVR_ATmega16__
+#  ifdef SIMULATION
 
 #    include <avr/io.h>
 
-#    define SIMULATION
 #    define IS_SIMULATION true
-#    define IF_SIMULATION_SWITCH_TO_ERRONEOUS_STATE \
+#    define IF_DEBUG_SWITCH_TO_ERRONEOUS_STATE \
     SREG unsetBit bit(SREG_I); \
     ParticleAttributes.node.state = STATE_TYPE_ERRONEOUS
-#    define IF_SIMULATION_CHAR_OUT(value) UDR=(value)
-#    define IF_SIMULATION_INT16_OUT(value) \
+#    define DEBUG_CHAR_OUT(value) UDR=(value)
+#    define DEBUG_INT16_OUT(value) \
         EEARL=((value) & 0xff00) >> 8; \
         EEDR=((value) & 0x00ff)
 
@@ -41,9 +40,9 @@ extern inline void writeToUart(const char *);
 
 #  else
 #    define IS_SIMULATION false
-#    define IF_SIMULATION_SWITCH_TO_ERRONEOUS_STATE
-#    define IF_SIMULATION_CHAR_OUT(value)
-#    define IF_SIMULATION_INT16_OUT(value)
+#    define IF_DEBUG_SWITCH_TO_ERRONEOUS_STATE
+#    define DEBUG_CHAR_OUT(value)
+#    define DEBUG_INT16_OUT(value)
 
 #define UNUSED(x) (void)(x)
 inline void writeToUart(const char *string) { UNUSED(string); }

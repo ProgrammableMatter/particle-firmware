@@ -22,7 +22,6 @@
  */
 FUNC_ATTRS void __constructSendEnumeratePackage(volatile PackageHeaderAddress *o, uint8_t localAddressRow,
                                                 uint8_t localAddressColumn) {
-    o->__startBit = true;
     o->headerIsStream = false;
     o->headerIsCommand = true;
     o->headerIsBroadcast = false;
@@ -112,7 +111,7 @@ FUNC_ATTRS void clearReceptionBuffer(volatile RxPort *o) {
     o->isDataBuffered = false;
     o->isReceiving = false;
     o->isOverflowed = false;
-    IF_SIMULATION_CHAR_OUT('c');
+    DEBUG_CHAR_OUT('c');
 }
 
 

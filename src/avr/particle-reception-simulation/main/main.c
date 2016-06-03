@@ -33,14 +33,14 @@ FUNC_ATTRS int particleLoop(void) {
  * starts
  */
 int main(void) {
-    IF_SIMULATION_CHAR_OUT('0');
+    DEBUG_CHAR_OUT('0');
     // configure input/output pins
     IO_PORTS_SETUP;
 
     ParticleAttributes.discoveryPulseCounters.loopCount = UINT8_MAX;
     constructParticleState(&ParticleAttributes);
 
-    IF_SIMULATION_CHAR_OUT('1');
+    DEBUG_CHAR_OUT('1');
     RX_INTERRUPTS_CLEAR_PENDING;
     ParticleAttributes.node.type = NODE_TYPE_ORIGIN;
     ParticleAttributes.node.state = STATE_TYPE_IDLE;

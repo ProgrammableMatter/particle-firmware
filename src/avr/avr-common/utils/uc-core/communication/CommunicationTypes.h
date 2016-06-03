@@ -53,6 +53,7 @@ FUNC_ATTRS void constructPortBuffer(volatile PortBuffer *o) {
     for (uint8_t i = 0; i < sizeof(o->bytes); i++) {
         o->bytes[i] = 0;
     }
+    o->bytes[0] = 0x1;
     constructBufferBitPointer(&(o->pointer));
 }
 

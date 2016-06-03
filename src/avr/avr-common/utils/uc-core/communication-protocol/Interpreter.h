@@ -48,7 +48,7 @@
 //            o->isDataBuffered = false;
 //        }
 //    }
-//    IF_SIMULATION_CHAR_OUT('P');
+//    DEBUG_CHAR_OUT('P');
 //    return false;
 //}
 
@@ -57,9 +57,9 @@
  */
 FUNC_ATTRS void interpretRxBuffer(volatile RxPort *rxPort) {
 
-    IF_SIMULATION_CHAR_OUT('I');
+    DEBUG_CHAR_OUT('I');
     if (!isNotReceiving(rxPort)) {
-        IF_SIMULATION_CHAR_OUT('i');
+        DEBUG_CHAR_OUT('i');
         return;
     }
 
@@ -73,7 +73,7 @@ FUNC_ATTRS void interpretRxBuffer(volatile RxPort *rxPort) {
                 case PACKAGE_HEADER_ID_TYPE_ENUMERATE:
                     if (rxPort->buffer.pointer.byteNumber == 3 &&
                         (rxPort->buffer.pointer.bitMask == (1 << 0))) {
-                        IF_SIMULATION_CHAR_OUT('E');
+                        DEBUG_CHAR_OUT('E');
                         ParticleAttributes.node.address.row = package->asDedicatedHeader.addressRow0;
                         ParticleAttributes.node.address.column = package->asDedicatedHeader.addressColumn0;
                         ParticleAttributes.node.state = STATE_TYPE_WAIT_FOR_BEING_ENUMERATED_SEND_ACK_RESPONSE_TO_PARENT;
@@ -82,7 +82,7 @@ FUNC_ATTRS void interpretRxBuffer(volatile RxPort *rxPort) {
 
                     break;
                 default:
-                    IF_SIMULATION_CHAR_OUT('e');
+                    DEBUG_CHAR_OUT('e');
                     // otherwise remain in same state
                     break;
             }
@@ -94,20 +94,20 @@ FUNC_ATTRS void interpretRxBuffer(volatile RxPort *rxPort) {
             switch (package->asHeader.headerId) {
                 case PACKAGE_HEADER_ID_TYPE_ACK:
                     clearReceptionBuffer(rxPort);
-                    IF_SIMULATION_CHAR_OUT('K');
+                    DEBUG_CHAR_OUT('K');
                     // data ok, switch to next state
                     ParticleAttributes.node.state = STATE_TYPE_LOCALLY_ENUMERATED;
                     break;
                 case PACKAGE_HEADER_ID_TYPE_ENUMERATE:
                     // on address reassignment, do not clear buffer but switch state
                     ParticleAttributes.node.state = STATE_TYPE_WAIT_FOR_BEING_ENUMERATED;
-                    IF_SIMULATION_CHAR_OUT('W');
+                    DEBUG_CHAR_OUT('W');
                     break;
                 default:
                     // on any other package, clear buffer and switch state
                     clearReceptionBuffer(rxPort);
                     ParticleAttributes.node.state = STATE_TYPE_WAIT_FOR_BEING_ENUMERATED;
-                    IF_SIMULATION_CHAR_OUT('w');
+                    DEBUG_CHAR_OUT('w');
                     break;
             }
             break;
@@ -117,7 +117,7 @@ FUNC_ATTRS void interpretRxBuffer(volatile RxPort *rxPort) {
             // if data is ok, then switch to next state, otherwise re-start enumeration
             switch (package->asHeader.headerId) {
                 case PACKAGE_HEADER_ID_TYPE_ACK_WITH_DATA:
-                    IF_SIMULATION_CHAR_OUT('T');
+                    DEBUG_CHAR_OUT('T');
                     if (package->asACKData19.dataLsb == ParticleAttributes.node.address.row &&
                         package->asACKData19.dataCeb == (ParticleAttributes.node.address.column + 1)) {
                         // data ok, switch to next state
@@ -127,7 +127,7 @@ FUNC_ATTRS void interpretRxBuffer(volatile RxPort *rxPort) {
                     break;
                 default:
                     // otherwise re-start the enumeration
-                    IF_SIMULATION_CHAR_OUT('t');
+                    DEBUG_CHAR_OUT('t');
                     clearReceptionBuffer(rxPort);
                     ParticleAttributes.node.state = STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR;
                     break;
@@ -137,7 +137,7 @@ FUNC_ATTRS void interpretRxBuffer(volatile RxPort *rxPort) {
             break;
     }
 
-    IF_SIMULATION_CHAR_OUT('i');
+    DEBUG_CHAR_OUT('i');
 }
 
 #  ifdef FUNC_ATTRS

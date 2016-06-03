@@ -29,10 +29,10 @@ FUNC_ATTRS void rectifyTransmissionBit(volatile TxPort *txPort, void (*txHiImpl)
         if (txPort->buffer.pointer.bitMask &
             txPort->buffer.bytes[txPort->buffer.pointer.byteNumber]) {
             txHiImpl();
-            IF_SIMULATION_CHAR_OUT('G');
+            DEBUG_CHAR_OUT('G');
         } else {
             txLoImpl();
-            IF_SIMULATION_CHAR_OUT('g');
+            DEBUG_CHAR_OUT('g');
         }
     }
 }
@@ -52,10 +52,10 @@ FUNC_ATTRS void modulateTransmissionBit(volatile TxPort *txPort, void (*txHiImpl
             if (txPort->buffer.pointer.bitMask &
                 txPort->buffer.bytes[txPort->buffer.pointer.byteNumber]) {
                 txLoImpl();
-                IF_SIMULATION_CHAR_OUT('h');
+                DEBUG_CHAR_OUT('h');
             } else {
                 txHiImpl();
-                IF_SIMULATION_CHAR_OUT('H');
+                DEBUG_CHAR_OUT('H');
             }
             bufferBitPointerIncrement(&txPort->buffer.pointer);
         }

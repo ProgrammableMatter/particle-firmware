@@ -114,14 +114,9 @@ FUNC_ATTRS void __advanceReceptionTimeoutCounters(void) {
         ParticleAttributes.ports.rx.north.isDataBuffered = true;
     }
     ParticleAttributes.ports.rx.north.isReceiving >>= 1;
-//    if (ParticleAttributes.ports.rx.north.isReceiving == false) {
-//        bufferBitPointerStart(&ParticleAttributes.ports.rx.north.buffer.pointer);
-//
-//    }
-
 #ifdef SIMULATION
     if (ParticleAttributes.ports.rx.north.isReceiving == 0) {
-        IF_SIMULATION_CHAR_OUT('U');
+        DEBUG_CHAR_OUT('U');
     }
 #endif
 
@@ -129,20 +124,11 @@ FUNC_ATTRS void __advanceReceptionTimeoutCounters(void) {
         ParticleAttributes.ports.rx.east.isDataBuffered = true;
     }
     ParticleAttributes.ports.rx.east.isReceiving >>= 1;
-//    if (ParticleAttributes.ports.rx.east.isReceiving == false) {
-//        bufferBitPointerStart(&ParticleAttributes.ports.rx.east.buffer.pointer);
-//        ParticleAttributes.ports.rx.east.isDataBuffered = true;
-//    }
 
     if (ParticleAttributes.ports.rx.south.isReceiving == 1) {
         ParticleAttributes.ports.rx.south.isDataBuffered = true;
     }
     ParticleAttributes.ports.rx.south.isReceiving >>= 1;
-//    if (ParticleAttributes.ports.rx.south.isReceiving == false) {
-//        bufferBitPointerStart(&ParticleAttributes.ports.rx.south.buffer.pointer);
-//        ParticleAttributes.ports.rx.south.isDataBuffered = true;
-//    }
-
 }
 
 /**
@@ -296,7 +282,7 @@ const char isrVector0Msg[] PROGMEM = "BAD ISR";
  */
 ISR(_VECTOR(0)) {
     writeToUart((PGM_P) pgm_read_word(&(isrVector0Msg)));
-    IF_SIMULATION_SWITCH_TO_ERRONEOUS_STATE;
+    IF_DEBUG_SWITCH_TO_ERRONEOUS_STATE;
 }
 
 /**
@@ -305,7 +291,7 @@ ISR(_VECTOR(0)) {
  */
 ISR(TX_RX_TIMEOUT_OVERFLOW_INTERRUPT_VECT) {
     writeToUart((PGM_P) pgm_read_word(&(isrVector0Msg)));
-    IF_SIMULATION_SWITCH_TO_ERRONEOUS_STATE;
+    IF_DEBUG_SWITCH_TO_ERRONEOUS_STATE;
 }
 
 /**
@@ -314,12 +300,12 @@ ISR(TX_RX_TIMEOUT_OVERFLOW_INTERRUPT_VECT) {
  */
 ISR(TX_RX_OVERFLOW_INTERRUPT_VECT) {
     writeToUart((PGM_P) pgm_read_word(&(isrVector0Msg)));
-    IF_SIMULATION_SWITCH_TO_ERRONEOUS_STATE;
+    IF_DEBUG_SWITCH_TO_ERRONEOUS_STATE;
 }
 
 
 ISR(BADISR_vect) {
-    IF_SIMULATION_SWITCH_TO_ERRONEOUS_STATE;
+    IF_DEBUG_SWITCH_TO_ERRONEOUS_STATE;
 }
 
 #  else
