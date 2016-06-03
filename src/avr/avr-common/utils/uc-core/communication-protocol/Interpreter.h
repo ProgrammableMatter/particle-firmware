@@ -71,8 +71,8 @@ FUNC_ATTRS void interpretRxBuffer(volatile RxPort *rxPort) {
             // expect enumeration package with new address to assign locally
             switch (package->asHeader.headerId) {
                 case PACKAGE_HEADER_ID_TYPE_ENUMERATE:
-                    if (rxPort->buffer.pointer.byteNumber == 2 &&
-                        (rxPort->buffer.pointer.bitMask == (1 << 7))) {
+                    if (rxPort->buffer.pointer.byteNumber == 3 &&
+                        (rxPort->buffer.pointer.bitMask == (1 << 0))) {
                         IF_SIMULATION_CHAR_OUT('E');
                         ParticleAttributes.node.address.row = package->asDedicatedHeader.addressRow0;
                         ParticleAttributes.node.address.column = package->asDedicatedHeader.addressColumn0;

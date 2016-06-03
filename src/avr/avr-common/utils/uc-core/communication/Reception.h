@@ -37,7 +37,7 @@ FUNC_ATTRS uint16_t __toPortCounter(const volatile uint16_t *hardwareCounter,
  */
 FUNC_ATTRS void __storeDataBit(volatile RxPort *rxPort, const volatile uint8_t isRisingEdge) {
     // save bit to buffer
-    if (!isBufferFull(&(rxPort->buffer.pointer))) {
+    if (!isBufferEndPosition(&(rxPort->buffer.pointer))) {
         if (isRisingEdge) {
             IF_SIMULATION_CHAR_OUT('1');
             rxPort->buffer.bytes[rxPort->buffer.pointer.byteNumber] setBit rxPort->buffer.pointer.bitMask;

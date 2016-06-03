@@ -22,6 +22,7 @@
  */
 FUNC_ATTRS void __constructSendEnumeratePackage(volatile PackageHeaderAddress *o, uint8_t localAddressRow,
                                                 uint8_t localAddressColumn) {
+    o->__startBit = true;
     o->headerIsStream = false;
     o->headerIsCommand = true;
     o->headerIsBroadcast = false;

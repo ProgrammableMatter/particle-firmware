@@ -7,7 +7,7 @@
 #include "IoDefinitions.h"
 #include "ParticleTypes.h"
 #include "Globals.h"
-#include "Particle.h"
+#include "ParticleCore.h"
 #include "./delay/delay.h"
 #include "./ParticleParameters.h"
 

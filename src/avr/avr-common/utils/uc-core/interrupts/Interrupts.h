@@ -11,9 +11,10 @@
 #include "./Vectors.h"
 #include "./TimerCounter.h"
 #include "./Reception.h"
+#include "../communication/Transmission.h"
 #include "../Globals.h"
 #include "../discovery/Discovery.h"
-#include "../communication/Communication.h"
+#include "uc-core/communication/Reception.h"
 #include "../IoDefinitions.h"
 
 #ifdef SIMULATION
@@ -103,48 +104,7 @@ FUNC_ATTRS void __eastTxLo(void) {
 }
 
 
-/**
- * rectifies/modulates the transmission signal according to the upcoming bit
- */
-FUNC_ATTRS void __rectifyTransmissionBit(volatile TxPort *txPort, void (*txHiImpl)(void),
-                                         void (txLoImpl)(void)) {
-    if (txPort->retainTransmission == false) {
-        if (txPort->buffer.pointer.bitMask &
-            txPort->buffer.bytes[txPort->buffer.pointer.byteNumber]) {
-            txHiImpl();
-        } else {
-            txLoImpl();
-        }
-    }
-}
 
-/**
- * modulates the transmission signal according to the current bit and increments the buffer pointer
- */
-FUNC_ATTRS void __modulateTransmissionBit(volatile TxPort *txPort, void (*txHiImpl)(void),
-                                          void (txLoImpl)(void)) {
-    if (txPort->retainTransmission == false) {
-        if (isDataEnd(txPort)) {
-            txLoImpl(); // return signal to default (inverted on receiver side)
-            txPort->isTransmitting = false;
-            txPort->retainTransmission = true; // stop transmission on empty buffer
-        } else {
-            // write data bit to output (inverted)
-            if (txPort->buffer.pointer.bitMask &
-                txPort->buffer.bytes[txPort->buffer.pointer.byteNumber]) {
-                txLoImpl();
-            } else {
-                txHiImpl();
-            }
-            bufferBitPointerIncrement(&txPort->buffer.pointer);
-        }
-    }
-    else if (txPort->enableTransmission == true) {
-        txPort->isTransmitting = true;
-        txPort->enableTransmission = false;
-        txPort->retainTransmission = false;
-    }
-}
 /**
  * increments the timeout counters
  */
@@ -154,10 +114,10 @@ FUNC_ATTRS void __advanceReceptionTimeoutCounters(void) {
         ParticleAttributes.ports.rx.north.isDataBuffered = true;
     }
     ParticleAttributes.ports.rx.north.isReceiving >>= 1;
-    if (ParticleAttributes.ports.rx.north.isReceiving == false) {
-        bufferBitPointerStart(&ParticleAttributes.ports.rx.north.buffer.pointer);
-
-    }
+//    if (ParticleAttributes.ports.rx.north.isReceiving == false) {
+//        bufferBitPointerStart(&ParticleAttributes.ports.rx.north.buffer.pointer);
+//
+//    }
 
 #ifdef SIMULATION
     if (ParticleAttributes.ports.rx.north.isReceiving == 0) {
@@ -169,19 +129,19 @@ FUNC_ATTRS void __advanceReceptionTimeoutCounters(void) {
         ParticleAttributes.ports.rx.east.isDataBuffered = true;
     }
     ParticleAttributes.ports.rx.east.isReceiving >>= 1;
-    if (ParticleAttributes.ports.rx.east.isReceiving == false) {
-        bufferBitPointerStart(&ParticleAttributes.ports.rx.east.buffer.pointer);
-        ParticleAttributes.ports.rx.east.isDataBuffered = true;
-    }
+//    if (ParticleAttributes.ports.rx.east.isReceiving == false) {
+//        bufferBitPointerStart(&ParticleAttributes.ports.rx.east.buffer.pointer);
+//        ParticleAttributes.ports.rx.east.isDataBuffered = true;
+//    }
 
     if (ParticleAttributes.ports.rx.south.isReceiving == 1) {
         ParticleAttributes.ports.rx.south.isDataBuffered = true;
     }
     ParticleAttributes.ports.rx.south.isReceiving >>= 1;
-    if (ParticleAttributes.ports.rx.south.isReceiving == false) {
-        bufferBitPointerStart(&ParticleAttributes.ports.rx.south.buffer.pointer);
-        ParticleAttributes.ports.rx.south.isDataBuffered = true;
-    }
+//    if (ParticleAttributes.ports.rx.south.isReceiving == false) {
+//        bufferBitPointerStart(&ParticleAttributes.ports.rx.south.buffer.pointer);
+//        ParticleAttributes.ports.rx.south.isDataBuffered = true;
+//    }
 
 }
 
@@ -257,9 +217,9 @@ ISR(TX_RX_TIMER_TOP_INTERRUPT_VECT) {
                     __resetReceptionCounter();
                     __advanceReceptionTimeoutCounters();
                     // process transmission
-                    __rectifyTransmissionBit(&ParticleAttributes.ports.tx.north, __northTxHi, __northTxLo);
-                    __rectifyTransmissionBit(&ParticleAttributes.ports.tx.east, __eastTxHi, __eastTxLo);
-                    __rectifyTransmissionBit(&ParticleAttributes.ports.tx.south, __southTxHi, __southTxLo);
+                    rectifyTransmissionBit(&ParticleAttributes.ports.tx.north, __northTxHi, __northTxLo);
+                    rectifyTransmissionBit(&ParticleAttributes.ports.tx.east, __eastTxHi, __eastTxLo);
+                    rectifyTransmissionBit(&ParticleAttributes.ports.tx.south, __southTxHi, __southTxLo);
                     break;
 
                 default:
@@ -296,9 +256,9 @@ ISR(TX_RX_TIMER_CENTER_INTERRUPT_VECT) {
                     // process reception
                     __advanceReceptionTimeoutCounters();
                     // process transmission
-                    __modulateTransmissionBit(&ParticleAttributes.ports.tx.north, __northTxHi, __northTxLo);
-                    __modulateTransmissionBit(&ParticleAttributes.ports.tx.east, __eastTxHi, __eastTxLo);
-                    __modulateTransmissionBit(&ParticleAttributes.ports.tx.south, __southTxHi, __southTxLo);
+                    modulateTransmissionBit(&ParticleAttributes.ports.tx.north, __northTxHi, __northTxLo);
+                    modulateTransmissionBit(&ParticleAttributes.ports.tx.east, __eastTxHi, __eastTxLo);
+                    modulateTransmissionBit(&ParticleAttributes.ports.tx.south, __southTxHi, __southTxLo);
                     break;
 
                 default:

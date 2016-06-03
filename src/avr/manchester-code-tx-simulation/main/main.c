@@ -43,7 +43,7 @@ ISR(TX_COUNTER_TOP) {
 
 ISR(TX_COUNTER_CENTER) {
 
-    if (isDataEnd(&ParticleAttributes.ports.tx.south)) {
+    if (isDataEndPosition(&ParticleAttributes.ports.tx.south)) {
         // stop after one transmission
 //        TIMSK unsetBit(1 << OCIE1B);
         TCCR1B unsetBit COUNTER_1_SETTINGS_PRESCALER_DISCONNECT;
@@ -75,14 +75,23 @@ inline void initTransmission(void) {
     ParticleAttributes.ports.tx.south.dataEndPos.bitMask = 0x80;
 
 
+//    // the byte to transmit
+//    ParticleAttributes.ports.tx.south.buffer.bytes[6] = 0b10100111; // == 0xa7 => 0xe5
+//    ParticleAttributes.ports.tx.south.buffer.bytes[5] = 0b10101010; // == 0xaa => 0x55
+//    ParticleAttributes.ports.tx.south.buffer.bytes[4] = 0b10101010; // == 0xaa => 0x55
+//    ParticleAttributes.ports.tx.south.buffer.bytes[3] = 0b10100111; // == 0xa7 => 0xe5
+//    ParticleAttributes.ports.tx.south.buffer.bytes[2] = 0b10101010; // == 0xaa => 0x55
+//    ParticleAttributes.ports.tx.south.buffer.bytes[1] = 0b10101010; // == 0xaa => 0x55
+//    ParticleAttributes.ports.tx.south.buffer.bytes[0] = 0b10100111; // == 0xa7 => 0xe5
+
     // the byte to transmit
-    ParticleAttributes.ports.tx.south.buffer.bytes[6] = 0b10100111; // == 0xa7 => 0xe5
-    ParticleAttributes.ports.tx.south.buffer.bytes[5] = 0b10101010; // == 0xaa => 0x55
-    ParticleAttributes.ports.tx.south.buffer.bytes[4] = 0b10101010; // == 0xaa => 0x55
-    ParticleAttributes.ports.tx.south.buffer.bytes[3] = 0b10100111; // == 0xa7 => 0xe5
-    ParticleAttributes.ports.tx.south.buffer.bytes[2] = 0b10101010; // == 0xaa => 0x55
-    ParticleAttributes.ports.tx.south.buffer.bytes[1] = 0b10101010; // == 0xaa => 0x55
-    ParticleAttributes.ports.tx.south.buffer.bytes[0] = 0b10100111; // == 0xa7 => 0xe5
+    ParticleAttributes.ports.tx.south.buffer.bytes[6] = 0b00100110;
+    ParticleAttributes.ports.tx.south.buffer.bytes[5] = 0b01111110;
+    ParticleAttributes.ports.tx.south.buffer.bytes[4] = 0b10101010;
+    ParticleAttributes.ports.tx.south.buffer.bytes[3] = 0b01010101;
+    ParticleAttributes.ports.tx.south.buffer.bytes[2] = 0b10101010;
+    ParticleAttributes.ports.tx.south.buffer.bytes[1] = 0b10101010;
+    ParticleAttributes.ports.tx.south.buffer.bytes[0] = 0b10100111;
 
     SOUTH_TX_SETUP;
     // return signal to default (high on receiver side)

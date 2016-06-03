@@ -3,8 +3,8 @@
  * 4/2016
  */
 
-#ifndef __RECEPTION_INTERRUPTS_H
-#define __RECEPTION_INTERRUPTS_H
+#ifndef __RECEPTION_INTERRUPTS_H__
+#define __RECEPTION_INTERRUPTS_H__
 
 #include <common/PortInteraction.h>
 

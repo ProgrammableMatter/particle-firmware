@@ -7,7 +7,7 @@
 #include <common/common.h>
 #include <uc-core/ParticleTypes.h>
 #include "uc-core/IoDefinitions.h"
-#include "uc-core/Particle.h"
+#include "uc-core/ParticleCore.h"
 
 //unsigned char __stuff __attribute__((section(".noinit")));
 #  ifdef TRY_INLINE
