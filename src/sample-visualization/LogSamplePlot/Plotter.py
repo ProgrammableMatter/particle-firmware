@@ -20,6 +20,9 @@ class Plotter:
         self.pointAnnotations = []
         self.windowTitle = ""
 
+        self.lastXCoordinate = 0;
+        self.lastClickedXCoordinate = None;
+
     def __newSubplot(self, xValues, yValues, annotations, title="Title", xLabel="", yLabel=""):
         """
         Create a new figure and plot data using blue, square markers.
@@ -78,7 +81,11 @@ class Plotter:
         row = 1
 
         def formatCoord(x, y):
-            return 't={:1.9f}[ms], y={:}'.format(x * 10E-10, y)
+            self.lastXCoordinate = x
+            if self.lastClickedXCoordinate != None:
+                difference = (self.lastClickedXCoordinate - x) * 1E-9
+                return '(t={:1.9f}[ms], y={:}) || x1={:1.9f} diff.={:1.9f}'.format(x * 1E-9, y, self.lastClickedXCoordinate * 1E-9, difference)
+            return '(t={:1.9f}[ms], y={:})'.format(x * 1E-9, y)
 
         for plot in self.plots:
             ax = plt.subplot(rows, columns, row)
@@ -110,6 +117,8 @@ class Plotter:
             ydata = thisline.get_ydata()
             ind = event.ind
             eventPoints = zip(xdata[ind], ydata[ind])
+
+            self.lastClickedXCoordinate = self.lastXCoordinate
 
             for eventPoint in eventPoints:
                 isVisibilityChanged = False
