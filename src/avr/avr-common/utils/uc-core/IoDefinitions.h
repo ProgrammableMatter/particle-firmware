@@ -27,9 +27,9 @@
 
 #define SOUTH_TX_HI __SOUTH_TX_OUT setHi __SOUTH_TX_PIN
 #define SOUTH_TX_LO __SOUTH_TX_OUT setLo __SOUTH_TX_PIN
-#define __SOUTH_TX ((unsigned char)((0 == (__SOUTH_TX_IN getBit __SOUTH_TX_PIN)) ? 0 : 1))
+#define __SOUTH_TX ((unsigned char)((false == (__SOUTH_TX_IN getBit __SOUTH_TX_PIN)) ? false : true))
 #define SOUTH_TX_IS_HI (0 != (__SOUTH_TX))
-#define SOUTH_TX_IS_LO (0 == (__SOUTH_TX))
+#define SOUTH_TX_IS_LO (false == (__SOUTH_TX))
 #define SOUTH_TX_TOGGLE __SOUTH_TX_OUT toggleBit __SOUTH_TX_PIN
 
 #define SOUTH_TX_SETUP __SOUTH_TX_DIR setOut __SOUTH_TX_PIN; SOUTH_TX_HI
@@ -53,9 +53,9 @@
 
 #define SOUTH_RX_PULL_UP __SOUTH_RX_OUT setHi __SOUTH_RX_PIN
 #define SOUTH_RX_PULL_DOWN __SOUTH_RX_OUT setLo __SOUTH_RX_PIN
-#define __SOUTH_RX ((unsigned char)((0 == (__SOUTH_RX_IN getBit __SOUTH_RX_PIN)) ? 0 : 1))
+#define __SOUTH_RX ((unsigned char)((false == (__SOUTH_RX_IN getBit __SOUTH_RX_PIN)) ? false : true))
 #define SOUTH_RX_IS_HI (__SOUTH_RX)
-#define SOUTH_RX_IS_LO (0 == __SOUTH_RX)
+#define SOUTH_RX_IS_LO (false == (__SOUTH_RX))
 
 #define SOUTH_RX_SETUP __SOUTH_RX_DIR setIn __SOUTH_RX_PIN; SOUTH_RX_PULL_UP
 
@@ -68,9 +68,9 @@
 
 #define SOUTH_RX_SWITCH_HI __SOUTH_RX_SWITCH_OUT setHi __SOUTH_RX_SWITCH_PIN
 #define SOUTH_RX_SWITCH_LO __SOUTH_RX_SWITCH_OUT setLo __SOUTH_RX_SWITCH_PIN
-#define __SOUTH_RX_SWITCH ((unsigned char)((0 == (__SOUTH_RX_IN getBit __SOUTH_RX_PIN)) ? 0 : 1))
+#define __SOUTH_RX_SWITCH ((unsigned char)((false == (__SOUTH_RX_IN getBit __SOUTH_RX_PIN)) ? false : true))
 #define SOUTH_RX_SWITCH_IS_HI (__SOUTH_RX_SWITCH)
-#define SOUTH_RX_SWITCH_IS_LO (0 == __SOUTH_RX_SWITCH)
+#define SOUTH_RX_SWITCH_IS_LO (false == (__SOUTH_RX_SWITCH))
 
 #define SOUTH_RX_SWITCH_SETUP __SOUTH_RX_SWITCH_DIR setHi __SOUTH_RX_SWITCH_PIN; SOUTH_RX_SWITCH_HI
 
@@ -85,9 +85,9 @@
 
 #define NORTH_TX_HI __NORTH_TX_OUT setHi __NORTH_TX_PIN
 #define NORTH_TX_LO __NORTH_TX_OUT setLo __NORTH_TX_PIN
-#define __NORTH_TX ((unsigned char)((0 == (__NORTH_TX_IN getBit __NORTH_TX_PIN)) ? 0 : 1))
+#define __NORTH_TX ((unsigned char)((false == (__NORTH_TX_IN getBit __NORTH_TX_PIN)) ? false : true))
 #define NORTH_TX_IS_HI (__NORTH_TX)
-#define NORTH_TX_IS_LO (0 == __NORTH_TX)
+#define NORTH_TX_IS_LO (false == (__NORTH_TX))
 #define NORTH_TX_TOGGLE __NORTH_TX_OUT toggleBit __NORTH_TX_PIN
 
 #define NORTH_TX_SETUP __NORTH_TX_DIR setOut __NORTH_TX_PIN; NORTH_TX_HI
@@ -111,9 +111,9 @@
 
 #define NORTH_RX_PULL_UP __NORTH_RX_OUT setHi __NORTH_RX_PIN
 #define NORTH_RX_PULL_DOWN __NORTH_RX_OUT setLo __NORTH_RX_PIN
-#define __NORTH_RX ((unsigned char)((0 == (__NORTH_RX_IN getBit __NORTH_RX_PIN)) ? 0 : 1))
+#define __NORTH_RX ((unsigned char)((false == (__NORTH_RX_IN getBit __NORTH_RX_PIN)) ? false : true))
 #define NORTH_RX_IS_HI (__NORTH_RX)
-#define NORTH_RX_IS_LO (0 == __NORTH_RX)
+#define NORTH_RX_IS_LO (false == (__NORTH_RX))
 
 #define NORTH_RX_SETUP __NORTH_RX_DIR setIn __NORTH_RX_PIN; NORTH_RX_PULL_UP
 
@@ -125,9 +125,9 @@
 
 #define NORTH_RX_SWITCH_HI NORTH_RX_SWITCH_OUT setHi NORTH_RX_SWITCH_PIN
 #define NORTH_RX_SWITCH_LO NORTH_RX_SWITCH_OUT setLo NORTH_RX_SWITCH_PIN
-#define __NORTH_RX_SWITCH ((unsigned char)((0 == (NORTH_RX_SWITCH_IN getBit NORTH_RX_SWITCH_PIN)) ? 0 : 1))
+#define __NORTH_RX_SWITCH ((unsigned char)((false == (NORTH_RX_SWITCH_IN getBit NORTH_RX_SWITCH_PIN)) ? false : true))
 #define NORTH_RX_SWITCH_IS_HI (__NORTH_RX_SWITCH)
-#define NORTH_RX_SWITCH_IS_LO (0 == __NORTH_RX_SWITCH)
+#define NORTH_RX_SWITCH_IS_LO (false == (__NORTH_RX_SWITCH))
 
 #define NORTH_RX_SWITCH_SETUP NORTH_RX_SWITCH_DIR setOut NORTH_RX_SWITCH_PIN; NORTH_RX_SWITCH_HI
 
@@ -142,9 +142,9 @@
 
 #define EAST_TX_HI __EAST_TX_OUT setHi __EAST_TX_PIN
 #define EAST_TX_LO __EAST_TX_OUT setLo __EAST_TX_PIN
-#define __EAST_TX ((unsigned char)((0 == (__EAST_TX_IN getBit __EAST_TX_PIN)) ? 0 : 1))
+#define __EAST_TX ((unsigned char)((false == (__EAST_TX_IN getBit __EAST_TX_PIN)) ? false : true))
 #define EAST_TX_IS_HI (__EAST_TX)
-#define EAST_TX_IS_LO (0 == __EAST_TX)
+#define EAST_TX_IS_LO (false == (__EAST_TX))
 #define EAST_TX_TOGGLE __EAST_TX_OUT toggleBit __EAST_TX_PIN
 
 #define EAST_TX_SETUP __EAST_TX_DIR setOut __EAST_TX_PIN; EAST_TX_HI
@@ -168,9 +168,9 @@
 
 #define EAST_RX_PULL_UP __EAST_RX_OUT setHi __EAST_RX_PIN
 #define EAST_RX_PULL_DOWN __EAST_RX_OUT setLo __EAST_RX_PIN
-#define __EAST_RX ((unsigned char)((0 == (__EAST_RX_IN getBit __EAST_RX_PIN)) ? 0 : 1))
+#define __EAST_RX ((unsigned char)((false == (__EAST_RX_IN getBit __EAST_RX_PIN)) ? false : true))
 #define EAST_RX_IS_HI (__EAST_RX)
-#define EAST_RX_IS_LO (0 == __EAST_RX)
+#define EAST_RX_IS_LO (false == (__EAST_RX))
 
 #define EAST_RX_SETUP __EAST_RX_DIR setIn __EAST_RX_PIN; EAST_RX_PULL_UP
 
@@ -182,9 +182,9 @@
 
 #define EAST_RX_SWITCH_HI __EAST_RX_SWITCH_OUT setHi __EAST_RX_SWITCH_PIN
 #define EAST_RX_SWITCH_LO __EAST_RX_SWITCH_OUT setLo __EAST_RX_SWITCH_PIN
-#define __EAST_RX_SWITCH ((unsigned char)((0 == (__EAST_RX_SWITCH_IN getBit __EAST_RX_SWITCH_PIN)) ? 0 : 1))
+#define __EAST_RX_SWITCH ((unsigned char)((false == (__EAST_RX_SWITCH_IN getBit __EAST_RX_SWITCH_PIN)) ? false : true))
 #define EAST_RX_SWITCH_IS_HI (__EAST_RX_SWITCH)
-#define EAST_RX_SWITCH_IS_LO (0 == __EAST_RX_SWITCH)
+#define EAST_RX_SWITCH_IS_LO (false == (__EAST_RX_SWITCH))
 
 #define EAST_RX_SWITCH_SETUP __EAST_RX_SWITCH_DIR setOut __EAST_RX_SWITCH_PIN; EAST_RX_SWITCH_HI
 
@@ -201,7 +201,7 @@
 #define LED_ERROR_ON __LED_ERROR_OUT setHi __LED_ERROR_PIN
 #define LED_ERROR_OFF __LED_ERROR_OUT setLo __LED_ERROR_PIN
 #define LED_ERROR_IS_ON (0 != (LED_ERROR))
-#define LED_ERROR_IS_OFF (0 == (LED_ERROR))
+#define LED_ERROR_IS_OFF (false == (LED_ERROR))
 #define LED_ERROR_TOGGLE __LED_ERROR_OUT toggleBit __LED_ERROR_PIN
 
 #define LED_ERROR_SETUP __LED_ERROR_DIR setOut __LED_ERROR_PIN; LED_ERROR_ON
@@ -216,7 +216,7 @@
 #define LED_STATUS1_ON __LED_STATUS1_OUT setHi __LED_STATUS1_PIN
 #define LED_STATUS1_OFF __LED_STATUS1_OUT setLo __LED_STATUS1_PIN
 #define LED_STATUS1_IS_ON (0 != (LED_STATUS1))
-#define LED_STATUS1_IS_OFF (0 == (LED_STATUS1))
+#define LED_STATUS1_IS_OFF (false == (LED_STATUS1))
 #define LED_STATUS1_TOGGLE __LED_STATUS1_OUT toggleBit __LED_STATUS1_PIN
 
 #define LED_STATUS1_SETUP __LED_STATUS1_DIR setOut __LED_STATUS1_PIN; LED_STATUS1_ON
@@ -243,7 +243,7 @@
 #define LED_STATUS0_ON __LED_STATUS0_OUT setHi __LED_STATUS0_PIN
 #define LED_STATUS0_OFF __LED_STATUS0_OUT setLo __LED_STATUS0_PIN
 #define LED_STATUS0_IS_ON (0 != (LED_STATUS0))
-#define LED_STATUS0_IS_OFF (0 == (LED_STATUS0))
+#define LED_STATUS0_IS_OFF (false == (LED_STATUS0))
 #define LED_STATUS0_TOGGLE __LED_STATUS0_OUT toggleBit __LED_STATUS0_PIN
 
 #define LED_STATUS0_SETUP __LED_STATUS0_DIR setOut __LED_STATUS0_PIN; LED_STATUS0_ON
@@ -258,7 +258,7 @@
 #define LED_HEARTBEAT_ON __LED_HEARTBEAT_OUT setHi __LED_HEARTBEAT_PIN
 #define LED_HEARTBEAT_OFF __LED_HEARTBEAT_OUT setLo __LED_HEARTBEAT_PIN
 #define LED_HEARTBEAT_IS_ON (0 != (LED_HEARTBEAT))
-#define LED_HEARTBEAT_IS_OFF (0 == (LED_HEARTBEAT))
+#define LED_HEARTBEAT_IS_OFF (false == (LED_HEARTBEAT))
 #define LED_HEARTBEAT_TOGGLE __LED_HEARTBEAT_OUT toggleBit __LED_HEARTBEAT_PIN
 
 #define LED_HEARTBEAT_SETUP __LED_HEARTBEAT_DIR setOut __LED_HEARTBEAT_PIN; LED_HEARTBEAT_ON
@@ -276,7 +276,7 @@
 #define TEST_POINT1_HI __TEST_POINT1_OUT setHi __TEST_POINT1_PIN
 #define TEST_POINT1_LO __TEST_POINT1_OUT setLo __TEST_POINT1_PIN
 #define TEST_POINT1_IS_HI (0 != (TEST_POINT1))
-#define TEST_POINT1_IS_LO (0 == (TEST_POINT1))
+#define TEST_POINT1_IS_LO (false == (TEST_POINT1))
 #define TEST_POINT1_TOGGLE __TEST_POINT1_OUT toggleBit __TEST_POINT1_PIN
 
 #define TEST_POINT1_SETUP __TEST_POINT1_DIR setOut __TEST_POINT1_PIN; TEST_POINT1_HI
@@ -291,7 +291,7 @@
 #define TEST_POINT2_HI __TEST_POINT2_OUT setHi __TEST_POINT2_PIN
 #define TEST_POINT2_LO __TEST_POINT2_OUT setLo __TEST_POINT2_PIN
 #define TEST_POINT2_IS_HI (0 != (TEST_POINT2))
-#define TEST_POINT2_IS_LO (0 == (TEST_POINT2))
+#define TEST_POINT2_IS_LO (false == (TEST_POINT2))
 #define TEST_POINT2_TOGGLE __TEST_POINT2_OUT toggleBit __TEST_POINT2_PIN
 
 #define TEST_POINT2_SETUP __TEST_POINT2_DIR setOut __TEST_POINT2_PIN; TEST_POINT2_HI
@@ -306,7 +306,7 @@
 #define TEST_POINT3_HI __TEST_POINT3_OUT setHi __TEST_POINT3_PIN
 #define TEST_POINT3_LO __TEST_POINT3_OUT setLo __TEST_POINT3_PIN
 #define TEST_POINT3_IS_HI (0 != (TEST_POINT3))
-#define TEST_POINT3_IS_LO (0 == (TEST_POINT3))
+#define TEST_POINT3_IS_LO (false == (TEST_POINT3))
 #define TEST_POINT3_TOGGLE __TEST_POINT3_OUT toggleBit __TEST_POINT3_PIN
 
 #define TEST_POINT3_SETUP __TEST_POINT3_DIR setOut __TEST_POINT3_PIN; TEST_POINT3_HI
