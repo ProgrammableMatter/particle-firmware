@@ -57,12 +57,12 @@ FUNC_ATTRS void __storeDataBit(volatile RxPort *rxPort, const volatile uint8_t i
  */
 FUNC_ATTRS uint16_t __getTrimmedReceptionCounter(void) {
 
-#ifdef SIMULATION
-    if (TIMER_TX_RX_COUNTER > (2 * TIMER_TX_RX_COMPARE_TOP_VALUE)) {
-        DEBUG_CHAR_OUT('R');
-        IF_DEBUG_SWITCH_TO_ERRONEOUS_STATE;
-    }
-#endif
+//#ifdef SIMULATION
+//    if (TIMER_TX_RX_COUNTER > (2 * TIMER_TX_RX_COMPARE_TOP_VALUE)) {
+//        DEBUG_CHAR_OUT('R');
+//        IF_DEBUG_SWITCH_TO_ERRONEOUS_STATE;
+//    }
+//#endif
 
     if (TIMER_TX_RX_COUNTER > TIMER_TX_RX_COMPARE_TOP_VALUE) {
         return TIMER_TX_RX_COUNTER - TIMER_TX_RX_COMPARE_TOP_VALUE;
@@ -70,6 +70,61 @@ FUNC_ATTRS uint16_t __getTrimmedReceptionCounter(void) {
         return TIMER_TX_RX_COUNTER;
     }
 }
+
+/**
+ * Resets the counter. In case the interrupt was shifted (less than 1x compare value), the counter is trimmed,
+ * else in case of simulation it switches to erroneous state.
+ */
+FUNC_ATTRS void resetReceptionCounter(void) {
+//#ifdef SIMULATION
+//    if (TIMER_TX_RX_COUNTER > (2 * TIMER_TX_RX_COMPARE_TOP_VALUE)) {
+//        IF_SIMULATION_CHAR_OUT('r');
+//        IF_SIMULATION_SWITCH_TO_ERRONEOUS_STATE;
+//    }
+//#endif
+    if (TIMER_TX_RX_COUNTER > TIMER_TX_RX_COMPARE_TOP_VALUE) {
+        TIMER_TX_RX_COUNTER -= TIMER_TX_RX_COMPARE_TOP_VALUE;
+    } else {
+        TIMER_TX_RX_COUNTER = 0;
+    }
+}
+
+
+/**
+ * increments the timeout counters
+ */
+FUNC_ATTRS void advanceReceptionTimeoutCounters(void) {
+
+    if (ParticleAttributes.ports.rx.north.isReceiving == 1) {
+        ParticleAttributes.ports.rx.north.isDataBuffered = true;
+    }
+    ParticleAttributes.ports.rx.north.isReceiving >>= 1;
+
+#ifdef SIMULATION
+    if (ParticleAttributes.ports.rx.north.isReceiving == 0) {
+        DEBUG_CHAR_OUT('U');
+    }
+#endif
+
+    if (ParticleAttributes.ports.rx.east.isReceiving == 1) {
+        ParticleAttributes.ports.rx.east.isDataBuffered = true;
+    }
+    ParticleAttributes.ports.rx.east.isReceiving >>= 1;
+
+
+    if (ParticleAttributes.ports.rx.south.isReceiving == 1) {
+        ParticleAttributes.ports.rx.south.isDataBuffered = true;
+    }
+
+    ParticleAttributes.ports.rx.south.isReceiving >>= 1;
+#ifdef SIMULATION
+    if (ParticleAttributes.ports.rx.south.isReceiving == 0) {
+        DEBUG_CHAR_OUT('V');
+    }
+#endif
+
+}
+
 
 /**
  * Handles received data flanks and stores them according to the received time relative to the reception

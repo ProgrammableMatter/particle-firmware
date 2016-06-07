@@ -61,24 +61,6 @@ FUNC_ATTRS void __handleInputInterrupt(volatile PulseCounter *discoveryPulseCoun
 
 }
 
-/**
- * Resets the counter. In case the interrupt was shifted (less than 1x compare value), the counter is trimmed,
- * else in case of simulation it switches to erroneous state.
- */
-FUNC_ATTRS void __resetReceptionCounter(void) {
-//#ifdef SIMULATION
-//    if (TIMER_TX_RX_COUNTER > (2 * TIMER_TX_RX_COMPARE_TOP_VALUE)) {
-//        IF_SIMULATION_CHAR_OUT('r');
-//        IF_SIMULATION_SWITCH_TO_ERRONEOUS_STATE;
-//    }
-//#endif
-    if (TIMER_TX_RX_COUNTER > TIMER_TX_RX_COMPARE_TOP_VALUE) {
-        TIMER_TX_RX_COUNTER -= TIMER_TX_RX_COMPARE_TOP_VALUE;
-    } else {
-        TIMER_TX_RX_COUNTER = 0;
-    }
-}
-
 FUNC_ATTRS void __southTxHi(void) {
     SOUTH_TX_HI;
 }
@@ -101,34 +83,6 @@ FUNC_ATTRS void __eastTxHi(void) {
 
 FUNC_ATTRS void __eastTxLo(void) {
     EAST_TX_LO;
-}
-
-
-
-/**
- * increments the timeout counters
- */
-FUNC_ATTRS void __advanceReceptionTimeoutCounters(void) {
-
-    if (ParticleAttributes.ports.rx.north.isReceiving == 1) {
-        ParticleAttributes.ports.rx.north.isDataBuffered = true;
-    }
-    ParticleAttributes.ports.rx.north.isReceiving >>= 1;
-#ifdef SIMULATION
-    if (ParticleAttributes.ports.rx.north.isReceiving == 0) {
-        DEBUG_CHAR_OUT('U');
-    }
-#endif
-
-    if (ParticleAttributes.ports.rx.east.isReceiving == 1) {
-        ParticleAttributes.ports.rx.east.isDataBuffered = true;
-    }
-    ParticleAttributes.ports.rx.east.isReceiving >>= 1;
-
-    if (ParticleAttributes.ports.rx.south.isReceiving == 1) {
-        ParticleAttributes.ports.rx.south.isDataBuffered = true;
-    }
-    ParticleAttributes.ports.rx.south.isReceiving >>= 1;
 }
 
 /**
@@ -200,8 +154,8 @@ ISR(TX_RX_TIMER_TOP_INTERRUPT_VECT) {
                 case STATE_TYPE_XMISSION_TYPE_ENABLED_TX:
                 case STATE_TYPE_XMISSION_TYPE_ENABLED_RX:
                     // process reception
-                    __resetReceptionCounter();
-                    __advanceReceptionTimeoutCounters();
+                    resetReceptionCounter();
+                    advanceReceptionTimeoutCounters();
                     // process transmission
                     rectifyTransmissionBit(&ParticleAttributes.ports.tx.north, __northTxHi, __northTxLo);
                     rectifyTransmissionBit(&ParticleAttributes.ports.tx.east, __eastTxHi, __eastTxLo);
@@ -240,7 +194,7 @@ ISR(TX_RX_TIMER_CENTER_INTERRUPT_VECT) {
                 case STATE_TYPE_XMISSION_TYPE_ENABLED_TX:
                 case STATE_TYPE_XMISSION_TYPE_ENABLED_RX:
                     // process reception
-                    __advanceReceptionTimeoutCounters();
+                    advanceReceptionTimeoutCounters();
                     // process transmission
                     modulateTransmissionBit(&ParticleAttributes.ports.tx.north, __northTxHi, __northTxLo);
                     modulateTransmissionBit(&ParticleAttributes.ports.tx.east, __eastTxHi, __eastTxLo);
