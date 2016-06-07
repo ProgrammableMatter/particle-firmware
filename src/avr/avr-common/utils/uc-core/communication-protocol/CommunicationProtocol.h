@@ -18,6 +18,14 @@
 #  endif
 
 /**
+ * Sets the data end pointer to the specified position. For optimization purpose the struct is treated
+ * as uint16_t where the end poisition is
+ */
+#define setBufferDataEndPointer(dataEndPointer, uint16tDataEndPointer) { \
+    *((uint16_t *) &dataEndPointer) = uint16tDataEndPointer; \
+}
+
+/**
  * Constructs a SendEnumeratePackage at the beginning of parameter o.
  */
 FUNC_ATTRS void __constructSendEnumeratePackage(volatile PackageHeaderAddress *o, uint8_t localAddressRow,
@@ -39,7 +47,8 @@ FUNC_ATTRS void constructSendEnumeratePackageNorth(uint8_t localAddressRow,
     volatile PackageHeaderAddress *pha = &package->asDedicatedHeader;
     __constructSendEnumeratePackage(pha, localAddressRow,
                                     localAddressColumn);
-    ParticleAttributes.ports.tx.north.dataEndPos = PackageHeaderAddressBufferPointerSize;
+    setBufferDataEndPointer(ParticleAttributes.ports.tx.north.dataEndPos,
+                            PackageHeaderAddressBufferPointerSize);
 }
 
 /**
@@ -50,7 +59,8 @@ FUNC_ATTRS void constructSendEnumeratePackageEast(uint8_t localAddressRow,
     Package *package = (Package *) ParticleAttributes.ports.tx.east.buffer.bytes;
     PackageHeaderAddress *pha = &package->asDedicatedHeader;
     __constructSendEnumeratePackage(pha, localAddressRow, localAddressColumn);
-    ParticleAttributes.ports.tx.east.dataEndPos = PackageHeaderAddressBufferPointerSize;
+    setBufferDataEndPointer(ParticleAttributes.ports.tx.east.dataEndPos,
+                            PackageHeaderAddressBufferPointerSize);
 }
 
 /**
@@ -61,7 +71,8 @@ FUNC_ATTRS void constructSendEnumeratePackageSouth(uint8_t localAddressRow, uint
     PackageHeaderAddress *pha = &package->asDedicatedHeader;
     __constructSendEnumeratePackage(pha, localAddressRow,
                                     localAddressColumn);
-    ParticleAttributes.ports.tx.south.dataEndPos = PackageHeaderAddressBufferPointerSize;
+    setBufferDataEndPointer(ParticleAttributes.ports.tx.south.dataEndPos,
+                            PackageHeaderAddressBufferPointerSize);
 }
 
 /**
@@ -71,7 +82,7 @@ FUNC_ATTRS void constructSendACKPackage(volatile TxPort *txPort) {
     Package *package = (Package *) txPort->buffer.bytes;
     PackageHeaderAddress *pha = &package->asDedicatedHeader;
     pha->headerId = PACKAGE_HEADER_ID_TYPE_ACK;
-    txPort->dataEndPos = PackageHeaderBufferPointerSize;
+    setBufferDataEndPointer(txPort->dataEndPos, PackageHeaderBufferPointerSize);
 }
 
 /**
@@ -83,7 +94,8 @@ FUNC_ATTRS void constructSendEnumeratedACKWithAddressToNorth(void) {
     pha->headerId = PACKAGE_HEADER_ID_TYPE_ACK_WITH_DATA;
     pha->dataLsb = ParticleAttributes.node.address.row;
     pha->dataCeb = ParticleAttributes.node.address.column;
-    ParticleAttributes.ports.tx.north.dataEndPos = PackageHeaderData19BufferPointerSize;
+    setBufferDataEndPointer(ParticleAttributes.ports.tx.north.dataEndPos,
+                            PackageHeaderData19BufferPointerSize);
 }
 
 

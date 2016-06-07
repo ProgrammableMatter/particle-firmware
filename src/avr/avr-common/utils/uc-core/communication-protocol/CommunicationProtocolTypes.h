@@ -14,6 +14,7 @@
 #    define FUNC_ATTRS
 #  endif
 
+
 /**
  * describes a package header
  */
@@ -28,12 +29,13 @@ typedef struct {
 /**
  * PackageHeader data length expressed as BufferPointer
  */
-#define PackageHeaderBufferPointerSize \
+#define PackageHeaderBufferPointerSize ((uint16_t) 0x0001 | ((uint16_t) 1 << (7 + 0)))
+/* \
     ((BufferBitPointer) { \
         .byteNumber = 1, \
         .bitMask = (1 << 0) \
     })
-
+*/
 /**
  * describes a package header with subsequent address
  */
@@ -50,13 +52,14 @@ typedef struct {
 /**
  * PackageHeaderAddress length expressed as BufferPointer
  */
-//#define PackageHeaderAddressBufferPointerSize ((BufferBitPointer) {.byteNumber = 2, .bitMask = (1 << 7)})
-#define PackageHeaderAddressBufferPointerSize \
+//#define PackageHeaderAddressBufferPointerSize ((BufferBitPointer) {.byteNumber = 2, .bitMask = ((uint16_t) 1 << 7)})
+#define PackageHeaderAddressBufferPointerSize ((uint16_t) 0x0003 | ((uint16_t) 1 << (8 + 0)))
+/*\
     ((BufferBitPointer) { \
         .byteNumber = 3, \
         .bitMask = (1 << 0) \
     })
-
+*/
 /**
  * describes a package header with subsequent address range
  */
@@ -75,12 +78,13 @@ typedef struct {
 /**
  * PackageHeaderAddressRange length expressed as BufferPointer
  */
-#define PackageHeaderAddressRangeBufferPointerSize \
+#define PackageHeaderAddressRangeBufferPointerSize ((uint16_t) 0x0005 | ((uint16_t) 1 << (8 + 0)))
+/* \
     ((BufferBitPointer){ \
         .byteNumber = 5, \
         .bitMask = (1 << 0) \
     })
-
+*/
 /**
  * describes a package header with 7 subsequent data bits
  */
@@ -96,11 +100,13 @@ typedef struct {
 /**
  * PackageHeaderData7 length expressed as BufferPointer
  */
-#define PackageHeaderData7BufferPointerSize \
+#define PackageHeaderData7BufferPointerSize ((uint16_t) 0x0001 | ((uint16_t) 1 << (8 + 6 + 1)))
+/* \
     ((BufferBitPointer) { \
         .byteNumber = 1, \
         .bitMask = (1 << (6 + 1)) \
     })
+*/
 
 /**
  * describes a package header with 11 subsequent data bits
@@ -118,11 +124,13 @@ typedef struct {
 /**
  * PackageHeaderData11 length expressed as BufferPointer
  */
-#define PackageHeaderData11BufferPointerSize \
+#define PackageHeaderData11BufferPointerSize ((uint16_t) 0x0002 | ((uint16_t) 1 << (8 + 2 + 1)))
+/* \
     ((BufferBitPointer) { \
         .byteNumber = 2, \
         .bitMask = (1 << (2 + 1)) \
     })
+*/
 
 /**
  * describes a package header with 19 subsequent data bits
@@ -141,11 +149,13 @@ typedef struct {
 /**
  * PackageHeaderData17 length expressed as BufferPointer
  */
-#define PackageHeaderData19BufferPointerSize \
+#define PackageHeaderData19BufferPointerSize ((uint16_t) 0x0003 | ((uint16_t) 1 << (8 + 2 + 1)))
+/* \
     ((BufferBitPointer) { \
         .byteNumber = 3, \
         .bitMask = (1 << (2 + 1)) \
     })
+*/
 
 /**
  * describes a package header with subsequent address and seven data bits
@@ -164,12 +174,13 @@ typedef struct {
 /**
  * PackageHeaderAddressData7 length expressed as BufferPointer
  */
-#define PackageHeaderAddressData7BufferPointerSize \
+#define PackageHeaderAddressData7BufferPointerSize ((uint16_t) 0x003 | ((uint16_t) 1 << (8 + 6 + 1)))
+/* \
     ((BufferBitPointer){ \
         .byteNumber = 3, \
         .bitMask = (1 << (6 + 1)) \
     })
-
+*/
 /**
  * describes a package header with subsequent address and 11 data bits
  */
@@ -187,12 +198,13 @@ typedef struct {
 /**
  * PackageHeaderAddressData11 length expressed as BufferPointer
  */
-#define PackageHeaderAddressData11BufferPointerSize \
+#define PackageHeaderAddressData11BufferPointerSize ((uint16_t) 0x0003 | ((uint16_t) 1 << (8 + 2 + 1)))
+/* \
     ((BufferBitPointer){ \
         .byteNumber = 3, \
         .bitMask = (1 << (2 + 1)) \
     })
-
+*/
 /**
  * describes a package header with subsequent address and 19 data bits
  */
@@ -212,12 +224,13 @@ typedef struct {
 /**
  * PackageHeaderAddressData19 length expressed as BufferPointer
  */
-#define PackageHeaderAddressData19BufferPointerSize \
+#define PackageHeaderAddressData19BufferPointerSize ((uint16_t) 0x0004 | ((uint16_t) 1 << (8 + 2 + 1)))
+/* \
     ((BufferBitPointer){ \
         .byteNumber = 4, \
         .bitMask = (1 << (2 + 1)) \
     })
-
+*/
 /**
  * describes a package header with subsequent address range and 7 data bits
  */
@@ -237,12 +250,13 @@ typedef struct {
 /**
  * PackageHeaderAddressRangeData7 length expressed as BufferPointer
  */
-#define PackageHeaderAddressRangeData7BufferPointerSize \
+#define PackageHeaderAddressRangeData7BufferPointerSize ((uint16_t) 0x0005 | ((uint16_t) 1 << (8 + 6 + 1)))
+/* \
     ((BufferBitPointer){ \
         .byteNumber = 5, \
         .bitMask = (1 << (6 + 1)) \
     })
-
+*/
 /**
  * describes a package header with subsequent address range and 11 data bits
  */
@@ -263,12 +277,13 @@ typedef struct {
 /**
  * PackageHeaderAddressRangeData11 length expressed as BufferPointer
  */
-#define PackageHeaderAddressRangeData11BufferPointerSize \
+#define PackageHeaderAddressRangeData11BufferPointerSize ((uint16_t) 0x0006 | ((uint16_t) 1 << (8 + 2 + 1)))
+/*\
     ((BufferBitPointer){ \
         .byteNumber = 6, \
         .bitMask = (1 << (2 + 1)) \
     })
-
+*/
 /**
  * describes a package heaer with subsequent address range and 19 data bits
  */
@@ -290,12 +305,13 @@ typedef struct {
 /**
  * PackageHeaderAddressRangeData19 length expressed as BufferPointer
  */
-#define PackageHeaderAddressRangeData19BufferPointerSize \
+#define PackageHeaderAddressRangeData19BufferPointerSize ((uint16_t) 0x0007 | ((uint16_t) 1 << (8 + 2 + 1)))
+/* \
     ((BufferBitPointer){ \
         .byteNumber = 7, \
-        .bitMask = (1 << (2 + 1)) \
+        .bitMask = ((uint16_t) 1 << (2 + 1)) \
     })
-
+*/
 typedef union {
     PackageHeader asHeader;
     PackageHeader asACK;
