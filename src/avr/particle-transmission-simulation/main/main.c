@@ -50,13 +50,13 @@ int main(void) {
 //    ParticleAttributes.ports.tx.south.buffer.bytes[4] = 0b10101010; // == 0xaa
 //    ParticleAttributes.ports.tx.south.buffer.bytes[5] = 0b10101010; // == 0xaa
 //    ParticleAttributes.ports.tx.south.buffer.bytes[6] = 0b10100111; // == 0xa7
-    ParticleAttributes.ports.tx.south.buffer.bytes[6] = 0b00100110;
-    ParticleAttributes.ports.tx.south.buffer.bytes[5] = 0b01111110;
-    ParticleAttributes.ports.tx.south.buffer.bytes[4] = 0b10101010;
-    ParticleAttributes.ports.tx.south.buffer.bytes[3] = 0b01010101;
-    ParticleAttributes.ports.tx.south.buffer.bytes[2] = 0b10101010;
+    ParticleAttributes.ports.tx.south.buffer.bytes[0] = 0b00100110;
     ParticleAttributes.ports.tx.south.buffer.bytes[1] = 0b10101010;
-    ParticleAttributes.ports.tx.south.buffer.bytes[0] = 0b10100110;
+    ParticleAttributes.ports.tx.south.buffer.bytes[2] = 0b10101010;
+    ParticleAttributes.ports.tx.south.buffer.bytes[3] = 0b01010101;
+    ParticleAttributes.ports.tx.south.buffer.bytes[4] = 0b10101010;
+    ParticleAttributes.ports.tx.south.buffer.bytes[5] = 0b01111110;
+    ParticleAttributes.ports.tx.south.buffer.bytes[6] = 0b00100110;
     // least significant bit must be set due tu the physically underlying protocol
     ParticleAttributes.ports.tx.south.buffer.bytes[0] |= 0x1;
 
