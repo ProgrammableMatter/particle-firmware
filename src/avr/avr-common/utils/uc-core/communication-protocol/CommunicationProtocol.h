@@ -21,9 +21,15 @@
  * Sets the data end pointer to the specified position. For optimization purpose the struct is treated
  * as uint16_t where the end poisition is
  */
-#define setBufferDataEndPointer(dataEndPointer, uint16tDataEndPointer) { \
-    *((uint16_t *) &dataEndPointer) = uint16tDataEndPointer; \
-}
+#define setBufferDataEndPointer(bufferDataEndPointer, uint16tNewDataEndPointer) \
+    (*((uint16_t *) &bufferDataEndPointer) = uint16tNewDataEndPointer)
+
+
+#define equalsPackageSize(bufferDataEndPointer, uint16tExpectedDataEndPointer) \
+    (*((uint16_t *) &bufferDataEndPointer) == uint16tExpectedDataEndPointer)
+
+
+
 
 /**
  * Constructs a SendEnumeratePackage at the beginning of parameter o.
@@ -44,7 +50,7 @@ FUNC_ATTRS void __constructSendEnumeratePackage(volatile PackageHeaderAddress *o
 FUNC_ATTRS void constructSendEnumeratePackageNorth(uint8_t localAddressRow,
                                                    uint8_t localAddressColumn) {
     volatile Package *package = (Package *) ParticleAttributes.ports.tx.north.buffer.bytes;
-    volatile PackageHeaderAddress *pha = &package->asDedicatedHeader;
+    volatile PackageHeaderAddress *pha = &package->asEnumerationPackage;
     __constructSendEnumeratePackage(pha, localAddressRow,
                                     localAddressColumn);
     setBufferDataEndPointer(ParticleAttributes.ports.tx.north.dataEndPos,
@@ -57,7 +63,7 @@ FUNC_ATTRS void constructSendEnumeratePackageNorth(uint8_t localAddressRow,
 FUNC_ATTRS void constructSendEnumeratePackageEast(uint8_t localAddressRow,
                                                   uint8_t localAddressColumn) {
     Package *package = (Package *) ParticleAttributes.ports.tx.east.buffer.bytes;
-    PackageHeaderAddress *pha = &package->asDedicatedHeader;
+    PackageHeaderAddress *pha = &package->asEnumerationPackage;
     __constructSendEnumeratePackage(pha, localAddressRow, localAddressColumn);
     setBufferDataEndPointer(ParticleAttributes.ports.tx.east.dataEndPos,
                             PackageHeaderAddressBufferPointerSize);
@@ -68,7 +74,7 @@ FUNC_ATTRS void constructSendEnumeratePackageEast(uint8_t localAddressRow,
  */
 FUNC_ATTRS void constructSendEnumeratePackageSouth(uint8_t localAddressRow, uint8_t localAddressColumn) {
     Package *package = (Package *) ParticleAttributes.ports.tx.south.buffer.bytes;
-    PackageHeaderAddress *pha = &package->asDedicatedHeader;
+    PackageHeaderAddress *pha = &package->asEnumerationPackage;
     __constructSendEnumeratePackage(pha, localAddressRow,
                                     localAddressColumn);
     setBufferDataEndPointer(ParticleAttributes.ports.tx.south.dataEndPos,
@@ -80,20 +86,20 @@ FUNC_ATTRS void constructSendEnumeratePackageSouth(uint8_t localAddressRow, uint
  */
 FUNC_ATTRS void constructSendACKPackage(volatile TxPort *txPort) {
     Package *package = (Package *) txPort->buffer.bytes;
-    PackageHeaderAddress *pha = &package->asDedicatedHeader;
+    PackageHeader *pha = &package->asACKPackage;
     pha->headerId = PACKAGE_HEADER_ID_TYPE_ACK;
     setBufferDataEndPointer(txPort->dataEndPos, PackageHeaderBufferPointerSize);
 }
 
 /**
- * Constructs an ACK package with 2 byte data payload (the local address) at the north tx buffer.
+ * Constructs an ACK package with 2 byte data payload as the address field at the given port tx buffer.
  */
-FUNC_ATTRS void constructSendEnumeratedACKWithAddressToNorth(void) {
+FUNC_ATTRS void constructSendEnumeratedACKWithAddressToParent(void) {
     Package *package = (Package *) ParticleAttributes.ports.tx.north.buffer.bytes;
-    PackageHeaderData19 *pha = &package->asACKData19;
+    PackageHeaderAddress *pha = &package->asACKWithLocalAddress;
     pha->headerId = PACKAGE_HEADER_ID_TYPE_ACK_WITH_DATA;
-    pha->dataLsb = ParticleAttributes.node.address.row;
-    pha->dataCeb = ParticleAttributes.node.address.column;
+    pha->addressRow0 = ParticleAttributes.node.address.row;
+    pha->addressColumn0 = ParticleAttributes.node.address.column;
     setBufferDataEndPointer(ParticleAttributes.ports.tx.north.dataEndPos,
                             PackageHeaderData19BufferPointerSize);
 }
