@@ -37,10 +37,7 @@ FUNC_ATTRS void __handleInputInterrupt(volatile PulseCounter *discoveryPulseCoun
         // on discovery pulse
         case STATE_TYPE_NEIGHBOURS_DISCOVERY:
             if (!isRxHigh) {
-                TIMER_NEIGHBOUR_SENSE_PAUSE;
-                TIMER_NEIGHBOUR_SENSE_COUNTER -= TIMER_NEIGHBOUR_SENSE_COUNTER_ON_INTERRUPT_ROLLBACK;
                 dispatchFallingDiscoveryEdge(discoveryPulseCounter);
-                TIMER_NEIGHBOUR_SENSE_RESUME;
             }
             break;
 
@@ -137,14 +134,9 @@ ISR(TX_RX_TIMER_TOP_INTERRUPT_VECT) {
         case STATE_TYPE_NEIGHBOURS_DISCOVERY:
         case STATE_TYPE_NEIGHBOURS_DISCOVERED:
         case STATE_TYPE_DISCOVERY_PULSING:
-            TIMER_NEIGHBOUR_SENSE_PAUSE;
-            TIMER_NEIGHBOUR_SENSE_COUNTER = 0;
-
             NORTH_TX_TOGGLE;
             SOUTH_TX_TOGGLE;
             EAST_TX_TOGGLE;
-
-            TIMER_NEIGHBOUR_SENSE_RESUME;
             break;
 
             // otherwise process transmission and reception
@@ -154,7 +146,6 @@ ISR(TX_RX_TIMER_TOP_INTERRUPT_VECT) {
                 case STATE_TYPE_XMISSION_TYPE_ENABLED_TX:
                 case STATE_TYPE_XMISSION_TYPE_ENABLED_RX:
                     // process reception
-                    resetReceptionCounter();
                     advanceReceptionTimeoutCounters();
                     // process transmission
                     rectifyTransmissionBit(&ParticleAttributes.ports.tx.north, __northTxHi, __northTxLo);

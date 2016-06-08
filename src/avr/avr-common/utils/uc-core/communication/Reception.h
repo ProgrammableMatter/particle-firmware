@@ -72,25 +72,6 @@ FUNC_ATTRS uint16_t __getTrimmedReceptionCounter(void) {
 }
 
 /**
- * Resets the counter. In case the interrupt was shifted (less than 1x compare value), the counter is trimmed,
- * else in case of simulation it switches to erroneous state.
- */
-FUNC_ATTRS void resetReceptionCounter(void) {
-//#ifdef SIMULATION
-//    if (TIMER_TX_RX_COUNTER > (2 * TIMER_TX_RX_COMPARE_TOP_VALUE)) {
-//        IF_SIMULATION_CHAR_OUT('r');
-//        IF_SIMULATION_SWITCH_TO_ERRONEOUS_STATE;
-//    }
-//#endif
-    if (TIMER_TX_RX_COUNTER > TIMER_TX_RX_COMPARE_TOP_VALUE) {
-        TIMER_TX_RX_COUNTER -= TIMER_TX_RX_COMPARE_TOP_VALUE;
-    } else {
-        TIMER_TX_RX_COUNTER = 0;
-    }
-}
-
-
-/**
  * increments the timeout counters
  */
 FUNC_ATTRS void advanceReceptionTimeoutCounters(void) {

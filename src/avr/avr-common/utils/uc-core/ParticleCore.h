@@ -73,6 +73,10 @@ FUNC_ATTRS void __disableDiscoveryPulsing(void) {
     TIMER_NEIGHBOUR_SENSE_DISABLE;
 }
 
+FUNC_ATTRS void __enableDiscovery(void) {
+    TIMER_NEIGHBOUR_SENSE_ENABLE;
+    TIMER_NEIGHBOUR_SENSE_RESUME;
+}
 
 /**
  * Sets up ports and interrupts but does not enable the global interrupt (I-flag in SREG)
@@ -190,12 +194,10 @@ FUNC_ATTRS void particleTick(void) {
             ParticleAttributes.node.state = STATE_TYPE_START;
             break;
 
-            // STATE_TYPE_ACTIVE: switch to state discovery and enable interrupt
         case STATE_TYPE_ACTIVE:
             ParticleAttributes.node.state = STATE_TYPE_NEIGHBOURS_DISCOVERY;
-            // enable pulsing on north, south and east tx wires
-            TIMER_NEIGHBOUR_SENSE_ENABLE;
-            SREG setBit bit(SREG_I); // finally enable interrupts
+            __enableDiscovery();
+            SREG setBit bit(SREG_I);
             break;
 
             //// ---------------- discovery states ----------------
@@ -217,8 +219,6 @@ FUNC_ATTRS void particleTick(void) {
                     // TODO: find the lower bound and decide how log a good delay is
                     DELAY_US_15;
                     DELAY_US_15;
-                    DELAY_US_15;
-                    DELAY_US_15;
                 }
                 __updateOriginNodeAddress();
             }
@@ -235,6 +235,9 @@ FUNC_ATTRS void particleTick(void) {
         case STATE_TYPE_DISCOVERY_PULSING:
             if (ParticleAttributes.discoveryPulseCounters.loopCount >= MAX_NEIGHBOUR_PULSING_LOOPS) {
                 __disableDiscoveryPulsing();
+                DELAY_US_150;
+                DELAY_US_150;
+                DELAY_US_150;
                 DELAY_US_150;
                 if (ParticleAttributes.node.type == NODE_TYPE_ORIGIN) {
                     ParticleAttributes.node.state = STATE_TYPE_ENUMERATING_NEIGHBOURS;
