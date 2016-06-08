@@ -17,7 +17,7 @@
 #    define FUNC_ATTRS
 #  endif
 
-#define __RECEPTION_TIMEOUT_COUNTER_MAX 0xf;
+#define __RECEPTION_TIMEOUT_COUNTER_MAX 0xF;
 
 /**
  * Translates the hardware counter to a specific port counter according to the provided TimerCounterAdjustment.

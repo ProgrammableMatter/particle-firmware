@@ -256,14 +256,16 @@ FUNC_ATTRS void particleTick(void) {
             break;
 
         case STATE_TYPE_WAIT_FOR_BEING_ENUMERATED_SEND_ACK_RESPONSE_TO_PARENT:
-            constructSendACKPackage(&ParticleAttributes.ports.tx.north);
+            constructSendEnumeratedACKWithAddressToParent();
             releaseTransmissionPortBufferForTransmission(&ParticleAttributes.ports.tx.north);
+            ParticleAttributes.node.state = STATE_TYPE_WAIT_FOR_BEING_ENUMERATED_WAIT_UNTIL_ACK_RESPONSE_TO_PARENT_TRANSMISSION_FINISHED;
             break;
 
         case STATE_TYPE_WAIT_FOR_BEING_ENUMERATED_WAIT_UNTIL_ACK_RESPONSE_TO_PARENT_TRANSMISSION_FINISHED:
             if (isPortTransmitting(&ParticleAttributes.ports.tx.north)) {
                 break;
             }
+            clearReceptionBuffer(&ParticleAttributes.ports.rx.north);
             ParticleAttributes.node.state = STATE_TYPE_WAIT_FOR_BEING_ENUMERATED_ACK_RESPONSE_FROM_PARENT;
             break;
 
@@ -294,13 +296,13 @@ FUNC_ATTRS void particleTick(void) {
                         ParticleAttributes.node.address.row,
                         ParticleAttributes.node.address.column + 1);
                 releaseTransmissionPortBufferForTransmission(&ParticleAttributes.ports.tx.east);
-                ParticleAttributes.node.state = STATE_TYPE_ENUMERATING_EAST_WAIT_UNTIL_EAST_ENUMERATION_TRANSMISSIONS_FINISHED;
+                ParticleAttributes.node.state = STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR_WAIT_UNTIL_TRANSMISSION_FINISHED;
             } else {
                 ParticleAttributes.node.state = STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR_DONE;
             }
             break;
 
-        case STATE_TYPE_ENUMERATING_EAST_WAIT_UNTIL_EAST_ENUMERATION_TRANSMISSIONS_FINISHED:
+        case STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR_WAIT_UNTIL_TRANSMISSION_FINISHED:
             if (isPortTransmitting(&ParticleAttributes.ports.tx.east)) {
                 break;
             }
@@ -315,7 +317,7 @@ FUNC_ATTRS void particleTick(void) {
             prepareTransmissionPortBuffer(&ParticleAttributes.ports.tx.east);
             constructSendACKPackage(&ParticleAttributes.ports.tx.east);
             releaseTransmissionPortBufferForTransmission(&ParticleAttributes.ports.tx.east);
-            ParticleAttributes.node.state = STATE_TYPE_ENUMERATING_EAST_WAIT_UNTIL_EAST_ENUMERATION_TRANSMISSIONS_FINISHED;
+            ParticleAttributes.node.state = STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR_WAIT_UNTIL_TRANSMISSION_FINISHED;
             break;
 
 
@@ -332,16 +334,17 @@ FUNC_ATTRS void particleTick(void) {
                         ParticleAttributes.node.address.row + 1,
                         ParticleAttributes.node.address.column);
                 releaseTransmissionPortBufferForTransmission(&ParticleAttributes.ports.tx.south);
-                ParticleAttributes.node.state = STATE_TYPE_ENUMERATING_SOUTH_WAIT_UNTIL_SOUTH_ENUMERATION_TRANSMISSIONS_FINISHED;
+                ParticleAttributes.node.state = STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR_WAIT_UNTIL_TRANSMISSION_FINISHED;
             } else {
                 ParticleAttributes.node.state = STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR_DONE;
             }
             break;
 
-        case STATE_TYPE_ENUMERATING_SOUTH_WAIT_UNTIL_SOUTH_ENUMERATION_TRANSMISSIONS_FINISHED:
+        case STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR_WAIT_UNTIL_TRANSMISSION_FINISHED:
             if (isPortTransmitting(&ParticleAttributes.ports.tx.south)) {
                 break;
             }
+            clearReceptionBuffer(&ParticleAttributes.ports.rx.south);
             ParticleAttributes.node.state = STATE_TYPE_ENUMERATING_SOUTH_WAIT_UNTIL_ACK_RESPONSE_FROM_SOUTH;
             break;
 
@@ -353,9 +356,15 @@ FUNC_ATTRS void particleTick(void) {
             prepareTransmissionPortBuffer(&ParticleAttributes.ports.tx.south);
             constructSendACKPackage(&ParticleAttributes.ports.tx.south);
             releaseTransmissionPortBufferForTransmission(&ParticleAttributes.ports.tx.south);
-            ParticleAttributes.node.state = STATE_TYPE_ENUMERATING_SOUTH_WAIT_UNTIL_SOUTH_ENUMERATION_TRANSMISSIONS_FINISHED;
+            ParticleAttributes.node.state = STATE_TYPE_ENUMERATING_SOUTH_SEND_ACK_RESPONSE_TO_SOUTH_WAIT_UNTIL_TRANSMISSION_FINISHED;
             break;
 
+        case STATE_TYPE_ENUMERATING_SOUTH_SEND_ACK_RESPONSE_TO_SOUTH_WAIT_UNTIL_TRANSMISSION_FINISHED:
+            if (isPortTransmitting(&ParticleAttributes.ports.tx.south)) {
+                break;
+            }
+            ParticleAttributes.node.state = STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR_DONE;
+            break;
 
         case STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR_DONE:
             ParticleAttributes.node.state = STATE_TYPE_ENUMERATING_NEIGHBOURS_DONE;
