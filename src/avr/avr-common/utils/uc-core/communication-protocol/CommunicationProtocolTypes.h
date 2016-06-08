@@ -29,7 +29,9 @@ typedef struct {
 /**
  * PackageHeader data length expressed as BufferPointer
  */
-#define PackageHeaderBufferPointerSize ((uint16_t) 0x0001 | ((uint16_t) 1 << (7 + 0)))
+#define PackageHeaderBufferPointerSize \
+    ((((uint16_t) 0x0100) << (0 + 0)) \
+    |((uint16_t) 0x0001))
 /* \
     ((BufferBitPointer) { \
         .byteNumber = 1, \
@@ -53,7 +55,9 @@ typedef struct {
  * PackageHeaderAddress length expressed as BufferPointer
  */
 //#define PackageHeaderAddressBufferPointerSize ((BufferBitPointer) {.byteNumber = 2, .bitMask = ((uint16_t) 1 << 7)})
-#define PackageHeaderAddressBufferPointerSize ((uint16_t) 0x0003 | ((uint16_t) 1 << (8 + 0)))
+#define PackageHeaderAddressBufferPointerSize \
+    ((((uint16_t) 0x0100) << (0 + 0))\
+    |((uint16_t) 0x0003))
 /*\
     ((BufferBitPointer) { \
         .byteNumber = 3, \
@@ -78,7 +82,9 @@ typedef struct {
 /**
  * PackageHeaderAddressRange length expressed as BufferPointer
  */
-#define PackageHeaderAddressRangeBufferPointerSize ((uint16_t) 0x0005 | ((uint16_t) 1 << (8 + 0)))
+#define PackageHeaderAddressRangeBufferPointerSize \
+    ((((uint16_t) 0x0100) << (0 + 0)) \
+    |((uint16_t) 0x0005))
 /* \
     ((BufferBitPointer){ \
         .byteNumber = 5, \
@@ -100,7 +106,9 @@ typedef struct {
 /**
  * PackageHeaderData7 length expressed as BufferPointer
  */
-#define PackageHeaderData7BufferPointerSize ((uint16_t) 0x0001 | ((uint16_t) 1 << (8 + 6 + 1)))
+#define PackageHeaderData7BufferPointerSize  \
+    ((((uint16_t) 0x0100) << (6 + 1)) \
+    |((uint16_t) 0x0001))
 /* \
     ((BufferBitPointer) { \
         .byteNumber = 1, \
@@ -124,7 +132,9 @@ typedef struct {
 /**
  * PackageHeaderData11 length expressed as BufferPointer
  */
-#define PackageHeaderData11BufferPointerSize ((uint16_t) 0x0002 | ((uint16_t) 1 << (8 + 2 + 1)))
+#define PackageHeaderData11BufferPointerSize  \
+    ((((uint16_t) 0x0100) << (2 + 1)) \
+    |((uint16_t) 0x0002))
 /* \
     ((BufferBitPointer) { \
         .byteNumber = 2, \
@@ -149,7 +159,9 @@ typedef struct {
 /**
  * PackageHeaderData17 length expressed as BufferPointer
  */
-#define PackageHeaderData19BufferPointerSize ((uint16_t) 0x0003 | ((uint16_t) 1 << (8 + 2 + 1)))
+#define PackageHeaderData19BufferPointerSize  \
+    ((((uint16_t) 0x0100) << (2 + 1)) \
+    |((uint16_t) 0x0003))
 /* \
     ((BufferBitPointer) { \
         .byteNumber = 3, \
@@ -174,7 +186,9 @@ typedef struct {
 /**
  * PackageHeaderAddressData7 length expressed as BufferPointer
  */
-#define PackageHeaderAddressData7BufferPointerSize ((uint16_t) 0x003 | ((uint16_t) 1 << (8 + 6 + 1)))
+#define PackageHeaderAddressData7BufferPointerSize  \
+    ((((uint16_t) 0x0100) << (6 + 1)) \
+    |((uint16_t) 0x0003))
 /* \
     ((BufferBitPointer){ \
         .byteNumber = 3, \
@@ -198,7 +212,9 @@ typedef struct {
 /**
  * PackageHeaderAddressData11 length expressed as BufferPointer
  */
-#define PackageHeaderAddressData11BufferPointerSize ((uint16_t) 0x0003 | ((uint16_t) 1 << (8 + 2 + 1)))
+#define PackageHeaderAddressData11BufferPointerSize   \
+    ((((uint16_t) 0x0100) << (2 + 1)) \
+    |((uint16_t) 0x0003))
 /* \
     ((BufferBitPointer){ \
         .byteNumber = 3, \
@@ -224,7 +240,9 @@ typedef struct {
 /**
  * PackageHeaderAddressData19 length expressed as BufferPointer
  */
-#define PackageHeaderAddressData19BufferPointerSize ((uint16_t) 0x0004 | ((uint16_t) 1 << (8 + 2 + 1)))
+#define PackageHeaderAddressData19BufferPointerSize   \
+    ((((uint16_t) 0x0100) << (2 + 1)) \
+    |((uint16_t) 0x0004))
 /* \
     ((BufferBitPointer){ \
         .byteNumber = 4, \
@@ -250,7 +268,9 @@ typedef struct {
 /**
  * PackageHeaderAddressRangeData7 length expressed as BufferPointer
  */
-#define PackageHeaderAddressRangeData7BufferPointerSize ((uint16_t) 0x0005 | ((uint16_t) 1 << (8 + 6 + 1)))
+#define PackageHeaderAddressRangeData7BufferPointerSize  \
+    ((((uint16_t) 0x0100) << (6 + 1)) \
+    |((uint16_t) 0x0005))
 /* \
     ((BufferBitPointer){ \
         .byteNumber = 5, \
@@ -277,7 +297,9 @@ typedef struct {
 /**
  * PackageHeaderAddressRangeData11 length expressed as BufferPointer
  */
-#define PackageHeaderAddressRangeData11BufferPointerSize ((uint16_t) 0x0006 | ((uint16_t) 1 << (8 + 2 + 1)))
+#define PackageHeaderAddressRangeData11BufferPointerSize   \
+    ((((uint16_t) 0x0100) << (2 + 1)) \
+    |((uint16_t) 0x0006))
 /*\
     ((BufferBitPointer){ \
         .byteNumber = 6, \
@@ -305,7 +327,9 @@ typedef struct {
 /**
  * PackageHeaderAddressRangeData19 length expressed as BufferPointer
  */
-#define PackageHeaderAddressRangeData19BufferPointerSize ((uint16_t) 0x0007 | ((uint16_t) 1 << (8 + 2 + 1)))
+#define PackageHeaderAddressRangeData19BufferPointerSize  \
+    ((((uint16_t) 0x0100) << (2 + 1)) \
+    |((uint16_t) 0x0007))
 /* \
     ((BufferBitPointer){ \
         .byteNumber = 7, \
@@ -314,9 +338,11 @@ typedef struct {
 */
 typedef union {
     PackageHeader asHeader;
-    PackageHeader asACK;
+    PackageHeader asACKPackage;
     PackageHeader asBroadcastHeader;
-    PackageHeaderAddress asDedicatedHeader;
+
+    PackageHeaderAddress asACKWithLocalAddress;
+    PackageHeaderAddress asEnumerationPackage;
     PackageHeaderAddressRange asMulticastHeader;
 
     PackageHeaderData7 asBroadcastData7;
@@ -328,7 +354,6 @@ typedef union {
     PackageHeaderAddressRangeData11 asMulticastData11;
 
     PackageHeaderData19 asBroadcastData19;
-    PackageHeaderData19 asACKData19;
     PackageHeaderAddressData19 asDedicatedData19;
     PackageHeaderAddressRangeData19 asMulticastData19;
 } Package;
