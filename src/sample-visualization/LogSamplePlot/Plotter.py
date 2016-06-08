@@ -20,7 +20,7 @@ class Plotter:
         self.pointAnnotations = []
         self.windowTitle = ""
 
-        self.lastXCoordinate = 0;
+        # self.lastXCoordinate = 0;
         self.lastClickedXCoordinate = None;
 
     def __newSubplot(self, xValues, yValues, annotations, title="Title", xLabel="", yLabel=""):
@@ -81,7 +81,7 @@ class Plotter:
         row = 1
 
         def formatCoord(x, y):
-            self.lastXCoordinate = x
+            # self.lastXCoordinate = x
             if self.lastClickedXCoordinate != None:
                 difference = (self.lastClickedXCoordinate - x) * 1E-9
                 return '(t={:1.9f}[ms], y={:}) || x1={:1.9f} diff.={:1.9f}'.format(x * 1E-9, y, self.lastClickedXCoordinate * 1E-9, difference)
@@ -118,7 +118,7 @@ class Plotter:
             ind = event.ind
             eventPoints = zip(xdata[ind], ydata[ind])
 
-            self.lastClickedXCoordinate = self.lastXCoordinate
+            # self.lastClickedXCoordinate = self.lastXCoordinate
 
             for eventPoint in eventPoints:
                 isVisibilityChanged = False
@@ -126,6 +126,7 @@ class Plotter:
                     if (float(eventPoint[0]), float(eventPoint[1])) == (float(chartPoint[0]), float(chartPoint[1])):
                         if annotation.get_visible() == False:
                             annotation.set_visible(True)
+                            self.lastClickedXCoordinate = float(chartPoint[0])
                             isVisibilityChanged = True
                     else:
                         if annotation.get_visible() == True:
