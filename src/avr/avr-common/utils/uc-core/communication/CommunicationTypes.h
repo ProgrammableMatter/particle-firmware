@@ -9,6 +9,7 @@
 #include <stdbool.h>
 #include "../../simulation/SimulationMacros.h"
 #include "../ParticleParameters.h"
+#include "./ManchesterDecodingTypes.h"
 
 #  ifdef TRY_INLINE
 #    define FUNC_ATTRS inline
@@ -37,7 +38,8 @@ typedef struct {
 
 /**
  * Provides a linear 4 byte buffer and a bit pointer per communication channel.
- * The struct is used for transmission and reception as well.
+ * The struct is used for transmission. Received bits are stored in the buffer
+ * after being decoded.
  */
 typedef struct {
     uint8_t bytes[7]; // reception buffer
@@ -91,24 +93,22 @@ FUNC_ATTRS void constructTxPorts(volatile TxPorts *o) {
 typedef struct {
     uint16_t receptionOffset; // synchronization offset of fist received bit relative to compare counter
     // TODO: deprecated
-    uint16_t __pad; //center__; // center, usually DEFAULT_TX_RX_COMPARE_TOP_VALUE / TX_RX_COUNTER_CENTER_VALUE_DIVISOR
+    uint16_t __pad1; //center__; // center, usually DEFAULT_TX_RX_COMPARE_TOP_VALUE / TX_RX_COUNTER_CENTER_VALUE_DIVISOR
     // TODO: deprecated
-    uint16_t __pad1; //leftOfCenter__; // left border of center classification
+    uint16_t __pad2; //leftOfCenter__; // left border of center classification
     // TODO: deprecated
-    uint16_t __pad2; //rightOfCenter__; // right border of center classification
+    uint16_t __pad3; //rightOfCenter__; // right border of center classification
     // TODO: deprecated
-    uint16_t __pad3; // leftOfTop__; // left border of top classification
+    uint16_t __pad4; // leftOfTop__; // left border of top classification
 } TimerCounterAdjustment;
 
 FUNC_ATTRS void constructTimerCounterAdjustment(volatile TimerCounterAdjustment *o) {
     o->receptionOffset = 0;
-//    o->center = (DEFAULT_TX_RX_COMPARE_TOP_VALUE / TX_RX_COUNTER_CENTER_VALUE_DIVISOR);
-//    o->leftOfCenter = o->center - *receptionDelta;
-//    o->rightOfCenter = o->center + *receptionDelta;
-//    o->leftOfTop = o->rightOfCenter + 1;
 }
 
 typedef struct {
+    // each pin interrupt stores snapshots and the flank direction into the buffer
+    RxSnapshotBuffer snapshotBuffer;
     // port specific reception offsets and factors according to tis port's reception
     TimerCounterAdjustment adjustment;
     PortBuffer buffer;
@@ -120,6 +120,7 @@ typedef struct {
 } RxPort; // 4 + 6 + 1 = 11 bytes total
 
 FUNC_ATTRS void constructRxPort(volatile RxPort *o) {
+    constructRxSnapshotBuffer(&(o->snapshotBuffer));
     constructTimerCounterAdjustment(&(o->adjustment));
     constructPortBuffer(&(o->buffer));
     o->isReceiving = false;

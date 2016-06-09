@@ -16,6 +16,8 @@
 #include "../discovery/Discovery.h"
 #include "uc-core/communication/Reception.h"
 #include "../IoDefinitions.h"
+#include "../communication/ManchesterDecoding.h"
+#include "../communication/ManchesterCoding.h"
 
 #ifdef SIMULATION
 
@@ -46,7 +48,8 @@ FUNC_ATTRS void __handleInputInterrupt(volatile PulseCounter *discoveryPulseCoun
                 // on data received
                 case STATE_TYPE_XMISSION_TYPE_ENABLED_TX_RX:
                 case STATE_TYPE_XMISSION_TYPE_ENABLED_RX:
-                    dispatchReceivedDataEdge(rxPort, isRxHigh);
+//                    dispatchReceivedDataEdge(rxPort, isRxHigh);
+                    storeSnapshot(isRxHigh, &rxPort->snapshotBuffer);
                     break;
 
                 default:
