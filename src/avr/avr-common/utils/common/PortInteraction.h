@@ -2,8 +2,7 @@
  * @author: Raoul Rubien 2011
  */
 
-#ifndef __PORT_INTERACTION_H
-#define __PORT_INTERACTION_H
+#pragma once
 
 /**
  * pin definition
@@ -38,5 +37,3 @@
 #define unsetBit  &= ~
 #define toggleBit ^=
 #define bit       _BV
-
-#endif

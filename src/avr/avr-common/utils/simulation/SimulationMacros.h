@@ -45,9 +45,13 @@ extern inline void writeToUart(const char *);
 #    define DEBUG_INT16_OUT(value)
 
 #define UNUSED(x) (void)(x)
+
 inline void writeToUart(const char *string) { UNUSED(string); }
+
 #undef UNUSED
+
 extern inline void writeToUart(const char *string);
+
 #  endif
 
 #endif

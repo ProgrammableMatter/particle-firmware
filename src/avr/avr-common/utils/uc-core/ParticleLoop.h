@@ -1,24 +1,26 @@
 /**
  * @author Raoul Rubien 2015
  */
-#ifndef __PARTICLE_MAIN_LOOP_H
-#define __PARTICLE_MAIN_LOOP_H
-#include <common/common.h>
-#include "IoDefinitions.h"
-#include "ParticleTypes.h"
+#pragma once
+
+#include "common/common.h"
+#include "ParticleStateTypes.h"
 #include "Globals.h"
 #include "ParticleCore.h"
-#include "./delay/delay.h"
-#include "./ParticleParameters.h"
+#include "uc-core/io-configuration/IoDefinitions.h"
+#include "uc-core/delay/delay.h"
+#include "uc-core/fw-configuration/ParticleParameters.h"
 
-#  ifdef TRY_INLINE
-#    define FUNC_ATTRS inline
-#  else
-#    define FUNC_ATTRS
-#  endif
+#ifdef TRY_INLINE
+#  define FUNC_ATTRS inline
+#else
+#  define FUNC_ATTRS
+#endif
 
 #  ifdef __AVR_ATtiny1634__
+
 #    include "./delay/delay.h"
+
 #  endif
 
 FUNC_ATTRS int particleLoop(void);
@@ -41,7 +43,6 @@ FUNC_ATTRS int particleLoop(void) {
     }
 }
 
-#  ifdef FUNC_ATTRS
-#    undef FUNC_ATTRS
-#  endif
+#ifdef FUNC_ATTRS
+#  undef FUNC_ATTRS
 #endif

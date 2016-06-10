@@ -2,17 +2,16 @@
 // Created by Raoul Rubien on 25.05.16.
 //
 
-#ifndef __PROJECT_INTERPRETER_H__
-#define __PROJECT_INTERPRETER_H__
+#pragma once
 
 #include "InterpreterTypes.h"
 #include "CommunicationProtocolTypes.h"
 
-#  ifdef TRY_INLINE
-#    define FUNC_ATTRS inline
-#  else
-#    define FUNC_ATTRS
-#  endif
+#ifdef TRY_INLINE
+#  define FUNC_ATTRS inline
+#else
+#  define FUNC_ATTRS
+#endif
 
 /**
  * interpret the interpreter buffer according to the particle state as context
@@ -107,7 +106,6 @@ FUNC_ATTRS void interpretRxBuffer(volatile RxPort *rxPort) {
     DEBUG_CHAR_OUT('i');
 }
 
-#  ifdef FUNC_ATTRS
-#    undef FUNC_ATTRS
-#  endif
+#ifdef FUNC_ATTRS
+#  undef FUNC_ATTRS
 #endif

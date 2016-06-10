@@ -2,24 +2,28 @@
  * @author Raoul Rubien 2016
  */
 
-#ifndef __MANCHESTER_DECODING_TYPES_H__
-#define __MANCHESTER_DECODING_TYPES_H__
+#pragma once
 
-#  ifdef TRY_INLINE
-#    define FUNC_ATTRS inline
-#  else
-#    define FUNC_ATTRS
-#  endif
+#ifdef TRY_INLINE
+#  define FUNC_ATTRS inline
+#else
+#  define FUNC_ATTRS
+#endif
 
 typedef enum {
-    DECODING_STATE_TYPE_SYNCHRONIZED,
-    DECODING_STATE_TYPE_DECODING,
-    DECODIGN_STATE_TYPE_UNSYNCHRONIZED
+//    DECODER_STATE_TYPE_SYNCHRONIZED,
+            DECODER_STATE_TYPE_STOPPED, // state when not decoding
+    DECODER_STATE_TYPE_DECODING // state when decoding
 } ManchesterDecodingStateType;
 
 typedef struct {
-    ManchesterDecodingStateType state;
-
+    ManchesterDecodingStateType decodingState;
+    /**
+     * phase state: the 1 bit counter is incremented by 1 on short intervals and
+     * by increased by 2 on long intervals
+     */
+    uint8_t phaseState: 1;
+    uint8_t __pad : 7;
 } ManchesterDecoderState;
 
 /**
@@ -32,14 +36,11 @@ typedef struct {
      * the least significant snapshot value bit is ignored; this should be used as
      * foo = s.snapshot << 1
      */
-    uint16_t snapshot : 15;
-} Snapshot;
+    uint16_t timerValue : 15;
+} Snapshot; // 2 bytes
 
 
-FUNC_ATTRS void __constructSnapshot(volatile Snapshot *o) {
-    o->isRisingEdge = false;
-    o->snapshot = 0;
-}
+
 
 /**
  * The struct is used as buffer for storing timestamps of received pin change interrupts
@@ -57,20 +58,8 @@ typedef struct {
     uint8_t startIndex : 7;
     uint8_t endIndex : 7;
     uint8_t iteratorIndex : 7;
-} RxSnapshotBuffer;
+} RxSnapshotBuffer; // 128 * 2 + 3 bytes = 259 bytes
 
-
-FUNC_ATTRS void constructRxSnapshotBuffer(volatile RxSnapshotBuffer *o) {
-    for (uint8_t idx = 0; idx < (sizeof(o->snapshots) / sizeof(Snapshot)); idx++) {
-        __constructSnapshot(&o->snapshots[idx]);
-    }
-    o->startIndex = 0;
-    o->endIndex = 0;
-    o->iteratorIndex = 0;
-}
-
-
-#  ifdef FUNC_ATTRS
-#    undef FUNC_ATTRS
-#  endif
+#ifdef FUNC_ATTRS
+#  undef FUNC_ATTRS
 #endif

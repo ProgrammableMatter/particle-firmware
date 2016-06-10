@@ -2,19 +2,12 @@
  * @author Raoul Rubien 2015
  */
 
-#ifndef __PARTICLE_TYPES_H
-#define __PARTICLE_TYPES_H
+#pragma once
 
-#include "../common/PortInteraction.h"
-#include "./communication/CommunicationTypes.h"
-#include "./communication-protocol/InterpreterTypes.h"
-#include "./ParticleParameters.h"
-
-#  ifdef TRY_INLINE
-#    define FUNC_ATTRS inline
-#  else
-#    define FUNC_ATTRS
-#  endif
+#include "common/PortInteraction.h"
+#include "uc-core/fw-configuration/ParticleParameters.h"
+#include "uc-core/communication/Communication.h"
+#include "uc-core/communication-protocol/InterpreterTypes.h"
 
 /**
  * Possible particle's state machine states are listed in this enum.
@@ -88,12 +81,6 @@ typedef struct {
     uint8_t __pad : 3;
 } PulseCounter; // 1 byte total
 
-FUNC_ATTRS void constructPulseCounter(volatile PulseCounter *o) {
-    o->counter = 0;
-    o->isConnected = false;
-//    *(uint8_t *) o = 0;
-}
-
 /**
  * Stores the amount of incoming pulses for each communication channel. The isConnected flags are set
  * if the number of incoming pulses exceeds a specific threshold.
@@ -105,13 +92,6 @@ typedef struct {
     uint8_t loopCount; // discovery loop counter
 } DiscoveryPulseCounters; // 3 + 1 = 4 byte total
 
-FUNC_ATTRS void constructDiscoveryPulseCounters(volatile DiscoveryPulseCounters *o) {
-    constructPulseCounter(&(o->north));
-    constructPulseCounter(&(o->east));
-    constructPulseCounter(&(o->south));
-    o->loopCount = 0;
-}
-
 /**
  * The node address in the network. It is spread from the origin node which assigns itself
  * the first address (row=1, column=1).
@@ -121,11 +101,6 @@ typedef struct {
     uint8_t column;
 } NodeAddress; // 2 byte total
 
-FUNC_ATTRS void constructNodeAddress(volatile NodeAddress *o) {
-//    o->row = 1;
-//    o->column = 1;
-    *((uint16_t *) o) = 0x0000;
-}
 
 /**
  * Describes the node state type and address.
@@ -136,11 +111,7 @@ typedef struct {
     NodeAddress address;
 } Node; // 2 + 2 + 2 = 6 byte total
 
-FUNC_ATTRS void constructNode(volatile Node *o) {
-    o->state = STATE_TYPE_UNDEFINED;
-    o->type = NODE_TYPE_INVALID;
-    constructNodeAddress(&(o->address));
-}
+
 
 /**
  * Counters/resources needed for platform's periphery.
@@ -149,10 +120,6 @@ typedef struct {
     uint8_t loopCount; // particle loop counter
 } Periphery; // 1 bytes total
 
-FUNC_ATTRS void constructPeriphery(volatile Periphery *o) {
-    o->loopCount = 0;
-}
-
 /**
  * The global particle state with references to the most important states, buffers, counters,
  * etc.
@@ -160,26 +127,12 @@ FUNC_ATTRS void constructPeriphery(volatile Periphery *o) {
 typedef struct {
     Node node; // 6
     DiscoveryPulseCounters discoveryPulseCounters; // 4
-    Ports ports; // 60
+    Ports ports; // 859
     Periphery periphery; // 1
     Interpreter interpreter; // 7
 #ifdef SIMULATION
     uint8_t magicEndByte; // 1
 #endif
-} ParticleState; // 6 + 4 + 60 + 1 + 7 + 1 = 79 bytes total
-
-FUNC_ATTRS void constructParticleState(volatile ParticleState *o) {
-    constructNode(&(o->node));
-    constructDiscoveryPulseCounters(&(o->discoveryPulseCounters));
-    constructPorts(&(o->ports));
-    constructPeriphery(&(o->periphery));
-#ifdef SIMULATION
-    o->magicEndByte = 0xaa;
-#endif
-}
+} ParticleState; // 6 + 4 + 859 + 1 + 7 + 1 = 878 bytes total
 
 
-#  ifdef FUNC_ATTRS
-#    undef FUNC_ATTRS
-#  endif
-#endif

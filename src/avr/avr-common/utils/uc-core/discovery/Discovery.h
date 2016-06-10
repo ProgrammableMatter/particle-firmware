@@ -1,16 +1,15 @@
 /**
  * @author Raoul Rubien 2015
  */
-#ifndef __DISCOVERY_H
-#define __DISCOVERY_H
+#pragma once
 
-#include "../ParticleParameters.h"
+#include "uc-core/fw-configuration/ParticleParameters.h"
 
-#  ifdef TRY_INLINE_ISR_RELEVANT
-#    define FUNC_ATTRS inline
-#  else
-#    define FUNC_ATTRS
-#  endif
+#ifdef TRY_INLINE_ISR_RELEVANT
+#  define FUNC_ATTRS inline
+#else
+#  define FUNC_ATTRS
+#endif
 
 /**
  * increments the port counter
@@ -23,7 +22,6 @@ FUNC_ATTRS void dispatchFallingDiscoveryEdge(volatile PulseCounter *portCounter)
     }
 }
 
-# ifdef FUNC_ATTRS
-#   undef FUNC_ATTRS
-#  endif
+#ifdef FUNC_ATTRS
+#  undef FUNC_ATTRS
 #endif

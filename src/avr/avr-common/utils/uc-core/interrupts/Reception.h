@@ -3,10 +3,9 @@
  * 4/2016
  */
 
-#ifndef __RECEPTION_INTERRUPTS_H__
-#define __RECEPTION_INTERRUPTS_H__
+#pragma once
 
-#include <common/PortInteraction.h>
+#include "common/PortInteraction.h"
 
 /**
  * reception pin interrupt macros
@@ -82,4 +81,3 @@ MCUCSR setBit (1 << ISC2)
 #  endif
 #endif
 
-#endif

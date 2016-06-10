@@ -1,37 +1,36 @@
 /**
  * @author Raoul Rubien 2015
  */
-#ifndef __DEFAULT_PARTICLE_ISR_H__
-#define __DEFAULT_PARTICLE_ISR_H__
+#pragma once
 
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
-#include <uc-core/ParticleTypes.h>
+#include <uc-core/ParticleStateTypes.h>
 
-#include "./Vectors.h"
-#include "./TimerCounter.h"
-#include "./Reception.h"
-#include "../communication/Transmission.h"
-#include "../Globals.h"
-#include "../discovery/Discovery.h"
+#include "Vectors.h"
+#include "TimerCounter.h"
+#include "Reception.h"
+#include "uc-core/communication/Transmission.h"
+#include "uc-core/Globals.h"
+#include "uc-core/discovery/Discovery.h"
 #include "uc-core/communication/Reception.h"
-#include "../IoDefinitions.h"
-#include "../communication/ManchesterDecoding.h"
-#include "../communication/ManchesterCoding.h"
+#include "uc-core/io-configuration/IoDefinitions.h"
+#include "uc-core/communication/ManchesterDecoding.h"
+#include "uc-core/communication/ManchesterCoding.h"
 
 #ifdef SIMULATION
 
-#  include "../../simulation/SimulationMacros.h"
+#  include "simulation/SimulationMacros.h"
 
 #endif
 
 #define TIMER_NEIGHBOUR_SENSE_COUNTER_ON_INTERRUPT_ROLLBACK 12
 
-#  ifdef TRY_INLINE_ISR_RELEVANT
-#    define FUNC_ATTRS inline
-#  else
-#    define FUNC_ATTRS
-#  endif
+#ifdef TRY_INLINE_ISR_RELEVANT
+#  define FUNC_ATTRS inline
+#else
+#  define FUNC_ATTRS
+#endif
 
 FUNC_ATTRS void __handleInputInterrupt(volatile PulseCounter *discoveryPulseCounter, volatile RxPort *rxPort,
                                        const bool isRxHigh) {
@@ -49,7 +48,7 @@ FUNC_ATTRS void __handleInputInterrupt(volatile PulseCounter *discoveryPulseCoun
                 case STATE_TYPE_XMISSION_TYPE_ENABLED_TX_RX:
                 case STATE_TYPE_XMISSION_TYPE_ENABLED_RX:
 //                    dispatchReceivedDataEdge(rxPort, isRxHigh);
-                    storeSnapshot(isRxHigh, &rxPort->snapshotBuffer);
+                    appendSnapshot(isRxHigh, &rxPort->snapshotBuffer);
                     break;
 
                 default:
@@ -148,9 +147,7 @@ ISR(TX_RX_TIMER_TOP_INTERRUPT_VECT) {
                 case STATE_TYPE_XMISSION_TYPE_ENABLED_TX_RX:
                 case STATE_TYPE_XMISSION_TYPE_ENABLED_TX:
                 case STATE_TYPE_XMISSION_TYPE_ENABLED_RX:
-                    // process reception
                     advanceReceptionTimeoutCounters();
-                    // process transmission
                     rectifyTransmissionBit(&ParticleAttributes.ports.tx.north, __northTxHi, __northTxLo);
                     rectifyTransmissionBit(&ParticleAttributes.ports.tx.east, __eastTxHi, __eastTxLo);
                     rectifyTransmissionBit(&ParticleAttributes.ports.tx.south, __southTxHi, __southTxLo);
@@ -187,9 +184,7 @@ ISR(TX_RX_TIMER_CENTER_INTERRUPT_VECT) {
                 case STATE_TYPE_XMISSION_TYPE_ENABLED_TX_RX:
                 case STATE_TYPE_XMISSION_TYPE_ENABLED_TX:
                 case STATE_TYPE_XMISSION_TYPE_ENABLED_RX:
-                    // process reception
                     advanceReceptionTimeoutCounters();
-                    // process transmission
                     modulateTransmissionBit(&ParticleAttributes.ports.tx.north, __northTxHi, __northTxLo);
                     modulateTransmissionBit(&ParticleAttributes.ports.tx.east, __eastTxHi, __eastTxLo);
                     modulateTransmissionBit(&ParticleAttributes.ports.tx.south, __southTxHi, __southTxLo);
@@ -269,7 +264,6 @@ EMPTY_INTERRUPT(BADISR_vect)
 #  endif
 
 
-#  ifdef FUNC_ATTRS
-#    undef FUNC_ATTRS
-#  endif
+#ifdef FUNC_ATTRS
+#  undef FUNC_ATTRS
 #endif

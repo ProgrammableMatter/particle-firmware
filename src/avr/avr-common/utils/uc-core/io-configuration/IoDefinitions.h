@@ -2,18 +2,19 @@
  * @author Raoul Rubien 2015
  */
 
-#ifndef __PARTICLE_PORT_DEFINITIONS_H
-#define __PARTICLE_PORT_DEFINITIONS_H
+#pragma once
 
-#include <common/PortADefinition.h>
-#include <common/PortBDefinition.h>
-#include <common/PortCDefinition.h>
+#include "common/PortADefinition.h"
+#include "common/PortBDefinition.h"
+#include "common/PortCDefinition.h"
 
 #if defined(__AVR_ATmega16__)
-#  include <common/PortDDefinition.h>
+
+#  include "common/PortDDefinition.h"
+
 #endif
 
-#include <common/PortInteraction.h>
+#include "common/PortInteraction.h"
 
 /**
  * south tx/rx
@@ -320,5 +321,3 @@ SOUTH_RX_SETUP; SOUTH_TX_SETUP; SOUTH_RX_SWITCH_SETUP; \
 EAST_RX_SETUP; EAST_TX_SETUP; EAST_RX_SWITCH_SETUP; \
 LED_ERROR_SETUP; LED_STATUS0_SETUP; LED_STATUS1_SETUP; LED_HEARTBEAT_SETUP; \
 TEST_POINT1_SETUP; TEST_POINT2_SETUP; TEST_POINT3_SETUP;
-
-#endif

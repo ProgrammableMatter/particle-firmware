@@ -5,7 +5,8 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <common/common.h>
-#include <uc-core/IoDefinitions.h>
+#include <uc-core/ParticleStateTypesCtors.h>
+#include <uc-core/io-configuration/IoDefinitions.h>
 #include <uc-core/Globals.h>
 #include <uc-core/delay/delay.h>
 

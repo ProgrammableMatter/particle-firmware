@@ -5,9 +5,9 @@
 
 #include <avr/interrupt.h>
 #include <common/common.h>
-#include <uc-core/ParticleTypes.h>
+#include <uc-core/ParticleStateTypesCtors.h>
 #include <uc-core/delay/delay.h>
-#include "uc-core/IoDefinitions.h"
+#include "uc-core/io-configuration/IoDefinitions.h"
 #include "uc-core/ParticleCore.h"
 
 //unsigned char __stuff __attribute__((section(".noinit")));

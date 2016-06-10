@@ -2,28 +2,29 @@
  * @author Raoul Rubien 2015
  */
 
-#ifndef __PARTICLE_H
-#define __PARTICLE_H
+#pragma once
 
-#include <common/common.h>
-#include <uc-core/ParticleTypes.h>
+#include "common/common.h"
+#include "uc-core/ParticleStateTypes.h"
 #include "Globals.h"
-#include "IoDefinitions.h"
-#include "./delay/delay.h"
-#include "./discovery/Discovery.h"
-#include "./interrupts/Reception.h"
-#include "./interrupts/TimerCounter.h"
-#include "./interrupts/Interrupts.h"
-#include "./ParticleParameters.h"
+#include "ParticleStateTypesCtors.h"
+#include "uc-core/io-configuration/IoDefinitions.h"
+#include "uc-core/delay/delay.h"
+#include "uc-core/discovery/Discovery.h"
+#include "uc-core/interrupts/Reception.h"
+#include "uc-core/interrupts/TimerCounter.h"
+#include "uc-core/interrupts/Interrupts.h"
+#include "uc-core/fw-configuration/ParticleParameters.h"
 #include "uc-core/communication-protocol/CommunicationProtocol.h"
+#include "uc-core/communication-protocol/CommunicationProtocolTypesCtors.h"
 #include "uc-core/communication-protocol/Interpreter.h"
 
 
-#  ifdef TRY_INLINE
-#    define FUNC_ATTRS inline
-#  else
-#    define FUNC_ATTRS
-#  endif
+#ifdef TRY_INLINE
+#  define FUNC_ATTRS inline
+#else
+#  define FUNC_ATTRS
+#endif
 
 /**
  * Updates the node type according to the amount of incoming pulses. The type {@link NodeType} is stored to
@@ -431,7 +432,6 @@ FUNC_ATTRS void particleTick(void) {
     }
 }
 
-#  ifdef FUNC_ATTRS
-#    undef FUNC_ATTRS
-#  endif
+#ifdef FUNC_ATTRS
+#  undef FUNC_ATTRS
 #endif

@@ -5,15 +5,8 @@
 /**
  * definition of all package types that can be transmitted/received
  */
-#ifndef __COMMUNICATION_PROTOCOL_TYPES_H__
-#define __COMMUNICATION_PROTOCOL_TYPES_H__
 
-#  ifdef TRY_INLINE
-#    define FUNC_ATTRS inline
-#  else
-#    define FUNC_ATTRS
-#  endif
-
+#pragma once
 
 /**
  * describes a package header
@@ -380,10 +373,3 @@ typedef enum {
     PACKAGE_HEADER_ID_TYPE_ACK_WITH_DATA = 14,
     PACKAGE_HEADER_ID_TYPE_EXTENDED_HEADER = 15
 } PACKAGE_HEADER_ID;
-
-#  ifdef FUNC_ATTRS
-#    undef FUNC_ATTRS
-#  endif
-
-#endif
-

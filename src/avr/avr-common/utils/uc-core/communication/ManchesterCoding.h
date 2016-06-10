@@ -2,16 +2,15 @@
  * @author Raoul Rubien 2016
  */
 
-#ifndef __MANCHESTER_CODING_H__
-#define __MANCHESTER_CODING_H__
+#pragma once
 
-#include "./ManchesterDecodingTypes.h"
+#include "ManchesterDecodingTypes.h"
 
-#  ifdef TRY_INLINE
-#    define FUNC_ATTRS inline
-#  else
-#    define FUNC_ATTRS
-#  endif
+#ifdef TRY_INLINE
+#  define FUNC_ATTRS inline
+#else
+#  define FUNC_ATTRS
+#endif
 
 /**
  * rectifies/modulates the transmission signal according to the upcoming bit
@@ -60,7 +59,6 @@ FUNC_ATTRS void modulateTransmissionBit(volatile TxPort *txPort, void (*txHiImpl
     }
 }
 
-#  ifdef FUNC_ATTRS
-#    undef FUNC_ATTRS
-#  endif
+#ifdef FUNC_ATTRS
+#  undef FUNC_ATTRS
 #endif

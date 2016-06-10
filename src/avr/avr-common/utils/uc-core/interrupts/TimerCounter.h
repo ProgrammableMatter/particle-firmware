@@ -3,11 +3,10 @@
  * 23.11.16
  */
 
-#ifndef __TIMER_COUNTER_INTERRUPTS_H
-#define __TIMER_COUNTER_INTERRUPTS_H
+#pragma once
 
-#include <common/PortInteraction.h>
-#include "../ParticleParameters.h"
+#include "common/PortInteraction.h"
+#include "uc-core/fw-configuration/ParticleParameters.h"
 /**
  * define timer / counter interrupt macros
  */
@@ -70,8 +69,6 @@
     ((1 << WGM11) | (1 << WGM10)); \
     TCCR1B unsetBit ((1 << WGM13) | (1 << WGM12)); \
     TCCR1B setBit ((1 << WGM12))
-
-
 
 
 #  define __TIMER1_INTERRUPT_PRESCALER_ENABLE(prescaler) TCCR1B setBit(prescaler)
@@ -188,5 +185,3 @@
 #  else
 #    error
 #  endif
-
-#endif

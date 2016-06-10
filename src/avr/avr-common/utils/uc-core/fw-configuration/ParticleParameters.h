@@ -2,8 +2,7 @@
  * @author Raoul Rubien 2016
  */
 
-#ifndef __PARTICLE_PARAMETERS_H
-#define __PARTICLE_PARAMETERS_H
+#pragma once
 
 /**
  * The maximum numbers of pulses generated for neighbour discovery.
@@ -78,5 +77,3 @@
  * Heartbeat LED toggles every main-loop count
  */
 #define HEARTBEAT_LOOP_COUNT_TOGGLE ((uint8_t)20)
-
-#endif

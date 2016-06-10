@@ -3,8 +3,7 @@
  *
  */
 
-#ifndef __DELAY_H
-#define __DELAY_H
+#pragma once
 
 #include <stdint.h>
 
@@ -36,5 +35,4 @@ extern inline void __delay_loop_2(uint16_t __count);
 #define DELAY_US_150 \
         __delay_loop_2(150); \
         __delay_loop_2(150)
-#endif
 
