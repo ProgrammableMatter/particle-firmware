@@ -11,7 +11,7 @@
 /**
  * describes a package header
  */
-typedef struct {
+typedef struct PackageHeader {
     uint8_t __startBit : 1;
     uint8_t headerIsStream : 1;
     uint8_t headerIsCommand : 1;
@@ -34,7 +34,7 @@ typedef struct {
 /**
  * describes a package header with subsequent address
  */
-typedef struct {
+typedef struct PackageHeaderAddress {
     uint8_t __startBit : 1;
     uint8_t headerIsStream : 1;
     uint8_t headerIsCommand : 1;
@@ -60,7 +60,7 @@ typedef struct {
 /**
  * describes a package header with subsequent address range
  */
-typedef struct {
+typedef struct PackageHeaderAddressRange {
     uint8_t __startBit : 1;
     uint8_t headerIsStream : 1;
     uint8_t headerIsCommand : 1;
@@ -87,7 +87,7 @@ typedef struct {
 /**
  * describes a package header with 7 subsequent data bits
  */
-typedef struct {
+typedef struct PackageHeaderData7 {
     uint8_t __startBit : 1;
     uint8_t headerIsStream : 1;
     uint8_t headerIsCommand : 1;
@@ -112,7 +112,7 @@ typedef struct {
 /**
  * describes a package header with 11 subsequent data bits
  */
-typedef struct {
+typedef struct PackageHeaderData11 {
     uint8_t __startBit : 1;
     uint8_t headerIsStream : 1;
     uint8_t headerIsCommand : 1;
@@ -138,7 +138,7 @@ typedef struct {
 /**
  * describes a package header with 19 subsequent data bits
  */
-typedef struct {
+typedef struct PackageHeaderData19 {
     uint8_t __startBit : 1;
     uint8_t headerIsStream : 1;
     uint8_t headerIsCommand : 1;
@@ -165,7 +165,7 @@ typedef struct {
 /**
  * describes a package header with subsequent address and seven data bits
  */
-typedef struct {
+typedef struct PackageHeaderAddressData7 {
     uint8_t __startBit : 1;
     uint8_t headerIsStream : 1;
     uint8_t headerIsCommand : 1;
@@ -191,7 +191,7 @@ typedef struct {
 /**
  * describes a package header with subsequent address and 11 data bits
  */
-typedef struct {
+typedef struct PackageHeaderAddressData11 {
     uint8_t __startBit : 1;
     uint8_t headerIsStream : 1;
     uint8_t headerIsCommand : 1;
@@ -217,7 +217,7 @@ typedef struct {
 /**
  * describes a package header with subsequent address and 19 data bits
  */
-typedef struct {
+typedef struct PackageHeaderAddressData19 {
     uint8_t __startBit : 1;
     uint8_t headerIsStream : 1;
     uint8_t headerIsCommand : 1;
@@ -245,7 +245,7 @@ typedef struct {
 /**
  * describes a package header with subsequent address range and 7 data bits
  */
-typedef struct {
+typedef struct PackageHeaderAddressRangeData7 {
     uint8_t __startBit : 1;
     uint8_t headerIsStream : 1;
     uint8_t headerIsCommand : 1;
@@ -273,7 +273,7 @@ typedef struct {
 /**
  * describes a package header with subsequent address range and 11 data bits
  */
-typedef struct {
+typedef struct PackageHeaderAddressRangeData11 {
     uint8_t __startBit : 1;
     uint8_t headerIsStream : 1;
     uint8_t headerIsCommand : 1;
@@ -302,7 +302,7 @@ typedef struct {
 /**
  * describes a package heaer with subsequent address range and 19 data bits
  */
-typedef struct {
+typedef struct PackageHeaderAddressRangeData19 {
     uint8_t __startBit : 1;
     uint8_t headerIsStream : 1;
     uint8_t headerIsCommand : 1;
@@ -329,7 +329,7 @@ typedef struct {
         .bitMask = ((uint16_t) 1 << (2 + 1)) \
     })
 */
-typedef union {
+typedef union Package {
     PackageHeader asHeader;
     PackageHeader asACKPackage;
     PackageHeader asBroadcastHeader;
@@ -355,7 +355,7 @@ typedef union {
 /**
  * describes possible header IDs
  */
-typedef enum {
+typedef enum PackageHeaderId {
     PACKAGE_HEADER_ID_TYPE_ENUMERATE = 0,
     PACKAGE_HEADER_ID_TYPE_HEAT_WIRES = 1,
     PACKAGE_HEADER_ID_TYPE_HEAT_WIRES_RANGE = 2,
@@ -372,4 +372,4 @@ typedef enum {
     PACKAGE_HEADER_ID_TYPE_ACK = 13,
     PACKAGE_HEADER_ID_TYPE_ACK_WITH_DATA = 14,
     PACKAGE_HEADER_ID_TYPE_EXTENDED_HEADER = 15
-} PACKAGE_HEADER_ID;
+} PackageHeaderId;

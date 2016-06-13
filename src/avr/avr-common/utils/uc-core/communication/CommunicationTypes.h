@@ -13,7 +13,7 @@
 /**
  * describes the transmission/reception states
  */
-typedef enum {
+typedef enum XmissionType {
     STATE_TYPE_XMISSION_TYPE_ENABLED_TX = 0, // transmission only
     STATE_TYPE_XMISSION_TYPE_ENABLED_TX_RX, // tx/rx
     STATE_TYPE_XMISSION_TYPE_ENABLED_RX, // reception only
@@ -23,7 +23,7 @@ typedef enum {
 /**
  * Describes a bit within a 4 byte buffer.
  */
-typedef struct {
+typedef struct BufferBitPointer {
     uint8_t byteNumber : 3; // byte number
     uint8_t __pad: 5;
     uint8_t bitMask; // the bit in the byte
@@ -34,12 +34,12 @@ typedef struct {
  * The struct is used for transmission. Received bits are stored in the buffer
  * after being decoded.
  */
-typedef struct {
+typedef struct PortBuffer {
     uint8_t bytes[7]; // reception buffer
     BufferBitPointer pointer; // points to the next free position
 } PortBuffer; // 7 + 2 = 9 bytes total
 
-typedef struct {
+typedef struct TxPort {
     PortBuffer buffer;
     BufferBitPointer dataEndPos; // data in between buffer start and dataEndPos is to be transmitted
     uint8_t enableTransmission : 1; // user handled flag: if enabled transmission is scheduled
@@ -48,13 +48,13 @@ typedef struct {
     uint8_t __pad: 5;
 } TxPort; // 9 + 2 + 1 = 12 bytes
 
-typedef struct {
+typedef struct TxPorts {
     TxPort north;
     TxPort east;
     TxPort south;
 } TxPorts; // 3 * 12 = 36 bytes total
 
-typedef struct {
+typedef struct RxPort {
     // each pin interrupt stores snapshots and the flank direction into the buffer
     RxSnapshotBuffer snapshotBuffer;
     PortBuffer buffer;
@@ -66,7 +66,7 @@ typedef struct {
     uint8_t __pad: 2;
 } RxPort; // 259 + 9 + 2 + 1  = 271  bytes total
 
-typedef struct {
+typedef struct TimerCounterAdjustment {
     uint16_t maxValue;
     uint16_t centerValue; // maxValue / 2
     uint16_t leftOfCenter; // centerValue - (centerValue / 2)
@@ -74,14 +74,14 @@ typedef struct {
     uint16_t __reserved;
 } TimerCounterAdjustment; // 10 bytes
 
-typedef struct {
+typedef struct RxPorts {
     TimerCounterAdjustment timerAdjustment;
     RxPort north;
     RxPort east;
     RxPort south;
 } RxPorts; // 10 + 3 * 271 = 823  bytes total
 
-typedef struct {
+typedef struct Ports {
     TxPorts tx;
     RxPorts rx;
     XmissionType xmissionState;

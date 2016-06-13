@@ -10,13 +10,13 @@
 #  define FUNC_ATTRS
 #endif
 
-typedef enum {
+typedef enum ManchesterDecodingStateType {
 //    DECODER_STATE_TYPE_SYNCHRONIZED,
             DECODER_STATE_TYPE_STOPPED, // state when not decoding
     DECODER_STATE_TYPE_DECODING // state when decoding
 } ManchesterDecodingStateType;
 
-typedef struct {
+typedef struct ManchesterDecoderState {
     ManchesterDecodingStateType decodingState;
     /**
      * phase state: the 1 bit counter is incremented by 1 on short intervals and
@@ -30,7 +30,7 @@ typedef struct {
  * A snapshot consists of a 16 bit value and the flank direction information. The least significant snapshot
  * value bit is scarified for the flank direction information. Thus only the bits [1:15] of the snapshot are stored.
  */
-typedef struct {
+typedef struct Snapshot {
     uint16_t isRisingEdge : 1;
     /**
      * the least significant snapshot value bit is ignored; this should be used as
@@ -46,7 +46,7 @@ typedef struct {
  * The struct is used as buffer for storing timestamps of received pin change interrupts
  * and manchester decoding. The timestamps are then decoded to bits and stored to the RxBuffer struct.
  */
-typedef struct {
+typedef struct RxSnapshotBuffer {
     /**
      * decoding states
      */
