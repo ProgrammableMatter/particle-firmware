@@ -147,7 +147,6 @@ ISR(TX_RX_TIMER_TOP_INTERRUPT_VECT) {
                 case STATE_TYPE_XMISSION_TYPE_ENABLED_TX_RX:
                 case STATE_TYPE_XMISSION_TYPE_ENABLED_TX:
                 case STATE_TYPE_XMISSION_TYPE_ENABLED_RX:
-                    advanceReceptionTimeoutCounters();
                     rectifyTransmissionBit(&ParticleAttributes.ports.tx.north, __northTxHi, __northTxLo);
                     rectifyTransmissionBit(&ParticleAttributes.ports.tx.east, __eastTxHi, __eastTxLo);
                     rectifyTransmissionBit(&ParticleAttributes.ports.tx.south, __southTxHi, __southTxLo);
@@ -184,7 +183,6 @@ ISR(TX_RX_TIMER_CENTER_INTERRUPT_VECT) {
                 case STATE_TYPE_XMISSION_TYPE_ENABLED_TX_RX:
                 case STATE_TYPE_XMISSION_TYPE_ENABLED_TX:
                 case STATE_TYPE_XMISSION_TYPE_ENABLED_RX:
-                    advanceReceptionTimeoutCounters();
                     modulateTransmissionBit(&ParticleAttributes.ports.tx.north, __northTxHi, __northTxLo);
                     modulateTransmissionBit(&ParticleAttributes.ports.tx.east, __eastTxHi, __eastTxLo);
                     modulateTransmissionBit(&ParticleAttributes.ports.tx.south, __southTxHi, __southTxLo);

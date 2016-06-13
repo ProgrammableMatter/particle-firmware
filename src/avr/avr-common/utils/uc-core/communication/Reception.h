@@ -16,45 +16,45 @@
 #  define FUNC_ATTRS
 #endif
 
-#define __RECEPTION_TIMEOUT_COUNTER_MAX 0xF;
+//#define __RECEPTION_TIMEOUT_COUNTER_MAX 0xF;
 
 
 
 
-/**
- * increments the timeout counters
- */
-FUNC_ATTRS void advanceReceptionTimeoutCounters(void) {
-
-    if (ParticleAttributes.ports.rx.north.isReceiving == 1) {
-        ParticleAttributes.ports.rx.north.isDataBuffered = true;
-    }
-    ParticleAttributes.ports.rx.north.isReceiving >>= 1;
-
-#ifdef SIMULATION
-    if (ParticleAttributes.ports.rx.north.isReceiving == 0) {
-        DEBUG_CHAR_OUT('U');
-    }
-#endif
-
-    if (ParticleAttributes.ports.rx.east.isReceiving == 1) {
-        ParticleAttributes.ports.rx.east.isDataBuffered = true;
-    }
-    ParticleAttributes.ports.rx.east.isReceiving >>= 1;
-
-
-    if (ParticleAttributes.ports.rx.south.isReceiving == 1) {
-        ParticleAttributes.ports.rx.south.isDataBuffered = true;
-    }
-
-    ParticleAttributes.ports.rx.south.isReceiving >>= 1;
-#ifdef SIMULATION
-    if (ParticleAttributes.ports.rx.south.isReceiving == 0) {
-        DEBUG_CHAR_OUT('V');
-    }
-#endif
-
-}
+///**
+// * increments the timeout counters
+// */
+//FUNC_ATTRS void advanceReceptionTimeoutCounters(void) {
+//
+//    if (ParticleAttributes.ports.rx.north.isReceiving == 1) {
+//        ParticleAttributes.ports.rx.north.isDataBuffered = true;
+//    }
+//    ParticleAttributes.ports.rx.north.isReceiving >>= 1;
+//
+//#ifdef SIMULATION
+//    if (ParticleAttributes.ports.rx.north.isReceiving == 0) {
+//        DEBUG_CHAR_OUT('U');
+//    }
+//#endif
+//
+//    if (ParticleAttributes.ports.rx.east.isReceiving == 1) {
+//        ParticleAttributes.ports.rx.east.isDataBuffered = true;
+//    }
+//    ParticleAttributes.ports.rx.east.isReceiving >>= 1;
+//
+//
+//    if (ParticleAttributes.ports.rx.south.isReceiving == 1) {
+//        ParticleAttributes.ports.rx.south.isDataBuffered = true;
+//    }
+//
+//    ParticleAttributes.ports.rx.south.isReceiving >>= 1;
+//#ifdef SIMULATION
+//    if (ParticleAttributes.ports.rx.south.isReceiving == 0) {
+//        DEBUG_CHAR_OUT('V');
+//    }
+//#endif
+//
+//}
 
 
 ///**
