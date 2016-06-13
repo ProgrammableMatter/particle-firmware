@@ -13,7 +13,6 @@
 #include "uc-core/communication/Transmission.h"
 #include "uc-core/Globals.h"
 #include "uc-core/discovery/Discovery.h"
-#include "uc-core/communication/Reception.h"
 #include "uc-core/io-configuration/IoDefinitions.h"
 #include "uc-core/communication/ManchesterDecoding.h"
 #include "uc-core/communication/ManchesterCoding.h"

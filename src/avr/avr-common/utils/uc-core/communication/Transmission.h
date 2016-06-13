@@ -5,8 +5,6 @@
 
 #pragma once
 
-#include "Reception.h"
-
 #ifdef SIMULATION
 
 #  include "simulation/SimulationMacros.h"
