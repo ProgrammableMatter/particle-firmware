@@ -4,15 +4,14 @@
 
 #pragma once
 
-#include "common/PortInteraction.h"
-#include "uc-core/fw-configuration/ParticleParameters.h"
-#include "uc-core/communication/Communication.h"
+#include <stdint.h>
+#include "uc-core/communication/CommunicationTypes.h"
 #include "uc-core/communication-protocol/InterpreterTypes.h"
 
 /**
  * Possible particle's state machine states are listed in this enum.
  */
-typedef enum {
+typedef enum StateType {
     STATE_TYPE_UNDEFINED = 0, // uninitialized state
     STATE_TYPE_START, // particle is initialized
     STATE_TYPE_ACTIVE, // start neighbour discovery
@@ -62,7 +61,7 @@ typedef enum {
 /**
  * The node type describes node's connectivity or in other words the position in the network.
  */
-typedef enum {
+typedef enum NodeType {
     NODE_TYPE_INVALID = 0, // invalid or uninitialized note type
     NODE_TYPE_ORPHAN, // no connection
     NODE_TYPE_ORIGIN, // connected at south or south and east
@@ -75,7 +74,7 @@ typedef enum {
 /**
  * A pulse counter and it's connectivity state.
  */
-typedef struct {
+typedef struct PulseCounter {
     uint8_t counter : 4; //pulse counter
     uint8_t isConnected : 1; // connectivity flag
     uint8_t __pad : 3;
@@ -85,7 +84,7 @@ typedef struct {
  * Stores the amount of incoming pulses for each communication channel. The isConnected flags are set
  * if the number of incoming pulses exceeds a specific threshold.
  */
-typedef struct {
+typedef struct DiscoveryPulseCounters {
     PulseCounter north;
     PulseCounter east;
     PulseCounter south;
@@ -96,7 +95,7 @@ typedef struct {
  * The node address in the network. It is spread from the origin node which assigns itself
  * the first address (row=1, column=1).
  */
-typedef struct {
+typedef struct NodeAddress {
     uint8_t row;
     uint8_t column;
 } NodeAddress; // 2 byte total
@@ -105,7 +104,7 @@ typedef struct {
 /**
  * Describes the node state type and address.
  */
-typedef struct {
+typedef struct Node {
     StateType state;
     NodeType type;
     NodeAddress address;
@@ -116,7 +115,7 @@ typedef struct {
 /**
  * Counters/resources needed for platform's periphery.
  */
-typedef struct {
+typedef struct Periphery {
     uint8_t loopCount; // particle loop counter
 } Periphery; // 1 bytes total
 
@@ -124,7 +123,7 @@ typedef struct {
  * The global particle state with references to the most important states, buffers, counters,
  * etc.
  */
-typedef struct {
+typedef struct ParticleState {
     Node node; // 6
     DiscoveryPulseCounters discoveryPulseCounters; // 4
     Ports ports; // 859

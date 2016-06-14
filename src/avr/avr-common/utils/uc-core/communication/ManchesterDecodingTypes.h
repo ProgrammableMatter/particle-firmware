@@ -4,19 +4,14 @@
 
 #pragma once
 
-#ifdef TRY_INLINE
-#  define FUNC_ATTRS inline
-#else
-#  define FUNC_ATTRS
-#endif
+#include <stdint.h>
 
 typedef enum ManchesterDecodingStateType {
-//    DECODER_STATE_TYPE_SYNCHRONIZED,
-            DECODER_STATE_TYPE_STOPPED, // state when not decoding
-    DECODER_STATE_TYPE_DECODING // state when decoding
+    DECODER_STATE_TYPE_START, // initialization state before decoding
+    DECODER_STATE_TYPE_DECODING, // state when decoding
 } ManchesterDecodingStateType;
 
-typedef struct ManchesterDecoderState {
+typedef struct ManchesterDecoderStates {
     ManchesterDecodingStateType decodingState;
     /**
      * phase state: the 1 bit counter is incremented by 1 on short intervals and
@@ -24,7 +19,7 @@ typedef struct ManchesterDecoderState {
      */
     uint8_t phaseState: 1;
     uint8_t __pad : 7;
-} ManchesterDecoderState;
+} ManchesterDecoderStates;
 
 /**
  * A snapshot consists of a 16 bit value and the flank direction information. The least significant snapshot
@@ -50,16 +45,29 @@ typedef struct RxSnapshotBuffer {
     /**
      * decoding states
      */
-    ManchesterDecodingStateType decoderState;
+    ManchesterDecoderStates decoderStates;
     /**
      * each snapshot's lsb describes rising (1) or falling (0) flank occurred at the given snapshot
      */
     Snapshot snapshots[128];
+    /**
+     * describes the 1st buffered position
+     */
     uint8_t startIndex : 7;
+    /**
+     * describes the 1st invalid position
+     */
+    uint8_t __pad : 1;
     uint8_t endIndex : 7;
-    uint8_t iteratorIndex : 7;
-} RxSnapshotBuffer; // 128 * 2 + 3 bytes = 259 bytes
+//    /**
+//     * used for iteration within start and end position:
+//     * inclusive start and (end position - 1)
+//     */
+    uint8_t __pad1 : 1;
+//    uint8_t iteratorIndex : 7;
 
-#ifdef FUNC_ATTRS
-#  undef FUNC_ATTRS
-#endif
+    /**
+     * used to store the current dequeue value
+     */
+    uint16_t temporaryDequeueRegister;
+} RxSnapshotBuffer; // 128 * 2 + 3 bytes = 259 bytes

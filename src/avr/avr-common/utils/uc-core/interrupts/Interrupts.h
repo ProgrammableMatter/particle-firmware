@@ -46,8 +46,7 @@ FUNC_ATTRS void __handleInputInterrupt(volatile PulseCounter *discoveryPulseCoun
                 // on data received
                 case STATE_TYPE_XMISSION_TYPE_ENABLED_TX_RX:
                 case STATE_TYPE_XMISSION_TYPE_ENABLED_RX:
-//                    dispatchReceivedDataEdge(rxPort, isRxHigh);
-                    appendSnapshot(isRxHigh, &rxPort->snapshotBuffer);
+                    captureSnapshot(isRxHigh, &rxPort->snapshotsBuffer);
                     break;
 
                 default:

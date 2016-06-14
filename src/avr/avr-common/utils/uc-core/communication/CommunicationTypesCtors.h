@@ -43,19 +43,17 @@ FUNC_ATTRS void constructTxPorts(volatile TxPorts *o) {
 }
 
 FUNC_ATTRS void constructRxPort(volatile RxPort *o) {
-    constructRxSnapshotBuffer(&(o->snapshotBuffer));
+    constructRxSnapshotBuffer(&o->snapshotsBuffer);
     constructPortBuffer(&(o->buffer));
     o->receptionOffset = 0;
-    o->isReceiving = false;
     o->isOverflowed = false;
     o->isDataBuffered = false;
 }
 
 FUNC_ATTRS void constructTimerCounterAdjustment(volatile TimerCounterAdjustment *o) {
-    o->maxValue = 0;
-    o->centerValue = 0;
-    o->leftOfCenter = 0;
-    o->rightOfCenter = 0;
+    o->maxCounterValue = DEFAULT_TX_RX_COMPARE_TOP_VALUE;
+    o->maxShortIntervalDuration = DEFAULT_MAX_SHORT_RECEPTION_SNAPSHOT_DISTANCE;
+    o->maxLongIntervalDuration = DEFAULT_MAX_LONG_RECEPTION_SNAPSHOT_DISTANCE;
 }
 
 FUNC_ATTRS void constructRxPorts(volatile RxPorts *o) {

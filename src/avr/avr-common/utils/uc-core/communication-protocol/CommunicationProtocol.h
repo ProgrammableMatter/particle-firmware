@@ -33,15 +33,15 @@
  */
 FUNC_ATTRS void clearReceptionBuffers(void) {
     ParticleAttributes.ports.rx.north.isDataBuffered = false;
-    ParticleAttributes.ports.rx.north.isReceiving = false;
+//    ParticleAttributes.ports.rx.north.isReceiving = false;
     ParticleAttributes.ports.rx.north.isOverflowed = false;
 
     ParticleAttributes.ports.rx.east.isDataBuffered = false;
-    ParticleAttributes.ports.rx.east.isReceiving = false;
+//    ParticleAttributes.ports.rx.east.isReceiving = false;
     ParticleAttributes.ports.rx.east.isOverflowed = false;
 
     ParticleAttributes.ports.rx.south.isDataBuffered = false;
-    ParticleAttributes.ports.rx.south.isReceiving = false;
+//    ParticleAttributes.ports.rx.south.isReceiving = false;
     ParticleAttributes.ports.rx.south.isOverflowed = false;
 }
 
@@ -50,7 +50,7 @@ FUNC_ATTRS void clearReceptionBuffers(void) {
  */
 FUNC_ATTRS void clearReceptionBuffer(volatile RxPort *o) {
     o->isDataBuffered = false;
-    o->isReceiving = false;
+//    o->isReceiving = false;
     o->isOverflowed = false;
     DEBUG_CHAR_OUT('c');
 }

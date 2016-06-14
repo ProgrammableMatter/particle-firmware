@@ -14,11 +14,18 @@
 #  define FUNC_ATTRS
 #endif
 
+///**
+// * returns false on ongoing reception else true
+// */
+//FUNC_ATTRS bool isNotReceiving(volatile RxPort *o) {
+//    return o->isReceiving == false;
+//}
+
 /**
- * returns false on ongoing reception else true
+ * returns true if data on the specified is available, false otherwise
  */
-FUNC_ATTRS bool isNotReceiving(volatile RxPort *o) {
-    return o->isReceiving == false;
+FUNC_ATTRS bool isDataAvailable(volatile RxPort *o) {
+    return o->isDataBuffered;
 }
 
 /**

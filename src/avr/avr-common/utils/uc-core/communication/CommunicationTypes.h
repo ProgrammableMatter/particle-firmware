@@ -4,11 +4,8 @@
 
 #pragma once
 
-#include <inttypes.h>
-#include <stdbool.h>
+#include <stdint.h>
 #include "ManchesterDecodingTypes.h"
-#include "simulation/SimulationMacros.h"
-#include "uc-core/fw-configuration/ParticleParameters.h"
 
 /**
  * describes the transmission/reception states
@@ -56,10 +53,10 @@ typedef struct TxPorts {
 
 typedef struct RxPort {
     // each pin interrupt stores snapshots and the flank direction into the buffer
-    RxSnapshotBuffer snapshotBuffer;
+    RxSnapshotBuffer snapshotsBuffer;
     PortBuffer buffer;
     uint16_t receptionOffset; // synchronization offset of fist received bit relative to compare counter
-    uint8_t isReceiving
+    uint8_t __deprecated__isReceiving
             : 4; // interrupt handled: is decremented on each expected but missing coding flank or refreshed on reception
     uint8_t isOverflowed : 1;
     uint8_t isDataBuffered : 1;
@@ -67,12 +64,24 @@ typedef struct RxPort {
 } RxPort; // 259 + 9 + 2 + 1  = 271  bytes total
 
 typedef struct TimerCounterAdjustment {
-    uint16_t maxValue;
-    uint16_t centerValue; // maxValue / 2
-    uint16_t leftOfCenter; // centerValue - (centerValue / 2)
-    uint16_t rightOfCenter; // centerValue + (centerValue /2)
-    uint16_t __reserved;
-} TimerCounterAdjustment; // 10 bytes
+    /**
+     *
+     */
+    uint16_t maxCounterValue;
+    /**
+     * snapshot differences below this threshold are treated as short interval occurrences
+     */
+    uint16_t maxShortIntervalDuration;
+    /**
+     * snapshot differences below this threshold are treated as long interval occurrences
+     */
+    uint16_t maxLongIntervalDuration;
+    /**
+     * True if the maxCounterValue has been updated.
+     */
+    uint8_t isMaxCounterUpdated : 1;
+    uint8_t __pad : 7;
+} TimerCounterAdjustment;
 
 typedef struct RxPorts {
     TimerCounterAdjustment timerAdjustment;

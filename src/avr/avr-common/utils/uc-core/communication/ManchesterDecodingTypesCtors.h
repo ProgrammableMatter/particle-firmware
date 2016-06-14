@@ -19,8 +19,8 @@ FUNC_ATTRS void constructSnapshot(volatile Snapshot *o) {
     o->timerValue = 0;
 }
 
-FUNC_ATTRS void constructManchesterDecoderState(volatile ManchesterDecoderState *o) {
-    o->decodingState = DECODER_STATE_TYPE_STOPPED;
+FUNC_ATTRS void constructManchesterDecoderState(volatile ManchesterDecoderStates *o) {
+    o->decodingState = DECODER_STATE_TYPE_START;
 }
 
 FUNC_ATTRS void constructRxSnapshotBuffer(volatile RxSnapshotBuffer *o) {
@@ -29,7 +29,7 @@ FUNC_ATTRS void constructRxSnapshotBuffer(volatile RxSnapshotBuffer *o) {
     }
     o->startIndex = 0;
     o->endIndex = 0;
-    o->iteratorIndex = 0;
+    o->temporaryDequeueRegister = 0;
 }
 
 ///**

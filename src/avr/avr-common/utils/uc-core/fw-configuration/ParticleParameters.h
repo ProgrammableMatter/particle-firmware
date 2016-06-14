@@ -39,6 +39,10 @@
  */
 #define DEFAULT_TX_RX_COMPARE_TOP_VALUE ((uint16_t) 2000)
 
+
+#define DEFAULT_MAX_SHORT_RECEPTION_SNAPSHOT_DISTANCE ((uint16_t)(0.76 * DEFAULT_TX_RX_COMPARE_TOP_VALUE))
+#define DEFAULT_MAX_LONG_RECEPTION_SNAPSHOT_DISTANCE ((uint16_t)(1.33 * DEFAULT_TX_RX_COMPARE_TOP_VALUE))
+
 /**
  * Accepted deviation (constant) on reception:
  * Signals received within [DEFAULT_TX_RX_COMPARE_TOP_VALUE +/- TX_RX_RECEPTION_DELTA_DIVISOR ] time span are

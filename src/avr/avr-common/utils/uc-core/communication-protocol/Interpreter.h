@@ -19,7 +19,7 @@
 FUNC_ATTRS void interpretRxBuffer(volatile RxPort *rxPort) {
 
     DEBUG_CHAR_OUT('I');
-    if (!isNotReceiving(rxPort)) {
+    if (!isDataAvailable(rxPort)) {
         DEBUG_CHAR_OUT('i');
         return;
     }

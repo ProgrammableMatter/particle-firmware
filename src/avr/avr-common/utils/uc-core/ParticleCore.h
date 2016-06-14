@@ -255,6 +255,7 @@ FUNC_ATTRS void particleTick(void) {
             //// ---------------- local enumeration states ----------------
 
             // wait for incoming particle address from north neighbour
+
         case STATE_TYPE_WAIT_FOR_BEING_ENUMERATED:
             interpretRxBuffer(&ParticleAttributes.ports.rx.north);
             break;
@@ -381,6 +382,12 @@ FUNC_ATTRS void particleTick(void) {
             break;
 
         case STATE_TYPE_IDLE:
+            manchesterDecodeBuffer(&ParticleAttributes.ports.rx.north);
+            manchesterDecodeBuffer(&ParticleAttributes.ports.rx.east);
+            manchesterDecodeBuffer(&ParticleAttributes.ports.rx.south);
+            interpretRxBuffer(&ParticleAttributes.ports.rx.north);
+            interpretRxBuffer(&ParticleAttributes.ports.rx.east);
+            interpretRxBuffer(&ParticleAttributes.ports.rx.south);
             // if new rx buffer available -> interpret
             // if scheduled command available -> execute
             break;
