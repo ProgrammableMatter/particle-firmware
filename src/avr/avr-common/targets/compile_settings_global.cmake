@@ -12,7 +12,7 @@ SET(CXXSTANDARD "-std=gnu99")
 SET(CWARN "-Wall -Werror -Wvolatile-register-var -Wunused-variable -Wunused-function -Wunused-label -Wunused-value -Wextra -Wshadow -Wstrict-prototypes -Waddress -Wredundant-decls")
 SET(CXXWARN "-Wall -Werror -Wvolatile-register-var -Wunused-variable -Wunused-function -Wunused-label -Wunused-value -Wextra -Wshadow -Wstrict-prototypes -Waddress -Wredundant-decls")
 
-SET(CTUNING "-funsigned-char -funsigned-bitfields -fpack-struct -fdce -fdata-sections -ffunction-sections  ${CTUNING}")
+SET(CTUNING "-funsigned-char -funsigned-bitfields -fpack-struct -fdce -fdata-sections -ffunction-sections -Wl,--gc-sections ${CTUNING}")
 
 #SET(CDEFS "-DFUNC_ATTRS='inline' ${CDEFS}")
 SET(CDEFS "-DFUNC_ATTRS='' ${CDEFS}")
