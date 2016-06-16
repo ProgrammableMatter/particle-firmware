@@ -4,7 +4,7 @@
 # @author: Raoul Rubien 2011
 #
 
-# waits for following cli args: [programer] [target] [baud] [port] [flags] [input]
+# waits for following cli args: [programmer] [target] [baud] [port] [flags] [input]
 
 SCRIPT_PATH="$(readlink -f $(dirname $0))"
 SCRIPT_REL_PATH="$(dirname $0)"

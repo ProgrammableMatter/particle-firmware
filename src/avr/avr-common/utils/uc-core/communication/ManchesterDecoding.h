@@ -168,13 +168,13 @@ extern FUNC_ATTRS void captureSnapshot(const bool isRisingEdge,
  */
 FUNC_ATTRS void captureSnapshot(const bool isRisingEdge,
                                 volatile RxSnapshotBuffer *snapshotBuffer) {
-    volatile Snapshot *snapshot = &(snapshotBuffer->snapshots[snapshotBuffer->endIndex]);
+    volatile Snapshot *snapshot = &(snapshotBuffer->snapshots[snapshotBuffer->endIndex++]);
     snapshot->isRisingEdge = isRisingEdge;
     snapshot->timerValue = TIMER_TX_RX_COUNTER >> 1;
-    ++snapshotBuffer->endIndex;
 }
 
 extern FUNC_ATTRS void manchesterDecodeBuffer(volatile RxPort *rxPort);
+
 /**
  * decodes the specified buffer's snapshots to bits and bytes
  */

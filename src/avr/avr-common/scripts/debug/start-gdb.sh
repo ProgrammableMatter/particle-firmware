@@ -30,7 +30,7 @@ function usage {
   echo ""
   echo "$SCRIPT_NAME [device] [hexfile.elf]"
   echo ""
-  echo "for a list of defices use 'similavr --device"
+  echo "for a list of devices use 'simulavr --device"
   echo ""
 }
 

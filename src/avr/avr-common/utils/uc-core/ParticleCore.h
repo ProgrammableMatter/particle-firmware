@@ -456,7 +456,7 @@ FUNC_ATTRS void particleTick(void) {
                 LED_STATUS0_OFF;
                 DELAY_MS_196;
             }
-            break;
+//            break;
 
         default:
             ParticleAttributes.node.state = STATE_TYPE_ERRONEOUS;

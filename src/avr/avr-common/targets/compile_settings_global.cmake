@@ -7,19 +7,18 @@ SET(CMAKE_C_COMPILER avr-gcc)
 SET(CMAKE_CXX_COMPILER avr-g++)
 
 SET(CSTANDARD "-std=gnu99")
-SET(CXXSTANDARD "")
+SET(CXXSTANDARD "-std=gnu99")
 
-SET(CWARN "-Wall -Werror -Wextra -Wshadow -Wstrict-prototypes -Waddress -Wredundant-decls")
-SET(CXXWARN "-Wall -Werror -Wextra -Wshadow -Wstrict-prototypes -Waddress -Wredundant-decls")
+SET(CWARN "-Wall -Werror -Wvolatile-register-var -Wunused-variable -Wunused-function -Wunused-label -Wunused-value -Wextra -Wshadow -Wstrict-prototypes -Waddress -Wredundant-decls")
+SET(CXXWARN "-Wall -Werror -Wvolatile-register-var -Wunused-variable -Wunused-function -Wunused-label -Wunused-value -Wextra -Wshadow -Wstrict-prototypes -Waddress -Wredundant-decls")
 
-SET(CTUNING "-funsigned-char -funsigned-bitfields -fpack-struct ${CTUNING}")
+SET(CTUNING "-funsigned-char -funsigned-bitfields -fpack-struct -fdce -fdata-sections -ffunction-sections  ${CTUNING}")
 
 #SET(CDEFS "-DFUNC_ATTRS='inline' ${CDEFS}")
 SET(CDEFS "-DFUNC_ATTRS='' ${CDEFS}")
-
+#
 SET(COPT "-Os -fno-inline-small-functions -fno-inline") # for simulation purpose
 #SET(COPT "-O3") # for real MCU
-#SET(DEFINED_MACROS "-DTRY_INLINE -DTRY_INLINE_ISR_RELEVANT ${DEFINED_MACROS}")
 
 #SET(COPT "-O1")  # for simulation purpose
 

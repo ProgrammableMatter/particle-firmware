@@ -9,7 +9,7 @@ assertSuccess()
 {
   cmd=$_
   state=$1
-  messge=$2
+  message=$2
 
   if [ $state != 0 ] ; then
     echo "WARNING: Last command [$cmd]"
@@ -18,7 +18,7 @@ assertSuccess()
     else
         message="$message"
     fi
-    echo -ne "\n\n$messge\n\n"
+    echo -ne "\n\n$message\n\n"
     exit 42
   fi
 }

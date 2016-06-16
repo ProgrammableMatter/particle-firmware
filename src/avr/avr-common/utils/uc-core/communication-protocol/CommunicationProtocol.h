@@ -13,7 +13,7 @@
 
 /**
  * Sets the data end pointer to the specified position. For optimization purpose the struct is treated
- * as uint16_t where the end poisition is
+ * as uint16_t where the end position is
  */
 #define setBufferDataEndPointer(bufferDataEndPointer, uint16tNewDataEndPointer) \
     (*((uint16_t *) &bufferDataEndPointer) = uint16tNewDataEndPointer)

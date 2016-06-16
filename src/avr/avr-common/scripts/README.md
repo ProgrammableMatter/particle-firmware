@@ -27,7 +27,7 @@ make info            display help information
   * Eclipse -> File -> Import -> Existing project into workspace: Browse to build path -> Finish
   * Add includepath: -> project -> properties -> C/C++ include paths and symbols "/usr/lib/avr/include"
 
-## Requriements - programs/packages:
+## Requirements - programs/packages:
   * cmake
   * gcc-avr
   * avr-libc

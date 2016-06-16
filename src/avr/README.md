@@ -7,7 +7,7 @@ implementation of a programmable-matter particle
 ## particle-protoboard-hw-test
 simple program for testing all outputs of a board; usually used once after assembling the pcb
 
-## paricle-unit-tests
+## particle-unit-tests
 unittests
 
 ## avr-common contains

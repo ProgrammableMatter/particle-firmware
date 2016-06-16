@@ -310,7 +310,7 @@ typedef struct PackageHeaderAddressRangeData11 {
     })
 */
 /**
- * describes a package heaer with subsequent address range and 19 data bits
+ * describes a package header with subsequent address range and 19 data bits
  */
 typedef struct PackageHeaderAddressRangeData19 {
     uint8_t __startBit : 1;
