@@ -7,12 +7,7 @@
 #include "InterpreterTypes.h"
 #include "CommunicationProtocolTypes.h"
 
-#ifdef TRY_INLINE
-#  define FUNC_ATTRS inline
-#else
-#  define FUNC_ATTRS
-#endif
-
+extern FUNC_ATTRS void interpretRxBuffer(volatile RxPort *rxPort);
 /**
  * interpret the interpreter buffer according to the particle state as context
  */
@@ -106,6 +101,3 @@ FUNC_ATTRS void interpretRxBuffer(volatile RxPort *rxPort) {
     DEBUG_CHAR_OUT('i');
 }
 
-#ifdef FUNC_ATTRS
-#  undef FUNC_ATTRS
-#endif

@@ -8,25 +8,25 @@
 #include "ManchesterDecodingTypes.h"
 #include "uc-core/interrupts/TimerCounter.h"
 
-#ifdef TRY_INLINE
-#  define FUNC_ATTRS inline
-#else
-#  define FUNC_ATTRS
-#endif
+extern FUNC_ATTRS void constructSnapshot(volatile Snapshot *o);
 
 FUNC_ATTRS void constructSnapshot(volatile Snapshot *o) {
     o->isRisingEdge = false;
     o->timerValue = 0;
 }
 
+extern FUNC_ATTRS void constructManchesterDecoderState(volatile ManchesterDecoderStates *o);
+
 FUNC_ATTRS void constructManchesterDecoderState(volatile ManchesterDecoderStates *o) {
     o->decodingState = DECODER_STATE_TYPE_START;
 }
 
+extern FUNC_ATTRS void constructRxSnapshotBuffer(volatile RxSnapshotBuffer *o);
+
 FUNC_ATTRS void constructRxSnapshotBuffer(volatile RxSnapshotBuffer *o) {
-    for (uint8_t idx = 0; idx < (sizeof(o->snapshots) / sizeof(Snapshot)); idx++) {
-        constructSnapshot(&o->snapshots[idx]);
-    }
+//    for (uint8_t idx = 0; idx < (sizeof(o->snapshots) / sizeof(Snapshot)); idx++) {
+//        constructSnapshot(&o->snapshots[idx]);
+//    }
     o->startIndex = 0;
     o->endIndex = 0;
     o->temporaryDequeueRegister = 0;
@@ -64,7 +64,3 @@ FUNC_ATTRS void constructRxSnapshotBuffer(volatile RxSnapshotBuffer *o) {
 //        return TIMER_TX_RX_COUNTER;
 //    }
 //}
-
-#ifdef FUNC_ATTRS
-#  undef FUNC_ATTRS
-#endif

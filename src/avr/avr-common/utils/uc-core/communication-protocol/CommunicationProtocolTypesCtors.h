@@ -10,12 +10,9 @@
 #include "uc-core/Globals.h"
 #include "CommunicationProtocolTypes.h"
 
-#ifdef TRY_INLINE
-#  define FUNC_ATTRS inline
-#else
-#  define FUNC_ATTRS
-#endif
-
+extern FUNC_ATTRS void constructSendEnumeratePackage(volatile PackageHeaderAddress *o,
+                                                     uint8_t localAddressRow,
+                                                     uint8_t localAddressColumn);
 /**
  * Constructs a SendEnumeratePackage at the beginning of parameter o.
  */
@@ -29,6 +26,8 @@ FUNC_ATTRS void constructSendEnumeratePackage(volatile PackageHeaderAddress *o, 
     o->addressColumn0 = localAddressColumn;
 }
 
+extern FUNC_ATTRS void constructSendEnumeratePackageNorth(uint8_t localAddressRow,
+                                                          uint8_t localAddressColumn);
 /**
  * Constructs a SendEnumeratePackage at the north tx buffer.
  */
@@ -42,6 +41,8 @@ FUNC_ATTRS void constructSendEnumeratePackageNorth(uint8_t localAddressRow,
                             PackageHeaderAddressBufferPointerSize);
 }
 
+extern FUNC_ATTRS void constructSendEnumeratePackageEast(uint8_t localAddressRow,
+                                                         uint8_t localAddressColumn);
 /**
  * Constructs a SendEnumeratePackage at the east tx buffer.
  */
@@ -54,6 +55,8 @@ FUNC_ATTRS void constructSendEnumeratePackageEast(uint8_t localAddressRow,
                             PackageHeaderAddressBufferPointerSize);
 }
 
+extern FUNC_ATTRS void constructSendEnumeratePackageSouth(uint8_t localAddressRow,
+                                                          uint8_t localAddressColumn);
 /**
  * Constructs a SendEnumeratePackage at the south tx buffer.
  */
@@ -66,6 +69,7 @@ FUNC_ATTRS void constructSendEnumeratePackageSouth(uint8_t localAddressRow, uint
                             PackageHeaderAddressBufferPointerSize);
 }
 
+extern FUNC_ATTRS void constructSendACKPackage(volatile TxPort *txPort);
 /**
  * Constructs an empty ACK package at the given port tx buffer.
  */
@@ -76,6 +80,7 @@ FUNC_ATTRS void constructSendACKPackage(volatile TxPort *txPort) {
     setBufferDataEndPointer(txPort->dataEndPos, PackageHeaderBufferPointerSize);
 }
 
+extern FUNC_ATTRS void constructSendEnumeratedACKWithAddressToParent(void);
 /**
  * Constructs an ACK package with 2 byte data payload as the address field at the given port tx buffer.
  */
@@ -88,7 +93,3 @@ FUNC_ATTRS void constructSendEnumeratedACKWithAddressToParent(void) {
     setBufferDataEndPointer(ParticleAttributes.ports.tx.north.dataEndPos,
                             PackageHeaderData19BufferPointerSize);
 }
-
-#ifdef FUNC_ATTRS
-#  undef FUNC_ATTRS
-#endif

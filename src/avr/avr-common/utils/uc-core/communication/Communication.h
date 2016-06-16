@@ -8,11 +8,6 @@
 #include "CommunicationTypes.h"
 #include "ManchesterDecodingTypes.h"
 
-#ifdef TRY_INLINE
-#  define FUNC_ATTRS inline
-#else
-#  define FUNC_ATTRS
-#endif
 
 ///**
 // * returns false on ongoing reception else true
@@ -21,6 +16,7 @@
 //    return o->isReceiving == false;
 //}
 
+extern FUNC_ATTRS bool isDataAvailable(volatile RxPort *o);
 /**
  * returns true if data on the specified is available, false otherwise
  */
@@ -28,6 +24,7 @@ FUNC_ATTRS bool isDataAvailable(volatile RxPort *o) {
     return o->isDataBuffered;
 }
 
+extern FUNC_ATTRS void bufferBitPointerIncrement(volatile BufferBitPointer *o);
 /**
  * Increments the bit mask and the byte number accordingly. Does not verify the buffer boundary.
  */
@@ -39,6 +36,7 @@ FUNC_ATTRS void bufferBitPointerIncrement(volatile BufferBitPointer *o) {
     }
 }
 
+extern FUNC_ATTRS void bufferBitPointerStart(volatile BufferBitPointer *o);
 /**
  * points the reception buffer pointer to the start position (lowest bit)
  */
@@ -47,6 +45,7 @@ FUNC_ATTRS void bufferBitPointerStart(volatile BufferBitPointer *o) {
     o->byteNumber = 0;
 }
 
+extern FUNC_ATTRS bool isDataEndPosition(volatile TxPort *o);
 /**
  * Returns true if the transmission buffer pointer points exactly at the data end marker.
  * The marker is set one bit beyond the last data bit.
@@ -56,6 +55,7 @@ FUNC_ATTRS bool isDataEndPosition(volatile TxPort *o) {
            o->dataEndPos.byteNumber == o->buffer.pointer.byteNumber;
 }
 
+extern FUNC_ATTRS bool isBufferEndPosition(volatile BufferBitPointer *o);
 /**
  * Returns true if the pointer points at exactly one bit beyond the buffer's last bit.
  */
@@ -64,7 +64,3 @@ FUNC_ATTRS bool isBufferEndPosition(volatile BufferBitPointer *o) {
            o->bitMask == 0x1;
 
 }
-
-#ifdef FUNC_ATTRS
-#  undef FUNC_ATTRS
-#endif

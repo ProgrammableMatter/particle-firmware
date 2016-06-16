@@ -5,5 +5,5 @@
 #include <uc-core/ParticleLoop.h>
 
 int main(void) {
-   return particleLoop();
+    return particleLoop();
 }

@@ -6,17 +6,15 @@
 #include "CommunicationTypes.h"
 #include "ManchesterDecodingTypesCtors.h"
 
-#ifdef TRY_INLINE
-#  define FUNC_ATTRS inline
-#else
-#  define FUNC_ATTRS
-#endif
 
+extern FUNC_ATTRS void constructBufferBitPointer(volatile BufferBitPointer *o);
 
 FUNC_ATTRS void constructBufferBitPointer(volatile BufferBitPointer *o) {
     o->byteNumber = 0;
     o->bitMask = 1;
 }
+
+extern FUNC_ATTRS void constructPortBuffer(volatile PortBuffer *o);
 
 FUNC_ATTRS void constructPortBuffer(volatile PortBuffer *o) {
     for (uint8_t i = 0; i < sizeof(o->bytes); i++) {
@@ -25,6 +23,8 @@ FUNC_ATTRS void constructPortBuffer(volatile PortBuffer *o) {
     o->bytes[0] = 0x1;
     constructBufferBitPointer(&(o->pointer));
 }
+
+extern FUNC_ATTRS void constructTxPort(volatile TxPort *o);
 
 FUNC_ATTRS void constructTxPort(volatile TxPort *o) {
     constructPortBuffer(&(o->buffer));
@@ -36,11 +36,15 @@ FUNC_ATTRS void constructTxPort(volatile TxPort *o) {
 //    o->isTransmitting = false;
 }
 
+extern FUNC_ATTRS void constructTxPorts(volatile TxPorts *o);
+
 FUNC_ATTRS void constructTxPorts(volatile TxPorts *o) {
     constructTxPort(&(o->north));
     constructTxPort(&(o->east));
     constructTxPort(&(o->south));
 }
+
+extern FUNC_ATTRS void constructRxPort(volatile RxPort *o);
 
 FUNC_ATTRS void constructRxPort(volatile RxPort *o) {
     constructRxSnapshotBuffer(&o->snapshotsBuffer);
@@ -50,11 +54,15 @@ FUNC_ATTRS void constructRxPort(volatile RxPort *o) {
     o->isDataBuffered = false;
 }
 
+extern FUNC_ATTRS void constructTimerCounterAdjustment(volatile TimerCounterAdjustment *o);
+
 FUNC_ATTRS void constructTimerCounterAdjustment(volatile TimerCounterAdjustment *o) {
     o->maxCounterValue = DEFAULT_TX_RX_COMPARE_TOP_VALUE;
     o->maxShortIntervalDuration = DEFAULT_MAX_SHORT_RECEPTION_SNAPSHOT_DISTANCE;
     o->maxLongIntervalDuration = DEFAULT_MAX_LONG_RECEPTION_SNAPSHOT_DISTANCE;
 }
+
+extern FUNC_ATTRS void constructRxPorts(volatile RxPorts *o);
 
 FUNC_ATTRS void constructRxPorts(volatile RxPorts *o) {
     constructTimerCounterAdjustment(&o->timerAdjustment);
@@ -63,13 +71,10 @@ FUNC_ATTRS void constructRxPorts(volatile RxPorts *o) {
     constructRxPort(&(o->south));
 }
 
+extern FUNC_ATTRS void constructPorts(volatile Ports *o);
+
 FUNC_ATTRS void constructPorts(volatile Ports *o) {
     constructTxPorts(&(o->tx));
     constructRxPorts(&(o->rx));
     o->xmissionState = STATE_TYPE_XMISSION_TYPE_DISABLED_TX_RX;
 }
-
-
-#ifdef FUNC_ATTRS
-#  undef FUNC_ATTRS
-#endif

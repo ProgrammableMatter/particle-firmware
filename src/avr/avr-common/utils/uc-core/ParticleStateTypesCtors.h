@@ -6,17 +6,15 @@
 #include "ParticleStateTypes.h"
 #include "uc-core/communication/CommunicationTypesCtors.h"
 
-#ifdef TRY_INLINE
-#  define FUNC_ATTRS inline
-#else
-#  define FUNC_ATTRS
-#endif
+extern FUNC_ATTRS void constructPulseCounter(volatile PulseCounter *o);
 
 FUNC_ATTRS void constructPulseCounter(volatile PulseCounter *o) {
     o->counter = 0;
     o->isConnected = false;
 //    *(uint8_t *) o = 0;
 }
+
+extern FUNC_ATTRS void constructDiscoveryPulseCounters(volatile DiscoveryPulseCounters *o);
 
 FUNC_ATTRS void constructDiscoveryPulseCounters(volatile DiscoveryPulseCounters *o) {
     constructPulseCounter(&(o->north));
@@ -25,11 +23,15 @@ FUNC_ATTRS void constructDiscoveryPulseCounters(volatile DiscoveryPulseCounters 
     o->loopCount = 0;
 }
 
+extern FUNC_ATTRS void constructNodeAddress(volatile NodeAddress *o);
+
 FUNC_ATTRS void constructNodeAddress(volatile NodeAddress *o) {
 //    o->row = 1;
 //    o->column = 1;
     *((uint16_t *) o) = 0x0000;
 }
+
+extern FUNC_ATTRS void constructNode(volatile Node *o);
 
 FUNC_ATTRS void constructNode(volatile Node *o) {
     o->state = STATE_TYPE_UNDEFINED;
@@ -37,9 +39,13 @@ FUNC_ATTRS void constructNode(volatile Node *o) {
     constructNodeAddress(&(o->address));
 }
 
+extern FUNC_ATTRS void constructPeriphery(volatile Periphery *o);
+
 FUNC_ATTRS void constructPeriphery(volatile Periphery *o) {
     o->loopCount = 0;
 }
+
+extern FUNC_ATTRS void constructParticleState(volatile ParticleState *o);
 
 FUNC_ATTRS void constructParticleState(volatile ParticleState *o) {
     constructNode(&(o->node));
@@ -50,7 +56,3 @@ FUNC_ATTRS void constructParticleState(volatile ParticleState *o) {
     o->magicEndByte = 0xaa;
 #endif
 }
-
-#ifdef FUNC_ATTRS
-#  undef FUNC_ATTRS
-#endif

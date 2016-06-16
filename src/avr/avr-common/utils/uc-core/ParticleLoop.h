@@ -11,19 +11,13 @@
 #include "uc-core/delay/delay.h"
 #include "uc-core/fw-configuration/ParticleParameters.h"
 
-#ifdef TRY_INLINE
-#  define FUNC_ATTRS inline
-#else
-#  define FUNC_ATTRS
-#endif
-
 #  ifdef __AVR_ATtiny1634__
 
 #    include "./delay/delay.h"
 
 #  endif
 
-FUNC_ATTRS int particleLoop(void);
+extern FUNC_ATTRS int particleLoop(void);
 
 /**
  * The particle loop. It changes particle states and performs/execute tasks.
@@ -43,6 +37,3 @@ FUNC_ATTRS int particleLoop(void) {
     }
 }
 
-#ifdef FUNC_ATTRS
-#  undef FUNC_ATTRS
-#endif

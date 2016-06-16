@@ -11,12 +11,8 @@
 #include "uc-core/ParticleCore.h"
 
 //unsigned char __stuff __attribute__((section(".noinit")));
-#  ifdef TRY_INLINE
-#    define FUNC_ATTRS inline
-#  else
-#    define FUNC_ATTRS
-#  endif
 
+extern FUNC_ATTRS int particleLoop(void);
 /**
  * A mocked up particle loop. It puts the particle in an initialized reception state.
  */
@@ -90,7 +86,4 @@ int main(void) {
     forever;
 }
 
-#ifdef FUNC_ATTRS
-#  undef FUNC_ATTRS
-#endif
 

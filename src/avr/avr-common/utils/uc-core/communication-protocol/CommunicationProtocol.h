@@ -10,11 +10,6 @@
 #include "uc-core/Globals.h"
 #include "CommunicationProtocolTypes.h"
 
-#ifdef TRY_INLINE
-#  define FUNC_ATTRS inline
-#else
-#  define FUNC_ATTRS
-#endif
 
 /**
  * Sets the data end pointer to the specified position. For optimization purpose the struct is treated
@@ -28,6 +23,7 @@
     (*((uint16_t *) &bufferDataEndPointer) == uint16tExpectedDataEndPointer)
 
 
+extern FUNC_ATTRS void clearReceptionBuffers(void);
 /**
  * invalidates all reception buffers
  */
@@ -45,6 +41,7 @@ FUNC_ATTRS void clearReceptionBuffers(void) {
     ParticleAttributes.ports.rx.south.isOverflowed = false;
 }
 
+extern FUNC_ATTRS void clearReceptionBuffer(volatile RxPort *o);
 /**
  * invalidates the given port's reception buffer
  */
@@ -56,6 +53,7 @@ FUNC_ATTRS void clearReceptionBuffer(volatile RxPort *o) {
 }
 
 
+extern FUNC_ATTRS void prepareTransmissionPortBuffer(volatile TxPort *o);
 /**
  * prepares the given transmission port for buffering and later transmission
  */
@@ -66,6 +64,7 @@ FUNC_ATTRS void prepareTransmissionPortBuffer(volatile TxPort *o) {
     bufferBitPointerStart(&o->buffer.pointer);
 }
 
+extern FUNC_ATTRS void releaseTransmissionPortBufferForTransmission(volatile TxPort *port);
 /**
  * sets flags to enable transmission of the given port
  */
@@ -76,13 +75,10 @@ FUNC_ATTRS void releaseTransmissionPortBufferForTransmission(volatile TxPort *po
 }
 
 
+extern FUNC_ATTRS uint8_t isPortTransmitting(volatile TxPort *o);
 /**
  * returns true if the given port is in transmission mode
  */
 FUNC_ATTRS uint8_t isPortTransmitting(volatile TxPort *o) {
     return o->isTransmitting || o->enableTransmission;
 }
-
-#ifdef FUNC_ATTRS
-#  undef FUNC_ATTRS
-#endif

@@ -20,12 +20,7 @@
 #include "uc-core/communication-protocol/Interpreter.h"
 
 
-#ifdef TRY_INLINE
-#  define FUNC_ATTRS inline
-#else
-#  define FUNC_ATTRS
-#endif
-
+extern FUNC_ATTRS bool __updateAndDetermineNodeType(void);
 /**
  * Updates the node type according to the amount of incoming pulses. The type {@link NodeType} is stored to
  * {@link ParticleAttributes.type}.
@@ -65,20 +60,27 @@ FUNC_ATTRS bool __updateAndDetermineNodeType(void) {
     return false;
 }
 
+extern FUNC_ATTRS void __disableDiscoverySensing(void);
+
 FUNC_ATTRS void __disableDiscoverySensing(void) {
     RX_INTERRUPTS_DISABLE;
 }
+
+extern FUNC_ATTRS void __disableDiscoveryPulsing(void);
 
 FUNC_ATTRS void __disableDiscoveryPulsing(void) {
     TIMER_NEIGHBOUR_SENSE_PAUSE;
     TIMER_NEIGHBOUR_SENSE_DISABLE;
 }
 
+extern FUNC_ATTRS void __enableDiscovery(void);
+
 FUNC_ATTRS void __enableDiscovery(void) {
     TIMER_NEIGHBOUR_SENSE_ENABLE;
     TIMER_NEIGHBOUR_SENSE_RESUME;
 }
 
+extern FUNC_ATTRS void __initParticle(void);
 /**
  * Sets up ports and interrupts but does not enable the global interrupt (I-flag in SREG)
  */
@@ -88,11 +90,15 @@ FUNC_ATTRS void __initParticle(void) {
     TIMER_NEIGHBOUR_SENSE_SETUP; // configure timer interrupt for neighbour sensing
 }
 
+extern FUNC_ATTRS void __disableReceptionHardware(void);
+
 FUNC_ATTRS void __disableReceptionHardware(void) {
     RX_NORTH_INTERRUPT_DISABLE;
     RX_EAST_INTERRUPT_DISABLE;
     RX_SOUTH_INTERRUPT_DISABLE;
 }
+
+extern FUNC_ATTRS void __enableReceptionHardwareNorth(void);
 
 FUNC_ATTRS void __enableReceptionHardwareNorth(void) {
     if (ParticleAttributes.discoveryPulseCounters.north.isConnected) {
@@ -101,12 +107,16 @@ FUNC_ATTRS void __enableReceptionHardwareNorth(void) {
     }
 }
 
+extern FUNC_ATTRS void __enableReceptionHardwareEast(void);
+
 FUNC_ATTRS void __enableReceptionHardwareEast(void) {
     if (ParticleAttributes.discoveryPulseCounters.east.isConnected) {
         RX_EAST_INTERRUPT_CLEAR_PENDING;
         RX_EAST_INTERRUPT_ENABLE;
     }
 }
+
+extern FUNC_ATTRS void __enableReceptionHardwareSouth(void);
 
 FUNC_ATTRS void __enableReceptionHardwareSouth(void) {
     if (ParticleAttributes.discoveryPulseCounters.south.isConnected) {
@@ -115,14 +125,20 @@ FUNC_ATTRS void __enableReceptionHardwareSouth(void) {
     }
 }
 
+extern FUNC_ATTRS void __enableTxRxTimerHardware(void);
+
 FUNC_ATTRS void __enableTxRxTimerHardware(void) {
     TIMER_TX_RX_SETUP;
     TIMER_TX_RX_ENABLE;
 }
 
+extern FUNC_ATTRS void __disableTxRxTimerHardware(void);
+
 FUNC_ATTRS void __disableTxRxTimerHardware(void) {
     TIMER_TX_RX_DISABLE;
 }
+
+extern FUNC_ATTRS void __enableReceptionHardwareForConnectedPorts(void);
 
 FUNC_ATTRS void __enableReceptionHardwareForConnectedPorts(void) {
     RX_INTERRUPTS_SETUP;
@@ -133,11 +149,15 @@ FUNC_ATTRS void __enableReceptionHardwareForConnectedPorts(void) {
 
 }
 
+extern FUNC_ATTRS void __disableTxRx(void);
+
 FUNC_ATTRS void __disableTxRx(void) {
     ParticleAttributes.ports.xmissionState = STATE_TYPE_XMISSION_TYPE_DISABLED_TX_RX;
     __disableReceptionHardware();
     __disableTxRxTimerHardware();
 }
+
+extern FUNC_ATTRS void __enableTxRx(void);
 
 FUNC_ATTRS void __enableTxRx(void) {
     __enableTxRxTimerHardware();
@@ -145,6 +165,7 @@ FUNC_ATTRS void __enableTxRx(void) {
     ParticleAttributes.ports.xmissionState = STATE_TYPE_XMISSION_TYPE_ENABLED_TX_RX;
 }
 
+extern FUNC_ATTRS void __heartBeatToggle(void);
 /**
  * Toggles heartbeat LED
  */
@@ -156,11 +177,15 @@ FUNC_ATTRS void __heartBeatToggle(void) {
     }
 }
 
+extern FUNC_ATTRS void __discoveryLoopCount(void);
+
 FUNC_ATTRS void __discoveryLoopCount(void) {
     if (ParticleAttributes.discoveryPulseCounters.loopCount < (UINT8_MAX)) {
         ParticleAttributes.discoveryPulseCounters.loopCount++;
     }
 }
+
+extern FUNC_ATTRS  void __updateOriginNodeAddress(void);
 
 FUNC_ATTRS void __updateOriginNodeAddress(void) {
     if (ParticleAttributes.node.type == NODE_TYPE_ORIGIN) {
@@ -169,7 +194,7 @@ FUNC_ATTRS void __updateOriginNodeAddress(void) {
     }
 }
 
-
+extern FUNC_ATTRS void particleTick(void);
 /**
  * This function is called cyclically in the particle loop. It implements the
  * behaviour and state machine of the particle.
@@ -438,7 +463,3 @@ FUNC_ATTRS void particleTick(void) {
             break;
     }
 }
-
-#ifdef FUNC_ATTRS
-#  undef FUNC_ATTRS
-#endif

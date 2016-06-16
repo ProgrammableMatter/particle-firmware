@@ -6,12 +6,8 @@
 
 #include "ManchesterDecodingTypes.h"
 
-#ifdef TRY_INLINE
-#  define FUNC_ATTRS inline
-#else
-#  define FUNC_ATTRS
-#endif
-
+extern FUNC_ATTRS void rectifyTransmissionBit(volatile TxPort *txPort, void (*txHiImpl)(void),
+                                              void (*txLoImpl)(void));
 /**
  * rectifies/modulates the transmission signal according to the upcoming bit
  */
@@ -29,6 +25,8 @@ FUNC_ATTRS void rectifyTransmissionBit(volatile TxPort *txPort, void (*txHiImpl)
     }
 }
 
+extern FUNC_ATTRS void modulateTransmissionBit(volatile TxPort *txPort, void (*txHiImpl)(void),
+                                               void (*txLoImpl)(void));
 /**
  * modulates the transmission signal according to the current bit and increments the buffer pointer
  */
@@ -58,7 +56,3 @@ FUNC_ATTRS void modulateTransmissionBit(volatile TxPort *txPort, void (*txHiImpl
         txPort->retainTransmission = false;
     }
 }
-
-#ifdef FUNC_ATTRS
-#  undef FUNC_ATTRS
-#endif

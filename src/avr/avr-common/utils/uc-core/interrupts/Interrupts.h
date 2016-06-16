@@ -25,11 +25,9 @@
 
 #define TIMER_NEIGHBOUR_SENSE_COUNTER_ON_INTERRUPT_ROLLBACK 12
 
-#ifdef TRY_INLINE_ISR_RELEVANT
-#  define FUNC_ATTRS inline
-#else
-#  define FUNC_ATTRS
-#endif
+extern FUNC_ATTRS void __handleInputInterrupt(volatile PulseCounter *discoveryPulseCounter,
+                                              volatile RxPort *rxPort,
+                                              const bool isRxHigh);
 
 FUNC_ATTRS void __handleInputInterrupt(volatile PulseCounter *discoveryPulseCounter, volatile RxPort *rxPort,
                                        const bool isRxHigh) {
@@ -58,25 +56,37 @@ FUNC_ATTRS void __handleInputInterrupt(volatile PulseCounter *discoveryPulseCoun
 
 }
 
+extern FUNC_ATTRS void __southTxHi(void);
+
 FUNC_ATTRS void __southTxHi(void) {
     SOUTH_TX_HI;
 }
+
+extern FUNC_ATTRS void __southTxLo(void);
 
 FUNC_ATTRS void __southTxLo(void) {
     SOUTH_TX_LO;
 }
 
+extern FUNC_ATTRS void __northTxHi(void);
+
 FUNC_ATTRS void __northTxHi(void) {
     NORTH_TX_HI;
 }
+
+extern FUNC_ATTRS void __northTxLo(void);
 
 FUNC_ATTRS void __northTxLo(void) {
     NORTH_TX_LO;
 }
 
+extern FUNC_ATTRS void __eastTxHi(void);
+
 FUNC_ATTRS void __eastTxHi(void) {
     EAST_TX_HI;
 }
+
+extern FUNC_ATTRS void __eastTxLo(void);
 
 FUNC_ATTRS void __eastTxLo(void) {
     EAST_TX_LO;
@@ -258,8 +268,3 @@ EMPTY_INTERRUPT(TX_RX_OVERFLOW_INTERRUPT_VECT)
 EMPTY_INTERRUPT(BADISR_vect)
 
 #  endif
-
-
-#ifdef FUNC_ATTRS
-#  undef FUNC_ATTRS
-#endif

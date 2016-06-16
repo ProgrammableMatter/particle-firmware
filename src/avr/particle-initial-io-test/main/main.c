@@ -14,7 +14,7 @@ void __init(void);
 
 
 int main(void) {
-	// enable signal led
+    // enable signal led
     ADir setOut Pin3;
     AOut setHi Pin3;
 
@@ -37,7 +37,7 @@ int main(void) {
     // pull tx-A mosfet to Vcc
     ADir setOut Pin4;
     AOut setHi Pin4;
-    forever{
+    forever {
     }
 }
 

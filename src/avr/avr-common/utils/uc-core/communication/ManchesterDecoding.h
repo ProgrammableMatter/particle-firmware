@@ -9,11 +9,6 @@
 #include "uc-core/interrupts/TimerCounter.h"
 #include "simulation/SimulationMacros.h"
 
-#ifdef TRY_INLINE
-#  define FUNC_ATTRS inline
-#else
-#  define FUNC_ATTRS
-#endif
 
 
 /**
@@ -44,6 +39,7 @@
     (manchesterDecoderPhaseState += 2)
 
 
+extern FUNC_ATTRS void __storeDataBit(volatile RxPort *rxPort, const volatile uint8_t isRisingEdge);
 /**
  * Stores the data bit to the reception buffer unless the buffer is saturated.
  */
@@ -70,6 +66,7 @@ FUNC_ATTRS void __storeDataBit(volatile RxPort *rxPort, const volatile uint8_t i
 //    o->iteratorIndex = o->startIndex;
 //}
 
+extern FUNC_ATTRS void __rxSnapshotBufferDequeue(volatile RxSnapshotBuffer *o);
 /**
  * Releases the 1st element from the the queue.
  */
@@ -77,6 +74,7 @@ FUNC_ATTRS void __rxSnapshotBufferDequeue(volatile RxSnapshotBuffer *o) {
     o->startIndex++;
 }
 
+extern FUNC_ATTRS volatile Snapshot *__rxSnapshotBufferPeek(volatile RxSnapshotBuffer *o);
 /**
  * Same as dequeue but does not modify the queue.
  */
@@ -143,6 +141,7 @@ FUNC_ATTRS volatile Snapshot *__rxSnapshotBufferPeek(volatile RxSnapshotBuffer *
 //    o->startIndex = o->endIndex;
 //}
 
+extern FUNC_ATTRS bool __rxSnapshotBufferIsEmpty(volatile RxSnapshotBuffer *o);
 /**
  * Returns true if the buffer is empty.
  */
@@ -150,6 +149,7 @@ FUNC_ATTRS bool __rxSnapshotBufferIsEmpty(volatile RxSnapshotBuffer *o) {
     return o->startIndex == o->endIndex;
 }
 
+extern FUNC_ATTRS void __absDifference(volatile uint16_t *a, uint16_t *b, uint16_t *result);
 /**
  * Returns the positive difference of two uint16_t values.
  */
@@ -161,17 +161,20 @@ FUNC_ATTRS void __absDifference(volatile uint16_t *a, uint16_t *b, uint16_t *res
     }
 }
 
+extern FUNC_ATTRS void captureSnapshot(const bool isRisingEdge,
+                                       volatile RxSnapshotBuffer *snapshotBuffer);
 /**
  * appends the current TIMER_TX_RX_COUNTER value and the specified flank to the snapshot buffer
  */
 FUNC_ATTRS void captureSnapshot(const bool isRisingEdge,
                                 volatile RxSnapshotBuffer *snapshotBuffer) {
     volatile Snapshot *snapshot = &(snapshotBuffer->snapshots[snapshotBuffer->endIndex]);
-    snapshot->timerValue = TIMER_TX_RX_COUNTER >> 1;
     snapshot->isRisingEdge = isRisingEdge;
+    snapshot->timerValue = TIMER_TX_RX_COUNTER >> 1;
     ++snapshotBuffer->endIndex;
 }
 
+extern FUNC_ATTRS void manchesterDecodeBuffer(volatile RxPort *rxPort);
 /**
  * decodes the specified buffer's snapshots to bits and bytes
  */
@@ -231,7 +234,3 @@ FUNC_ATTRS void manchesterDecodeBuffer(volatile RxPort *rxPort) {
 
     }
 }
-
-#ifdef FUNC_ATTRS
-#  undef FUNC_ATTRS
-#endif

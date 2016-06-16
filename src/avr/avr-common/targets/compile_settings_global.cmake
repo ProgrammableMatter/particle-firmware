@@ -12,10 +12,15 @@ SET(CXXSTANDARD "")
 SET(CWARN "-Wall -Werror -Wextra -Wshadow -Wstrict-prototypes -Waddress -Wredundant-decls")
 SET(CXXWARN "-Wall -Werror -Wextra -Wshadow -Wstrict-prototypes -Waddress -Wredundant-decls")
 
-SET(CTUNING " ${CTUNING} -funsigned-char -funsigned-bitfields -fpack-struct")
+SET(CTUNING "-funsigned-char -funsigned-bitfields -fpack-struct ${CTUNING}")
+
+#SET(CDEFS "-DFUNC_ATTRS='inline' ${CDEFS}")
+SET(CDEFS "-DFUNC_ATTRS='' ${CDEFS}")
+
 SET(COPT "-Os -fno-inline-small-functions -fno-inline") # for simulation purpose
 #SET(COPT "-O3") # for real MCU
 #SET(DEFINED_MACROS "-DTRY_INLINE -DTRY_INLINE_ISR_RELEVANT ${DEFINED_MACROS}")
+
 #SET(COPT "-O1")  # for simulation purpose
 
 SET(CDEBUG "${CDEBUG}")
