@@ -127,7 +127,7 @@ typedef struct ParticleState {
     DiscoveryPulseCounters discoveryPulseCounters;
     Ports ports;
     Periphery periphery;
-    Interpreter interpreter;
+//    Interpreter interpreter;
 #ifdef SIMULATION
     uint8_t magicEndByte;
 #endif
