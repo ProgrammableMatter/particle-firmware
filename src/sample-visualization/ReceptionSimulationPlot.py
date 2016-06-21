@@ -23,40 +23,40 @@ if __name__ == "__main__":
     interruptName = "NORTH_RECEPTION"
     dataFilter.setValueMapping(mappingConfig.interruptToFloatValueMapping)
 
-    pltr.addInterruptPlot(dataFilter, dataPlotter, title="[0] un-/posting", nodeId=0,
+    pltr.addInterruptPlot(dataFilter, dataPlotter, title="[0] un-/posting NORTH_RECEPTION", nodeId=0,
                           interruptToNumberMapping=mappingConfig.interruptToNumberMapping, facet="post",
                           interruptName=interruptName)
 
-    pltr.addInterruptPlot(dataFilter, dataPlotter, title="[0] call/return", nodeId=0,
+    pltr.addInterruptPlot(dataFilter, dataPlotter, title="[0] call/return NORTH_RECEPTION", nodeId=0,
                           interruptToNumberMapping=mappingConfig.interruptToNumberMapping, facet="invoke",
                           interruptName=interruptName)
 
     interruptName = "TX_RX_TIMER_TOP"
-    pltr.addInterruptPlot(dataFilter, dataPlotter, title="[0] un-/posting", nodeId=0,
+    pltr.addInterruptPlot(dataFilter, dataPlotter, title="[0] un-/posting TX_RX_TIMER_TOP", nodeId=0,
                           interruptToNumberMapping=mappingConfig.interruptToNumberMapping, facet="post",
                           interruptName=interruptName)
 
-    pltr.addInterruptPlot(dataFilter, dataPlotter, title="[0] call/return", nodeId=0,
+    pltr.addInterruptPlot(dataFilter, dataPlotter, title="[0] call/return TX_RX_TIMER_TOP", nodeId=0,
                           interruptToNumberMapping=mappingConfig.interruptToNumberMapping, facet="invoke",
                           interruptName=interruptName)
 
     interruptName = "TX_RX_TIMER_CENTER"
-    pltr.addInterruptPlot(dataFilter, dataPlotter, title="[0] un-/posting", nodeId=0,
+    pltr.addInterruptPlot(dataFilter, dataPlotter, title="[0] un-/posting TX_RX_TIMER_CENTER", nodeId=0,
                           interruptToNumberMapping=mappingConfig.interruptToNumberMapping, facet="post",
                           interruptName=interruptName)
 
-    pltr.addInterruptPlot(dataFilter, dataPlotter, title="[0] call/return", nodeId=0,
+    pltr.addInterruptPlot(dataFilter, dataPlotter, title="[0] call/return TX_RX_TIMER_CENTER", nodeId=0,
                           interruptToNumberMapping=mappingConfig.interruptToNumberMapping, facet="invoke",
                           interruptName=interruptName)
 
-    pltr.addInterruptPlot(dataFilter, dataPlotter, title="[0] call/return", nodeId=0,
+    pltr.addInterruptPlot(dataFilter, dataPlotter, title="[0] call/return TX_RX_TIMEOUT_INTERRUPT", nodeId=0,
                           interruptToNumberMapping=mappingConfig.interruptToNumberMapping, facet="invoke",
                           interruptName="TX_RX_TIMEOUT_INTERRUPT")
 
     pltr.addPlot(dataFilter, dataPlotter, title="[0] SRAM[int16-out]", nodeId=0, domain="SRAM", name="int16-out")
 
     receptionInterruptValueMapping = {"'U'": 0.0, "'S'": 0.2,
-                                      "'A'": 0.6, "'B'": 0.4, "'x'": 0.0, "'0'": 1.2, "'1'": 1.4}
+                                      "'A'": 0.6, "'B'": 0.4, "'x'": 0.0, "'0'": 1.2, "'1'": 1.4, "'P'" : 0.1}
     dataFilter.setValueMapping(receptionInterruptValueMapping)
     pltr.addPlot(dataFilter, dataPlotter, title="[0] SRAM[char-out] - rx states", nodeId=0, domain="SRAM",
                  name="char-out")

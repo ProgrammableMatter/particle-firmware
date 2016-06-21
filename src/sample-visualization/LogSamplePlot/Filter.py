@@ -1,5 +1,8 @@
 import re
 
+import sys
+
+
 class Sample:
     """
     A Sample class represents a single sample.
@@ -93,8 +96,9 @@ class Filter:
             if sampleFilter.domain in self.nodeIdToDomainToNameToSamples[sampleFilter.nodeId]:
                 if sampleFilter.name in self.nodeIdToDomainToNameToSamples[sampleFilter.nodeId][sampleFilter.domain]:
                     try:
-                        x, y, annotation = map(list, zip(*self.nodeIdToDomainToNameToSamples[sampleFilter.nodeId][sampleFilter.domain][
-                            sampleFilter.name]))
+                        x, y, annotation = map(list, zip(
+                            *self.nodeIdToDomainToNameToSamples[sampleFilter.nodeId][sampleFilter.domain][
+                                sampleFilter.name]))
                         return x, y, annotation
                     except:
                         return None, None, None
@@ -108,7 +112,13 @@ class Filter:
         :param sampleFilter: the sample filter
         :return: None
         """
-        self.nodeIdToDomainToNameToSamples[sampleFilter.nodeId][sampleFilter.domain][sampleFilter.name] = []
+        try:
+            self.nodeIdToDomainToNameToSamples[sampleFilter.nodeId][sampleFilter.domain][sampleFilter.name] = []
+        except KeyError:
+            pass
+            print(
+            "warning: sample [" + str(sampleFilter.nodeId) + "][" + str(sampleFilter.domain) + "][" + str(sampleFilter.name) + "] not removed",
+            sys.stderr)
 
     def filter(self, sampleFilter):
         """
@@ -188,4 +198,3 @@ class Filter:
                 return float(value)
             except:
                 return None
-
