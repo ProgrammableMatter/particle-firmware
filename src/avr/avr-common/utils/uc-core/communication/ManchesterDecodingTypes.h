@@ -53,11 +53,12 @@ typedef struct RxSnapshotBuffer {
      * describes the 1st buffered position
      */
     uint8_t startIndex : 7;
+    uint8_t __pad : 1;
     /**
      * describes the 1st invalid position
      */
     uint8_t endIndex : 7;
-    uint8_t __pad : 2;
+    uint8_t __pad1 : 1;
 
     /**
      * used to store the current dequeue value
