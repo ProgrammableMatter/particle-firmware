@@ -84,7 +84,7 @@ class Plotter:
             # self.lastXCoordinate = x
             if self.lastClickedXCoordinate != None:
                 difference = (self.lastClickedXCoordinate - x) * 1E-9
-                return '(t={:1.9f}[ms], y={:}) || x1={:1.9f} diff.={:1.9f}'.format(x * 1E-9, y, self.lastClickedXCoordinate * 1E-9, difference)
+                return '(t={:1.9f}[ms], y={:}) || t1={:1.9f}[ms] diff.={:1.9f}[ms]'.format(x * 1E-9, y, self.lastClickedXCoordinate * 1E-9, difference)
             return '(t={:1.9f}[ms], y={:})'.format(x * 1E-9, y)
 
         for plot in self.plots:
