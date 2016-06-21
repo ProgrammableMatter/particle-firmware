@@ -58,27 +58,14 @@ extern FUNC_ATTRS void prepareTransmissionPortBuffer(volatile TxPort *o);
  * prepares the given transmission port for buffering and later transmission
  */
 FUNC_ATTRS void prepareTransmissionPortBuffer(volatile TxPort *o) {
-    o->enableTransmission = false;
-    o->retainTransmission = true;
     o->isTransmitting = false;
     bufferBitPointerStart(&o->buffer.pointer);
 }
-
-extern FUNC_ATTRS void releaseTransmissionPortBufferForTransmission(volatile TxPort *port);
-/**
- * sets flags to enable transmission of the given port
- */
-FUNC_ATTRS void releaseTransmissionPortBufferForTransmission(volatile TxPort *port) {
-//    DELAY_US_150;
-    port->retainTransmission = true;
-    port->enableTransmission = true;
-}
-
 
 extern FUNC_ATTRS uint8_t isPortTransmitting(volatile TxPort *o);
 /**
  * returns true if the given port is in transmission mode
  */
 FUNC_ATTRS uint8_t isPortTransmitting(volatile TxPort *o) {
-    return o->isTransmitting || o->enableTransmission;
+    return o->isTransmitting; //|| o->enableTransmission;
 }
