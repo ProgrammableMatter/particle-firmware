@@ -133,7 +133,7 @@ ISR(SOUTH_PIN_CHANGE_INTERRUPT_VECT) {
  * In tx/rx states A equals DEFAULT_TX_RX_COMPARE_TOP_VALUE
  * int. #7
  */
-ISR(TX_RX_TIMER_TOP_INTERRUPT_VECT) {
+ISR(TX_TIMER_INTERRUPT_VECT) {
 
     switch (ParticleAttributes.node.state) {
         case STATE_TYPE_START:
@@ -149,12 +149,11 @@ ISR(TX_RX_TIMER_TOP_INTERRUPT_VECT) {
             EAST_TX_TOGGLE;
             break;
 
-            // otherwise process transmission and reception
+            // otherwise process transmission
         default:
             switch (ParticleAttributes.ports.xmissionState) {
                 case STATE_TYPE_XMISSION_TYPE_ENABLED_TX_RX:
                 case STATE_TYPE_XMISSION_TYPE_ENABLED_TX:
-                case STATE_TYPE_XMISSION_TYPE_ENABLED_RX:
                     rectifyTransmissionBit(&ParticleAttributes.ports.tx.north, __northTxHi, __northTxLo);
                     rectifyTransmissionBit(&ParticleAttributes.ports.tx.east, __eastTxHi, __eastTxLo);
                     rectifyTransmissionBit(&ParticleAttributes.ports.tx.south, __southTxHi, __southTxLo);
@@ -173,7 +172,8 @@ ISR(TX_RX_TIMER_TOP_INTERRUPT_VECT) {
  * generates the signal(s) according to the state, otherwise only timeout counters are processed.
  * int. #8
  */
-ISR(TX_RX_TIMER_CENTER_INTERRUPT_VECT) {
+ISR(ACTUATOR_TIMER_INTERRUPT_VECT) {
+    // TODO: move impl. to tx vect.
 //    IF_SIMULATION_CHAR_OUT('i');
     switch (ParticleAttributes.node.state) {
         case STATE_TYPE_START:
@@ -204,25 +204,6 @@ ISR(TX_RX_TIMER_CENTER_INTERRUPT_VECT) {
 }
 
 
-/**
- * On timer 0 compare interrupt. The interrupt is called multiple times (i.e. 8x) per
- * TX_RX_TIMER_TOP_INTERRUPT_VECT. The implementation updates the timeout per reception
- * port. A timeout indicates a fully received transmission.
- * int. #20
- */
-EMPTY_INTERRUPT(TX_RX_TIMEOUT_INTERRUPT_VECT)
-//{
-//    switch (ParticleAttributes.node.state) {
-//        case STATE_TYPE_IDLE:
-//        case STATE_TYPE_TX_START:
-//        case STATE_TYPE_TX_DONE:
-//        case STATE_TYPE_SCHEDULE_COMMAND:
-//            break;
-//        default:
-//            break;
-//    }
-//}
-
 # ifdef SIMULATION
 
 const char isrVector0Msg[] PROGMEM = "BAD ISR";
@@ -235,23 +216,31 @@ ISR(_VECTOR(0)) {
 }
 
 /**
- * on tx/rx timeout timer overflow
- * int #10
+ * on timer 0 compare
+ * int #19
  */
-ISR(TX_RX_TIMEOUT_OVERFLOW_INTERRUPT_VECT) {
+ISR(__UNUSED_TIMER0_COMPARE_INTERRUPT_VECT) {
     writeToUart((PGM_P) pgm_read_word(&(isrVector0Msg)));
     IF_DEBUG_SWITCH_TO_ERRONEOUS_STATE;
 }
 
 /**
- * on tx/rx timer overflow
+ * on timer 0 overflow
  * int #9
  */
-ISR(TX_RX_OVERFLOW_INTERRUPT_VECT) {
+ISR(__UNUSED_TIMER0_OVERFLOW_INTERRUPT_VECT) {
     writeToUart((PGM_P) pgm_read_word(&(isrVector0Msg)));
     IF_DEBUG_SWITCH_TO_ERRONEOUS_STATE;
 }
 
+/**
+ * on timer 1 overflow
+ * int #8
+ */
+ISR(__UNUSED_TIMER1_OVERFLOW_INTERRUPT_VECT) {
+    writeToUart((PGM_P) pgm_read_word(&(isrVector0Msg)));
+    IF_DEBUG_SWITCH_TO_ERRONEOUS_STATE;
+}
 
 ISR(BADISR_vect) {
     IF_DEBUG_SWITCH_TO_ERRONEOUS_STATE;
@@ -261,9 +250,11 @@ ISR(BADISR_vect) {
 
 EMPTY_INTERRUPT(_VECTOR(0))
 
-EMPTY_INTERRUPT(TX_RX_TIMEOUT_OVERFLOW_INTERRUPT_VECT)
+EMPTY_INTERRUPT(__UNUSED_TIMER0_COMPARE_INTERRUPT_VECT)
 
-EMPTY_INTERRUPT(TX_RX_OVERFLOW_INTERRUPT_VECT)
+EMPTY_INTERRUPT(__UNUSED_TIMER0_OVERFLOW_INTERRUPT_VECT)
+
+EMPTY_INTERRUPT(__UNUSED_TIMER1_OVERFLOW_INTERRUPT_VECT)
 
 EMPTY_INTERRUPT(BADISR_vect)
 
