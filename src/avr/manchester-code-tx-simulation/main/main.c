@@ -75,24 +75,14 @@ inline void initTransmission(void) {
     ParticleAttributes.ports.tx.south.dataEndPos.byteNumber = 6;
     ParticleAttributes.ports.tx.south.dataEndPos.bitMask = 0x80;
 
-
-//    // the byte to transmit
-//    ParticleAttributes.ports.tx.south.buffer.bytes[6] = 0b10100111; // == 0xa7 => 0xe5
-//    ParticleAttributes.ports.tx.south.buffer.bytes[5] = 0b10101010; // == 0xaa => 0x55
-//    ParticleAttributes.ports.tx.south.buffer.bytes[4] = 0b10101010; // == 0xaa => 0x55
-//    ParticleAttributes.ports.tx.south.buffer.bytes[3] = 0b10100111; // == 0xa7 => 0xe5
-//    ParticleAttributes.ports.tx.south.buffer.bytes[2] = 0b10101010; // == 0xaa => 0x55
-//    ParticleAttributes.ports.tx.south.buffer.bytes[1] = 0b10101010; // == 0xaa => 0x55
-//    ParticleAttributes.ports.tx.south.buffer.bytes[0] = 0b10100111; // == 0xa7 => 0xe5
-
     // the byte to transmit
-    ParticleAttributes.ports.tx.south.buffer.bytes[6] = 0b00100110;
-    ParticleAttributes.ports.tx.south.buffer.bytes[5] = 0b01111110;
-    ParticleAttributes.ports.tx.south.buffer.bytes[4] = 0b10101010;
-    ParticleAttributes.ports.tx.south.buffer.bytes[3] = 0b01010101;
-    ParticleAttributes.ports.tx.south.buffer.bytes[2] = 0b10101010;
+    ParticleAttributes.ports.tx.south.buffer.bytes[0] = 0b10100110 | 0x1;
     ParticleAttributes.ports.tx.south.buffer.bytes[1] = 0b10101010;
-    ParticleAttributes.ports.tx.south.buffer.bytes[0] = 0b10100111;
+    ParticleAttributes.ports.tx.south.buffer.bytes[2] = 0b10101010;
+    ParticleAttributes.ports.tx.south.buffer.bytes[3] = 0b01010101;
+    ParticleAttributes.ports.tx.south.buffer.bytes[4] = 0b10101010;
+    ParticleAttributes.ports.tx.south.buffer.bytes[5] = 0b01111110;
+    ParticleAttributes.ports.tx.south.buffer.bytes[6] = 0b00100110;
 
     SOUTH_TX_SETUP;
     // return signal to default (high on receiver side)
@@ -129,7 +119,7 @@ extern inline void initTransmission(void);
 int main(void) {
     initTransmission();
     // wait until receiver is ready
-    DELAY_US_15;
+    DELAY_US_150;
 
     ParticleAttributes.node.state = STATE_TYPE_TX_START;
 

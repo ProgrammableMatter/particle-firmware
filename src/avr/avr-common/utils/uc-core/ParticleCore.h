@@ -200,7 +200,8 @@ extern FUNC_ATTRS void particleTick(void);
  * behaviour and state machine of the particle.
  */
 FUNC_ATTRS void particleTick(void) {
-
+    DELAY_MS_1;
+    DEBUG_CHAR_OUT('P');
     __heartBeatToggle();
 
     //// ---------------- init states ----------------

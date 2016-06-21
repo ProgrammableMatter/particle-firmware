@@ -151,13 +151,14 @@ FUNC_ATTRS bool __rxSnapshotBufferIsEmpty(volatile RxSnapshotBuffer *o) {
 
 extern FUNC_ATTRS void __absDifference(volatile uint16_t *a, uint16_t *b, uint16_t *result);
 /**
- * Returns the positive difference of two uint16_t values.
+ * Returns the logical time shift in between two uint16_t timestamp values.
  */
-FUNC_ATTRS void __absDifference(volatile uint16_t *a, uint16_t *b, uint16_t *result) {
-    if (*a > *b) {
-        *result = *a - *b;
-    } else {
-        *result = *b - *a;
+FUNC_ATTRS void __absDifference(volatile uint16_t *previousSnapshotValue, uint16_t *currentSnapshotValue,
+                                uint16_t *result) {
+    if ((*currentSnapshotValue) > (*previousSnapshotValue)) {
+        *result = *currentSnapshotValue - *previousSnapshotValue;
+    } else { // on capture timer overflow
+        *result = (0xFFFF - *previousSnapshotValue) + *currentSnapshotValue;
     }
 }
 
@@ -169,8 +170,7 @@ extern FUNC_ATTRS void captureSnapshot(const bool isRisingEdge,
 FUNC_ATTRS void captureSnapshot(const bool isRisingEdge,
                                 volatile RxSnapshotBuffer *snapshotBuffer) {
     volatile Snapshot *snapshot = &(snapshotBuffer->snapshots[snapshotBuffer->endIndex++]);
-    snapshot->isRisingEdge = isRisingEdge;
-    snapshot->timerValue = TIMER_TX_RX_COUNTER >> 1;
+    (*((volatile uint16_t *) (snapshot))) = (TIMER_TX_RX_COUNTER & 0xFFFE) | isRisingEdge;
 }
 
 extern FUNC_ATTRS void manchesterDecodeBuffer(volatile RxPort *rxPort);
@@ -194,20 +194,25 @@ FUNC_ATTRS void manchesterDecodeBuffer(volatile RxPort *rxPort) {
                     bufferBitPointerStart(&rxPort->buffer.pointer);
                     rxPort->isDataBuffered = false;
                     __resetDecoderPhaseState(rxPort->snapshotsBuffer.decoderStates.phaseState);
-                    rxPort->snapshotsBuffer.temporaryDequeueRegister = snapshot->timerValue;
+                    rxPort->snapshotsBuffer.temporaryDequeueRegister = snapshot->timerValue << 1;
                     __rxSnapshotBufferDequeue(&rxPort->snapshotsBuffer);
                     rxPort->snapshotsBuffer.decoderStates.decodingState = DECODER_STATE_TYPE_DECODING;
+                    DEBUG_CHAR_OUT('|');
+                    goto __DECODER_STATE_TYPE_DECODING;
                 }
             }
             break;
 
+        __DECODER_STATE_TYPE_DECODING:
         case DECODER_STATE_TYPE_DECODING:
             while (__rxSnapshotBufferIsEmpty(&rxPort->snapshotsBuffer) == false) {
                 volatile Snapshot *snapshot = __rxSnapshotBufferPeek(&rxPort->snapshotsBuffer);
                 uint16_t timerValue = snapshot->timerValue << 1;
                 uint16_t difference;
+
                 __absDifference(&rxPort->snapshotsBuffer.temporaryDequeueRegister,
                                 (uint16_t *) &timerValue, &difference);
+                DEBUG_INT16_OUT(difference);
                 if (difference <=
                     ParticleAttributes.ports.rx.timerAdjustment.maxShortIntervalDuration) { // on short interval
                     __phaseStateAdvanceShortInterval(rxPort->snapshotsBuffer.decoderStates.phaseState);
@@ -218,13 +223,17 @@ FUNC_ATTRS void manchesterDecodeBuffer(volatile RxPort *rxPort) {
                     rxPort->isDataBuffered = true;
                     __rxSnapshotBufferDequeue(&rxPort->snapshotsBuffer);
                     rxPort->snapshotsBuffer.decoderStates.decodingState = DECODER_STATE_TYPE_START;
+                    break;
                 }
 
                 if (__isDataPhase(rxPort->snapshotsBuffer.decoderStates.phaseState)) {
+                    DEBUG_CHAR_OUT('+');
                     __storeDataBit(rxPort, snapshot->isRisingEdge);
+                } else {
+                    DEBUG_CHAR_OUT('-');
                 }
 
-                rxPort->snapshotsBuffer.temporaryDequeueRegister = snapshot->timerValue;
+                rxPort->snapshotsBuffer.temporaryDequeueRegister = snapshot->timerValue << 1;
                 __rxSnapshotBufferDequeue(&rxPort->snapshotsBuffer);
             }
             break;

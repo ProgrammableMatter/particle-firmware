@@ -29,6 +29,9 @@ extern inline void __delay_loop_2(uint16_t __count);
 #define DELAY_MS_1 \
         __delay_loop_2(2000)
 
+#define DELAY_MS_10 \
+        __delay_loop_2(20000)
+
 #define DELAY_US_15 \
         __delay_loop_2(30)
 

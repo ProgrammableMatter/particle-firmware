@@ -19,6 +19,7 @@ extern FUNC_ATTRS void constructManchesterDecoderState(volatile ManchesterDecode
 
 FUNC_ATTRS void constructManchesterDecoderState(volatile ManchesterDecoderStates *o) {
     o->decodingState = DECODER_STATE_TYPE_START;
+    o->phaseState = 0;
 }
 
 extern FUNC_ATTRS void constructRxSnapshotBuffer(volatile RxSnapshotBuffer *o);
@@ -27,6 +28,7 @@ FUNC_ATTRS void constructRxSnapshotBuffer(volatile RxSnapshotBuffer *o) {
 //    for (uint8_t idx = 0; idx < (sizeof(o->snapshots) / sizeof(Snapshot)); idx++) {
 //        constructSnapshot(&o->snapshots[idx]);
 //    }
+    constructManchesterDecoderState(&o->decoderStates);
     o->startIndex = 0;
     o->endIndex = 0;
     o->temporaryDequeueRegister = 0;
