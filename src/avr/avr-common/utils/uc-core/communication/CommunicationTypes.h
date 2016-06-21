@@ -24,7 +24,7 @@ typedef struct BufferBitPointer {
     uint8_t byteNumber : 3; // byte number
     uint8_t __pad: 5;
     uint8_t bitMask; // the bit in the byte
-} BufferBitPointer; // 1 + 1 = 2 bytes total
+} BufferBitPointer;
 
 /**
  * Provides a linear 4 byte buffer and a bit pointer per communication channel.
@@ -34,7 +34,7 @@ typedef struct BufferBitPointer {
 typedef struct PortBuffer {
     uint8_t bytes[7]; // reception buffer
     BufferBitPointer pointer; // points to the next free position
-} PortBuffer; // 7 + 2 = 9 bytes total
+} PortBuffer;
 
 typedef struct TxPort {
     PortBuffer buffer;
@@ -43,25 +43,23 @@ typedef struct TxPort {
     uint8_t retainTransmission : 1; // interrupt handled flag transmission starts after flag is cleared
     uint8_t isTransmitting : 1; // true during transmission, else false
     uint8_t __pad: 5;
-} TxPort; // 9 + 2 + 1 = 12 bytes
+} TxPort;
 
 typedef struct TxPorts {
     TxPort north;
     TxPort east;
     TxPort south;
-} TxPorts; // 3 * 12 = 36 bytes total
+} TxPorts;
 
 typedef struct RxPort {
     // each pin interrupt stores snapshots and the flank direction into the buffer
     RxSnapshotBuffer snapshotsBuffer;
     PortBuffer buffer;
     uint16_t receptionOffset; // synchronization offset of fist received bit relative to compare counter
-    uint8_t __deprecated__isReceiving
-            : 4; // interrupt handled: is decremented on each expected but missing coding flank or refreshed on reception
     uint8_t isOverflowed : 1;
     uint8_t isDataBuffered : 1;
-    uint8_t __pad: 2;
-} RxPort; // 259 + 9 + 2 + 1  = 271  bytes total
+    uint8_t __pad : 6;
+} RxPort;
 
 typedef struct TimerCounterAdjustment {
     /**
@@ -88,10 +86,10 @@ typedef struct RxPorts {
     RxPort north;
     RxPort east;
     RxPort south;
-} RxPorts; // 10 + 3 * 271 = 823  bytes total
+} RxPorts;
 
 typedef struct Ports {
     TxPorts tx;
     RxPorts rx;
     XmissionType xmissionState;
-} Ports; // 36 + 823 = 859 bytes total
+} Ports;

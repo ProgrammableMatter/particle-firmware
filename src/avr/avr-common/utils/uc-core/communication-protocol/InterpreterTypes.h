@@ -14,5 +14,5 @@
 typedef struct Interpreter {
 //    uint8_t buffer[sizeof(((PortBuffer *) 0)->bytes)];
     uint8_t buffer[7];
-} Interpreter; // 8 bytes total
+} Interpreter;
 

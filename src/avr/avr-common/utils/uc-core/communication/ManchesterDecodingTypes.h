@@ -32,9 +32,7 @@ typedef struct Snapshot {
      * foo = s.snapshot << 1
      */
     uint16_t timerValue : 15;
-} Snapshot; // 2 bytes
-
-
+} Snapshot;
 
 
 /**
@@ -50,6 +48,7 @@ typedef struct RxSnapshotBuffer {
      * each snapshot's lsb describes rising (1) or falling (0) flank occurred at the given snapshot
      */
     Snapshot snapshots[128];
+    uint16_t temporaryDequeueRegister;
     /**
      * describes the 1st buffered position
      */
@@ -57,17 +56,10 @@ typedef struct RxSnapshotBuffer {
     /**
      * describes the 1st invalid position
      */
-    uint8_t __pad : 1;
     uint8_t endIndex : 7;
-//    /**
-//     * used for iteration within start and end position:
-//     * inclusive start and (end position - 1)
-//     */
-    uint8_t __pad1 : 1;
-//    uint8_t iteratorIndex : 7;
+    uint8_t __pad : 2;
 
     /**
      * used to store the current dequeue value
      */
-    uint16_t temporaryDequeueRegister;
-} RxSnapshotBuffer; // 128 * 2 + 3 bytes = 259 bytes
+} RxSnapshotBuffer;

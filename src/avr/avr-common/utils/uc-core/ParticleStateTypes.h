@@ -78,7 +78,7 @@ typedef struct PulseCounter {
     uint8_t counter : 4; //pulse counter
     uint8_t isConnected : 1; // connectivity flag
     uint8_t __pad : 3;
-} PulseCounter; // 1 byte total
+} PulseCounter;
 
 /**
  * Stores the amount of incoming pulses for each communication channel. The isConnected flags are set
@@ -89,7 +89,7 @@ typedef struct DiscoveryPulseCounters {
     PulseCounter east;
     PulseCounter south;
     uint8_t loopCount; // discovery loop counter
-} DiscoveryPulseCounters; // 3 + 1 = 4 byte total
+} DiscoveryPulseCounters;
 
 /**
  * The node address in the network. It is spread from the origin node which assigns itself
@@ -98,7 +98,7 @@ typedef struct DiscoveryPulseCounters {
 typedef struct NodeAddress {
     uint8_t row;
     uint8_t column;
-} NodeAddress; // 2 byte total
+} NodeAddress;
 
 
 /**
@@ -108,8 +108,7 @@ typedef struct Node {
     StateType state;
     NodeType type;
     NodeAddress address;
-} Node; // 2 + 2 + 2 = 6 byte total
-
+} Node;
 
 
 /**
@@ -117,21 +116,21 @@ typedef struct Node {
  */
 typedef struct Periphery {
     uint8_t loopCount; // particle loop counter
-} Periphery; // 1 bytes total
+} Periphery;
 
 /**
  * The global particle state with references to the most important states, buffers, counters,
  * etc.
  */
 typedef struct ParticleState {
-    Node node; // 6
-    DiscoveryPulseCounters discoveryPulseCounters; // 4
-    Ports ports; // 859
-    Periphery periphery; // 1
-    Interpreter interpreter; // 7
+    Node node;
+    DiscoveryPulseCounters discoveryPulseCounters;
+    Ports ports;
+    Periphery periphery;
+    Interpreter interpreter;
 #ifdef SIMULATION
-    uint8_t magicEndByte; // 1
+    uint8_t magicEndByte;
 #endif
-} ParticleState; // 6 + 4 + 859 + 1 + 7 + 1 = 878 bytes total
+} ParticleState;
 
 
