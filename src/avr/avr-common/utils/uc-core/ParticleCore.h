@@ -5,9 +5,9 @@
 #pragma once
 
 #include "common/common.h"
-#include "uc-core/ParticleStateTypes.h"
 #include "Globals.h"
-#include "ParticleStateTypesCtors.h"
+#include "uc-core/ParticleStateTypes.h"
+#include "uc-core/ParticleStateTypesCtors.h"
 #include "uc-core/io-configuration/IoDefinitions.h"
 #include "uc-core/delay/delay.h"
 #include "uc-core/discovery/Discovery.h"
@@ -288,7 +288,7 @@ FUNC_ATTRS void particleTick(void) {
 
         case STATE_TYPE_WAIT_FOR_BEING_ENUMERATED_SEND_ACK_RESPONSE_TO_PARENT:
             constructSendEnumeratedACKWithAddressToParent();
-            releaseTransmissionPortBufferForTransmission(&ParticleAttributes.ports.tx.north);
+            enableTransmission(&ParticleAttributes.ports.tx.north);
             ParticleAttributes.node.state = STATE_TYPE_WAIT_FOR_BEING_ENUMERATED_WAIT_UNTIL_ACK_RESPONSE_TO_PARENT_TRANSMISSION_FINISHED;
             break;
 
@@ -326,7 +326,7 @@ FUNC_ATTRS void particleTick(void) {
                 constructSendEnumeratePackageEast(
                         ParticleAttributes.node.address.row,
                         ParticleAttributes.node.address.column + 1);
-                releaseTransmissionPortBufferForTransmission(&ParticleAttributes.ports.tx.east);
+                enableTransmission(&ParticleAttributes.ports.tx.east);
                 ParticleAttributes.node.state = STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR_WAIT_UNTIL_TRANSMISSION_FINISHED;
             } else {
                 ParticleAttributes.node.state = STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR_DONE;
@@ -347,7 +347,7 @@ FUNC_ATTRS void particleTick(void) {
         case STATE_TYPE_ENUMERATING_EAST_SEND_ACK_RESPONSE_TO_EAST:
             prepareTransmissionPortBuffer(&ParticleAttributes.ports.tx.east);
             constructSendACKPackage(&ParticleAttributes.ports.tx.east);
-            releaseTransmissionPortBufferForTransmission(&ParticleAttributes.ports.tx.east);
+            enableTransmission(&ParticleAttributes.ports.tx.east);
             ParticleAttributes.node.state = STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR_WAIT_UNTIL_TRANSMISSION_FINISHED;
             break;
 
@@ -364,7 +364,7 @@ FUNC_ATTRS void particleTick(void) {
                 constructSendEnumeratePackageSouth(
                         ParticleAttributes.node.address.row + 1,
                         ParticleAttributes.node.address.column);
-                releaseTransmissionPortBufferForTransmission(&ParticleAttributes.ports.tx.south);
+                enableTransmission(&ParticleAttributes.ports.tx.south);
                 ParticleAttributes.node.state = STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR_WAIT_UNTIL_TRANSMISSION_FINISHED;
             } else {
                 ParticleAttributes.node.state = STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR_DONE;
@@ -386,7 +386,7 @@ FUNC_ATTRS void particleTick(void) {
         case STATE_TYPE_ENUMERATING_SOUTH_SEND_ACK_RESPONSE_TO_SOUTH:
             prepareTransmissionPortBuffer(&ParticleAttributes.ports.tx.south);
             constructSendACKPackage(&ParticleAttributes.ports.tx.south);
-            releaseTransmissionPortBufferForTransmission(&ParticleAttributes.ports.tx.south);
+            enableTransmission(&ParticleAttributes.ports.tx.south);
             ParticleAttributes.node.state = STATE_TYPE_ENUMERATING_SOUTH_SEND_ACK_RESPONSE_TO_SOUTH_WAIT_UNTIL_TRANSMISSION_FINISHED;
             break;
 
