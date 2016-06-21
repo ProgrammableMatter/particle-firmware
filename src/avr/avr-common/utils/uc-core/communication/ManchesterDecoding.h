@@ -9,8 +9,6 @@
 #include "uc-core/interrupts/TimerCounter.h"
 #include "simulation/SimulationMacros.h"
 
-
-
 /**
  * Resets the decoder phase state do default.
  */
@@ -59,13 +57,6 @@ FUNC_ATTRS void __storeDataBit(volatile RxPort *rxPort, const volatile uint8_t i
     }
 }
 
-///**
-// * re-sets the iterator to the start position
-// */
-//FUNC_ATTRS void __rxSnapshotBufferResetIterator(volatile RxSnapshotBuffer *o) {
-//    o->iteratorIndex = o->startIndex;
-//}
-
 extern FUNC_ATTRS void __rxSnapshotBufferDequeue(volatile RxSnapshotBuffer *o);
 /**
  * Releases the 1st element from the the queue.
@@ -82,64 +73,6 @@ FUNC_ATTRS volatile Snapshot *__rxSnapshotBufferPeek(volatile RxSnapshotBuffer *
     return &o->snapshots[o->startIndex];
 }
 
-///**
-// * returns the current element and post-increments the iterator
-// */
-//FUNC_ATTRS volatile Snapshot *__rxSnapshotBufferGetAndIncrement(volatile RxSnapshotBuffer *o) {
-//    return &o->snapshots[o->iteratorIndex++];
-//}
-
-///**
-// * returns the previous element
-// */
-//FUNC_ATTRS volatile Snapshot *__rxSnapshotBufferGetPrevious(volatile RxSnapshotBuffer *o) {
-//    return &o->snapshots[o->iteratorIndex - 1];
-//}
-
-///**
-// * returns the current element
-// */
-//FUNC_ATTRS volatile Snapshot *__rxSnapshotBufferGetCurrent(volatile RxSnapshotBuffer *o) {
-//    return &o->snapshots[o->iteratorIndex];
-//}
-
-///**
-// * returns the next element
-// */
-//FUNC_ATTRS volatile Snapshot *__rxSnapshotBufferGetNext(volatile RxSnapshotBuffer *o) {
-//    return &o->snapshots[o->iteratorIndex + 1];
-//}
-
-///**
-// * Returns true if a previous value is available.
-// * Note: The implementation is undefined for iterator position outside the buffer.
-// */
-//FUNC_ATTRS bool __rxSnapshotBufferHasPrevious(volatile RxSnapshotBuffer *o) {
-//    return o->iteratorIndex != o->startIndex;
-//}
-
-///**
-// * Returns true if the current value is available.
-// * Note: The implementation is undefined for iterator position outside the buffer.
-// */
-//FUNC_ATTRS bool __rxSnapshotBufferHasCurrent(volatile RxSnapshotBuffer *o) {
-//    return o->iteratorIndex != (o->endIndex - 1);
-//}
-
-///**
-// * Returns true if the next value is available.
-// * Note: The implementation is undefined for iterator position outside the buffer.
-// */
-//FUNC_ATTRS bool __rxSnapshotBufferHasNext(volatile RxSnapshotBuffer *o) {
-//    return o->iteratorIndex != (o->endIndex - 2);
-//}
-
-///**
-// * releases the buffer
-// */
-//FUNC_ATTRS void __rxSnapshotBufferClear(volatile RxSnapshotBuffer *o) {
-//    o->startIndex = o->endIndex;
-//}
 
 extern FUNC_ATTRS bool __rxSnapshotBufferIsEmpty(volatile RxSnapshotBuffer *o);
 /**
@@ -149,12 +82,13 @@ FUNC_ATTRS bool __rxSnapshotBufferIsEmpty(volatile RxSnapshotBuffer *o) {
     return o->startIndex == o->endIndex;
 }
 
-extern FUNC_ATTRS void __absDifference(volatile uint16_t *a, uint16_t *b, uint16_t *result);
+extern FUNC_ATTRS void __calculateTimestampLag(volatile uint16_t *a, uint16_t *b, uint16_t *result);
 /**
- * Returns the logical time shift in between two uint16_t timestamp values.
+ * Calculates the time lag in between two timestamp values.
  */
-FUNC_ATTRS void __absDifference(volatile uint16_t *previousSnapshotValue, uint16_t *currentSnapshotValue,
-                                uint16_t *result) {
+FUNC_ATTRS void __calculateTimestampLag(volatile uint16_t *previousSnapshotValue,
+                                        uint16_t *currentSnapshotValue,
+                                        uint16_t *result) {
     if ((*currentSnapshotValue) > (*previousSnapshotValue)) {
         *result = *currentSnapshotValue - *previousSnapshotValue;
     } else { // on capture timer overflow
@@ -210,14 +144,14 @@ FUNC_ATTRS void manchesterDecodeBuffer(volatile RxPort *rxPort) {
                 uint16_t timerValue = snapshot->timerValue << 1;
                 uint16_t difference;
 
-                __absDifference(&rxPort->snapshotsBuffer.temporaryDequeueRegister,
-                                (uint16_t *) &timerValue, &difference);
+                __calculateTimestampLag(&rxPort->snapshotsBuffer.temporaryDequeueRegister,
+                                        (uint16_t *) &timerValue, &difference);
                 DEBUG_INT16_OUT(difference);
                 if (difference <=
-                    ParticleAttributes.ports.rx.timerAdjustment.maxShortIntervalDuration) { // on short interval
+                    ParticleAttributes.ports.timerAdjustment.maxShortIntervalDuration) { // on short interval
                     __phaseStateAdvanceShortInterval(rxPort->snapshotsBuffer.decoderStates.phaseState);
                 } else if (difference <=
-                           ParticleAttributes.ports.rx.timerAdjustment.maxLongIntervalDuration) { // on long interval
+                           ParticleAttributes.ports.timerAdjustment.maxLongIntervalDuration) { // on long interval
                     __phaseStateAdvanceLongInterval(rxPort->snapshotsBuffer.decoderStates.phaseState);
                 } else { // on timeout
                     rxPort->isDataBuffered = true;
