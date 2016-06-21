@@ -39,10 +39,8 @@ typedef struct PortBuffer {
 typedef struct TxPort {
     PortBuffer buffer;
     BufferBitPointer dataEndPos; // data in between buffer start and dataEndPos is to be transmitted
-    uint8_t enableTransmission : 1; // user handled flag: if enabled transmission is scheduled
-    uint8_t retainTransmission : 1; // interrupt handled flag transmission starts after flag is cleared
     uint8_t isTransmitting : 1; // true during transmission, else false
-    uint8_t __pad: 5;
+    uint8_t __pad: 7;
 } TxPort;
 
 typedef struct TxPorts {
@@ -62,34 +60,47 @@ typedef struct RxPort {
 } RxPort;
 
 typedef struct TimerCounterAdjustment {
-    /**
-     *
-     */
-    uint16_t maxCounterValue;
+
     /**
      * snapshot differences below this threshold are treated as short interval occurrences
+     * maxShortIntervalDuration = (maxShortIntervalDuration / 100) * transmissionClockDelay
      */
     uint16_t maxShortIntervalDuration;
+
+    /**
+     * the short interval overtime ratio
+     */
+    uint8_t maxShortIntervalDurationOvertimePercentageRatio;
+
     /**
      * snapshot differences below this threshold are treated as long interval occurrences
+     * * maxShortIntervalDuration = (maxShortIntervalDuration / 100) * transmissionClockDelay
      */
     uint16_t maxLongIntervalDuration;
+
     /**
-     * True if the maxCounterValue has been updated.
+     * the long interval overtime ratio
      */
-    uint8_t isMaxCounterUpdated : 1;
-    uint8_t __pad : 7;
+    uint8_t maxLongIntervalDurationOvertimePercentageRatio;
+
+    /**
+     * The tx/rx clock delay for the manchester coding.
+     * Regarding tx: transmission interrupts are scheduled according this delay
+     * Regarding rx: the short and long interval durations are derived from this delay
+     */
+    uint16_t transmissionClockDelay;
+
 } TimerCounterAdjustment;
 
 typedef struct RxPorts {
-    TimerCounterAdjustment timerAdjustment;
     RxPort north;
     RxPort east;
     RxPort south;
 } RxPorts;
 
 typedef struct Ports {
+    TimerCounterAdjustment timerAdjustment;
+    XmissionType xmissionState;
     TxPorts tx;
     RxPorts rx;
-    XmissionType xmissionState;
 } Ports;

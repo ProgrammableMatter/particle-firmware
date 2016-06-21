@@ -123,7 +123,7 @@ typedef struct PackageHeaderData11 {
     uint8_t headerId : 4;
     uint8_t dataLsb : 8;
     uint8_t dataMsb : 3;
-    uint8_t __pad : 2;
+    uint8_t __pad : 5;
 } PackageHeaderData11;
 
 /**
@@ -151,7 +151,7 @@ typedef struct PackageHeaderData19 {
     uint8_t dataLsb : 8;
     uint8_t dataCeb : 8;
     uint8_t dataMsb : 3;
-    uint8_t __pad : 2;
+    uint8_t __pad : 5;
 } PackageHeaderData19;
 
 /**
@@ -206,7 +206,7 @@ typedef struct PackageHeaderAddressData11 {
     uint8_t addressRow0 : 8;
     uint8_t addressColumn0 : 8;
     uint8_t dataMsb : 3;
-    uint8_t __pad : 2;
+    uint8_t __pad : 5;
 } PackageHeaderAddressData11;
 
 /**
@@ -235,7 +235,7 @@ typedef struct PackageHeaderAddressData19 {
     uint8_t dataLsb : 8;
     uint8_t dataCeb : 8;
     uint8_t dataMsb : 3;
-    uint8_t __pad : 2;
+    uint8_t __pad : 5;
 } PackageHeaderAddressData19;
 
 /**
@@ -294,7 +294,7 @@ typedef struct PackageHeaderAddressRangeData11 {
     uint8_t addressColumn1 : 8;
     uint8_t dataLsb : 8;
     uint8_t dataMsb : 3;
-    uint8_t __pad : 2;
+    uint8_t __pad : 5;
 } PackageHeaderAddressRangeData11;
 
 /**
@@ -325,7 +325,7 @@ typedef struct PackageHeaderAddressRangeData19 {
     uint8_t dataLsb : 8;
     uint8_t dataCeb : 8;
     uint8_t dataMsb : 3;
-    uint8_t __pad : 2;
+    uint8_t __pad : 5;
 } PackageHeaderAddressRangeData19;
 
 /**

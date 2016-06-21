@@ -57,15 +57,18 @@ FUNC_ATTRS void constructRxPort(volatile RxPort *o) {
 extern FUNC_ATTRS void constructTimerCounterAdjustment(volatile TimerCounterAdjustment *o);
 
 FUNC_ATTRS void constructTimerCounterAdjustment(volatile TimerCounterAdjustment *o) {
-    o->maxCounterValue = DEFAULT_TX_RX_COMPARE_TOP_VALUE;
-    o->maxShortIntervalDuration = DEFAULT_MAX_SHORT_RECEPTION_SNAPSHOT_DISTANCE;
-    o->maxLongIntervalDuration = DEFAULT_MAX_LONG_RECEPTION_SNAPSHOT_DISTANCE;
+    o->maxShortIntervalDurationOvertimePercentageRatio = DEFAULT_MAX_SHORT_RECEPTION_OVERTIME_PERCENTAGE_RATIO;
+    o->maxShortIntervalDuration =
+            (DEFAULT_MAX_SHORT_RECEPTION_OVERTIME_PERCENTAGE_RATIO / 100.0) * DEFAULT_TX_RX_CLOCK_DELAY;
+    o->maxLongIntervalDurationOvertimePercentageRatio = DEFAULT_MAX_LONG_RECEPTION_OVERTIME_PERCENTAGE_RATIO;
+    o->maxLongIntervalDuration =
+            (DEFAULT_MAX_LONG_RECEPTION_OVERTIME_PERCENTAGE_RATIO / 100.0) * DEFAULT_TX_RX_CLOCK_DELAY;
+    o->transmissionClockDelay = DEFAULT_TX_RX_CLOCK_DELAY;
 }
 
 extern FUNC_ATTRS void constructRxPorts(volatile RxPorts *o);
 
 FUNC_ATTRS void constructRxPorts(volatile RxPorts *o) {
-    constructTimerCounterAdjustment(&o->timerAdjustment);
     constructRxPort(&(o->north));
     constructRxPort(&(o->east));
     constructRxPort(&(o->south));
@@ -76,5 +79,6 @@ extern FUNC_ATTRS void constructPorts(volatile Ports *o);
 FUNC_ATTRS void constructPorts(volatile Ports *o) {
     constructTxPorts(&(o->tx));
     constructRxPorts(&(o->rx));
+    constructTimerCounterAdjustment(&o->timerAdjustment);
     o->xmissionState = STATE_TYPE_XMISSION_TYPE_DISABLED_TX_RX;
 }

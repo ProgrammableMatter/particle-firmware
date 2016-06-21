@@ -8,14 +8,6 @@
 #include "CommunicationTypes.h"
 #include "ManchesterDecodingTypes.h"
 
-
-///**
-// * returns false on ongoing reception else true
-// */
-//FUNC_ATTRS bool isNotReceiving(volatile RxPort *o) {
-//    return o->isReceiving == false;
-//}
-
 extern FUNC_ATTRS bool isDataAvailable(volatile RxPort *o);
 /**
  * returns true if data on the specified is available, false otherwise
