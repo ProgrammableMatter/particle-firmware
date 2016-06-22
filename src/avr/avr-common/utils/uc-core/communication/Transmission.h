@@ -27,7 +27,7 @@ FUNC_ATTRS void scheduleStartTxInterrupt(void) {
     DEBUG_INT16_OUT(counter);
     TIMER_TX_RX_COMPARE_VALUE = counter - (counter %
                                            ParticleAttributes.ports.timerAdjustment.transmissionClockDelay)
-                                + 2 * ParticleAttributes.ports.timerAdjustment.transmissionClockDelay;
+                                + ParticleAttributes.ports.timerAdjustment.transmissionClockDelay;
     DEBUG_INT16_OUT(TIMER_TX_RX_COMPARE_VALUE);
     TIMER_TX_RX_ENABLE_COMPARE_INTERRUPT;
 }
