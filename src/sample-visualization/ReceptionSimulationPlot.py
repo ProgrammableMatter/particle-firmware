@@ -56,7 +56,8 @@ if __name__ == "__main__":
     pltr.addPlot(dataFilter, dataPlotter, title="[0] SRAM[int16-out]", nodeId=0, domain="SRAM", name="int16-out")
 
     receptionInterruptValueMapping = {"'U'": 0.0, "'S'": 0.2,
-                                      "'A'": 0.6, "'B'": 0.4, "'x'": 0.0, "'0'": 1.2, "'1'": 1.4, "'P'" : 0.1}
+                                      "'A'": 0.6, "'B'": 0.4, "'x'": 0.0, "'0'": 1.2, "'1'": 1.4, "'P'": 0.1,
+                                      "'p'": 0.0}
     dataFilter.setValueMapping(receptionInterruptValueMapping)
     pltr.addPlot(dataFilter, dataPlotter, title="[0] SRAM[char-out] - rx states", nodeId=0, domain="SRAM",
                  name="char-out")
