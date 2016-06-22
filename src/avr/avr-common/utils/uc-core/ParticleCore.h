@@ -90,7 +90,7 @@ FUNC_ATTRS void __initParticle(void) {
     TIMER_NEIGHBOUR_SENSE_SETUP; // configure timer interrupt for neighbour sensing
 }
 
-extern FUNC_ATTRS void __disableReceptionHardware(void);
+extern FUNC_ATTRS void __disableReceptionPinChangeInterrupts(void);
 
 FUNC_ATTRS void __disableReceptionPinChangeInterrupts(void) {
     RX_NORTH_INTERRUPT_DISABLE;
@@ -215,15 +215,12 @@ FUNC_ATTRS void __receiveSouth(void) {
     interpretRxBuffer(&ParticleAttributes.ports.rx.south);
 }
 
-
 extern FUNC_ATTRS void particleTick(void);
 /**
  * This function is called cyclically in the particle loop. It implements the
  * behaviour and state machine of the particle.
  */
 FUNC_ATTRS void particleTick(void) {
-    DELAY_MS_1;
-    DEBUG_CHAR_OUT('P');
     __heartBeatToggle();
 
     //// ---------------- init states ----------------
@@ -246,7 +243,7 @@ FUNC_ATTRS void particleTick(void) {
         case STATE_TYPE_ACTIVE:
             ParticleAttributes.node.state = STATE_TYPE_NEIGHBOURS_DISCOVERY;
             __enableDiscovery();
-            SREG setBit bit(SREG_I);
+            SEI;
             break;
 
             //// ---------------- discovery states ----------------
