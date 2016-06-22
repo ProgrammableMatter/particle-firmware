@@ -33,17 +33,31 @@
 #define DEFAULT_NEIGHBOUR_SENSING_COUNTER_COMPARE_VALUE ((uint16_t)0x80)
 
 /**
+ * Clock speed vs. minimum error ratio table:
+ *
+ * clock delay | short interval             | long interval
+ *             | opt speed                  | opt speed
+ *             |                opt size    |               opt size
+ * --------------------------------------------------------------------
+ * 180           66             86            121           150
+ * 256           63             75            115           121
+ * 512           56             63            107           108
+ * 1024          53             57            104           104
+ * 2048          52             54            102           102
+ */
+
+/**
  * Initial value for clock delay for Manchester (de-)coding (reception and transmission).
  */
-#define DEFAULT_TX_RX_CLOCK_DELAY ((uint16_t) 2000)
+#define DEFAULT_TX_RX_CLOCK_DELAY ((uint16_t) 180)
 
 /**
  * Maximum short and long time lag. If max. long snapshot lag is exceeded the reception
  * experiences a timeout.
  *
  */
-#define DEFAULT_MAX_SHORT_RECEPTION_OVERTIME_PERCENTAGE_RATIO ((uint8_t) 54)
-#define DEFAULT_MAX_LONG_RECEPTION_OVERTIME_PERCENTAGE_RATIO ((uint8_t) 104)
+#define DEFAULT_MAX_SHORT_RECEPTION_OVERTIME_PERCENTAGE_RATIO ((uint8_t) 66)
+#define DEFAULT_MAX_LONG_RECEPTION_OVERTIME_PERCENTAGE_RATIO ((uint8_t) 121)
 
 /**
  * Heartbeat LED toggles every main-loop count
