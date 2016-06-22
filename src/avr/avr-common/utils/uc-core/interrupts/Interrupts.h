@@ -56,41 +56,6 @@ FUNC_ATTRS void __handleInputInterrupt(volatile PulseCounter *discoveryPulseCoun
 
 }
 
-extern FUNC_ATTRS void __southTxHi(void);
-
-FUNC_ATTRS void __southTxHi(void) {
-    SOUTH_TX_HI;
-}
-
-extern FUNC_ATTRS void __southTxLo(void);
-
-FUNC_ATTRS void __southTxLo(void) {
-    SOUTH_TX_LO;
-}
-
-extern FUNC_ATTRS void __northTxHi(void);
-
-FUNC_ATTRS void __northTxHi(void) {
-    NORTH_TX_HI;
-}
-
-extern FUNC_ATTRS void __northTxLo(void);
-
-FUNC_ATTRS void __northTxLo(void) {
-    NORTH_TX_LO;
-}
-
-extern FUNC_ATTRS void __eastTxHi(void);
-
-FUNC_ATTRS void __eastTxHi(void) {
-    EAST_TX_HI;
-}
-
-extern FUNC_ATTRS void __eastTxLo(void);
-
-FUNC_ATTRS void __eastTxLo(void) {
-    EAST_TX_LO;
-}
 
 /**
  * north RX pin change interrupt on logical pin change
@@ -125,12 +90,7 @@ ISR(SOUTH_PIN_CHANGE_INTERRUPT_VECT) {
     RX_SOUTH_INTERRUPT_CLEAR_PENDING;
 }
 
-
-
-
 /**
- * On timer_counter match with compare register A.
- * In tx/rx states A equals DEFAULT_TX_RX_COMPARE_TOP_VALUE
  * int. #7
  */
 ISR(TX_TIMER_INTERRUPT_VECT) {
@@ -154,9 +114,17 @@ ISR(TX_TIMER_INTERRUPT_VECT) {
             switch (ParticleAttributes.ports.xmissionState) {
                 case STATE_TYPE_XMISSION_TYPE_ENABLED_TX_RX:
                 case STATE_TYPE_XMISSION_TYPE_ENABLED_TX:
-                    rectifyTransmissionBit(&ParticleAttributes.ports.tx.north, __northTxHi, __northTxLo);
-                    rectifyTransmissionBit(&ParticleAttributes.ports.tx.east, __eastTxHi, __eastTxLo);
-                    rectifyTransmissionBit(&ParticleAttributes.ports.tx.south, __southTxHi, __southTxLo);
+                    transmit(&ParticleAttributes.ports.tx.north, northTxHiImpl, northTxLoImpl);
+                    transmit(&ParticleAttributes.ports.tx.east, eastTxHiImpl, eastTxLoImpl);
+                    transmit(&ParticleAttributes.ports.tx.south, southTxHiImpl, southTxLoImpl);
+
+                    if (ParticleAttributes.ports.tx.north.isTransmitting ||
+                        ParticleAttributes.ports.tx.east.isTransmitting ||
+                        ParticleAttributes.ports.tx.south.isTransmitting) {
+                        scheduleNextTxInterrupt();
+                    } else {
+                        TIMER_TX_RX_DISABLE_COMPARE_INTERRUPT;
+                    }
                     break;
 
                 default:
@@ -168,41 +136,11 @@ ISR(TX_TIMER_INTERRUPT_VECT) {
 
 
 /**
- * On timer_counter compare register B match. If there are bits to transmit, this interrupt
- * generates the signal(s) according to the state, otherwise only timeout counters are processed.
  * int. #8
  */
-ISR(ACTUATOR_TIMER_INTERRUPT_VECT) {
-    // TODO: move impl. to tx vect.
-//    IF_SIMULATION_CHAR_OUT('i');
-    switch (ParticleAttributes.node.state) {
-        case STATE_TYPE_START:
-        case STATE_TYPE_ACTIVE:
-            break;
-
-            // on generate discovery pulse
-        case STATE_TYPE_NEIGHBOURS_DISCOVERY:
-        case STATE_TYPE_NEIGHBOURS_DISCOVERED:
-        case STATE_TYPE_DISCOVERY_PULSING:
-            break;
-
-        default:
-            switch (ParticleAttributes.ports.xmissionState) {
-                case STATE_TYPE_XMISSION_TYPE_ENABLED_TX_RX:
-                case STATE_TYPE_XMISSION_TYPE_ENABLED_TX:
-                case STATE_TYPE_XMISSION_TYPE_ENABLED_RX:
-                    modulateTransmissionBit(&ParticleAttributes.ports.tx.north, __northTxHi, __northTxLo);
-                    modulateTransmissionBit(&ParticleAttributes.ports.tx.east, __eastTxHi, __eastTxLo);
-                    modulateTransmissionBit(&ParticleAttributes.ports.tx.south, __southTxHi, __southTxLo);
-                    break;
-
-                default:
-                    break;
-            }
-            break;
-    }
-}
-
+EMPTY_INTERRUPT(ACTUATOR_TIMER_INTERRUPT_VECT)
+//{
+//}
 
 # ifdef SIMULATION
 

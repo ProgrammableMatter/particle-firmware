@@ -40,7 +40,8 @@ typedef struct TxPort {
     PortBuffer buffer;
     BufferBitPointer dataEndPos; // data in between buffer start and dataEndPos is to be transmitted
     uint8_t isTransmitting : 1; // true during transmission, else false
-    uint8_t __pad: 7;
+    uint8_t isTxClockPhase : 1; // true if clock phase, else on data phase
+    uint8_t __pad: 6;
 } TxPort;
 
 typedef struct TxPorts {
@@ -89,6 +90,7 @@ typedef struct TimerCounterAdjustment {
      * Regarding rx: the short and long interval durations are derived from this delay
      */
     uint16_t transmissionClockDelay;
+    uint16_t transmissionClockDelayHalf;
 
 } TimerCounterAdjustment;
 

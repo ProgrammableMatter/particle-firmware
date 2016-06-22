@@ -31,9 +31,7 @@ FUNC_ATTRS void constructTxPort(volatile TxPort *o) {
     constructBufferBitPointer(&o->dataEndPos);
     // TODO: why is the offset 1 instead of 2 (size of BufferBitPointer dataEndPos)
     *((uint8_t *) (&o->dataEndPos + 1)) = 0x00;
-//    o->enableTransmission = false;
-//    o->retainTransmission = false;
-//    o->isTransmitting = false;
+    o->isTxClockPhase = false;
 }
 
 extern FUNC_ATTRS void constructTxPorts(volatile TxPorts *o);
@@ -64,6 +62,7 @@ FUNC_ATTRS void constructTimerCounterAdjustment(volatile TimerCounterAdjustment 
     o->maxLongIntervalDuration =
             (DEFAULT_MAX_LONG_RECEPTION_OVERTIME_PERCENTAGE_RATIO / 100.0) * DEFAULT_TX_RX_CLOCK_DELAY;
     o->transmissionClockDelay = DEFAULT_TX_RX_CLOCK_DELAY;
+    o->transmissionClockDelayHalf = DEFAULT_TX_RX_CLOCK_DELAY >> 1;
 }
 
 extern FUNC_ATTRS void constructRxPorts(volatile RxPorts *o);

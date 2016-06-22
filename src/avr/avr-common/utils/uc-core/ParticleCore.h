@@ -92,7 +92,7 @@ FUNC_ATTRS void __initParticle(void) {
 
 extern FUNC_ATTRS void __disableReceptionHardware(void);
 
-FUNC_ATTRS void __disableReceptionHardware(void) {
+FUNC_ATTRS void __disableReceptionPinChangeInterrupts(void) {
     RX_NORTH_INTERRUPT_DISABLE;
     RX_EAST_INTERRUPT_DISABLE;
     RX_SOUTH_INTERRUPT_DISABLE;
@@ -125,17 +125,18 @@ FUNC_ATTRS void __enableReceptionHardwareSouth(void) {
     }
 }
 
-extern FUNC_ATTRS void __enableTxRxTimerHardware(void);
+extern FUNC_ATTRS void __enableTxRxTimer(void);
 
-FUNC_ATTRS void __enableTxRxTimerHardware(void) {
-    TIMER_TX_RX_SETUP;
-    TIMER_TX_RX_ENABLE;
+FUNC_ATTRS void __enableTxRxTimer(void) {
+    TIMER_TX_RX_COUNTER_SETUP;
+    TIMER_TX_RX_COUNTER_ENABLE;
+//    TIMER_TX_RX_ENABLE_COMPARE_INTERRUPT;
 }
 
-extern FUNC_ATTRS void __disableTxRxTimerHardware(void);
+extern FUNC_ATTRS void __disableTransmission(void);
 
-FUNC_ATTRS void __disableTxRxTimerHardware(void) {
-    TIMER_TX_RX_DISABLE;
+FUNC_ATTRS void __disableTransmission(void) {
+    TIMER_TX_RX_DISABLE_COMPARE_INTERRUPT;
 }
 
 extern FUNC_ATTRS void __enableReceptionHardwareForConnectedPorts(void);
@@ -149,18 +150,17 @@ FUNC_ATTRS void __enableReceptionHardwareForConnectedPorts(void) {
 
 }
 
-extern FUNC_ATTRS void __disableTxRx(void);
+extern FUNC_ATTRS void __disableReception(void);
 
-FUNC_ATTRS void __disableTxRx(void) {
+FUNC_ATTRS void __disableReception(void) {
     ParticleAttributes.ports.xmissionState = STATE_TYPE_XMISSION_TYPE_DISABLED_TX_RX;
-    __disableReceptionHardware();
-    __disableTxRxTimerHardware();
+    __disableReceptionPinChangeInterrupts();
 }
 
-extern FUNC_ATTRS void __enableTxRx(void);
+extern FUNC_ATTRS void __enableReception(void);
 
-FUNC_ATTRS void __enableTxRx(void) {
-    __enableTxRxTimerHardware();
+FUNC_ATTRS void __enableReception(void) {
+    __enableTxRxTimer();
     __enableReceptionHardwareForConnectedPorts();
     ParticleAttributes.ports.xmissionState = STATE_TYPE_XMISSION_TYPE_ENABLED_TX_RX;
 }
@@ -194,6 +194,28 @@ FUNC_ATTRS void __updateOriginNodeAddress(void) {
     }
 }
 
+extern FUNC_ATTRS void __receiveNorth(void);
+
+FUNC_ATTRS void __receiveNorth(void) {
+    manchesterDecodeBuffer(&ParticleAttributes.ports.rx.north);
+    interpretRxBuffer(&ParticleAttributes.ports.rx.north);
+}
+
+extern FUNC_ATTRS void __receiveEast(void);
+
+FUNC_ATTRS void __receiveEast(void) {
+    manchesterDecodeBuffer(&ParticleAttributes.ports.rx.east);
+    interpretRxBuffer(&ParticleAttributes.ports.rx.east);
+}
+
+extern FUNC_ATTRS void __receiveSouth(void);
+
+FUNC_ATTRS void __receiveSouth(void) {
+    manchesterDecodeBuffer(&ParticleAttributes.ports.rx.south);
+    interpretRxBuffer(&ParticleAttributes.ports.rx.south);
+}
+
+
 extern FUNC_ATTRS void particleTick(void);
 /**
  * This function is called cyclically in the particle loop. It implements the
@@ -216,7 +238,7 @@ FUNC_ATTRS void particleTick(void) {
             // reset state disables timers and switches back to the very first state
             // without restarting the mcu
         case STATE_TYPE_RESET:
-            __disableTxRx();
+            __disableReception();
             constructParticleState(&ParticleAttributes);
             ParticleAttributes.node.state = STATE_TYPE_START;
             break;
@@ -271,8 +293,8 @@ FUNC_ATTRS void particleTick(void) {
                 } else {
                     ParticleAttributes.node.state = STATE_TYPE_WAIT_FOR_BEING_ENUMERATED;
                 }
+//                __disableReception();
                 clearReceptionBuffers();
-                __enableTxRx();
             } else {
                 __discoveryLoopCount();
             }
@@ -283,7 +305,7 @@ FUNC_ATTRS void particleTick(void) {
             // wait for incoming particle address from north neighbour
 
         case STATE_TYPE_WAIT_FOR_BEING_ENUMERATED:
-            interpretRxBuffer(&ParticleAttributes.ports.rx.north);
+            __receiveNorth();
             break;
 
         case STATE_TYPE_WAIT_FOR_BEING_ENUMERATED_SEND_ACK_RESPONSE_TO_PARENT:
@@ -301,7 +323,7 @@ FUNC_ATTRS void particleTick(void) {
             break;
 
         case STATE_TYPE_WAIT_FOR_BEING_ENUMERATED_ACK_RESPONSE_FROM_PARENT:
-            interpretRxBuffer(&ParticleAttributes.ports.rx.north);
+            __receiveNorth();
             break;
 
         case STATE_TYPE_LOCALLY_ENUMERATED:
@@ -341,7 +363,7 @@ FUNC_ATTRS void particleTick(void) {
             break;
 
         case STATE_TYPE_ENUMERATING_EAST_WAIT_UNTIL_ACK_RESPONSE_FROM_EAST:
-            interpretRxBuffer(&ParticleAttributes.ports.rx.east);
+            __receiveEast();
             break;
 
         case STATE_TYPE_ENUMERATING_EAST_SEND_ACK_RESPONSE_TO_EAST:
@@ -380,7 +402,7 @@ FUNC_ATTRS void particleTick(void) {
             break;
 
         case STATE_TYPE_ENUMERATING_SOUTH_WAIT_UNTIL_ACK_RESPONSE_FROM_SOUTH:
-            interpretRxBuffer(&ParticleAttributes.ports.rx.south);
+            __receiveSouth();
             break;
 
         case STATE_TYPE_ENUMERATING_SOUTH_SEND_ACK_RESPONSE_TO_SOUTH:
@@ -408,17 +430,17 @@ FUNC_ATTRS void particleTick(void) {
             break;
 
         case STATE_TYPE_IDLE:
-            manchesterDecodeBuffer(&ParticleAttributes.ports.rx.north);
-            manchesterDecodeBuffer(&ParticleAttributes.ports.rx.east);
-            manchesterDecodeBuffer(&ParticleAttributes.ports.rx.south);
-            interpretRxBuffer(&ParticleAttributes.ports.rx.north);
-            interpretRxBuffer(&ParticleAttributes.ports.rx.east);
-            interpretRxBuffer(&ParticleAttributes.ports.rx.south);
+            __receiveNorth();
+            __receiveEast();
+            __receiveSouth();
             // if new rx buffer available -> interpret
             // if scheduled command available -> execute
             break;
 
         case STATE_TYPE_INTERPRET_COMMAND:
+            __receiveNorth();
+            __receiveEast();
+            __receiveSouth();
             // interpret command
             // schedule command -> switch to state schedule command
             // execute command -> switch to state execute command

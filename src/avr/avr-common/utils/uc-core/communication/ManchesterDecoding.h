@@ -104,7 +104,7 @@ extern FUNC_ATTRS void captureSnapshot(const bool isRisingEdge,
 FUNC_ATTRS void captureSnapshot(const bool isRisingEdge,
                                 volatile RxSnapshotBuffer *snapshotBuffer) {
     volatile Snapshot *snapshot = &(snapshotBuffer->snapshots[snapshotBuffer->endIndex++]);
-    (*((volatile uint16_t *) (snapshot))) = (TIMER_TX_RX_COUNTER & 0xFFFE) | isRisingEdge;
+    (*((volatile uint16_t *) (snapshot))) = (TIMER_TX_RX_COUNTER_VALUE & 0xFFFE) | isRisingEdge;
 }
 
 extern FUNC_ATTRS void manchesterDecodeBuffer(volatile RxPort *rxPort);

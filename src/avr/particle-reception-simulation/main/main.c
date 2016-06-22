@@ -43,7 +43,7 @@ int main(void) {
 
     clearReceptionBuffers();
     // setup and enable reception and counter interrupts
-    __enableTxRx();
+    __enableReception();
 
     SREG setBit bit(SREG_I);
     return particleLoop();
