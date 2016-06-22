@@ -30,10 +30,12 @@ FUNC_ATTRS int particleLoop(void) {
     constructParticleState(&ParticleAttributes);
     ParticleAttributes.node.state = STATE_TYPE_START;
     forever {
+        DEBUG_CHAR_OUT('P');
         particleTick();
         if (ParticleAttributes.node.state == STATE_TYPE_ERRONEOUS) {
             return 1;
         }
+        DEBUG_CHAR_OUT('p');
     }
 }
 

@@ -17,10 +17,12 @@ extern FUNC_ATTRS int particleLoop(void);
  */
 FUNC_ATTRS int particleLoop(void) {
     forever {
+        DEBUG_CHAR_OUT('P');
         particleTick();
         if (ParticleAttributes.node.state == STATE_TYPE_ERRONEOUS) {
             return 1;
         }
+        DEBUG_CHAR_OUT('p');
     }
 }
 
@@ -45,7 +47,7 @@ int main(void) {
     // setup and enable reception and counter interrupts
     __enableReception();
 
-    SREG setBit bit(SREG_I);
+    SEI;
     return particleLoop();
 }
 

@@ -11,7 +11,7 @@
 
 #    define IS_SIMULATION true
 #    define IF_DEBUG_SWITCH_TO_ERRONEOUS_STATE \
-    SREG unsetBit bit(SREG_I); \
+    CLI; \
     ParticleAttributes.node.state = STATE_TYPE_ERRONEOUS
 #    define DEBUG_CHAR_OUT(value) UDR=(value)
 #    define DEBUG_INT16_OUT(value) \
