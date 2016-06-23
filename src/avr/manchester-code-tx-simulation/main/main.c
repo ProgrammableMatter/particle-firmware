@@ -10,58 +10,48 @@
 #include <uc-core/Globals.h>
 #include <uc-core/delay/delay.h>
 
+#define TIMER_TX_ENABLE_COMPARE_TOP_INTERRUPT \
+    __TIMER1_INTERRUPT_CLEAR_PENDING_COMPARE_A; \
+    __TIMER1_COMPARE_A_INTERRUPT_ENABLE
+
+#define TIMER_TX_ENABLE_COMPARE_CENTER_INTERRUPT \
+    __TIMER1_INTERRUPT_CLEAR_PENDING_COMPARE_B; \
+    __TIMER1_COMPARE_B_INTERRUPT_ENABLE
+
 //unsigned char__pad __attribute__((section(".noinit")));
 
-//#define COUNTER_1_SETTINGS_TOP_INTERRUPT_LATENCY 18
-#define COUNTER_1_SETTINGS_TOP_INTERRUPT_LATENCY 0
-#define COUNTER_1_SETTINGS_TOP (DEFAULT_TX_RX_CLOCK_DELAY - COUNTER_1_SETTINGS_TOP_INTERRUPT_LATENCY)
-#define COUNTER_1_SETTINGS_CENTER (((COUNTER_1_SETTINGS_TOP+COUNTER_1_SETTINGS_TOP_INTERRUPT_LATENCY) / 2) - COUNTER_1_SETTINGS_TOP_INTERRUPT_LATENCY)
-#define COUNTER_1_SETTINGS_PRESCALER ((0 << CS12) | (0 << CS11) | (1 << CS10))
-#define COUNTER_1_SETTINGS_PRESCALER_DISCONNECT ((1 << CS12) | (1 << CS11) | (1 << CS10))
-
-
-// triggers on signal clock (signal rectification)
-#define TX_COUNTER_TOP TIMER1_COMPA_vect
-
-ISR(TX_COUNTER_TOP) {
-    TCNT1 = 0;
-
-    // rectify (invert according to next data bit) signal before upcoming data transition
-    //if (ParticleAttributes.ports.tx.south.buffer.pointer.bitMask & ParticleAttributes.ports.tx.south.buffer.bytes[0]) {
+#define TIMER_TX_COUNTER_TOP_VECTOR TIMER1_COMPA_vect
+// int #7
+ISR(TIMER_TX_COUNTER_TOP_VECTOR) {
+    OCR1A += DEFAULT_TX_RX_CLOCK_DELAY;
     if (ParticleAttributes.ports.tx.south.buffer.pointer.bitMask &
         ParticleAttributes.ports.tx.south.buffer.bytes[ParticleAttributes.ports.tx.
                 south.buffer.pointer.byteNumber]) {
         SOUTH_TX_HI;
-//            IF_SIMULATION_INT16_OUT(TCNT1);
+
     } else {
         SOUTH_TX_LO;
-//            IF_SIMULATION_INT16_OUT(TCNT1);
     }
 }
 
 // triggers on bit transmission:
 // reception at the receiver side of this transmission is inverted
-#define TX_COUNTER_CENTER TIMER1_COMPB_vect
-
-ISR(TX_COUNTER_CENTER) {
-
+#define TIMER_TX_COUNTER_CENTER_VECTOR TIMER1_COMPB_vect
+// int #8
+ISR(TIMER_TX_COUNTER_CENTER_VECTOR) {
+    OCR1B += DEFAULT_TX_RX_CLOCK_DELAY;
     if (isDataEndPosition(&ParticleAttributes.ports.tx.south)) {
-        // stop after one transmission
-//        TIMSK unsetBit(1 << OCIE1B);
-        TCCR1B unsetBit COUNTER_1_SETTINGS_PRESCALER_DISCONNECT;
         // return signal to default
         SOUTH_TX_LO; // inverted on receiver side
-//        IF_SIMULATION_INT16_OUT(TCNT1);
+        TIMER_TX_RX_COUNTER_DISABLE;
         ParticleAttributes.node.state = STATE_TYPE_TX_DONE;
     } else {
         // write data bit to output (inverted)
         if (ParticleAttributes.ports.tx.south.buffer.pointer.bitMask &
             ParticleAttributes.ports.tx.south.buffer.bytes[ParticleAttributes.ports.tx.south.buffer.pointer.byteNumber]) {
             SOUTH_TX_LO;
-//            IF_SIMULATION_INT16_OUT(TCNT1);
         } else {
             SOUTH_TX_HI;
-//            IF_SIMULATION_INT16_OUT(TCNT1);
         }
         bufferBitPointerIncrement(&ParticleAttributes.ports.tx.south.buffer.pointer);
     }
@@ -73,10 +63,10 @@ inline void initTransmission(void) {
     ParticleAttributes.node.type = NODE_TYPE_MASTER;
 
     bufferBitPointerStart(&ParticleAttributes.ports.tx.south.buffer.pointer);
-    ParticleAttributes.ports.tx.south.dataEndPos.byteNumber = 6;
-    ParticleAttributes.ports.tx.south.dataEndPos.bitMask = 0x80;
+    ParticleAttributes.ports.tx.south.dataEndPos.byteNumber = 7;
+    ParticleAttributes.ports.tx.south.dataEndPos.bitMask = 0x1;
 
-    // the byte to transmit
+    // the bytes to transmit
     ParticleAttributes.ports.tx.south.buffer.bytes[0] = 0b10100110 | 0x1;
     ParticleAttributes.ports.tx.south.buffer.bytes[1] = 0b10101010;
     ParticleAttributes.ports.tx.south.buffer.bytes[2] = 0b10101010;
@@ -86,34 +76,21 @@ inline void initTransmission(void) {
     ParticleAttributes.ports.tx.south.buffer.bytes[6] = 0b00100110;
 
     SOUTH_TX_SETUP;
-    // return signal to default (high on receiver side)
+    // return signal to default (locally low means high at receiver side)
     SOUTH_TX_LO;
 
-    DDir setOut Pin0;
-    DOut setHi Pin0;
-    ADir setOut Pin0;
-    ADir setOut Pin1;
-    DDir setOut Pin1;
-    DDir setOut Pin2;
+    TIMER_TX_RX_COUNTER_SETUP;
 
-    TCCR1A = (0 << COM1A1) | (0 << COM1A0) | (0 << COM1B1) | (0 << COM1B0);
-    TCCR1B = (0 << ICNC1) | (0 << ICES1) | (0 << CS12) | (0 << CS11) | (0 << CS10);
+    OCR1A = DEFAULT_TX_RX_CLOCK_DELAY;
+    OCR1B = DEFAULT_TX_RX_CLOCK_DELAY + (DEFAULT_TX_RX_CLOCK_DELAY / 2);
+    // start transmission with TIMER_TX_COUNTER_TOP_VECTOR
+    TCNT1 = DEFAULT_TX_RX_CLOCK_DELAY / 2;
 
-    TCCR1A |= (0 << WGM11) | (0 << WGM10);
-    TCCR1B |= (0 << WGM13) | (0 << WGM12);
-
-    TIMSK |= (1 << OCIE1B) | (1 << OCIE1A) | (0 << TOIE1);
-
-    if ((TIFR & (1 << OCF1A)) != 0)
-        TIFR = (1 << OCF1A);
-    if ((TIFR & (1 << OCF1B)) != 0)
-        TIFR = (1 << OCF1B);
-
-    OCR1A = COUNTER_1_SETTINGS_TOP;
-    OCR1B = COUNTER_1_SETTINGS_CENTER;
-    // start transmission with compare A interrupt
-    TCNT1 = COUNTER_1_SETTINGS_CENTER + 1;
+    TIMER_TX_ENABLE_COMPARE_TOP_INTERRUPT;
+    TIMER_TX_ENABLE_COMPARE_CENTER_INTERRUPT;
 }
+
+EMPTY_INTERRUPT(TIMER1_OVF_vect)
 
 extern inline void initTransmission(void);
 
@@ -124,12 +101,11 @@ int main(void) {
 
     ParticleAttributes.node.state = STATE_TYPE_TX_START;
 
-    SREG setBit bit(SREG_I);
-
-    TCCR1B |= COUNTER_1_SETTINGS_PRESCALER; // start transmission
+    SEI;
+    TIMER_TX_RX_COUNTER_ENABLE;
     while (ParticleAttributes.node.state != STATE_TYPE_TX_DONE);
+    CLI;
 
-    SREG unsetBit bit(SREG_I);
     ParticleAttributes.node.state = STATE_TYPE_STALE;
     return 0;
 }
