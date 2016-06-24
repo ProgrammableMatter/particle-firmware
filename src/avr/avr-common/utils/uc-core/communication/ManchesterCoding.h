@@ -16,12 +16,11 @@ FUNC_ATTRS void __rectifyTransmissionBit(volatile TxPort *txPort, void (*txHiImp
     if (txPort->buffer.pointer.bitMask &
         txPort->buffer.bytes[txPort->buffer.pointer.byteNumber]) {
         txHiImpl();
-        DEBUG_CHAR_OUT('G');
+//        DEBUG_CHAR_OUT('G');
     } else {
         txLoImpl();
-        DEBUG_CHAR_OUT('g');
+//        DEBUG_CHAR_OUT('g');
     }
-//    }
 }
 
 extern FUNC_ATTRS void __modulateTransmissionBit(volatile TxPort *txPort, void (*txHiImpl)(void),
@@ -40,10 +39,10 @@ FUNC_ATTRS void __modulateTransmissionBit(volatile TxPort *txPort, void (*txHiIm
         if (txPort->buffer.pointer.bitMask &
             txPort->buffer.bytes[txPort->buffer.pointer.byteNumber]) {
             txLoImpl();
-            DEBUG_CHAR_OUT('h');
+//            DEBUG_CHAR_OUT('h');
         } else {
             txHiImpl();
-            DEBUG_CHAR_OUT('H');
+//            DEBUG_CHAR_OUT('H');
         }
         bufferBitPointerIncrement(&txPort->buffer.pointer);
     }
@@ -91,6 +90,10 @@ FUNC_ATTRS void southTxLoImpl(void) {
  * puts the the next signal on the pin
  */
 FUNC_ATTRS void transmit(volatile TxPort *txPort, void (*txHiImpl)(void), void (*txLoImpl)(void)) {
+    if (!txPort->isDataBuffered) {
+        return;
+    }
+
     if (txPort->isTxClockPhase) {
         __rectifyTransmissionBit(txPort, txHiImpl, txLoImpl);
     } else {

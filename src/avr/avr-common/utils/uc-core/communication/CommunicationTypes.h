@@ -41,7 +41,8 @@ typedef struct TxPort {
     BufferBitPointer dataEndPos; // data in between buffer start and dataEndPos is to be transmitted
     uint8_t isTransmitting : 1; // true during transmission, else false
     uint8_t isTxClockPhase : 1; // true if clock phase, else on data phase
-    uint8_t __pad: 6;
+    uint8_t isDataBuffered : 1; // true if the buffer contains data to be transmitted
+    uint8_t __pad: 5;
 } TxPort;
 
 typedef struct TxPorts {
