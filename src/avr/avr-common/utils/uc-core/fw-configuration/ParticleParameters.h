@@ -48,31 +48,28 @@
 /**
  * Clock speed vs. minimum error ratio table (transmitter handles isr synchronous)
  *
- * clock delay | short interval             | long interval
- *             | opt speed                  | opt speed
- *             |                opt size    |               opt size
- * --------------------------------------------------------------------
- * 180           NA              NA            NA            NA
- * 256           xxx             68            xxx           105
- * 512           xxx             59            xxx           102
- * 1024          xxx             55            xxx           101
- * 2048          xxx             53            xxx           101
+ * clock delay | short interval             | long interval             | is setting
+ *             | opt speed                  | opt speed                 | usable
+ *             |                opt size    |               opt size    |
+ * ---------------------------------------------------------------------------------
+ * 180           NA              NA            NA            NA           false
+ * 256           xxx             68            xxx           105          false
+ * 512           xxx             59            xxx           102          false
+ * 1024          xxx             55            xxx           101          true
+ * 2048          xxx             53            xxx           101          true
  */
 /**
  * Initial value for clock delay for Manchester (de-)coding (reception and transmission).
  */
-// 246
-#define DEFAULT_TX_RX_CLOCK_DELAY ((uint16_t) 2048)
+#define DEFAULT_TX_RX_CLOCK_DELAY ((uint16_t) 1024)
 
 /**
  * Maximum short and long time lag. If max. long snapshot lag is exceeded the reception
  * experiences a timeout.
  *
  */
-//88
-#define DEFAULT_MAX_SHORT_RECEPTION_OVERTIME_PERCENTAGE_RATIO ((uint8_t) 53)
-// 145
-#define DEFAULT_MAX_LONG_RECEPTION_OVERTIME_PERCENTAGE_RATIO ((uint8_t) 101)
+#define DEFAULT_MAX_SHORT_RECEPTION_OVERTIME_PERCENTAGE_RATIO ((uint8_t) 59)
+#define DEFAULT_MAX_LONG_RECEPTION_OVERTIME_PERCENTAGE_RATIO ((uint8_t) 102)
 
 /**
  * Heartbeat LED toggles every main-loop count
