@@ -75,3 +75,15 @@
  * Heartbeat LED toggles every main-loop count
  */
 #define HEARTBEAT_LOOP_COUNT_TOGGLE ((uint8_t)20)
+
+
+/**
+ * Number of buffer bytes for reception and transmission. Received snapshots are decoded to
+ * the reception buffer. Data to be sent is read from the transmission buffer.
+ */
+#define TX_RX_NUMBER_BUFFER_BYTES 7
+
+/**
+ * Size of reception snapshot buffer per port. Sould be >= TX_RX_NUMBER_BUFFER_BYTES * 8 * 2 + 2
+ */
+#define RX_NUMBER_SNAPSHOTS 114

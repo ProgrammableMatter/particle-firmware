@@ -6,6 +6,8 @@
 
 #include <stdint.h>
 
+#include "uc-core/fw-configuration/ParticleParameters.h"
+
 typedef enum ManchesterDecodingStateType {
     DECODER_STATE_TYPE_START, // initialization state before decoding
     DECODER_STATE_TYPE_DECODING, // state when decoding
@@ -47,7 +49,7 @@ typedef struct RxSnapshotBuffer {
     /**
      * each snapshot's lsb describes rising (1) or falling (0) flank occurred at the given snapshot
      */
-    Snapshot snapshots[128];
+    Snapshot snapshots[RX_NUMBER_SNAPSHOTS];
     uint16_t temporaryDequeueRegister;
     /**
      * describes the 1st buffered position

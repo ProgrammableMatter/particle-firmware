@@ -8,6 +8,7 @@
 #include "ManchesterDecodingTypes.h"
 #include "uc-core/interrupts/TimerCounter.h"
 #include "simulation/SimulationMacros.h"
+#include "uc-core/fw-configuration/ParticleParameters.h"
 
 /**
  * Resets the decoder phase state do default.
@@ -57,12 +58,32 @@ FUNC_ATTRS void __storeDataBit(volatile RxPort *rxPort, const volatile uint8_t i
     }
 }
 
+extern FUNC_ATTRS void __rxSnapshotBufferIncrementStartIndex(volatile RxSnapshotBuffer *o);
+
+FUNC_ATTRS void __rxSnapshotBufferIncrementStartIndex(volatile RxSnapshotBuffer *o) {
+    if (o->startIndex >= RX_NUMBER_SNAPSHOTS) {
+        o->startIndex = 0;
+    } else {
+        o->startIndex++;
+    }
+}
+
+extern FUNC_ATTRS void __rxSnapshotBufferIncrementEndIndex(volatile RxSnapshotBuffer *o);
+
+FUNC_ATTRS void __rxSnapshotBufferIncrementEndIndex(volatile RxSnapshotBuffer *o) {
+    if (o->endIndex >= RX_NUMBER_SNAPSHOTS) {
+        o->endIndex = 0;
+    } else {
+        o->endIndex++;
+    }
+}
+
 extern FUNC_ATTRS void __rxSnapshotBufferDequeue(volatile RxSnapshotBuffer *o);
 /**
  * Releases the 1st element from the the queue.
  */
 FUNC_ATTRS void __rxSnapshotBufferDequeue(volatile RxSnapshotBuffer *o) {
-    o->startIndex++;
+    __rxSnapshotBufferIncrementStartIndex(o);
 }
 
 extern FUNC_ATTRS volatile Snapshot *__rxSnapshotBufferPeek(volatile RxSnapshotBuffer *o);
@@ -81,6 +102,7 @@ extern FUNC_ATTRS bool __rxSnapshotBufferIsEmpty(volatile RxSnapshotBuffer *o);
 FUNC_ATTRS bool __rxSnapshotBufferIsEmpty(volatile RxSnapshotBuffer *o) {
     return o->startIndex == o->endIndex;
 }
+
 
 extern FUNC_ATTRS uint8_t __rxSnapshotBufferSize(volatile RxSnapshotBuffer *o);
 /**
@@ -114,7 +136,8 @@ extern FUNC_ATTRS void captureSnapshot(const bool isRisingEdge,
  */
 FUNC_ATTRS void captureSnapshot(const bool isRisingEdge,
                                 volatile RxSnapshotBuffer *snapshotBuffer) {
-    volatile Snapshot *snapshot = &(snapshotBuffer->snapshots[snapshotBuffer->endIndex++]);
+    volatile Snapshot *snapshot = &(snapshotBuffer->snapshots[snapshotBuffer->endIndex]);
+    __rxSnapshotBufferIncrementEndIndex(snapshotBuffer);
     (*((volatile uint16_t *) (snapshot))) = (TIMER_TX_RX_COUNTER_VALUE & 0xFFFE) | isRisingEdge;
 }
 

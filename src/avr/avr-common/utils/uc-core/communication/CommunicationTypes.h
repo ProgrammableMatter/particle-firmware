@@ -6,7 +6,7 @@
 
 #include <stdint.h>
 #include "ManchesterDecodingTypes.h"
-
+#include "uc-core/fw-configuration/ParticleParameters.h"
 /**
  * describes the transmission/reception states
  */
@@ -32,7 +32,7 @@ typedef struct BufferBitPointer {
  * after being decoded.
  */
 typedef struct PortBuffer {
-    uint8_t bytes[7]; // reception buffer
+    uint8_t bytes[TX_RX_NUMBER_BUFFER_BYTES]; // reception buffer
     BufferBitPointer pointer; // points to the next free position
 } PortBuffer;
 
