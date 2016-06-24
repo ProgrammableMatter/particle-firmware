@@ -7,6 +7,7 @@
 #include <stdint.h>
 #include "ManchesterDecodingTypes.h"
 #include "uc-core/fw-configuration/ParticleParameters.h"
+
 /**
  * describes the transmission/reception states
  */
@@ -91,8 +92,16 @@ typedef struct TimerCounterAdjustment {
      * Regarding rx: the short and long interval durations are derived from this delay
      */
     uint16_t transmissionClockDelay;
+    /**
+     * transmissionClockDelayHalf = transmissionClockDelay / 2
+     */
     uint16_t transmissionClockDelayHalf;
 
+
+    /**
+     * the newly calculated / approximated transmission clock delay
+     */
+    uint16_t newTransmissionClockDelay;
 } TimerCounterAdjustment;
 
 typedef struct RxPorts {

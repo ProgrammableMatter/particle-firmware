@@ -63,6 +63,7 @@ FUNC_ATTRS void constructTimerCounterAdjustment(volatile TimerCounterAdjustment 
             (DEFAULT_MAX_LONG_RECEPTION_OVERTIME_PERCENTAGE_RATIO / 100.0) * DEFAULT_TX_RX_CLOCK_DELAY;
     o->transmissionClockDelay = DEFAULT_TX_RX_CLOCK_DELAY;
     o->transmissionClockDelayHalf = DEFAULT_TX_RX_CLOCK_DELAY >> 1;
+    o->newTransmissionClockDelay = 0;
 }
 
 extern FUNC_ATTRS void constructRxPorts(volatile RxPorts *o);

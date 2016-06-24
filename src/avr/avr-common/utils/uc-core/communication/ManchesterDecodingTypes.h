@@ -50,6 +50,9 @@ typedef struct RxSnapshotBuffer {
      * each snapshot's lsb describes rising (1) or falling (0) flank occurred at the given snapshot
      */
     Snapshot snapshots[RX_NUMBER_SNAPSHOTS];
+    /**
+  * used to store the previous dequeue value
+  */
     uint16_t temporaryDequeueRegister;
     /**
      * describes the 1st buffered position
@@ -63,6 +66,13 @@ typedef struct RxSnapshotBuffer {
     uint8_t __pad1 : 1;
 
     /**
-     * used to store the current dequeue value
+     * the start register keeps the first snapshot of the last transmission
      */
+    uint16_t temporaryStartSnapshotRegister;
+    /**
+     * the number of cycles/2 passed reflects
+     * the number clocks from the 1st snapshot until the last snapshot before timeout
+     */
+    uint8_t numberHalfCyclesPassed;
+
 } RxSnapshotBuffer;

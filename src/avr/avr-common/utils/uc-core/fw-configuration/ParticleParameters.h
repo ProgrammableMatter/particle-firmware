@@ -56,7 +56,9 @@
  * 256           xxx             68            xxx           105          false
  * 512           xxx             59            xxx           102          false
  * 1024          xxx             55            xxx           101          true
+ * --- 1170 is the max clock length due to counter adjustment impl. limitation ---
  * 2048          xxx             53            xxx           101          true
+ *
  */
 /**
  * Initial value for clock delay for Manchester (de-)coding (reception and transmission).
