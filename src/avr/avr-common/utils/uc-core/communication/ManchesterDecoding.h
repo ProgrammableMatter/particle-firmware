@@ -82,6 +82,17 @@ FUNC_ATTRS bool __rxSnapshotBufferIsEmpty(volatile RxSnapshotBuffer *o) {
     return o->startIndex == o->endIndex;
 }
 
+extern FUNC_ATTRS uint8_t __rxSnapshotBufferSize(volatile RxSnapshotBuffer *o);
+/**
+ * Returns the number of stored snapshots.
+ */
+FUNC_ATTRS uint8_t __rxSnapshotBufferSize(volatile RxSnapshotBuffer *o) {
+    if (o->startIndex < o->endIndex) {
+        return o->endIndex - o->startIndex;
+    }
+    return (0x7f - o->startIndex) + o->startIndex + 1;
+}
+
 extern FUNC_ATTRS void __calculateTimestampLag(volatile uint16_t *a, uint16_t *b, uint16_t *result);
 /**
  * Calculates the time lag in between two timestamp values.
@@ -91,7 +102,7 @@ FUNC_ATTRS void __calculateTimestampLag(volatile uint16_t *previousSnapshotValue
                                         uint16_t *result) {
     if ((*currentSnapshotValue) > (*previousSnapshotValue)) {
         *result = *currentSnapshotValue - *previousSnapshotValue;
-    } else { // on capture timer overflow
+    } else { // if capture timer counter has overflowed
         *result = (0xFFFF - *previousSnapshotValue) + *currentSnapshotValue;
     }
 }
@@ -112,7 +123,6 @@ extern FUNC_ATTRS void manchesterDecodeBuffer(volatile RxPort *rxPort);
 /**
  * decodes the specified buffer's snapshots to bits and bytes
  */
-// TODO: implementation pending
 FUNC_ATTRS void manchesterDecodeBuffer(volatile RxPort *rxPort) {
 
     if (rxPort->isDataBuffered == true) {
@@ -122,11 +132,10 @@ FUNC_ATTRS void manchesterDecodeBuffer(volatile RxPort *rxPort) {
     switch (rxPort->snapshotsBuffer.decoderStates.decodingState) {
 
         case DECODER_STATE_TYPE_START:
-            if (__rxSnapshotBufferIsEmpty(&rxPort->snapshotsBuffer) == false) {
+            if (!__rxSnapshotBufferIsEmpty(&rxPort->snapshotsBuffer)) {
                 volatile Snapshot *snapshot = __rxSnapshotBufferPeek(&rxPort->snapshotsBuffer);
                 if (snapshot->isRisingEdge == false) {
                     bufferBitPointerStart(&rxPort->buffer.pointer);
-                    rxPort->isDataBuffered = false;
                     __resetDecoderPhaseState(rxPort->snapshotsBuffer.decoderStates.phaseState);
                     rxPort->snapshotsBuffer.temporaryDequeueRegister = snapshot->timerValue << 1;
                     __rxSnapshotBufferDequeue(&rxPort->snapshotsBuffer);
@@ -139,27 +148,47 @@ FUNC_ATTRS void manchesterDecodeBuffer(volatile RxPort *rxPort) {
 
         __DECODER_STATE_TYPE_DECODING:
         case DECODER_STATE_TYPE_DECODING:
-            while (__rxSnapshotBufferIsEmpty(&rxPort->snapshotsBuffer) == false) {
+            while (!__rxSnapshotBufferIsEmpty(&rxPort->snapshotsBuffer)) { // for all snapshots
                 volatile Snapshot *snapshot = __rxSnapshotBufferPeek(&rxPort->snapshotsBuffer);
                 uint16_t timerValue = snapshot->timerValue << 1;
                 uint16_t difference;
 
-                __calculateTimestampLag(&rxPort->snapshotsBuffer.temporaryDequeueRegister,
-                                        (uint16_t *) &timerValue, &difference);
-                DEBUG_INT16_OUT(difference);
-                if (difference <=
-                    ParticleAttributes.ports.timerAdjustment.maxShortIntervalDuration) { // on short interval
-                    __phaseStateAdvanceShortInterval(rxPort->snapshotsBuffer.decoderStates.phaseState);
-                } else if (difference <=
-                           ParticleAttributes.ports.timerAdjustment.maxLongIntervalDuration) { // on long interval
-                    __phaseStateAdvanceLongInterval(rxPort->snapshotsBuffer.decoderStates.phaseState);
-                } else { // on timeout
-                    rxPort->isDataBuffered = true;
-                    __rxSnapshotBufferDequeue(&rxPort->snapshotsBuffer);
-                    rxPort->snapshotsBuffer.decoderStates.decodingState = DECODER_STATE_TYPE_START;
-                    break;
+                if (1 < __rxSnapshotBufferSize(&rxPort->snapshotsBuffer)) { // on multiple queued snapshots
+                    __calculateTimestampLag(&rxPort->snapshotsBuffer.temporaryDequeueRegister,
+                                            (uint16_t *) &timerValue, &difference);
+                    DEBUG_INT16_OUT(difference);
+                    if (difference <=
+                        ParticleAttributes.ports.timerAdjustment.maxShortIntervalDuration) { // on short interval
+                        __phaseStateAdvanceShortInterval(rxPort->snapshotsBuffer.decoderStates.phaseState);
+                    } else if (difference <=
+                               ParticleAttributes.ports.timerAdjustment.maxLongIntervalDuration) { // on long interval
+                        __phaseStateAdvanceLongInterval(rxPort->snapshotsBuffer.decoderStates.phaseState);
+                    } else { // on timeout: difference of two snapshots exceed the max. rx clock duration
+                        rxPort->isDataBuffered = true;
+                        __rxSnapshotBufferDequeue(&rxPort->snapshotsBuffer);
+                        rxPort->snapshotsBuffer.decoderStates.decodingState = DECODER_STATE_TYPE_START;
+                        break;
+                    }
                 }
-
+                else { // on last queued element
+                    uint16_t now = TIMER_TX_RX_COUNTER_VALUE;
+                    __calculateTimestampLag((uint16_t *) &timerValue, &now, &difference);
+                    if (difference >=
+                        ParticleAttributes.ports.timerAdjustment.maxLongIntervalDuration) { // on timeout
+                        rxPort->isDataBuffered = true;
+                        __rxSnapshotBufferDequeue(&rxPort->snapshotsBuffer);
+                        rxPort->snapshotsBuffer.decoderStates.decodingState = DECODER_STATE_TYPE_START;
+                        break;
+                    } else { // else: no timeout
+                        if (difference <=
+                            ParticleAttributes.ports.timerAdjustment.maxShortIntervalDuration) { // on short interval
+                            __phaseStateAdvanceShortInterval(
+                                    rxPort->snapshotsBuffer.decoderStates.phaseState);
+                        } else {
+                            __phaseStateAdvanceLongInterval(rxPort->snapshotsBuffer.decoderStates.phaseState);
+                        }
+                    }
+                }
                 if (__isDataPhase(rxPort->snapshotsBuffer.decoderStates.phaseState)) {
                     DEBUG_CHAR_OUT('+');
                     __storeDataBit(rxPort, snapshot->isRisingEdge);
@@ -169,11 +198,12 @@ FUNC_ATTRS void manchesterDecodeBuffer(volatile RxPort *rxPort) {
 
                 rxPort->snapshotsBuffer.temporaryDequeueRegister = snapshot->timerValue << 1;
                 __rxSnapshotBufferDequeue(&rxPort->snapshotsBuffer);
+
+                break;
+
+                default:
+                    break;
+
             }
-            break;
-
-        default:
-            break;
-
     }
 }
