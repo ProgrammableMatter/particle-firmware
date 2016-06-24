@@ -97,11 +97,25 @@ typedef struct TimerCounterAdjustment {
      */
     uint16_t transmissionClockDelayHalf;
 
-
     /**
      * the newly calculated / approximated transmission clock delay
      */
     uint16_t newTransmissionClockDelay;
+
+    /**
+     * transmission start offset
+     */
+    uint16_t transmissionCockShift;
+
+    /**
+     * newly calculated / approximated transmission start offset
+     */
+    uint16_t newTransmissionClockShift;
+
+    uint8_t isTransmissionClockDelayUpdateable : 1;
+    uint8_t isTransmissionClockShiftUpdateable : 1;
+
+    uint8_t __pad : 6;
 } TimerCounterAdjustment;
 
 typedef struct RxPorts {

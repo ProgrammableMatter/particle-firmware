@@ -14,7 +14,8 @@ extern FUNC_ATTRS void scheduleNextTxInterrupt(void);
  */
 FUNC_ATTRS void scheduleNextTxInterrupt(void) {
 //    DEBUG_INT16_OUT(TIMER_TX_RX_COMPARE_VALUE);
-    TIMER_TX_RX_COMPARE_VALUE += ParticleAttributes.ports.timerAdjustment.transmissionClockDelayHalf;
+    TIMER_TX_RX_COMPARE_VALUE += ParticleAttributes.ports.timerAdjustment.transmissionClockDelayHalf +
+                                 ParticleAttributes.ports.timerAdjustment.transmissionCockShift;
 //    DEBUG_INT16_OUT(TIMER_TX_RX_COMPARE_VALUE);
 }
 
@@ -25,9 +26,10 @@ extern FUNC_ATTRS void scheduleStartTxInterrupt(void);
 FUNC_ATTRS void scheduleStartTxInterrupt(void) {
     uint16_t counter = TIMER_TX_RX_COUNTER_VALUE;
 //    DEBUG_INT16_OUT(counter);
-    TIMER_TX_RX_COMPARE_VALUE = counter - (counter %
-                                           ParticleAttributes.ports.timerAdjustment.transmissionClockDelay)
-                                + 2 * ParticleAttributes.ports.timerAdjustment.transmissionClockDelay;
+    TIMER_TX_RX_COMPARE_VALUE = counter -
+                                (counter % ParticleAttributes.ports.timerAdjustment.transmissionClockDelay)
+                                + 2 * ParticleAttributes.ports.timerAdjustment.transmissionClockDelay
+                                + ParticleAttributes.ports.timerAdjustment.transmissionCockShift;
 //    DEBUG_INT16_OUT(TIMER_TX_RX_COMPARE_VALUE);
     TIMER_TX_RX_ENABLE_COMPARE_INTERRUPT;
 }
