@@ -28,7 +28,6 @@ ISR(TIMER_TX_COUNTER_TOP_VECTOR) {
         ParticleAttributes.ports.tx.south.buffer.bytes[ParticleAttributes.ports.tx.
                 south.buffer.pointer.byteNumber]) {
         SOUTH_TX_HI;
-
     } else {
         SOUTH_TX_LO;
     }
