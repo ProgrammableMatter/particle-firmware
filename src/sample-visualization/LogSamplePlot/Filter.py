@@ -162,7 +162,9 @@ class Filter:
                             picoSeconds = picoSeconds + 1
 
                     doubleValue = self.__toDoubleValue(state)
-                    if doubleValue != None:
+                    if doubleValue == None:
+                        print("warn: no value mapping for [%s][%s][%s]=%s" % (nodeId,domain,name,state))
+                    else:
                         sampleAsTuple = Sample.toTuple(Sample(picoSeconds, doubleValue, state))
                         self.nodeIdToDomainToNameToSamples[nodeId][domain][name].append(sampleAsTuple)
                         # print("%s == %s" % (SampleFilter.toString(sampleFilter), state))
