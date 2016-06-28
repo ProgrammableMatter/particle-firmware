@@ -6,7 +6,7 @@
 
 #include <stdint.h>
 #include "uc-core/communication/CommunicationTypes.h"
-#include "uc-core/communication-protocol/InterpreterTypes.h"
+#include "uc-core/communication-protocol/CommunicationProtocolTypes.h"
 
 /**
  * Possible particle's state machine states are listed in this enum.
@@ -19,41 +19,23 @@ typedef enum StateType {
     STATE_TYPE_NEIGHBOURS_DISCOVERY, // evaluates comm. port pulse counters
     STATE_TYPE_NEIGHBOURS_DISCOVERED, // discovery ended
     STATE_TYPE_DISCOVERY_PULSING, // keep pulsing post discovery
+    STATE_TYPE_DISCOVERY_PULSING_DONE,
     STATE_TYPE_RESET, // state after reset command is received
 
     STATE_TYPE_WAIT_FOR_BEING_ENUMERATED, // wait for receiving a local address from parent/north port
-    STATE_TYPE_WAIT_FOR_BEING_ENUMERATED_SEND_ACK_RESPONSE_TO_PARENT, // send/ACK assigned address back
-    STATE_TYPE_WAIT_FOR_BEING_ENUMERATED_WAIT_UNTIL_ACK_RESPONSE_TO_PARENT_TRANSMISSION_FINISHED, // wait until transmission is finished
-    STATE_TYPE_WAIT_FOR_BEING_ENUMERATED_ACK_RESPONSE_FROM_PARENT, // wait for ACK or new address assignment
     STATE_TYPE_LOCALLY_ENUMERATED, // local address is assigned successfully
 
     STATE_TYPE_ENUMERATING_NEIGHBOURS, // starting neighbour enumeration
 
     STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR, // assigning network address to east neighbour
-    STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR_WAIT_UNTIL_TRANSMISSION_FINISHED, // wait until transmission is finished
-    STATE_TYPE_ENUMERATING_EAST_WAIT_UNTIL_ACK_RESPONSE_FROM_EAST, // wait for response from east with address
-    STATE_TYPE_ENUMERATING_EAST_SEND_ACK_RESPONSE_TO_EAST, // send last ack to east
-    STATE_TYPE_ENUMERATING_EAST_WAIT_UNTIL_ACK_RESPONSE_TO_EAST_TRANSMISSION_FINISHED, // wait until transmission is finished
     STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR_DONE, // east enumeration finished
 
     STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR, // assigning network address to south neighbour
-    STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR_WAIT_UNTIL_TRANSMISSION_FINISHED, // wait until transmission is finished
-    STATE_TYPE_ENUMERATING_SOUTH_WAIT_UNTIL_ACK_RESPONSE_FROM_SOUTH, // wait for response from south with address
-    STATE_TYPE_ENUMERATING_SOUTH_SEND_ACK_RESPONSE_TO_SOUTH, // send last ack to south
-    STATE_TYPE_ENUMERATING_SOUTH_SEND_ACK_RESPONSE_TO_SOUTH_WAIT_UNTIL_TRANSMISSION_FINISHED,
-    STATE_TYPE_ENUMERATING_SOUTH_WAIT_UNTIL_ACK_RESPONSE_TO_SOUTH_TRANSMISSION_FINISHED, // wait until transmission is finished
     STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR_DONE, // south enumeration finished
 
     STATE_TYPE_ENUMERATING_NEIGHBOURS_DONE, // neighbour enumeration finished
 
     STATE_TYPE_IDLE, // waiting for commands
-    STATE_TYPE_INTERPRET_COMMAND, // interpret command
-    STATE_TYPE_TX_START, // transmitting data in buffers
-    STATE_TYPE_TX_DONE, // transmission done, buffer empty
-    STATE_TYPE_FORWARD_PKG,
-    STATE_TYPE_SCHEDULE_COMMAND,
-    STATE_TYPE_EXECUTE_COMMAND,
-    STATE_TYPE_COMMAND_SCHEDULED_ACK,
     STATE_TYPE_ERRONEOUS, // erroneous state machine state
     STATE_TYPE_STALE // dead lock state after all operations, usually before shutdown
 } StateType;
@@ -127,7 +109,7 @@ typedef struct ParticleState {
     DiscoveryPulseCounters discoveryPulseCounters;
     Ports ports;
     Periphery periphery;
-//    Interpreter interpreter;
+    CommunicationProtocolState communicationProtocol;
 #ifdef SIMULATION
     uint8_t magicEndByte;
 #endif

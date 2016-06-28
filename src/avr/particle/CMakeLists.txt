@@ -6,7 +6,6 @@ Project(Particle)
 
 SET(BINARY "${PROJECT_NAME}.elf")
 
-#include(crosscompile.cmake)
 include(debugger.cmake)
 include(programmer.cmake)
 

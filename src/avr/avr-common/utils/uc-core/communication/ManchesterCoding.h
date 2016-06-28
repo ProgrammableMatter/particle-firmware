@@ -30,19 +30,15 @@ extern FUNC_ATTRS void __modulateTransmissionBit(volatile TxPort *txPort, void (
  */
 FUNC_ATTRS void __modulateTransmissionBit(volatile TxPort *txPort, void (*txHiImpl)(void),
                                           void (*txLoImpl)(void)) {
-    if (isDataEndPosition(txPort)) {
+    if (isDataEndPosition(txPort)) { // on tx pointer match end position
         txLoImpl(); // return signal to default (inverted on receiver side)
         txPort->isTransmitting = false;
     } else {
-//        txPort->isTransmitting = true;
-        // write data bit to output (inverted)
         if (txPort->buffer.pointer.bitMask &
             txPort->buffer.bytes[txPort->buffer.pointer.byteNumber]) {
             txLoImpl();
-//            DEBUG_CHAR_OUT('h');
         } else {
             txHiImpl();
-//            DEBUG_CHAR_OUT('H');
         }
         bufferBitPointerIncrement(&txPort->buffer.pointer);
     }

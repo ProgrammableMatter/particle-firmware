@@ -5,10 +5,11 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <common/common.h>
-#include <uc-core/ParticleStateTypesCtors.h>
-#include <uc-core/io-configuration/IoDefinitions.h>
-#include <uc-core/Globals.h>
+#include <uc-core/configuration/IoPins.h>
+#include <uc-core/particle/Globals.h>
+#include <uc-core/particle/ParticleStateTypesCtors.h>
 #include <uc-core/delay/delay.h>
+#include "../../particle-reception-simulation/libs/uc-core/particle/ParticleStateTypes.h"
 
 #define TIMER_TX_ENABLE_COMPARE_TOP_INTERRUPT \
     __TIMER1_INTERRUPT_CLEAR_PENDING_COMPARE_A; \
@@ -43,7 +44,7 @@ ISR(TIMER_TX_COUNTER_CENTER_VECTOR) {
         // return signal to default
         SOUTH_TX_LO; // inverted on receiver side
         TIMER_TX_RX_COUNTER_DISABLE;
-        ParticleAttributes.node.state = STATE_TYPE_TX_DONE;
+        ParticleAttributes.node.state = STATE_TYPE_IDLE;
     } else {
         // write data bit to output (inverted)
         if (ParticleAttributes.ports.tx.south.buffer.pointer.bitMask &
@@ -98,11 +99,11 @@ int main(void) {
     // wait until receiver is ready
     DELAY_US_150;
 
-    ParticleAttributes.node.state = STATE_TYPE_TX_START;
+    ParticleAttributes.node.state = STATE_TYPE_UNDEFINED;
 
     SEI;
     TIMER_TX_RX_COUNTER_ENABLE;
-    while (ParticleAttributes.node.state != STATE_TYPE_TX_DONE);
+    while (ParticleAttributes.node.state != STATE_TYPE_IDLE);
     CLI;
 
     ParticleAttributes.node.state = STATE_TYPE_STALE;

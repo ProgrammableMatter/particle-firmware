@@ -6,15 +6,15 @@
 
 #include "common/common.h"
 #include "Globals.h"
-#include "uc-core/ParticleStateTypes.h"
-#include "uc-core/ParticleStateTypesCtors.h"
-#include "uc-core/io-configuration/IoDefinitions.h"
+#include "ParticleStateTypes.h"
+#include "ParticleStateTypesCtors.h"
+#include "uc-core/configuration/IoPins.h"
 #include "uc-core/delay/delay.h"
 #include "uc-core/discovery/Discovery.h"
 #include "uc-core/interrupts/Reception.h"
 #include "uc-core/interrupts/TimerCounter.h"
 #include "uc-core/interrupts/Interrupts.h"
-#include "uc-core/fw-configuration/ParticleParameters.h"
+#include "uc-core/configuration/Particle.h"
 #include "uc-core/communication-protocol/CommunicationProtocol.h"
 #include "uc-core/communication-protocol/CommunicationProtocolTypesCtors.h"
 #include "uc-core/communication-protocol/Interpreter.h"
@@ -215,25 +215,127 @@ FUNC_ATTRS void __receiveSouth(void) {
     interpretRxBuffer(&ParticleAttributes.ports.rx.south);
 }
 
+extern FUNC_ATTRS void __handleWaitForBeingEnumerated(void);
+/**
+ * Handles the "ait for being enumerated" state.
+ */
+FUNC_ATTRS void __handleWaitForBeingEnumerated(void) {
+    switch (ParticleAttributes.communicationProtocol.receptionistState) {
+        // receive
+        case COMMUNICATION_RECEPTIONIST_STATE_TYPE_RECEIVE:
+            __receiveNorth();
+            break;
+            // transmit ack with local address
+        case COMMUNICATION_RECEPTIONIST_STATE_TYPE_TRANSMIT_ACK:
+            constructSendEnumeratedACKWithAddressToParent();
+            enableTransmission(&ParticleAttributes.ports.tx.north);
+            DEBUG_CHAR_OUT('f');
+            ParticleAttributes.communicationProtocol.receptionistState = COMMUNICATION_RECEPTIONIST_STATE_TYPE_TRANSMIT_ACK_WAIT_TX_FINISHED;
+            break;
+            // wait for tx finished
+        case COMMUNICATION_RECEPTIONIST_STATE_TYPE_TRANSMIT_ACK_WAIT_TX_FINISHED:
+            if (ParticleAttributes.ports.tx.north.isTransmitting) {
+                break;
+            }
+            clearReceptionBuffer(&ParticleAttributes.ports.rx.north);
+            DEBUG_CHAR_OUT('R');
+            ParticleAttributes.communicationProtocol.receptionistState = COMMUNICATION_RECEPTIONIST_STATE_TYPE_WAIT_FOR_RESPONSE;
+            break;
+            // wait for response
+        case COMMUNICATION_RECEPTIONIST_STATE_TYPE_WAIT_FOR_RESPONSE:
+            __receiveNorth();
+            break;
+
+        case COMMUNICATION_RECEPTIONIST_STATE_TYPE_IDLE:
+            break;
+    }
+}
+
+extern FUNC_ATTRS void __handleEnumerateNeighbour(volatile TxPort *txPort,
+                                                  volatile PulseCounter *discoveryPulseCounter,
+                                                  void (receptionImpl)(void),
+                                                  uint8_t remoteAddressRow,
+                                                  uint8_t remoteAddressColumn,
+                                                  StateType endState);
+/**
+ * Handles "enumerate neighbour" communication states.
+ */
+FUNC_ATTRS void __handleEnumerateNeighbour(volatile TxPort *txPort,
+                                           volatile PulseCounter *discoveryPulseCounter,
+                                           void (receptionImpl)(void),
+                                           uint8_t remoteAddressRow,
+                                           uint8_t remoteAddressColumn,
+                                           StateType endState) {
+    switch (ParticleAttributes.communicationProtocol.initiatorState) {
+        // transmit new address
+        case COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT:
+            if (discoveryPulseCounter->isConnected) {
+                clearTransmissionPortBuffer(txPort);
+                constructSendEnumeratePackage(txPort, remoteAddressRow, remoteAddressColumn);
+                enableTransmission(txPort);
+                DEBUG_CHAR_OUT('F');
+                ParticleAttributes.communicationProtocol.initiatorState = COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT_WAIT_FOR_TX_FINISHED;
+            } else {
+                ParticleAttributes.node.state = endState;
+            }
+            break;
+
+            // wait for tx finished
+        case COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT_WAIT_FOR_TX_FINISHED:
+            if (txPort->isTransmitting) {
+                break;
+            }
+            DEBUG_CHAR_OUT('R');
+            ParticleAttributes.communicationProtocol.initiatorState = COMMUNICATION_INITIATOR_STATE_TYPE_WAIT_FOR_RESPONSE;
+            break;
+
+            // wait fo ack with address
+        case COMMUNICATION_INITIATOR_STATE_TYPE_WAIT_FOR_RESPONSE:
+            receptionImpl();
+            break;
+
+            // send ack back
+        case COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT_ACK:
+            clearTransmissionPortBuffer(txPort);
+            constructSendACKPackage(txPort);
+            enableTransmission(txPort);
+            DEBUG_CHAR_OUT('f');
+            ParticleAttributes.communicationProtocol.initiatorState = COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT_ACK_WAIT_FOR_TX_FINISHED;
+            break;
+
+            // switch state
+        case COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT_ACK_WAIT_FOR_TX_FINISHED:
+            if (txPort->isTransmitting) {
+                break;
+            }
+            ParticleAttributes.node.state = endState;
+            DEBUG_CHAR_OUT('D');
+            ParticleAttributes.communicationProtocol.initiatorState = COMMUNICATION_INITIATOR_STATE_TYPE_IDLE;
+            break;
+
+        case COMMUNICATION_INITIATOR_STATE_TYPE_IDLE:
+            break;
+    }
+}
+
 extern FUNC_ATTRS void particleTick(void);
 /**
  * This function is called cyclically in the particle loop. It implements the
  * behaviour and state machine of the particle.
  */
 FUNC_ATTRS void particleTick(void) {
+    DEBUG_CHAR_OUT('P');
     __heartBeatToggle();
+    advanceCommunicationTimeoutCounter();
 
     //// ---------------- init states ----------------
 
-    // STATE_TYPE_START: state before initialization
     switch (ParticleAttributes.node.state) {
         case STATE_TYPE_START:
             __initParticle();
             ParticleAttributes.node.state = STATE_TYPE_ACTIVE;
             break;
 
-            // reset state disables timers and switches back to the very first state
-            // without restarting the mcu
         case STATE_TYPE_RESET:
             __disableReception();
             constructParticleState(&ParticleAttributes);
@@ -248,8 +350,6 @@ FUNC_ATTRS void particleTick(void) {
 
             //// ---------------- discovery states ----------------
 
-            // STATE_TYPE_NEIGHBOURS_DISCOVERY: stay in discovery state for
-            // MAX_NEIGHBOURS_DISCOVERY_LOOPS but at least MIN_NEIGHBOURS_DISCOVERY_LOOPS loops
         case STATE_TYPE_NEIGHBOURS_DISCOVERY:
             __discoveryLoopCount();
             if (ParticleAttributes.discoveryPulseCounters.loopCount >= MAX_NEIGHBOURS_DISCOVERY_LOOPS) {
@@ -270,57 +370,42 @@ FUNC_ATTRS void particleTick(void) {
             }
             break;
 
-            // prevent exhausting cpu clocks for reception interrupts unless rx is not needed but keep pulsing
         case STATE_TYPE_NEIGHBOURS_DISCOVERED:
             __discoveryLoopCount();
             ParticleAttributes.node.state = STATE_TYPE_DISCOVERY_PULSING;
             break;
 
-            // keep pulsing to neighbours until maximum MAX_NEIGHBOUR_PULSING_LOOPS loops is reached,
-            // then switch to enumeration state
         case STATE_TYPE_DISCOVERY_PULSING:
             if (ParticleAttributes.discoveryPulseCounters.loopCount >= MAX_NEIGHBOUR_PULSING_LOOPS) {
                 __disableDiscoveryPulsing();
-                DELAY_US_150;
-                DELAY_US_150;
-                DELAY_US_150;
-                DELAY_US_150;
-                if (ParticleAttributes.node.type == NODE_TYPE_ORIGIN) {
-                    ParticleAttributes.node.state = STATE_TYPE_ENUMERATING_NEIGHBOURS;
-                } else {
-                    ParticleAttributes.node.state = STATE_TYPE_WAIT_FOR_BEING_ENUMERATED;
-                }
-//                __disableReception();
-                clearReceptionBuffers();
+                ParticleAttributes.node.state = STATE_TYPE_DISCOVERY_PULSING_DONE;
             } else {
                 __discoveryLoopCount();
             }
             break;
 
+        case STATE_TYPE_DISCOVERY_PULSING_DONE:
+        DELAY_US_150;
+            DELAY_US_150;
+            DELAY_US_150;
+            DELAY_US_150;
+
+            if (ParticleAttributes.node.type == NODE_TYPE_ORIGIN) {
+                ParticleAttributes.node.state = STATE_TYPE_ENUMERATING_NEIGHBOURS;
+            } else {
+                setReceptionistStateStart();
+                ParticleAttributes.node.state = STATE_TYPE_WAIT_FOR_BEING_ENUMERATED;
+                DEBUG_CHAR_OUT('W');
+            }
+            __enableReception();
+            clearReceptionBuffers();
+            break;
+
             //// ---------------- local enumeration states ----------------
 
-            // wait for incoming particle address from north neighbour
-
+            // wait for incoming address from north neighbour
         case STATE_TYPE_WAIT_FOR_BEING_ENUMERATED:
-            __receiveNorth();
-            break;
-
-        case STATE_TYPE_WAIT_FOR_BEING_ENUMERATED_SEND_ACK_RESPONSE_TO_PARENT:
-            constructSendEnumeratedACKWithAddressToParent();
-            enableTransmission(&ParticleAttributes.ports.tx.north);
-            ParticleAttributes.node.state = STATE_TYPE_WAIT_FOR_BEING_ENUMERATED_WAIT_UNTIL_ACK_RESPONSE_TO_PARENT_TRANSMISSION_FINISHED;
-            break;
-
-        case STATE_TYPE_WAIT_FOR_BEING_ENUMERATED_WAIT_UNTIL_ACK_RESPONSE_TO_PARENT_TRANSMISSION_FINISHED:
-            if (isPortTransmitting(&ParticleAttributes.ports.tx.north)) {
-                break;
-            }
-            clearReceptionBuffer(&ParticleAttributes.ports.rx.north);
-            ParticleAttributes.node.state = STATE_TYPE_WAIT_FOR_BEING_ENUMERATED_ACK_RESPONSE_FROM_PARENT;
-            break;
-
-        case STATE_TYPE_WAIT_FOR_BEING_ENUMERATED_ACK_RESPONSE_FROM_PARENT:
-            __receiveNorth();
+            __handleWaitForBeingEnumerated();
             break;
 
         case STATE_TYPE_LOCALLY_ENUMERATED:
@@ -334,86 +419,37 @@ FUNC_ATTRS void particleTick(void) {
             // reception times out (discovery signals may be mistakenly interpreted as data)
         DELAY_US_150;
             DELAY_US_150;
+            setInitiatorStateStart();
+            DEBUG_CHAR_OUT('E');
             ParticleAttributes.node.state = STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR;
             break;
 
             //// ---------------- east neighbour enumeration states ----------------
 
         case STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR:
-            if (ParticleAttributes.discoveryPulseCounters.east.isConnected) {
-                prepareTransmissionPortBuffer(&ParticleAttributes.ports.tx.east);
-                constructSendEnumeratePackageEast(
-                        ParticleAttributes.node.address.row,
-                        ParticleAttributes.node.address.column + 1);
-                enableTransmission(&ParticleAttributes.ports.tx.east);
-                ParticleAttributes.node.state = STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR_WAIT_UNTIL_TRANSMISSION_FINISHED;
-            } else {
-                ParticleAttributes.node.state = STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR_DONE;
-            }
+            __handleEnumerateNeighbour(&ParticleAttributes.ports.tx.east,
+                                       &ParticleAttributes.discoveryPulseCounters.east,
+                                       __receiveEast,
+                                       ParticleAttributes.node.address.row,
+                                       ParticleAttributes.node.address.column + 1,
+                                       STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR_DONE);
             break;
-
-        case STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR_WAIT_UNTIL_TRANSMISSION_FINISHED:
-            if (isPortTransmitting(&ParticleAttributes.ports.tx.east)) {
-                break;
-            }
-            ParticleAttributes.node.state = STATE_TYPE_ENUMERATING_EAST_WAIT_UNTIL_ACK_RESPONSE_FROM_EAST;
-            break;
-
-        case STATE_TYPE_ENUMERATING_EAST_WAIT_UNTIL_ACK_RESPONSE_FROM_EAST:
-            __receiveEast();
-            break;
-
-        case STATE_TYPE_ENUMERATING_EAST_SEND_ACK_RESPONSE_TO_EAST:
-            prepareTransmissionPortBuffer(&ParticleAttributes.ports.tx.east);
-            constructSendACKPackage(&ParticleAttributes.ports.tx.east);
-            enableTransmission(&ParticleAttributes.ports.tx.east);
-            ParticleAttributes.node.state = STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR_WAIT_UNTIL_TRANSMISSION_FINISHED;
-            break;
-
 
         case STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR_DONE:
+            setInitiatorStateStart();
+            DEBUG_CHAR_OUT('e');
             ParticleAttributes.node.state = STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR;
             break;
 
             //// ---------------- south neighbour enumeration states ----------------
 
         case STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR:
-            if (ParticleAttributes.discoveryPulseCounters.south.isConnected) {
-                prepareTransmissionPortBuffer(&ParticleAttributes.ports.tx.south);
-                constructSendEnumeratePackageSouth(
-                        ParticleAttributes.node.address.row + 1,
-                        ParticleAttributes.node.address.column);
-                enableTransmission(&ParticleAttributes.ports.tx.south);
-                ParticleAttributes.node.state = STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR_WAIT_UNTIL_TRANSMISSION_FINISHED;
-            } else {
-                ParticleAttributes.node.state = STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR_DONE;
-            }
-            break;
-
-        case STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR_WAIT_UNTIL_TRANSMISSION_FINISHED:
-            if (isPortTransmitting(&ParticleAttributes.ports.tx.south)) {
-                break;
-            }
-            clearReceptionBuffer(&ParticleAttributes.ports.rx.south);
-            ParticleAttributes.node.state = STATE_TYPE_ENUMERATING_SOUTH_WAIT_UNTIL_ACK_RESPONSE_FROM_SOUTH;
-            break;
-
-        case STATE_TYPE_ENUMERATING_SOUTH_WAIT_UNTIL_ACK_RESPONSE_FROM_SOUTH:
-            __receiveSouth();
-            break;
-
-        case STATE_TYPE_ENUMERATING_SOUTH_SEND_ACK_RESPONSE_TO_SOUTH:
-            prepareTransmissionPortBuffer(&ParticleAttributes.ports.tx.south);
-            constructSendACKPackage(&ParticleAttributes.ports.tx.south);
-            enableTransmission(&ParticleAttributes.ports.tx.south);
-            ParticleAttributes.node.state = STATE_TYPE_ENUMERATING_SOUTH_SEND_ACK_RESPONSE_TO_SOUTH_WAIT_UNTIL_TRANSMISSION_FINISHED;
-            break;
-
-        case STATE_TYPE_ENUMERATING_SOUTH_SEND_ACK_RESPONSE_TO_SOUTH_WAIT_UNTIL_TRANSMISSION_FINISHED:
-            if (isPortTransmitting(&ParticleAttributes.ports.tx.south)) {
-                break;
-            }
-            ParticleAttributes.node.state = STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR_DONE;
+            __handleEnumerateNeighbour(&ParticleAttributes.ports.tx.south,
+                                       &ParticleAttributes.discoveryPulseCounters.south,
+                                       __receiveSouth,
+                                       ParticleAttributes.node.address.row + 1,
+                                       ParticleAttributes.node.address.column,
+                                       STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR_DONE);
             break;
 
         case STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR_DONE:
@@ -427,49 +463,17 @@ FUNC_ATTRS void particleTick(void) {
             break;
 
         case STATE_TYPE_IDLE:
+
+            // constructRxSnapshotBuffer(&o->snapshotsBuffer);
+            // todo: reset the manchester decoder state before next reception
+
             __receiveNorth();
             __receiveEast();
             __receiveSouth();
-            // if new rx buffer available -> interpret
-            // if scheduled command available -> execute
-            break;
-
-        case STATE_TYPE_INTERPRET_COMMAND:
-            __receiveNorth();
-            __receiveEast();
-            __receiveSouth();
-            // interpret command
-            // schedule command -> switch to state schedule command
-            // execute command -> switch to state execute command
-            break;
-
-            // setup and start transmission
-        case STATE_TYPE_TX_START:
-            // TODO: setup tx timer/counter
-            break;
-
-            // nothing to transmit any more
-        case STATE_TYPE_TX_DONE:
-            ParticleAttributes.node.state = STATE_TYPE_IDLE;
-            break;
-
-        case STATE_TYPE_FORWARD_PKG:
-            break;
-
-        case STATE_TYPE_SCHEDULE_COMMAND:
-            // schedule command
-            // switch to -> state idle
-            break;
-
-        case STATE_TYPE_COMMAND_SCHEDULED_ACK:
-            break;
-
-        case STATE_TYPE_EXECUTE_COMMAND:
-            // execute command
-            // switch to -> state idle
             break;
 
         case STATE_TYPE_ERRONEOUS:
+        default:
             forever {
                 LED_STATUS0_ON;
                 DELAY_MS_196;
@@ -477,9 +481,5 @@ FUNC_ATTRS void particleTick(void) {
                 DELAY_MS_196;
             }
 //            break;
-
-        default:
-            ParticleAttributes.node.state = STATE_TYPE_ERRONEOUS;
-            break;
     }
 }

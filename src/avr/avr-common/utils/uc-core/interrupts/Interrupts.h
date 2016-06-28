@@ -5,15 +5,15 @@
 
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
-#include <uc-core/ParticleStateTypes.h>
+#include <uc-core/particle/ParticleStateTypes.h>
 
 #include "Vectors.h"
 #include "TimerCounter.h"
 #include "Reception.h"
 #include "uc-core/communication/Transmission.h"
-#include "uc-core/Globals.h"
+#include "uc-core/particle/Globals.h"
 #include "uc-core/discovery/Discovery.h"
-#include "uc-core/io-configuration/IoDefinitions.h"
+#include "uc-core/configuration/IoPins.h"
 #include "uc-core/communication/ManchesterDecoding.h"
 #include "uc-core/communication/ManchesterCoding.h"
 

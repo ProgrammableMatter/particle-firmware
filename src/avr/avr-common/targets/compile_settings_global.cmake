@@ -14,8 +14,12 @@ SET(CXXWARN "-Wall -Werror -Wvolatile-register-var -Wunused-variable -Wunused-fu
 
 SET(CTUNING "-funsigned-char -funsigned-bitfields -fpack-struct -fdce -fdata-sections -ffunction-sections -Wl,--gc-sections ${CTUNING}")
 
+
 #SET(CDEFS "-DFUNC_ATTRS='inline' ${CDEFS}")
 SET(CDEFS "-DFUNC_ATTRS='' ${CDEFS}")
+#SET(CDEFS "-DCTOR_ATTRS='inline' ${CDEFS}")
+SET(CDEFS "-DCTOR_ATTRS='' ${CDEFS}")
+
 #
 SET(COPT "-Os -fno-inline-small-functions -fno-inline") # for simulation purpose
 #SET(COPT "-O3 -fwhole-program") # for real MCU

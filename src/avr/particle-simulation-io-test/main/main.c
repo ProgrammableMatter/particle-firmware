@@ -3,7 +3,7 @@
  */
 
 #include <avr/pgmspace.h>
-#include <uc-core/io-configuration/IoDefinitions.h>
+#include <uc-core/configuration/IoPins.h>
 #include <simulation/SimulationMacros.h>
 #include "../libs/common/common.h"
 

@@ -11,6 +11,51 @@
 #include <stdint.h>
 
 /**
+ * describes possible header IDs. Note the enum values must not exceed uint8_t max.
+ */
+typedef enum PackageHeaderId {
+    PACKAGE_HEADER_ID_TYPE_ENUMERATE = 0,
+    PACKAGE_HEADER_ID_TYPE_HEAT_WIRES = 1,
+    PACKAGE_HEADER_ID_TYPE_HEAT_WIRES_RANGE = 2,
+    PACKAGE_HEADER_ID_TYPE_FORWARDING_ON = 3,
+    PACKAGE_HEADER_ID_TYPE_FORWARDING_OFF = 4,
+    PACKAGE_HEADER_ID_TYPE_NETWORK_GEOMETRY_DISCLOSE = 5,
+    PACKAGE_HEADER_ID_TYPE_NETWORK_GEOMETRY_RESPONSE = 6,
+    PACKAGE_HEADER_ID_TYPE_NETWORK_GEOMETRY_REQUEST = 7,
+    PACKAGE_HEADER_ID_TYPE_RESET = 8,
+    PACKAGE_HEADER_ID_TYPE_VERBOSE_TOGGLE = 9,
+    PACKAGE_HEADER_ID_TYPE_PING_REQUEST = 10,
+    PACKAGE_HEADER_ID_TYPE_PING_RESPONSE = 11,
+    PACKAGE_HEADER_ID_TYPE_HEATING_MODE = 12,
+    PACKAGE_HEADER_ID_TYPE_ACK = 13,
+    PACKAGE_HEADER_ID_TYPE_ACK_WITH_DATA = 14,
+    PACKAGE_HEADER_ID_TYPE_EXTENDED_HEADER = 15
+} PackageHeaderId;
+
+/**
+ * Describes communication states of the initiator.
+ */
+typedef enum CommunicationInitiatorStateTypes {
+    COMMUNICATION_INITIATOR_STATE_TYPE_IDLE,
+    COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT,
+    COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT_WAIT_FOR_TX_FINISHED,
+    COMMUNICATION_INITIATOR_STATE_TYPE_WAIT_FOR_RESPONSE,
+    COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT_ACK,
+    COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT_ACK_WAIT_FOR_TX_FINISHED
+} CommunicationInitiatorStateTypes;
+
+/**
+ * Describes communication states of the receptionist.
+ */
+typedef enum CommunicationReceptionistStateTypes {
+    COMMUNICATION_RECEPTIONIST_STATE_TYPE_IDLE,
+    COMMUNICATION_RECEPTIONIST_STATE_TYPE_RECEIVE,
+    COMMUNICATION_RECEPTIONIST_STATE_TYPE_TRANSMIT_ACK,
+    COMMUNICATION_RECEPTIONIST_STATE_TYPE_TRANSMIT_ACK_WAIT_TX_FINISHED,
+    COMMUNICATION_RECEPTIONIST_STATE_TYPE_WAIT_FOR_RESPONSE
+} CommunicationReceptionistStateTypes;
+
+/**
  * describes a package header
  */
 typedef struct PackageHeader {
@@ -346,6 +391,7 @@ typedef union Package {
     PackageHeader asBroadcastHeader;
 
     PackageHeaderAddress asACKWithLocalAddress;
+    PackageHeaderAddress asACKWithRemoteAddress;
     PackageHeaderAddress asEnumerationPackage;
     PackageHeaderAddressRange asMulticastHeader;
 
@@ -362,25 +408,8 @@ typedef union Package {
     PackageHeaderAddressRangeData19 asMulticastData19;
 } Package;
 
-
-/**
- * describes possible header IDs
- */
-typedef enum PackageHeaderId {
-    PACKAGE_HEADER_ID_TYPE_ENUMERATE = 0,
-    PACKAGE_HEADER_ID_TYPE_HEAT_WIRES = 1,
-    PACKAGE_HEADER_ID_TYPE_HEAT_WIRES_RANGE = 2,
-    PACKAGE_HEADER_ID_TYPE_FORWARDING_ON = 3,
-    PACKAGE_HEADER_ID_TYPE_FORWARDING_OFF = 4,
-    PACKAGE_HEADER_ID_TYPE_NETWORK_GEOMETRY_DISCLOSE = 5,
-    PACKAGE_HEADER_ID_TYPE_NETWORK_GEOMETRY_RESPONSE = 6,
-    PACKAGE_HEADER_ID_TYPE_NETWORK_GEOMETRY_REQUEST = 7,
-    PACKAGE_HEADER_ID_TYPE_RESET = 8,
-    PACKAGE_HEADER_ID_TYPE_VERBOSE_TOGGLE = 9,
-    PACKAGE_HEADER_ID_TYPE_PING_REQUEST = 10,
-    PACKAGE_HEADER_ID_TYPE_PING_RESPONSE = 11,
-    PACKAGE_HEADER_ID_TYPE_HEATING_MODE = 12,
-    PACKAGE_HEADER_ID_TYPE_ACK = 13,
-    PACKAGE_HEADER_ID_TYPE_ACK_WITH_DATA = 14,
-    PACKAGE_HEADER_ID_TYPE_EXTENDED_HEADER = 15
-} PackageHeaderId;
+typedef struct CommunicationProtocolState {
+    CommunicationInitiatorStateTypes initiatorState;
+    CommunicationReceptionistStateTypes receptionistState;
+    uint8_t stateTimeoutCounter;
+} CommunicationProtocolState;

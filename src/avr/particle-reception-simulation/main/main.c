@@ -5,9 +5,9 @@
 
 #include <avr/interrupt.h>
 #include <common/common.h>
-#include <uc-core/ParticleStateTypes.h>
-#include "uc-core/io-configuration/IoDefinitions.h"
-#include "uc-core/ParticleCore.h"
+#include <uc-core/particle/ParticleStateTypes.h>
+#include "uc-core/configuration/IoPins.h"
+#include "uc-core/particle/ParticleCore.h"
 
 //unsigned char __stuff __attribute__((section(".noinit")));
 
@@ -17,12 +17,10 @@ extern FUNC_ATTRS int particleLoop(void);
  */
 FUNC_ATTRS int particleLoop(void) {
     forever {
-        DEBUG_CHAR_OUT('P');
         particleTick();
         if (ParticleAttributes.node.state == STATE_TYPE_ERRONEOUS) {
             return 1;
         }
-        DEBUG_CHAR_OUT('p');
     }
 }
 

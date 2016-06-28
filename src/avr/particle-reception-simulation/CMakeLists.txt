@@ -5,8 +5,6 @@ Project(ParticleReceptionSimulation)
 
 SET(BINARY "${PROJECT_NAME}.elf")
 
-#include(crosscompile.cmake)
-
 add_subdirectory(libs)
 add_subdirectory(main/avrora)
 add_subdirectory(main)

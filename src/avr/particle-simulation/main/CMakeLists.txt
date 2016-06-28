@@ -12,11 +12,9 @@ add_executable(${BINARY}
 
 link_directories(
         ${PROJECT_SOURCE_DIR}/libs/uc-core
-        #        ${PROJECT_SOURCE_DIR}/libs/simulation
 )
 
 target_link_libraries(${BINARY}
-        #        ${PROJECT_NAME}_uccore
-        #        ${PROJECT_NAME}_simulation
+        #        ${PROJECT_NAME}_xxxlibnamexxx
         )
 include(${PROJECTS_SOURCE_ROOT}/avr-common/scripts/post_binary_build.cmake)

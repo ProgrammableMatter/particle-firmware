@@ -7,9 +7,96 @@
 #include "InterpreterTypes.h"
 #include "CommunicationProtocolTypes.h"
 
+
+extern FUNC_ATTRS void __interpretWaitForBeingEnumeratedReception(volatile RxPort *rxPort);
+/**
+ * Interprets reception in "wait for being enumerate states".
+ */
+FUNC_ATTRS void __interpretWaitForBeingEnumeratedReception(volatile RxPort *rxPort) {
+
+    volatile Package *package = (Package *) rxPort->buffer.bytes;
+    // interpret according to local reception protocol state
+    switch (ParticleAttributes.communicationProtocol.receptionistState) {
+        // on received address information
+        case COMMUNICATION_RECEPTIONIST_STATE_TYPE_RECEIVE:
+            // on address package
+            if (package->asHeader.headerId == PACKAGE_HEADER_ID_TYPE_ENUMERATE &&
+                equalsPackageSize(rxPort->buffer.pointer, PackageHeaderAddressBufferPointerSize)) {
+                // set local address
+                ParticleAttributes.node.address.row = package->asEnumerationPackage.addressRow0;
+                ParticleAttributes.node.address.column = package->asEnumerationPackage.addressColumn0;
+                // send ack with local address back
+                DEBUG_CHAR_OUT('a');
+                ParticleAttributes.communicationProtocol.receptionistState = COMMUNICATION_RECEPTIONIST_STATE_TYPE_TRANSMIT_ACK;
+            }
+            clearReceptionBuffer(rxPort);
+            break;
+
+            // on received ack
+        case COMMUNICATION_RECEPTIONIST_STATE_TYPE_WAIT_FOR_RESPONSE:
+            if (equalsPackageSize(rxPort->buffer.pointer, PackageHeaderBufferPointerSize) &&
+                package->asACKPackage.headerId == PACKAGE_HEADER_ID_TYPE_ACK) {
+                DEBUG_CHAR_OUT('d');
+                ParticleAttributes.communicationProtocol.receptionistState = COMMUNICATION_RECEPTIONIST_STATE_TYPE_IDLE;
+                ParticleAttributes.node.state = STATE_TYPE_LOCALLY_ENUMERATED;
+            }
+            clearReceptionBuffer(rxPort);
+            break;
+
+        case COMMUNICATION_RECEPTIONIST_STATE_TYPE_IDLE:
+        case COMMUNICATION_RECEPTIONIST_STATE_TYPE_TRANSMIT_ACK:
+        case COMMUNICATION_RECEPTIONIST_STATE_TYPE_TRANSMIT_ACK_WAIT_TX_FINISHED:
+            clearReceptionBuffer(rxPort);
+            break;
+    }
+}
+
+extern FUNC_ATTRS void __interpretEnumerateNeighbourReception(volatile RxPort *rxPort,
+                                                              uint8_t expectedRemoteAddressRow,
+                                                              uint8_t expectedRemoteAddressColumn,
+                                                              StateType endState);
+/**
+ * Interprets reception in "enumerate neighbour" states.
+ */
+FUNC_ATTRS void __interpretEnumerateNeighbourReception(volatile RxPort *rxPort,
+                                                       uint8_t expectedRemoteAddressRow,
+                                                       uint8_t expectedRemoteAddressColumn,
+                                                       StateType endState) {
+    volatile Package *package = (Package *) rxPort->buffer.bytes;
+    switch (ParticleAttributes.communicationProtocol.initiatorState) {
+        // on ack wih remote address
+        case COMMUNICATION_INITIATOR_STATE_TYPE_WAIT_FOR_RESPONSE:
+            // on ack with data
+            if (package->asHeader.headerId == PACKAGE_HEADER_ID_TYPE_ACK_WITH_DATA &&
+                equalsPackageSize(rxPort->buffer.pointer, PackageHeaderAddressBufferPointerSize)) {
+                // on correct address
+                if (expectedRemoteAddressRow == ParticleAttributes.node.address.row &&
+                    expectedRemoteAddressColumn == ParticleAttributes.node.address.column) {
+                    DEBUG_CHAR_OUT('D');
+                    ParticleAttributes.communicationProtocol.initiatorState = COMMUNICATION_INITIATOR_STATE_TYPE_IDLE;
+                    ParticleAttributes.node.state = endState;
+                } else { // on wrong address, restart transmission
+                    DEBUG_CHAR_OUT('V');
+                    DEBUG_CHAR_OUT('T');
+                    ParticleAttributes.communicationProtocol.initiatorState = COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT;
+                }
+            }
+
+            clearReceptionBuffer(rxPort);
+            break;
+        case COMMUNICATION_INITIATOR_STATE_TYPE_IDLE:
+        case COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT:
+        case COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT_WAIT_FOR_TX_FINISHED:
+        case COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT_ACK:
+        case COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT_ACK_WAIT_FOR_TX_FINISHED:
+            break;
+    }
+
+}
+
 extern FUNC_ATTRS void interpretRxBuffer(volatile RxPort *rxPort);
 /**
- * interpret the interpreter buffer according to the particle state as context
+ * interprets reception according to the particle state
  */
 FUNC_ATTRS void interpretRxBuffer(volatile RxPort *rxPort) {
 
@@ -19,85 +106,29 @@ FUNC_ATTRS void interpretRxBuffer(volatile RxPort *rxPort) {
         return;
     }
 
-    Package *package = (Package *) rxPort->buffer.bytes;
-    switch (ParticleAttributes.node.state) { // switch according to node state context
-
-        // state: wait for being enumerated
+    switch (ParticleAttributes.node.state) {
         case STATE_TYPE_WAIT_FOR_BEING_ENUMERATED:
-            // expect enumeration package with new address to assign locally
-            switch (package->asEnumerationPackage.headerId) {
-                case PACKAGE_HEADER_ID_TYPE_ENUMERATE:
-                    if (equalsPackageSize(rxPort->buffer.pointer, PackageHeaderAddressBufferPointerSize)) {
-                        DEBUG_CHAR_OUT('E');
-                        ParticleAttributes.node.address.row = package->asEnumerationPackage.addressRow0;
-                        ParticleAttributes.node.address.column = package->asEnumerationPackage.addressColumn0;
-                        ParticleAttributes.node.state = STATE_TYPE_WAIT_FOR_BEING_ENUMERATED_SEND_ACK_RESPONSE_TO_PARENT;
-                    }
-                    clearReceptionBuffer(rxPort);
-
-                    break;
-                default:
-                    DEBUG_CHAR_OUT('e');
-                    // otherwise remain in same state
-                    break;
-            }
+            __interpretWaitForBeingEnumeratedReception(rxPort);
             break;
 
-            // state: wait for ack response from parent to finish enumeration
-        case STATE_TYPE_WAIT_FOR_BEING_ENUMERATED_ACK_RESPONSE_FROM_PARENT:
-            // expect ack package from parent, otherwise switch back to waiting for enumeration state
-            switch (package->asACKPackage.headerId) {
-                case PACKAGE_HEADER_ID_TYPE_ACK:
-//              xxx
-                    if (equalsPackageSize(rxPort->buffer.pointer, PackageHeaderBufferPointerSize)) {
-                        clearReceptionBuffer(rxPort);
-                        DEBUG_CHAR_OUT('K');
-                        // data ok, switch to next state
-                        ParticleAttributes.node.state = STATE_TYPE_LOCALLY_ENUMERATED;
-                    }
-                    break;
 
-                case PACKAGE_HEADER_ID_TYPE_ENUMERATE:
-//                                      xxx
-                    // on address reassignment, do not clear buffer but switch state
-                    ParticleAttributes.node.state = STATE_TYPE_WAIT_FOR_BEING_ENUMERATED;
-                    DEBUG_CHAR_OUT('W');
-                    break;
-                default:
-//                    // on any other package, clear buffer and switch state
-//                    clearReceptionBuffer(rxPort);
-//                    ParticleAttributes.node.state = STATE_TYPE_WAIT_FOR_BEING_ENUMERATED;
-//                    DEBUG_CHAR_OUT('w');
-                    break;
-            }
+        case STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR:
+            __interpretEnumerateNeighbourReception(rxPort, ParticleAttributes.node.address.row,
+                                                   ParticleAttributes.node.address.column + 1,
+                                                   STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR_DONE);
             break;
 
-            // state: wait for ack response with 2 byte data describing neighbour's address
-        case STATE_TYPE_ENUMERATING_SOUTH_WAIT_UNTIL_ACK_RESPONSE_FROM_SOUTH:
-            // if data is ok, then switch to next state, otherwise re-start enumeration
-            switch (package->asACKWithLocalAddress.headerId) {
-//                                  xxx
-                case PACKAGE_HEADER_ID_TYPE_ACK_WITH_DATA:
-                    DEBUG_CHAR_OUT('T');
 
-                    if (equalsPackageSize(rxPort->buffer.pointer, PackageHeaderData19BufferPointerSize)) {
-                        // data ok, switch to next state
-                        ParticleAttributes.node.state = STATE_TYPE_ENUMERATING_SOUTH_SEND_ACK_RESPONSE_TO_SOUTH;
-                        clearReceptionBuffer(rxPort);
-                    }
-                    break;
-                default:
-//                    // otherwise re-start the enumeration
-//                    DEBUG_CHAR_OUT('t');
-//                    clearReceptionBuffer(rxPort);
-//                    ParticleAttributes.node.state = STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR;
-                    break;
-            }
+        case STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR:
+            __interpretEnumerateNeighbourReception(rxPort, ParticleAttributes.node.address.row + 1,
+                                                   ParticleAttributes.node.address.column,
+                                                   STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR_DONE);
             break;
+
         default:
             break;
     }
-
     DEBUG_CHAR_OUT('i');
 }
+
 

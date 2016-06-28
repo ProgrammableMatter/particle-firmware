@@ -8,7 +8,7 @@
 #include "ManchesterDecodingTypes.h"
 #include "uc-core/interrupts/TimerCounter.h"
 #include "simulation/SimulationMacros.h"
-#include "uc-core/fw-configuration/ParticleParameters.h"
+#include "uc-core/configuration/Particle.h"
 
 /**
  * Resets the decoder phase state do default.
@@ -241,7 +241,9 @@ FUNC_ATTRS void manchesterDecodeBuffer(volatile RxPort *rxPort) {
                     uint16_t now = TIMER_TX_RX_COUNTER_VALUE;
                     __calculateTimestampLag((uint16_t *) &timerValue, &now, &difference);
                     if (difference >=
-                        ParticleAttributes.ports.timerAdjustment.maxLongIntervalDuration) { // on timeout
+                        // on timeout
+                        ParticleAttributes.ports.timerAdjustment.maxLongIntervalDuration) {
+                        DEBUG_CHAR_OUT('D');
                         rxPort->isDataBuffered = true;
                         __rxSnapshotBufferDequeue(&rxPort->snapshotsBuffer);
 

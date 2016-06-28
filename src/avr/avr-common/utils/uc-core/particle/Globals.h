@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "uc-core/ParticleStateTypes.h"
+#include "ParticleStateTypes.h"
 
 // DO NOT DECLARE GLOBALS __BEFORE__ PARTICLE ATTRIBUTES!
 

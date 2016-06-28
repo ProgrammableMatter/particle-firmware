@@ -5,10 +5,10 @@
 
 #include <avr/interrupt.h>
 #include <common/common.h>
-#include <uc-core/ParticleStateTypesCtors.h>
+#include <uc-core/particle/ParticleStateTypesCtors.h>
 #include <uc-core/delay/delay.h>
-#include "uc-core/io-configuration/IoDefinitions.h"
-#include "uc-core/ParticleCore.h"
+#include "uc-core/configuration/IoPins.h"
+#include "uc-core/particle/ParticleCore.h"
 
 //unsigned char __stuff __attribute__((section(".noinit")));
 
@@ -18,6 +18,7 @@ extern FUNC_ATTRS int particleLoop(void);
  */
 FUNC_ATTRS int particleLoop(void) {
     forever {
+        PARTICLE_LOOP_DELAY;
         particleTick();
         if (ParticleAttributes.node.state == STATE_TYPE_ERRONEOUS) {
             return 1;
@@ -32,11 +33,11 @@ FUNC_ATTRS int particleLoop(void) {
 int main(void) {
     constructParticleState(&ParticleAttributes);
     ParticleAttributes.discoveryPulseCounters.loopCount = UINT8_MAX;
-    ParticleAttributes.node.state = STATE_TYPE_TX_START;
+//    ParticleAttributes.node.state = STATE_TYPE_TX_START;
     ParticleAttributes.node.type = NODE_TYPE_MASTER;
     ParticleAttributes.ports.xmissionState = STATE_TYPE_XMISSION_TYPE_ENABLED_TX;
 
-    prepareTransmissionPortBuffer(&ParticleAttributes.ports.tx.south);
+    clearTransmissionPortBuffer(&ParticleAttributes.ports.tx.south);
     ParticleAttributes.ports.tx.south.dataEndPos.bitMask = 1;
     ParticleAttributes.ports.tx.south.dataEndPos.byteNumber = 7;
 
@@ -72,10 +73,9 @@ int main(void) {
     SREG setBit bit(SREG_I);
 
 //    particleLoop();
-    while (ParticleAttributes.node.state != STATE_TYPE_TX_DONE);
-    TIMER_TX_RX_DISABLE_COMPARE_INTERRUPT;
-    ParticleAttributes.node.state = STATE_TYPE_STALE;
-
+//    while (ParticleAttributes.node.state != STATE_TYPE_TX_DONE);
+//    TIMER_TX_RX_DISABLE_COMPARE_INTERRUPT;
+//    ParticleAttributes.node.state = STATE_TYPE_STALE;
     forever;
 }
 

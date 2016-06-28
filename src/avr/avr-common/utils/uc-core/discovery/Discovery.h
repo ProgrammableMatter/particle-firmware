@@ -3,7 +3,8 @@
  */
 #pragma once
 
-#include "uc-core/fw-configuration/ParticleParameters.h"
+#include "uc-core/configuration/Discovery.h"
+
 
 extern FUNC_ATTRS void dispatchFallingDiscoveryEdge(volatile PulseCounter *portCounter);
 /**

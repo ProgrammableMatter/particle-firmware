@@ -6,7 +6,7 @@
 
 #include <stdint.h>
 
-#include "uc-core/fw-configuration/ParticleParameters.h"
+#include "uc-core/configuration/Communication.h"
 
 typedef enum ManchesterDecodingStateType {
     DECODER_STATE_TYPE_START, // initialization state before decoding

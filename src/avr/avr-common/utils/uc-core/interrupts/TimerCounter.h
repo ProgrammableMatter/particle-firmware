@@ -6,7 +6,7 @@
 #pragma once
 
 #include "common/PortInteraction.h"
-#include "uc-core/fw-configuration/ParticleParameters.h"
+#include "uc-core/configuration/Particle.h"
 /**
  * define timer / counter interrupt macros
  */

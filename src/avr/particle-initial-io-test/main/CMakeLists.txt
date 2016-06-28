@@ -12,7 +12,6 @@ add_executable(${BINARY}
         )
 
 LINK_DIRECTORIES(
-        #        ${PROJECT_SOURCE_DIR}/libs/common
 )
 
 target_link_libraries(${BINARY}

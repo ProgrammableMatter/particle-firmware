@@ -5,11 +5,6 @@ Project(ManchesterCodeTxSimulation)
 
 SET(BINARY "${PROJECT_NAME}.elf")
 
-include(crosscompile.cmake)
-#include(debugger.cmake)
-#include(programmer.cmake)
-
-#add_subdirectory(scripts)
 add_subdirectory(libs)
 add_subdirectory(main/avrora)
 add_subdirectory(main)
