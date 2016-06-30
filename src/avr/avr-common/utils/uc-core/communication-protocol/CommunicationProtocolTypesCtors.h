@@ -22,6 +22,7 @@ CTOR_ATTRS void constructSendEnumeratePackage(volatile TxPort *txPort, uint8_t l
     Package *package = (Package *) txPort->buffer.bytes;
     PackageHeaderAddress *pha = &package->asEnumerationPackage;
 
+    pha->__startBit = 1;
     pha->headerIsStream = false;
     pha->headerIsCommand = true;
     pha->headerIsBroadcast = false;
@@ -40,6 +41,7 @@ extern CTOR_ATTRS void constructSendACKPackage(volatile TxPort *txPort);
 CTOR_ATTRS void constructSendACKPackage(volatile TxPort *txPort) {
     Package *package = (Package *) txPort->buffer.bytes;
     PackageHeader *pha = &package->asACKPackage;
+    pha->__startBit = 1;
     pha->headerId = PACKAGE_HEADER_ID_TYPE_ACK;
     setBufferDataEndPointer(txPort->dataEndPos, PackageHeaderBufferPointerSize);
 }
@@ -51,6 +53,7 @@ extern CTOR_ATTRS void constructSendEnumeratedACKWithAddressToParent(void);
 CTOR_ATTRS void constructSendEnumeratedACKWithAddressToParent(void) {
     Package *package = (Package *) ParticleAttributes.ports.tx.north.buffer.bytes;
     PackageHeaderAddress *pha = &package->asACKWithLocalAddress;
+    pha->__startBit = 1;
     pha->headerId = PACKAGE_HEADER_ID_TYPE_ACK_WITH_DATA;
     pha->addressRow0 = ParticleAttributes.node.address.row;
     pha->addressColumn0 = ParticleAttributes.node.address.column;
