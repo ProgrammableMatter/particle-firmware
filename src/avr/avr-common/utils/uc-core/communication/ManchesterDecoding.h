@@ -206,6 +206,7 @@ FUNC_ATTRS void manchesterDecodeBuffer(volatile RxPort *rxPort) {
             }
             break;
 
+            // @pre: valid temporary snapshot register
         __DECODER_STATE_TYPE_DECODING:
         case DECODER_STATE_TYPE_DECODING:
             // for all snapshots
@@ -238,11 +239,15 @@ FUNC_ATTRS void manchesterDecodeBuffer(volatile RxPort *rxPort) {
                     }
                 }
                 else { // on last queued element
+                    // on timeout
+                    // else no action
                     uint16_t now = TIMER_TX_RX_COUNTER_VALUE;
                     __calculateTimestampLag((uint16_t *) &timerValue, &now, &difference);
+                    DEBUG_INT16_OUT(difference);
+
                     if (difference >=
                         // on timeout
-                        ParticleAttributes.ports.timerAdjustment.maxLongIntervalDuration) {
+                        (2 * ParticleAttributes.ports.timerAdjustment.maxLongIntervalDuration)) {
                         DEBUG_CHAR_OUT('D');
                         rxPort->isDataBuffered = true;
                         __rxSnapshotBufferDequeue(&rxPort->snapshotsBuffer);
@@ -256,15 +261,7 @@ FUNC_ATTRS void manchesterDecodeBuffer(volatile RxPort *rxPort) {
                         rxPort->snapshotsBuffer.decoderStates.decodingState = DECODER_STATE_TYPE_START;
                         break;
                     } else { // else: no timeout
-                        if (difference <=
-                            ParticleAttributes.ports.timerAdjustment.maxShortIntervalDuration) { // on short interval
-                            __phaseStateAdvanceShortInterval(
-                                    rxPort->snapshotsBuffer.decoderStates.phaseState);
-                            rxPort->snapshotsBuffer.numberHalfCyclesPassed += 1;
-                        } else {
-                            __phaseStateAdvanceLongInterval(rxPort->snapshotsBuffer.decoderStates.phaseState);
-                            rxPort->snapshotsBuffer.numberHalfCyclesPassed += 2;
-                        }
+                        break;
                     }
                 }
 
