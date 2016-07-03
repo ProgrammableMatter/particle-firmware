@@ -106,7 +106,7 @@ typedef struct TimerCounterAdjustment {
     /**
      * transmission start offset
      */
-    uint16_t transmissionCockShift;
+    uint16_t transmissionClockShift;
 
     /**
      * newly calculated / approximated transmission start offset

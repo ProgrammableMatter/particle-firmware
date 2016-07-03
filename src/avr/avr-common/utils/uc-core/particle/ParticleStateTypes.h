@@ -109,7 +109,7 @@ typedef struct ParticleState {
     DiscoveryPulseCounters discoveryPulseCounters;
     Ports ports;
     Periphery periphery;
-    CommunicationProtocolState communicationProtocol;
+    CommunicationPort communicationPorts;
 #ifdef SIMULATION
     uint8_t magicEndByte;
 #endif

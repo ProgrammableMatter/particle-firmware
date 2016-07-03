@@ -385,6 +385,10 @@ typedef struct PackageHeaderAddressRangeData19 {
         .bitMask = ((uint16_t) 1 << (2 + 1)) \
     })
 */
+
+/**
+ * union for a convenient way to access buffered packages
+ */
 typedef union Package {
     PackageHeader asHeader;
     PackageHeader asACKPackage;
@@ -408,8 +412,20 @@ typedef union Package {
     PackageHeaderAddressRangeData19 asMulticastData19;
 } Package;
 
+/**
+ * describes the communication port state
+ */
 typedef struct CommunicationProtocolState {
     CommunicationInitiatorStateTypes initiatorState;
     CommunicationReceptionistStateTypes receptionistState;
-    uint8_t stateTimeoutCounter;
+//    uint8_t stateTimeoutCounter;
 } CommunicationProtocolState;
+
+/**
+ * describes the communication ports
+ */
+typedef struct CommunicationPort {
+    CommunicationProtocolState north;
+    CommunicationProtocolState east;
+    CommunicationProtocolState south;
+} CommunicationPort;

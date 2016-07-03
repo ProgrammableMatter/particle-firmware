@@ -53,7 +53,7 @@ CTOR_ATTRS void constructParticleState(volatile ParticleState *o) {
     constructDiscoveryPulseCounters(&(o->discoveryPulseCounters));
     constructPorts(&(o->ports));
     constructPeriphery(&(o->periphery));
-    constructCommunicationProtocol(&o->communicationProtocol);
+    constructCommunicationPort(&o->communicationPorts);
 #ifdef SIMULATION
     o->magicEndByte = 0xaa;
 #endif

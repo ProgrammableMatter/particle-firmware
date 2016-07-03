@@ -11,6 +11,7 @@
 typedef enum ManchesterDecodingStateType {
     DECODER_STATE_TYPE_START, // initialization state before decoding
     DECODER_STATE_TYPE_DECODING, // state when decoding
+    DECODER_STATE_TYPE_POST_TIMEOUT_PROCESS, // state after last decoding
 } ManchesterDecodingStateType;
 
 typedef struct ManchesterDecoderStates {
@@ -51,9 +52,9 @@ typedef struct RxSnapshotBuffer {
      */
     Snapshot snapshots[RX_NUMBER_SNAPSHOTS];
     /**
-  * used to store the previous dequeue value
-  */
-    uint16_t temporaryDequeueRegister;
+    * used to store the previous dequeue value
+    */
+    uint16_t temporarySnapshotTimerValue;
     /**
      * describes the 1st buffered position
      */
@@ -68,7 +69,9 @@ typedef struct RxSnapshotBuffer {
     /**
      * the start register keeps the first snapshot of the last transmission
      */
-    uint16_t temporaryStartSnapshotRegister;
+    uint16_t temporaryTxStartSnapshotTimerValue;
+
+    uint16_t temporaryTxStopSnapshotTimerValue;
     /**
      * the number of cycles/2 passed reflects
      * the number clocks from the 1st snapshot until the last snapshot before timeout

@@ -13,13 +13,17 @@ extern FUNC_ATTRS void __rectifyTransmissionBit(volatile TxPort *txPort, void (*
  */
 FUNC_ATTRS void __rectifyTransmissionBit(volatile TxPort *txPort, void (*txHiImpl)(void),
                                          void (*txLoImpl)(void)) {
-    if (txPort->buffer.pointer.bitMask &
-        txPort->buffer.bytes[txPort->buffer.pointer.byteNumber]) {
-        txHiImpl();
-//        DEBUG_CHAR_OUT('G');
+
+    if (isDataEndPosition(txPort)) { // on tx pointer match end position
+        txLoImpl(); // return signal to default (inverted on receiver side)
+        txPort->isTransmitting = false;
     } else {
-        txLoImpl();
-//        DEBUG_CHAR_OUT('g');
+        if (txPort->buffer.pointer.bitMask &
+            txPort->buffer.bytes[txPort->buffer.pointer.byteNumber]) {
+            txHiImpl();
+        } else {
+            txLoImpl();
+        }
     }
 }
 
@@ -30,18 +34,13 @@ extern FUNC_ATTRS void __modulateTransmissionBit(volatile TxPort *txPort, void (
  */
 FUNC_ATTRS void __modulateTransmissionBit(volatile TxPort *txPort, void (*txHiImpl)(void),
                                           void (*txLoImpl)(void)) {
-    if (isDataEndPosition(txPort)) { // on tx pointer match end position
-        txLoImpl(); // return signal to default (inverted on receiver side)
-        txPort->isTransmitting = false;
+    if (txPort->buffer.pointer.bitMask &
+        txPort->buffer.bytes[txPort->buffer.pointer.byteNumber]) {
+        txLoImpl();
     } else {
-        if (txPort->buffer.pointer.bitMask &
-            txPort->buffer.bytes[txPort->buffer.pointer.byteNumber]) {
-            txLoImpl();
-        } else {
-            txHiImpl();
-        }
-        bufferBitPointerIncrement(&txPort->buffer.pointer);
+        txHiImpl();
     }
+    bufferBitPointerIncrement(&txPort->buffer.pointer);
 }
 
 

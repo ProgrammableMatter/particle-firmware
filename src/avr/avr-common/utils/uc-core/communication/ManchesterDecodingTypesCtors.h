@@ -28,8 +28,8 @@ CTOR_ATTRS void constructRxSnapshotBuffer(volatile RxSnapshotBuffer *o) {
     constructManchesterDecoderState(&o->decoderStates);
     o->startIndex = 0;
     o->endIndex = 0;
-    o->temporaryDequeueRegister = 0;
-    o->temporaryStartSnapshotRegister = 0;
-    o->temporaryStartSnapshotRegister = 0;
+    o->temporarySnapshotTimerValue = 0;
+    o->temporaryTxStartSnapshotTimerValue = 0;
+    o->temporaryTxStopSnapshotTimerValue = 0;
     o->numberHalfCyclesPassed = 0;
 }

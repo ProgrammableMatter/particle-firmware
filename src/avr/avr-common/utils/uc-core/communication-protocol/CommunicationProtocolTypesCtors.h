@@ -40,9 +40,9 @@ extern CTOR_ATTRS void constructSendACKPackage(volatile TxPort *txPort);
  */
 CTOR_ATTRS void constructSendACKPackage(volatile TxPort *txPort) {
     Package *package = (Package *) txPort->buffer.bytes;
-    PackageHeader *pha = &package->asACKPackage;
-    pha->__startBit = 1;
-    pha->headerId = PACKAGE_HEADER_ID_TYPE_ACK;
+    PackageHeader *ph = &package->asACKPackage;
+    ph->__startBit = 1;
+    ph->headerId = PACKAGE_HEADER_ID_TYPE_ACK;
     setBufferDataEndPointer(txPort->dataEndPos, PackageHeaderBufferPointerSize);
 }
 
@@ -58,14 +58,25 @@ CTOR_ATTRS void constructSendEnumeratedACKWithAddressToParent(void) {
     pha->addressRow0 = ParticleAttributes.node.address.row;
     pha->addressColumn0 = ParticleAttributes.node.address.column;
     setBufferDataEndPointer(ParticleAttributes.ports.tx.north.dataEndPos,
-                            PackageHeaderData19BufferPointerSize);
+                            PackageHeaderAddressBufferPointerSize);
 }
 
 
-extern CTOR_ATTRS void constructCommunicationProtocol(volatile CommunicationProtocolState *o);
+extern CTOR_ATTRS void constructCommunicationProtocolState(volatile CommunicationProtocolState *o);
 
-CTOR_ATTRS void constructCommunicationProtocol(volatile CommunicationProtocolState *o) {
+CTOR_ATTRS void constructCommunicationProtocolState(volatile CommunicationProtocolState *o) {
     o->initiatorState = COMMUNICATION_INITIATOR_STATE_TYPE_IDLE;
     o->receptionistState = COMMUNICATION_RECEPTIONIST_STATE_TYPE_IDLE;
-    o->stateTimeoutCounter = 0;
+//    o->stateTimeoutCounter = 0;
+}
+
+
+extern CTOR_ATTRS void constructCommunicationPort(volatile CommunicationPort *o);
+/**
+ *
+ */
+CTOR_ATTRS void constructCommunicationPort(volatile CommunicationPort *o) {
+    constructCommunicationProtocolState(&o->north);
+    constructCommunicationProtocolState(&o->east);
+    constructCommunicationProtocolState(&o->south);
 }

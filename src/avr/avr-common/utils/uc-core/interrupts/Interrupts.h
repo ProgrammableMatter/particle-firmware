@@ -28,7 +28,9 @@
 extern FUNC_ATTRS void __handleInputInterrupt(volatile PulseCounter *discoveryPulseCounter,
                                               volatile RxPort *rxPort,
                                               const bool isRxHigh);
-
+/**
+ * Handles interrupt in input pins according to the particle state.
+ */
 FUNC_ATTRS void __handleInputInterrupt(volatile PulseCounter *discoveryPulseCounter, volatile RxPort *rxPort,
                                        const bool isRxHigh) {
     switch (ParticleAttributes.node.state) {
@@ -52,8 +54,20 @@ FUNC_ATTRS void __handleInputInterrupt(volatile PulseCounter *discoveryPulseCoun
             }
             break;
     }
+}
 
-
+extern FUNC_ATTRS void scheduleNextTransmission(void);
+/**
+ * schedules the next transmission interrupt on available data to be sent.
+ */
+FUNC_ATTRS void scheduleNextTransmission(void) {
+    if (ParticleAttributes.ports.tx.north.isTransmitting ||
+        ParticleAttributes.ports.tx.east.isTransmitting ||
+        ParticleAttributes.ports.tx.south.isTransmitting) {
+        scheduleNextTxInterrupt();
+    } else {
+        TIMER_TX_RX_DISABLE_COMPARE_INTERRUPT;
+    }
 }
 
 
@@ -117,14 +131,7 @@ ISR(TX_TIMER_INTERRUPT_VECT) {
                     transmit(&ParticleAttributes.ports.tx.north, northTxHiImpl, northTxLoImpl);
                     transmit(&ParticleAttributes.ports.tx.east, eastTxHiImpl, eastTxLoImpl);
                     transmit(&ParticleAttributes.ports.tx.south, southTxHiImpl, southTxLoImpl);
-
-                    if (ParticleAttributes.ports.tx.north.isTransmitting ||
-                        ParticleAttributes.ports.tx.east.isTransmitting ||
-                        ParticleAttributes.ports.tx.south.isTransmitting) {
-                        scheduleNextTxInterrupt();
-                    } else {
-                        TIMER_TX_RX_DISABLE_COMPARE_INTERRUPT;
-                    }
+                    scheduleNextTransmission();
                     break;
 
                 default:

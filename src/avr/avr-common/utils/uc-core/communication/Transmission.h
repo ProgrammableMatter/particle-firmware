@@ -13,10 +13,8 @@ extern FUNC_ATTRS void scheduleNextTxInterrupt(void);
  * Schedules the next transmission interrupt.
  */
 FUNC_ATTRS void scheduleNextTxInterrupt(void) {
-//    DEBUG_INT16_OUT(TIMER_TX_RX_COMPARE_VALUE);
-    TIMER_TX_RX_COMPARE_VALUE += ParticleAttributes.ports.timerAdjustment.transmissionClockDelayHalf +
-                                 ParticleAttributes.ports.timerAdjustment.transmissionCockShift;
-//    DEBUG_INT16_OUT(TIMER_TX_RX_COMPARE_VALUE);
+    TIMER_TX_RX_COMPARE_VALUE += ParticleAttributes.ports.timerAdjustment.transmissionClockDelayHalf
+                                 + ParticleAttributes.ports.timerAdjustment.transmissionClockShift;
 }
 
 extern FUNC_ATTRS void scheduleStartTxInterrupt(void);
@@ -25,13 +23,11 @@ extern FUNC_ATTRS void scheduleStartTxInterrupt(void);
  */
 FUNC_ATTRS void scheduleStartTxInterrupt(void) {
     uint16_t counter = TIMER_TX_RX_COUNTER_VALUE;
-//    DEBUG_INT16_OUT(counter);
     TIMER_TX_RX_COMPARE_VALUE = counter -
                                 (counter % ParticleAttributes.ports.timerAdjustment.transmissionClockDelay)
                                 // TODO: determine adequate factor
                                 + 4 * ParticleAttributes.ports.timerAdjustment.transmissionClockDelay
-                                + ParticleAttributes.ports.timerAdjustment.transmissionCockShift;
-//    DEBUG_INT16_OUT(TIMER_TX_RX_COMPARE_VALUE);
+                                + ParticleAttributes.ports.timerAdjustment.transmissionClockShift;
     TIMER_TX_RX_ENABLE_COMPARE_INTERRUPT;
 }
 

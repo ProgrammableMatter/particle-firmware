@@ -29,6 +29,8 @@ FUNC_ATTRS int particleLoop(void) {
  * starts
  */
 int main(void) {
+    DELAY_US_150;
+
     DEBUG_CHAR_OUT('0');
     // configure input/output pins
     IO_PORTS_SETUP;

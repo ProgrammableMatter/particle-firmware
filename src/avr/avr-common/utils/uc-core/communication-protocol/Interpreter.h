@@ -8,15 +8,17 @@
 #include "CommunicationProtocolTypes.h"
 
 
-extern FUNC_ATTRS void __interpretWaitForBeingEnumeratedReception(volatile RxPort *rxPort);
+extern FUNC_ATTRS void __interpretWaitForBeingEnumeratedReception(volatile RxPort *rxPort,
+                                                                  volatile CommunicationProtocolState *o);
 /**
  * Interprets reception in "wait for being enumerate states".
  */
-FUNC_ATTRS void __interpretWaitForBeingEnumeratedReception(volatile RxPort *rxPort) {
+FUNC_ATTRS void __interpretWaitForBeingEnumeratedReception(volatile RxPort *rxPort,
+                                                           volatile CommunicationProtocolState *commPortState) {
 
     volatile Package *package = (Package *) rxPort->buffer.bytes;
     // interpret according to local reception protocol state
-    switch (ParticleAttributes.communicationProtocol.receptionistState) {
+    switch (commPortState->receptionistState) {
         // on received address information
         case COMMUNICATION_RECEPTIONIST_STATE_TYPE_RECEIVE:
             // on address package
@@ -27,7 +29,7 @@ FUNC_ATTRS void __interpretWaitForBeingEnumeratedReception(volatile RxPort *rxPo
                 ParticleAttributes.node.address.column = package->asEnumerationPackage.addressColumn0;
                 // send ack with local address back
                 DEBUG_CHAR_OUT('a');
-                ParticleAttributes.communicationProtocol.receptionistState = COMMUNICATION_RECEPTIONIST_STATE_TYPE_TRANSMIT_ACK;
+                commPortState->receptionistState = COMMUNICATION_RECEPTIONIST_STATE_TYPE_TRANSMIT_ACK;
             }
             clearReceptionBuffer(rxPort);
             break;
@@ -37,7 +39,7 @@ FUNC_ATTRS void __interpretWaitForBeingEnumeratedReception(volatile RxPort *rxPo
             if (equalsPackageSize(rxPort->buffer.pointer, PackageHeaderBufferPointerSize) &&
                 package->asACKPackage.headerId == PACKAGE_HEADER_ID_TYPE_ACK) {
                 DEBUG_CHAR_OUT('d');
-                ParticleAttributes.communicationProtocol.receptionistState = COMMUNICATION_RECEPTIONIST_STATE_TYPE_IDLE;
+                commPortState->receptionistState = COMMUNICATION_RECEPTIONIST_STATE_TYPE_IDLE;
                 ParticleAttributes.node.state = STATE_TYPE_LOCALLY_ENUMERATED;
             }
             clearReceptionBuffer(rxPort);
@@ -52,39 +54,43 @@ FUNC_ATTRS void __interpretWaitForBeingEnumeratedReception(volatile RxPort *rxPo
 }
 
 extern FUNC_ATTRS void __interpretEnumerateNeighbourReception(volatile RxPort *rxPort,
+                                                              volatile CommunicationProtocolState *commPortState,
                                                               uint8_t expectedRemoteAddressRow,
-                                                              uint8_t expectedRemoteAddressColumn,
-                                                              StateType endState);
+                                                              uint8_t expectedRemoteAddressColumn);
 /**
  * Interprets reception in "enumerate neighbour" states.
  */
 FUNC_ATTRS void __interpretEnumerateNeighbourReception(volatile RxPort *rxPort,
+                                                       volatile CommunicationProtocolState *commPortState,
                                                        uint8_t expectedRemoteAddressRow,
-                                                       uint8_t expectedRemoteAddressColumn,
-                                                       StateType endState) {
+                                                       uint8_t expectedRemoteAddressColumn) {
+    DEBUG_INT16_OUT(expectedRemoteAddressRow);
+    DEBUG_INT16_OUT(ParticleAttributes.node.address.row);
+    DEBUG_INT16_OUT(expectedRemoteAddressColumn);
+    DEBUG_INT16_OUT(ParticleAttributes.node.address.column);
     volatile Package *package = (Package *) rxPort->buffer.bytes;
-    switch (ParticleAttributes.communicationProtocol.initiatorState) {
+    switch (commPortState->initiatorState) {
         // on ack wih remote address
         case COMMUNICATION_INITIATOR_STATE_TYPE_WAIT_FOR_RESPONSE:
             // on ack with data
             if (package->asHeader.headerId == PACKAGE_HEADER_ID_TYPE_ACK_WITH_DATA &&
                 equalsPackageSize(rxPort->buffer.pointer, PackageHeaderAddressBufferPointerSize)) {
                 // on correct address
-                if (expectedRemoteAddressRow == ParticleAttributes.node.address.row &&
-                    expectedRemoteAddressColumn == ParticleAttributes.node.address.column) {
+                if (expectedRemoteAddressRow == package->asACKWithRemoteAddress.addressRow0 &&
+                    expectedRemoteAddressColumn == package->asACKWithRemoteAddress.addressColumn0) {
                     DEBUG_CHAR_OUT('D');
-                    ParticleAttributes.communicationProtocol.initiatorState = COMMUNICATION_INITIATOR_STATE_TYPE_IDLE;
-                    ParticleAttributes.node.state = endState;
+                    commPortState->initiatorState = COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT_ACK;
                 } else { // on wrong address, restart transmission
                     DEBUG_CHAR_OUT('V');
                     DEBUG_CHAR_OUT('T');
-                    ParticleAttributes.communicationProtocol.initiatorState = COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT;
+                    commPortState->initiatorState = COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT;
                 }
             }
 
             clearReceptionBuffer(rxPort);
             break;
         case COMMUNICATION_INITIATOR_STATE_TYPE_IDLE:
+//            ParticleAttributes.node.state = endState;
         case COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT:
         case COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT_WAIT_FOR_TX_FINISHED:
         case COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT_ACK:
@@ -94,11 +100,13 @@ FUNC_ATTRS void __interpretEnumerateNeighbourReception(volatile RxPort *rxPort,
 
 }
 
-extern FUNC_ATTRS void interpretRxBuffer(volatile RxPort *rxPort);
+extern FUNC_ATTRS void interpretRxBuffer(volatile RxPort *rxPort,
+                                         volatile CommunicationProtocolState *commPortState);
 /**
  * interprets reception according to the particle state
  */
-FUNC_ATTRS void interpretRxBuffer(volatile RxPort *rxPort) {
+FUNC_ATTRS void interpretRxBuffer(volatile RxPort *rxPort,
+                                  volatile CommunicationProtocolState *commPortState) {
 
     DEBUG_CHAR_OUT('I');
     if (!isDataAvailable(rxPort)) {
@@ -108,21 +116,20 @@ FUNC_ATTRS void interpretRxBuffer(volatile RxPort *rxPort) {
 
     switch (ParticleAttributes.node.state) {
         case STATE_TYPE_WAIT_FOR_BEING_ENUMERATED:
-            __interpretWaitForBeingEnumeratedReception(rxPort);
+            __interpretWaitForBeingEnumeratedReception(rxPort, commPortState);
             break;
 
 
         case STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR:
-            __interpretEnumerateNeighbourReception(rxPort, ParticleAttributes.node.address.row,
-                                                   ParticleAttributes.node.address.column + 1,
-                                                   STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR_DONE);
+            __interpretEnumerateNeighbourReception(rxPort, commPortState, ParticleAttributes.node.address.row,
+                                                   ParticleAttributes.node.address.column + 1);
             break;
 
 
         case STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR:
-            __interpretEnumerateNeighbourReception(rxPort, ParticleAttributes.node.address.row + 1,
-                                                   ParticleAttributes.node.address.column,
-                                                   STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR_DONE);
+            __interpretEnumerateNeighbourReception(rxPort, commPortState,
+                                                   ParticleAttributes.node.address.row + 1,
+                                                   ParticleAttributes.node.address.column);
             break;
 
         default:

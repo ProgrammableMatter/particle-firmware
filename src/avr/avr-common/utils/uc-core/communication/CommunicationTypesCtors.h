@@ -68,7 +68,7 @@ CTOR_ATTRS void constructTimerCounterAdjustment(volatile TimerCounterAdjustment 
     o->newTransmissionClockDelay = 0;
     o->isTransmissionClockDelayUpdateable = false;
 
-    o->transmissionCockShift = 0;
+    o->transmissionClockShift = 0;
     o->newTransmissionClockShift = 0;
     o->isTransmissionClockShiftUpdateable = false;
 }

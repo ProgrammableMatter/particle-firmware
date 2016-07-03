@@ -71,6 +71,9 @@ extern FUNC_ATTRS void __disableDiscoveryPulsing(void);
 FUNC_ATTRS void __disableDiscoveryPulsing(void) {
     TIMER_NEIGHBOUR_SENSE_PAUSE;
     TIMER_NEIGHBOUR_SENSE_DISABLE;
+    NORTH_TX_LO;
+    EAST_TX_LO;
+    SOUTH_TX_LO;
 }
 
 extern FUNC_ATTRS void __enableDiscovery(void);
@@ -198,29 +201,29 @@ extern FUNC_ATTRS void __receiveNorth(void);
 
 FUNC_ATTRS void __receiveNorth(void) {
     manchesterDecodeBuffer(&ParticleAttributes.ports.rx.north);
-    interpretRxBuffer(&ParticleAttributes.ports.rx.north);
+    interpretRxBuffer(&ParticleAttributes.ports.rx.north, &ParticleAttributes.communicationPorts.north);
 }
 
 extern FUNC_ATTRS void __receiveEast(void);
 
 FUNC_ATTRS void __receiveEast(void) {
     manchesterDecodeBuffer(&ParticleAttributes.ports.rx.east);
-    interpretRxBuffer(&ParticleAttributes.ports.rx.east);
+    interpretRxBuffer(&ParticleAttributes.ports.rx.east, &ParticleAttributes.communicationPorts.east);
 }
 
 extern FUNC_ATTRS void __receiveSouth(void);
 
 FUNC_ATTRS void __receiveSouth(void) {
     manchesterDecodeBuffer(&ParticleAttributes.ports.rx.south);
-    interpretRxBuffer(&ParticleAttributes.ports.rx.south);
+    interpretRxBuffer(&ParticleAttributes.ports.rx.south, &ParticleAttributes.communicationPorts.south);
 }
 
-extern FUNC_ATTRS void __handleWaitForBeingEnumerated(void);
+extern FUNC_ATTRS void __handleWaitForBeingEnumerated(volatile CommunicationProtocolState *commPortState);
 /**
  * Handles the "ait for being enumerated" state.
  */
-FUNC_ATTRS void __handleWaitForBeingEnumerated(void) {
-    switch (ParticleAttributes.communicationProtocol.receptionistState) {
+FUNC_ATTRS void __handleWaitForBeingEnumerated(volatile CommunicationProtocolState *commPortState) {
+    switch (commPortState->receptionistState) {
         // receive
         case COMMUNICATION_RECEPTIONIST_STATE_TYPE_RECEIVE:
             __receiveNorth();
@@ -230,7 +233,7 @@ FUNC_ATTRS void __handleWaitForBeingEnumerated(void) {
             constructSendEnumeratedACKWithAddressToParent();
             enableTransmission(&ParticleAttributes.ports.tx.north);
             DEBUG_CHAR_OUT('f');
-            ParticleAttributes.communicationProtocol.receptionistState = COMMUNICATION_RECEPTIONIST_STATE_TYPE_TRANSMIT_ACK_WAIT_TX_FINISHED;
+            commPortState->receptionistState = COMMUNICATION_RECEPTIONIST_STATE_TYPE_TRANSMIT_ACK_WAIT_TX_FINISHED;
             break;
             // wait for tx finished
         case COMMUNICATION_RECEPTIONIST_STATE_TYPE_TRANSMIT_ACK_WAIT_TX_FINISHED:
@@ -239,7 +242,7 @@ FUNC_ATTRS void __handleWaitForBeingEnumerated(void) {
             }
             clearReceptionBuffer(&ParticleAttributes.ports.rx.north);
             DEBUG_CHAR_OUT('R');
-            ParticleAttributes.communicationProtocol.receptionistState = COMMUNICATION_RECEPTIONIST_STATE_TYPE_WAIT_FOR_RESPONSE;
+            commPortState->receptionistState = COMMUNICATION_RECEPTIONIST_STATE_TYPE_WAIT_FOR_RESPONSE;
             break;
             // wait for response
         case COMMUNICATION_RECEPTIONIST_STATE_TYPE_WAIT_FOR_RESPONSE:
@@ -252,6 +255,7 @@ FUNC_ATTRS void __handleWaitForBeingEnumerated(void) {
 }
 
 extern FUNC_ATTRS void __handleEnumerateNeighbour(volatile TxPort *txPort,
+                                                  volatile CommunicationProtocolState *commPortState,
                                                   volatile PulseCounter *discoveryPulseCounter,
                                                   void (receptionImpl)(void),
                                                   uint8_t remoteAddressRow,
@@ -261,12 +265,13 @@ extern FUNC_ATTRS void __handleEnumerateNeighbour(volatile TxPort *txPort,
  * Handles "enumerate neighbour" communication states.
  */
 FUNC_ATTRS void __handleEnumerateNeighbour(volatile TxPort *txPort,
+                                           volatile CommunicationProtocolState *commPortState,
                                            volatile PulseCounter *discoveryPulseCounter,
                                            void (receptionImpl)(void),
                                            uint8_t remoteAddressRow,
                                            uint8_t remoteAddressColumn,
                                            StateType endState) {
-    switch (ParticleAttributes.communicationProtocol.initiatorState) {
+    switch (commPortState->initiatorState) {
         // transmit new address
         case COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT:
             if (discoveryPulseCounter->isConnected) {
@@ -274,7 +279,7 @@ FUNC_ATTRS void __handleEnumerateNeighbour(volatile TxPort *txPort,
                 constructSendEnumeratePackage(txPort, remoteAddressRow, remoteAddressColumn);
                 enableTransmission(txPort);
                 DEBUG_CHAR_OUT('F');
-                ParticleAttributes.communicationProtocol.initiatorState = COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT_WAIT_FOR_TX_FINISHED;
+                commPortState->initiatorState = COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT_WAIT_FOR_TX_FINISHED;
             } else {
                 ParticleAttributes.node.state = endState;
             }
@@ -286,7 +291,7 @@ FUNC_ATTRS void __handleEnumerateNeighbour(volatile TxPort *txPort,
                 break;
             }
             DEBUG_CHAR_OUT('R');
-            ParticleAttributes.communicationProtocol.initiatorState = COMMUNICATION_INITIATOR_STATE_TYPE_WAIT_FOR_RESPONSE;
+            commPortState->initiatorState = COMMUNICATION_INITIATOR_STATE_TYPE_WAIT_FOR_RESPONSE;
             break;
 
             // wait fo ack with address
@@ -300,7 +305,7 @@ FUNC_ATTRS void __handleEnumerateNeighbour(volatile TxPort *txPort,
             constructSendACKPackage(txPort);
             enableTransmission(txPort);
             DEBUG_CHAR_OUT('f');
-            ParticleAttributes.communicationProtocol.initiatorState = COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT_ACK_WAIT_FOR_TX_FINISHED;
+            commPortState->initiatorState = COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT_ACK_WAIT_FOR_TX_FINISHED;
             break;
 
             // switch state
@@ -308,12 +313,12 @@ FUNC_ATTRS void __handleEnumerateNeighbour(volatile TxPort *txPort,
             if (txPort->isTransmitting) {
                 break;
             }
-            ParticleAttributes.node.state = endState;
             DEBUG_CHAR_OUT('D');
-            ParticleAttributes.communicationProtocol.initiatorState = COMMUNICATION_INITIATOR_STATE_TYPE_IDLE;
+            commPortState->initiatorState = COMMUNICATION_INITIATOR_STATE_TYPE_IDLE;
             break;
 
         case COMMUNICATION_INITIATOR_STATE_TYPE_IDLE:
+            ParticleAttributes.node.state = endState;
             break;
     }
 }
@@ -326,7 +331,6 @@ extern FUNC_ATTRS void particleTick(void);
 FUNC_ATTRS void particleTick(void) {
     DEBUG_CHAR_OUT('P');
     __heartBeatToggle();
-    advanceCommunicationTimeoutCounter();
 
     //// ---------------- init states ----------------
 
@@ -393,7 +397,7 @@ FUNC_ATTRS void particleTick(void) {
             if (ParticleAttributes.node.type == NODE_TYPE_ORIGIN) {
                 ParticleAttributes.node.state = STATE_TYPE_ENUMERATING_NEIGHBOURS;
             } else {
-                setReceptionistStateStart();
+                setReceptionistStateStart(&ParticleAttributes.communicationPorts.north);
                 ParticleAttributes.node.state = STATE_TYPE_WAIT_FOR_BEING_ENUMERATED;
                 DEBUG_CHAR_OUT('W');
             }
@@ -405,7 +409,7 @@ FUNC_ATTRS void particleTick(void) {
 
             // wait for incoming address from north neighbour
         case STATE_TYPE_WAIT_FOR_BEING_ENUMERATED:
-            __handleWaitForBeingEnumerated();
+            __handleWaitForBeingEnumerated(&ParticleAttributes.communicationPorts.north);
             break;
 
         case STATE_TYPE_LOCALLY_ENUMERATED:
@@ -419,7 +423,7 @@ FUNC_ATTRS void particleTick(void) {
             // reception times out (discovery signals may be mistakenly interpreted as data)
         DELAY_US_150;
             DELAY_US_150;
-            setInitiatorStateStart();
+            setInitiatorStateStart(&ParticleAttributes.communicationPorts.east);
             DEBUG_CHAR_OUT('E');
             ParticleAttributes.node.state = STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR;
             break;
@@ -428,6 +432,7 @@ FUNC_ATTRS void particleTick(void) {
 
         case STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR:
             __handleEnumerateNeighbour(&ParticleAttributes.ports.tx.east,
+                                       &ParticleAttributes.communicationPorts.east,
                                        &ParticleAttributes.discoveryPulseCounters.east,
                                        __receiveEast,
                                        ParticleAttributes.node.address.row,
@@ -436,7 +441,7 @@ FUNC_ATTRS void particleTick(void) {
             break;
 
         case STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR_DONE:
-            setInitiatorStateStart();
+            setInitiatorStateStart(&ParticleAttributes.communicationPorts.south);
             DEBUG_CHAR_OUT('e');
             ParticleAttributes.node.state = STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR;
             break;
@@ -445,6 +450,7 @@ FUNC_ATTRS void particleTick(void) {
 
         case STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR:
             __handleEnumerateNeighbour(&ParticleAttributes.ports.tx.south,
+                                       &ParticleAttributes.communicationPorts.south,
                                        &ParticleAttributes.discoveryPulseCounters.south,
                                        __receiveSouth,
                                        ParticleAttributes.node.address.row + 1,

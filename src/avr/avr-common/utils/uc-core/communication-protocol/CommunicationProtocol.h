@@ -56,40 +56,40 @@ FUNC_ATTRS void clearTransmissionPortBuffer(volatile TxPort *o) {
     bufferBitPointerStart(&o->buffer.pointer);
 }
 
-//extern FUNC_ATTRS uint8_t isPortTransmitting(volatile TxPort *o);
+//extern FUNC_ATTRS void advanceCommunicationTimeoutCounter(volatile CommunicationProtocolState *commPortState);
 ///**
-// * returns true if the given port is in transmission mode
+// * Advances the communication state timeout counter. A zero value indicates timeout.
 // */
-//FUNC_ATTRS uint8_t isPortTransmitting(volatile TxPort *o) {
-//    return o->isTransmitting; //|| o->enableTransmission;
+//FUNC_ATTRS void advanceCommunicationTimeoutCounter(volatile CommunicationProtocolState *commPortState) {
+//    if (commPortState->stateTimeoutCounter > 0) {
+//        commPortState->stateTimeoutCounter--;
+//    }
 //}
 
-extern FUNC_ATTRS void advanceCommunicationTimeoutCounter(void);
-/**
- * Advances the communication state timeout counter. A zero value indicates timeout.
- */
-FUNC_ATTRS void advanceCommunicationTimeoutCounter(void) {
-    if (ParticleAttributes.communicationProtocol.stateTimeoutCounter > 0) {
-        ParticleAttributes.communicationProtocol.stateTimeoutCounter--;
-    }
-}
-
-extern FUNC_ATTRS void setReceptionistStateStart(void);
+extern FUNC_ATTRS void setReceptionistStateStart(volatile CommunicationProtocolState *commPortState);
 /**
  * Puts the receptionist in start state and sets the timeout counter.
  */
-FUNC_ATTRS void setReceptionistStateStart(void) {
-    ParticleAttributes.communicationProtocol.stateTimeoutCounter = COMMUNICATION_STATE_TIMEOUT_COUNTER;
+FUNC_ATTRS void setReceptionistStateStart(volatile CommunicationProtocolState *commPortState) {
+//    ParticleAttributes.communicationProtocol.stateTimeoutCounter = COMMUNICATION_STATE_TIMEOUT_COUNTER;
     DEBUG_CHAR_OUT('r');
-    ParticleAttributes.communicationProtocol.receptionistState = COMMUNICATION_RECEPTIONIST_STATE_TYPE_RECEIVE;
+    commPortState->receptionistState = COMMUNICATION_RECEPTIONIST_STATE_TYPE_RECEIVE;
 }
 
-extern FUNC_ATTRS void setInitiatorStateStart(void);
+extern FUNC_ATTRS void setInitiatorStateStart(volatile CommunicationProtocolState *commPortState);
 /**
  * Puts the initiator in start state and set the timeout counter.
  */
-FUNC_ATTRS void setInitiatorStateStart(void) {
-    ParticleAttributes.communicationProtocol.stateTimeoutCounter = COMMUNICATION_STATE_TIMEOUT_COUNTER;
+FUNC_ATTRS void setInitiatorStateStart(volatile CommunicationProtocolState *commPortState) {
+//    ParticleAttributes.communicationProtocol.stateTimeoutCounter = COMMUNICATION_STATE_TIMEOUT_COUNTER;
     DEBUG_CHAR_OUT('T');
-    ParticleAttributes.communicationProtocol.initiatorState = COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT;
+    commPortState->initiatorState = COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT;
 }
+
+//extern FUNC_ATTRS void reSetCommunicationProtocolReceptionTimeoutCounter(void);
+///**
+// *
+// */
+//FUNC_ATTRS void resetCommunicationReceptionTimeoutCounter(volatile CommunicationProtocolState *commPortState) {
+//    commPortState.stateTimeoutCounter = COMMUNICATION_STATE_TIMEOUT_COUNTER;
+//}
