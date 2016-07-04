@@ -85,7 +85,7 @@ FUNC_ATTRS void southTxLoImpl(void) {
  * puts the the next signal on the pin
  */
 FUNC_ATTRS void transmit(volatile TxPort *txPort, void (*txHiImpl)(void), void (*txLoImpl)(void)) {
-    if (!txPort->isDataBuffered) {
+    if (!txPort->isDataBuffered || !txPort->isTransmitting) {
         return;
     }
 
