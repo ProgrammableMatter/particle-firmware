@@ -33,6 +33,7 @@ extern FUNC_ATTRS void __handleInputInterrupt(volatile PulseCounter *discoveryPu
  */
 FUNC_ATTRS void __handleInputInterrupt(volatile PulseCounter *discoveryPulseCounter, volatile RxPort *rxPort,
                                        const bool isRxHigh) {
+    uint16_t timerCounterValue = TIMER_TX_RX_COUNTER_VALUE;
     switch (ParticleAttributes.node.state) {
         // on discovery pulse
         case STATE_TYPE_NEIGHBOURS_DISCOVERY:
@@ -46,7 +47,8 @@ FUNC_ATTRS void __handleInputInterrupt(volatile PulseCounter *discoveryPulseCoun
                 // on data received
                 case STATE_TYPE_XMISSION_TYPE_ENABLED_TX_RX:
                 case STATE_TYPE_XMISSION_TYPE_ENABLED_RX:
-                    captureSnapshot(isRxHigh, &rxPort->snapshotsBuffer);
+
+                    captureSnapshot(&timerCounterValue, isRxHigh, &rxPort->snapshotsBuffer);
                     break;
 
                 default:
@@ -149,6 +151,8 @@ EMPTY_INTERRUPT(ACTUATOR_TIMER_INTERRUPT_VECT)
 //{
 //}
 
+EMPTY_INTERRUPT(__UNUSED_TIMER1_OVERFLOW_INTERRUPT_VECT)
+
 # ifdef SIMULATION
 
 const char isrVector0Msg[] PROGMEM = "BAD ISR";
@@ -178,15 +182,6 @@ ISR(__UNUSED_TIMER0_OVERFLOW_INTERRUPT_VECT) {
     IF_DEBUG_SWITCH_TO_ERRONEOUS_STATE;
 }
 
-/**
- * on timer 1 overflow
- * int #8
- */
-ISR(__UNUSED_TIMER1_OVERFLOW_INTERRUPT_VECT) {
-    writeToUart((PGM_P) pgm_read_word(&(isrVector0Msg)));
-    IF_DEBUG_SWITCH_TO_ERRONEOUS_STATE;
-}
-
 ISR(BADISR_vect) {
     IF_DEBUG_SWITCH_TO_ERRONEOUS_STATE;
 }
@@ -199,8 +194,7 @@ EMPTY_INTERRUPT(__UNUSED_TIMER0_COMPARE_INTERRUPT_VECT)
 
 EMPTY_INTERRUPT(__UNUSED_TIMER0_OVERFLOW_INTERRUPT_VECT)
 
-EMPTY_INTERRUPT(__UNUSED_TIMER1_OVERFLOW_INTERRUPT_VECT)
-
 EMPTY_INTERRUPT(BADISR_vect)
 
 #  endif
+
