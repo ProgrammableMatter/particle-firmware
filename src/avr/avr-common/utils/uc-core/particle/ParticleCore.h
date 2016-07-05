@@ -326,12 +326,12 @@ FUNC_ATTRS void __handleEnumerateNeighbour(volatile TxPort *txPort,
     }
 }
 
-extern FUNC_ATTRS void advanceCommunicationProtocolCounters(void);
+extern FUNC_ATTRS void __advanceCommunicationProtocolCounters(void);
 
 /**
  * Advance communication timeout counters.
  */
-extern FUNC_ATTRS void advanceCommunicationProtocolCounters(void) {
+extern FUNC_ATTRS void __advanceCommunicationProtocolCounters(void) {
     if (ParticleAttributes.protocol.ports.north.stateTimeoutCounter > 0) {
         ParticleAttributes.protocol.ports.north.stateTimeoutCounter--;
     }
@@ -344,6 +344,63 @@ extern FUNC_ATTRS void advanceCommunicationProtocolCounters(void) {
 
 }
 
+extern FUNC_ATTRS void __handleNeighboursDiscovery(void);
+/**
+ * Handles discovery states, classifies the local node type and switches to next state.
+ */
+FUNC_ATTRS void __handleNeighboursDiscovery(void) {
+    __discoveryLoopCount();
+    if (ParticleAttributes.discoveryPulseCounters.loopCount >= MAX_NEIGHBOURS_DISCOVERY_LOOPS) {
+        // on discovery timeout
+        __disableDiscoverySensing();
+        ParticleAttributes.node.state = STATE_TYPE_NEIGHBOURS_DISCOVERED;
+    } else if (ParticleAttributes.discoveryPulseCounters.loopCount >=
+               // on min. discovery loops exceeded
+               MIN_NEIGHBOURS_DISCOVERY_LOOPS) {
+        if (__updateAndDetermineNodeType()) {
+            // on distinct discovery
+            __disableDiscoverySensing();
+            ParticleAttributes.node.state = STATE_TYPE_NEIGHBOURS_DISCOVERED;
+        } else {
+            PARTICLE_DISCOVERY_LOOP_DELAY;
+        }
+        __updateOriginNodeAddress();
+    }
+}
+
+
+extern FUNC_ATTRS void __handleDiscoveryPulsing(void);
+
+/**
+ * Handles the post discovery extended pulsing period with subsequent switch to next state.
+ */
+FUNC_ATTRS void __handleDiscoveryPulsing(void) {
+    if (ParticleAttributes.discoveryPulseCounters.loopCount >= MAX_NEIGHBOUR_PULSING_LOOPS) {
+        __disableDiscoveryPulsing();
+        ParticleAttributes.node.state = STATE_TYPE_DISCOVERY_PULSING_DONE;
+    } else {
+        __discoveryLoopCount();
+    }
+}
+
+extern FUNC_ATTRS void __handleDiscoveryPulsingDone(void);
+/**
+ * Handle the discovery to enumeration state switch.
+ */
+FUNC_ATTRS void __handleDiscoveryPulsingDone(void) {
+    PARTICLE_DISCOVERY_PULSE_DONE_POST_DELAY;
+
+    if (ParticleAttributes.node.type == NODE_TYPE_ORIGIN) {
+        ParticleAttributes.node.state = STATE_TYPE_ENUMERATING_NEIGHBOURS;
+    } else {
+        setReceptionistStateStart(&ParticleAttributes.protocol.ports.north);
+        ParticleAttributes.node.state = STATE_TYPE_WAIT_FOR_BEING_ENUMERATED;
+        DEBUG_CHAR_OUT('W');
+    }
+    __enableReception();
+    clearReceptionBuffers();
+}
+
 extern FUNC_ATTRS void particleTick(void);
 /**
  * This function is called cyclically in the particle loop. It implements the
@@ -351,7 +408,7 @@ extern FUNC_ATTRS void particleTick(void);
  */
 FUNC_ATTRS void particleTick(void) {
     DEBUG_CHAR_OUT('P');
-    advanceCommunicationProtocolCounters();
+    __advanceCommunicationProtocolCounters();
     __heartBeatToggle();
 
     // ---------------- init states ----------------
@@ -377,21 +434,7 @@ FUNC_ATTRS void particleTick(void) {
             // ---------------- discovery states ----------------
 
         case STATE_TYPE_NEIGHBOURS_DISCOVERY:
-            __discoveryLoopCount();
-            if (ParticleAttributes.discoveryPulseCounters.loopCount >= MAX_NEIGHBOURS_DISCOVERY_LOOPS) {
-                // discovery timeout
-                __disableDiscoverySensing();
-                ParticleAttributes.node.state = STATE_TYPE_NEIGHBOURS_DISCOVERED;
-            } else if (ParticleAttributes.discoveryPulseCounters.loopCount >=
-                       MIN_NEIGHBOURS_DISCOVERY_LOOPS) {
-                if (__updateAndDetermineNodeType()) {
-                    __disableDiscoverySensing();
-                    ParticleAttributes.node.state = STATE_TYPE_NEIGHBOURS_DISCOVERED;
-                } else {
-                    DISCOVERY_LOOP_DELAY;
-                }
-                __updateOriginNodeAddress();
-            }
+            __handleNeighboursDiscovery();
             break;
 
         case STATE_TYPE_NEIGHBOURS_DISCOVERED:
@@ -400,29 +443,11 @@ FUNC_ATTRS void particleTick(void) {
             break;
 
         case STATE_TYPE_DISCOVERY_PULSING:
-            if (ParticleAttributes.discoveryPulseCounters.loopCount >= MAX_NEIGHBOUR_PULSING_LOOPS) {
-                __disableDiscoveryPulsing();
-                ParticleAttributes.node.state = STATE_TYPE_DISCOVERY_PULSING_DONE;
-            } else {
-                __discoveryLoopCount();
-            }
+            __handleDiscoveryPulsing();
             break;
 
         case STATE_TYPE_DISCOVERY_PULSING_DONE:
-        DELAY_US_150;
-            DELAY_US_150;
-            DELAY_US_150;
-            DELAY_US_150;
-
-            if (ParticleAttributes.node.type == NODE_TYPE_ORIGIN) {
-                ParticleAttributes.node.state = STATE_TYPE_ENUMERATING_NEIGHBOURS;
-            } else {
-                setReceptionistStateStart(&ParticleAttributes.protocol.ports.north);
-                ParticleAttributes.node.state = STATE_TYPE_WAIT_FOR_BEING_ENUMERATED;
-                DEBUG_CHAR_OUT('W');
-            }
-            __enableReception();
-            clearReceptionBuffers();
+            __handleDiscoveryPulsingDone();
             break;
 
             // ---------------- local enumeration states ----------------

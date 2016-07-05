@@ -13,4 +13,12 @@
 /**
  * Delay separating particle loops while in discovery state.
  */
-#define DISCOVERY_LOOP_DELAY DELAY_US_15; DELAY_US_15
+#define PARTICLE_DISCOVERY_LOOP_DELAY \
+    DELAY_US_15; \
+    DELAY_US_15
+
+#define PARTICLE_DISCOVERY_PULSE_DONE_POST_DELAY \
+    DELAY_US_150; \
+    DELAY_US_150; \
+    DELAY_US_150; \
+    DELAY_US_150
