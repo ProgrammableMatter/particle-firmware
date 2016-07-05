@@ -51,32 +51,36 @@ extern CTOR_ATTRS void constructSendEnumeratedACKWithAddressToParent(void);
  * Constructs an ACK package with 2 byte data payload as the address field at the given port tx buffer.
  */
 CTOR_ATTRS void constructSendEnumeratedACKWithAddressToParent(void) {
-    Package *package = (Package *) ParticleAttributes.ports.tx.north.buffer.bytes;
+    Package *package = (Package *) ParticleAttributes.communication.ports.tx.north.buffer.bytes;
     PackageHeaderAddress *pha = &package->asACKWithLocalAddress;
     pha->__startBit = 1;
     pha->headerId = PACKAGE_HEADER_ID_TYPE_ACK_WITH_DATA;
     pha->addressRow0 = ParticleAttributes.node.address.row;
     pha->addressColumn0 = ParticleAttributes.node.address.column;
-    setBufferDataEndPointer(ParticleAttributes.ports.tx.north.dataEndPos,
+    setBufferDataEndPointer(ParticleAttributes.communication.ports.tx.north.dataEndPos,
                             PackageHeaderAddressBufferPointerSize);
 }
 
 
-extern CTOR_ATTRS void constructCommunicationProtocolState(volatile CommunicationProtocolState *o);
+extern CTOR_ATTRS void constructCommunicationProtocolPortState(volatile CommunicationProtocolPortState *o);
 
-CTOR_ATTRS void constructCommunicationProtocolState(volatile CommunicationProtocolState *o) {
+CTOR_ATTRS void constructCommunicationProtocolPortState(volatile CommunicationProtocolPortState *o) {
     o->initiatorState = COMMUNICATION_INITIATOR_STATE_TYPE_IDLE;
     o->receptionistState = COMMUNICATION_RECEPTIONIST_STATE_TYPE_IDLE;
-//    o->stateTimeoutCounter = 0;
+    o->stateTimeoutCounter = UINT8_MAX;
 }
 
 
-extern CTOR_ATTRS void constructCommunicationPort(volatile CommunicationPort *o);
-/**
- *
- */
-CTOR_ATTRS void constructCommunicationPort(volatile CommunicationPort *o) {
-    constructCommunicationProtocolState(&o->north);
-    constructCommunicationProtocolState(&o->east);
-    constructCommunicationProtocolState(&o->south);
+extern CTOR_ATTRS void constructCommunicationProtocolPorts(volatile CommunicationProtocolPorts *o);
+
+CTOR_ATTRS void constructCommunicationProtocolPorts(volatile CommunicationProtocolPorts *o) {
+    constructCommunicationProtocolPortState(&o->north);
+    constructCommunicationProtocolPortState(&o->east);
+    constructCommunicationProtocolPortState(&o->south);
+}
+
+extern CTOR_ATTRS void constructCommunicationProtocol(volatile CommunicationProtocol *o);
+
+CTOR_ATTRS void constructCommunicationProtocol(volatile CommunicationProtocol *o) {
+    constructCommunicationProtocolPorts(&o->ports);
 }

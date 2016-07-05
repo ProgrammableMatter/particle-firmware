@@ -29,12 +29,12 @@ extern FUNC_ATTRS void clearReceptionBuffers(void);
  */
 FUNC_ATTRS void clearReceptionBuffers(void) {
     DEBUG_CHAR_OUT('c');
-    ParticleAttributes.ports.rx.north.isDataBuffered = false;
-    ParticleAttributes.ports.rx.north.isOverflowed = false;
-    ParticleAttributes.ports.rx.east.isDataBuffered = false;
-    ParticleAttributes.ports.rx.east.isOverflowed = false;
-    ParticleAttributes.ports.rx.south.isDataBuffered = false;
-    ParticleAttributes.ports.rx.south.isOverflowed = false;
+    ParticleAttributes.communication.ports.rx.north.isDataBuffered = false;
+    ParticleAttributes.communication.ports.rx.north.isOverflowed = false;
+    ParticleAttributes.communication.ports.rx.east.isDataBuffered = false;
+    ParticleAttributes.communication.ports.rx.east.isOverflowed = false;
+    ParticleAttributes.communication.ports.rx.south.isDataBuffered = false;
+    ParticleAttributes.communication.ports.rx.south.isOverflowed = false;
 }
 
 extern FUNC_ATTRS void clearReceptionBuffer(volatile RxPort *o);
@@ -66,21 +66,21 @@ FUNC_ATTRS void clearTransmissionPortBuffer(volatile TxPort *o) {
 //    }
 //}
 
-extern FUNC_ATTRS void setReceptionistStateStart(volatile CommunicationProtocolState *commPortState);
+extern FUNC_ATTRS void setReceptionistStateStart(volatile CommunicationProtocolPortState *commPortState);
 /**
  * Puts the receptionist in start state and sets the timeout counter.
  */
-FUNC_ATTRS void setReceptionistStateStart(volatile CommunicationProtocolState *commPortState) {
+FUNC_ATTRS void setReceptionistStateStart(volatile CommunicationProtocolPortState *commPortState) {
 //    ParticleAttributes.communicationProtocol.stateTimeoutCounter = COMMUNICATION_STATE_TIMEOUT_COUNTER;
     DEBUG_CHAR_OUT('r');
     commPortState->receptionistState = COMMUNICATION_RECEPTIONIST_STATE_TYPE_RECEIVE;
 }
 
-extern FUNC_ATTRS void setInitiatorStateStart(volatile CommunicationProtocolState *commPortState);
+extern FUNC_ATTRS void setInitiatorStateStart(volatile CommunicationProtocolPortState *commPortState);
 /**
  * Puts the initiator in start state and set the timeout counter.
  */
-FUNC_ATTRS void setInitiatorStateStart(volatile CommunicationProtocolState *commPortState) {
+FUNC_ATTRS void setInitiatorStateStart(volatile CommunicationProtocolPortState *commPortState) {
 //    ParticleAttributes.communicationProtocol.stateTimeoutCounter = COMMUNICATION_STATE_TIMEOUT_COUNTER;
     DEBUG_CHAR_OUT('T');
     commPortState->initiatorState = COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT;

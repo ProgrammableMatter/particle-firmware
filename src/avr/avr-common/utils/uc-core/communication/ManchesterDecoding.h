@@ -159,14 +159,14 @@ extern FUNC_ATTRS void __approximateNewClockSpeed(volatile RxPort *rxPort);
  */
 FUNC_ATTRS void __approximateNewClockSpeed(volatile RxPort *rxPort) {
 
-    ParticleAttributes.ports.timerAdjustment.isTransmissionClockDelayUpdateable = false;
+    ParticleAttributes.communication.timerAdjustment.isTransmissionClockDelayUpdateable = false;
     __calculateTimestampLag(&rxPort->snapshotsBuffer.temporaryTxStartSnapshotTimerValue,
                             &rxPort->snapshotsBuffer.temporaryTxStopSnapshotTimerValue,
-                            &ParticleAttributes.ports.timerAdjustment.newTransmissionClockDelay);
-    ParticleAttributes.ports.timerAdjustment.newTransmissionClockDelay =
-            (ParticleAttributes.ports.timerAdjustment.newTransmissionClockDelay /
+                            &ParticleAttributes.communication.timerAdjustment.newTransmissionClockDelay);
+    ParticleAttributes.communication.timerAdjustment.newTransmissionClockDelay =
+            (ParticleAttributes.communication.timerAdjustment.newTransmissionClockDelay /
              rxPort->snapshotsBuffer.numberHalfCyclesPassed) * 2;
-    ParticleAttributes.ports.timerAdjustment.isTransmissionClockDelayUpdateable = true;
+    ParticleAttributes.communication.timerAdjustment.isTransmissionClockDelayUpdateable = true;
 }
 
 
@@ -175,10 +175,10 @@ extern FUNC_ATTRS void __approximateNewClockShift(volatile uint16_t *snapshotVal
  * calculates the a new clock shift according to the specified timings
  */
 FUNC_ATTRS void __approximateNewClockShift(volatile uint16_t *snapshotValue) {
-    ParticleAttributes.ports.timerAdjustment.isTransmissionClockShiftUpdateable = false;
-    ParticleAttributes.ports.timerAdjustment.newTransmissionClockShift =
-            (*snapshotValue % ParticleAttributes.ports.timerAdjustment.transmissionClockDelay) / 2;
-    ParticleAttributes.ports.timerAdjustment.isTransmissionClockShiftUpdateable = true;
+    ParticleAttributes.communication.timerAdjustment.isTransmissionClockShiftUpdateable = false;
+    ParticleAttributes.communication.timerAdjustment.newTransmissionClockShift =
+            (*snapshotValue % ParticleAttributes.communication.timerAdjustment.transmissionClockDelay) / 2;
+    ParticleAttributes.communication.timerAdjustment.isTransmissionClockShiftUpdateable = true;
 }
 
 extern FUNC_ATTRS void manchesterDecodeBuffer(volatile RxPort *rxPort);
@@ -202,12 +202,12 @@ FUNC_ATTRS void manchesterDecodeBuffer(volatile RxPort *rxPort) {
                     bufferBitPointerStart(&rxPort->buffer.pointer);
                     __resetDecoderPhaseState(rxPort->snapshotsBuffer.decoderStates.phaseState);
                     rxPort->snapshotsBuffer.temporarySnapshotTimerValue = snapshot->timerValue << 1;
-                    ParticleAttributes.ports.timerAdjustment.isTransmissionClockDelayUpdateable = false;
+                    ParticleAttributes.communication.timerAdjustment.isTransmissionClockDelayUpdateable = false;
                     rxPort->snapshotsBuffer.temporaryTxStartSnapshotTimerValue = rxPort->snapshotsBuffer.temporarySnapshotTimerValue;
                     rxPort->snapshotsBuffer.temporaryTxStopSnapshotTimerValue = rxPort->snapshotsBuffer.temporaryTxStartSnapshotTimerValue;
 
                     // calculate clock shift for synchronization
-                    if (rxPort == &ParticleAttributes.ports.rx.north) {
+                    if (rxPort == &ParticleAttributes.communication.ports.rx.north) {
                         uint16_t timerValue = snapshot->timerValue << 1;
                         __approximateNewClockShift(&timerValue);
                     }
@@ -236,10 +236,10 @@ FUNC_ATTRS void manchesterDecodeBuffer(volatile RxPort *rxPort) {
                 DEBUG_INT16_OUT(difference);
 
                 if (difference <=
-                    ParticleAttributes.ports.timerAdjustment.maxLongIntervalDuration) {
+                    ParticleAttributes.communication.timerAdjustment.maxLongIntervalDuration) {
                     // on short interval
                     if (difference <=
-                        ParticleAttributes.ports.timerAdjustment.maxShortIntervalDuration) {
+                        ParticleAttributes.communication.timerAdjustment.maxShortIntervalDuration) {
                         __phaseStateAdvanceShortInterval(rxPort->snapshotsBuffer.decoderStates.phaseState);
                         __cycleCounterAdvanceShortInterval(rxPort->snapshotsBuffer.numberHalfCyclesPassed);
 //                        DEBUG_CHAR_OUT('x');
@@ -271,7 +271,8 @@ FUNC_ATTRS void manchesterDecodeBuffer(volatile RxPort *rxPort) {
                 __calculateTimestampLag(&rxPort->snapshotsBuffer.temporarySnapshotTimerValue, &timerNow,
                                         &difference);
                 DEBUG_INT16_OUT(difference);
-                if (difference >= 2 * ParticleAttributes.ports.timerAdjustment.transmissionClockDelay) {
+                if (difference >=
+                    2 * ParticleAttributes.communication.timerAdjustment.transmissionClockDelay) {
                     goto __DECODER_STATE_TYPE_POST_TIMEOUT_PROCESS;
                 }
             }
@@ -282,7 +283,7 @@ FUNC_ATTRS void manchesterDecodeBuffer(volatile RxPort *rxPort) {
 //            DEBUG_CHAR_OUT('+');
             __approximateNewClockSpeed(rxPort);
             rxPort->isDataBuffered = true;
-            ParticleAttributes.ports.timerAdjustment.isTransmissionClockDelayUpdateable = true;
+            ParticleAttributes.communication.timerAdjustment.isTransmissionClockDelayUpdateable = true;
             rxPort->snapshotsBuffer.decoderStates.decodingState = DECODER_STATE_TYPE_START;
 
             break;

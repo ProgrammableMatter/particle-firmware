@@ -415,17 +415,24 @@ typedef union Package {
 /**
  * describes the communication port state
  */
-typedef struct CommunicationProtocolState {
+typedef struct CommunicationProtocolPortState {
     CommunicationInitiatorStateTypes initiatorState;
     CommunicationReceptionistStateTypes receptionistState;
-//    uint8_t stateTimeoutCounter;
-} CommunicationProtocolState;
+    /**
+     * value of 0 indicates timeout
+     */
+    uint8_t stateTimeoutCounter;
+} CommunicationProtocolPortState;
+
+typedef struct CommunicationProtocolPorts {
+    CommunicationProtocolPortState north;
+    CommunicationProtocolPortState east;
+    CommunicationProtocolPortState south;
+} CommunicationProtocolPorts;
 
 /**
  * describes the communication ports
  */
-typedef struct CommunicationPort {
-    CommunicationProtocolState north;
-    CommunicationProtocolState east;
-    CommunicationProtocolState south;
-} CommunicationPort;
+typedef struct CommunicationProtocol {
+    CommunicationProtocolPorts ports;
+} CommunicationProtocol;

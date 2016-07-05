@@ -43,7 +43,7 @@ FUNC_ATTRS void __handleInputInterrupt(volatile PulseCounter *discoveryPulseCoun
             break;
 
         default:
-            switch (ParticleAttributes.ports.xmissionState) {
+            switch (ParticleAttributes.communication.xmissionState) {
                 // on data received
                 case STATE_TYPE_XMISSION_TYPE_ENABLED_TX_RX:
                 case STATE_TYPE_XMISSION_TYPE_ENABLED_RX:
@@ -63,9 +63,9 @@ extern FUNC_ATTRS void scheduleNextTransmission(void);
  * schedules the next transmission interrupt on available data to be sent.
  */
 FUNC_ATTRS void scheduleNextTransmission(void) {
-    if (ParticleAttributes.ports.tx.north.isTransmitting ||
-        ParticleAttributes.ports.tx.east.isTransmitting ||
-        ParticleAttributes.ports.tx.south.isTransmitting) {
+    if (ParticleAttributes.communication.ports.tx.north.isTransmitting ||
+        ParticleAttributes.communication.ports.tx.east.isTransmitting ||
+        ParticleAttributes.communication.ports.tx.south.isTransmitting) {
         scheduleNextTxInterrupt();
     } else {
         TIMER_TX_RX_DISABLE_COMPARE_INTERRUPT;
@@ -79,7 +79,7 @@ FUNC_ATTRS void scheduleNextTransmission(void) {
  */
 ISR(NORTH_PIN_CHANGE_INTERRUPT_VECT) {
     __handleInputInterrupt(&ParticleAttributes.discoveryPulseCounters.north,
-                           &ParticleAttributes.ports.rx.north,
+                           &ParticleAttributes.communication.ports.rx.north,
                            NORTH_RX_IS_HI);
     RX_NORTH_INTERRUPT_CLEAR_PENDING;
 }
@@ -90,7 +90,7 @@ ISR(NORTH_PIN_CHANGE_INTERRUPT_VECT) {
  */
 ISR(EAST_PIN_CHANGE_INTERRUPT_VECT) {
     __handleInputInterrupt(&ParticleAttributes.discoveryPulseCounters.east,
-                           &ParticleAttributes.ports.rx.east,
+                           &ParticleAttributes.communication.ports.rx.east,
                            EAST_RX_IS_HI);
     RX_EAST_INTERRUPT_CLEAR_PENDING;
 }
@@ -101,7 +101,7 @@ ISR(EAST_PIN_CHANGE_INTERRUPT_VECT) {
  */
 ISR(SOUTH_PIN_CHANGE_INTERRUPT_VECT) {
     __handleInputInterrupt(&ParticleAttributes.discoveryPulseCounters.south,
-                           &ParticleAttributes.ports.rx.south,
+                           &ParticleAttributes.communication.ports.rx.south,
                            SOUTH_RX_IS_HI);
     RX_SOUTH_INTERRUPT_CLEAR_PENDING;
 }
@@ -127,12 +127,12 @@ ISR(TX_TIMER_INTERRUPT_VECT) {
 
             // otherwise process transmission
         default:
-            switch (ParticleAttributes.ports.xmissionState) {
+            switch (ParticleAttributes.communication.xmissionState) {
                 case STATE_TYPE_XMISSION_TYPE_ENABLED_TX_RX:
                 case STATE_TYPE_XMISSION_TYPE_ENABLED_TX:
-                    transmit(&ParticleAttributes.ports.tx.north, northTxHiImpl, northTxLoImpl);
-                    transmit(&ParticleAttributes.ports.tx.east, eastTxHiImpl, eastTxLoImpl);
-                    transmit(&ParticleAttributes.ports.tx.south, southTxHiImpl, southTxLoImpl);
+                    transmit(&ParticleAttributes.communication.ports.tx.north, northTxHiImpl, northTxLoImpl);
+                    transmit(&ParticleAttributes.communication.ports.tx.east, eastTxHiImpl, eastTxLoImpl);
+                    transmit(&ParticleAttributes.communication.ports.tx.south, southTxHiImpl, southTxLoImpl);
                     scheduleNextTransmission();
                     break;
 

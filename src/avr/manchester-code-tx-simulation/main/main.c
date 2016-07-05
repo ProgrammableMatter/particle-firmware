@@ -25,8 +25,8 @@
 // int #7
 ISR(TIMER_TX_COUNTER_TOP_VECTOR) {
     OCR1A += DEFAULT_TX_RX_CLOCK_DELAY;
-    if (ParticleAttributes.ports.tx.south.buffer.pointer.bitMask &
-        ParticleAttributes.ports.tx.south.buffer.bytes[ParticleAttributes.ports.tx.
+    if (ParticleAttributes.communication.ports.tx.south.buffer.pointer.bitMask &
+        ParticleAttributes.communication.ports.tx.south.buffer.bytes[ParticleAttributes.communication.ports.tx.
                 south.buffer.pointer.byteNumber]) {
         SOUTH_TX_HI;
     } else {
@@ -40,20 +40,20 @@ ISR(TIMER_TX_COUNTER_TOP_VECTOR) {
 // int #8
 ISR(TIMER_TX_COUNTER_CENTER_VECTOR) {
     OCR1B += DEFAULT_TX_RX_CLOCK_DELAY;
-    if (isDataEndPosition(&ParticleAttributes.ports.tx.south)) {
+    if (isDataEndPosition(&ParticleAttributes.communication.ports.tx.south)) {
         // return signal to default
         SOUTH_TX_LO; // inverted on receiver side
         TIMER_TX_RX_COUNTER_DISABLE;
         ParticleAttributes.node.state = STATE_TYPE_IDLE;
     } else {
         // write data bit to output (inverted)
-        if (ParticleAttributes.ports.tx.south.buffer.pointer.bitMask &
-            ParticleAttributes.ports.tx.south.buffer.bytes[ParticleAttributes.ports.tx.south.buffer.pointer.byteNumber]) {
+        if (ParticleAttributes.communication.ports.tx.south.buffer.pointer.bitMask &
+            ParticleAttributes.communication.ports.tx.south.buffer.bytes[ParticleAttributes.communication.ports.tx.south.buffer.pointer.byteNumber]) {
             SOUTH_TX_LO;
         } else {
             SOUTH_TX_HI;
         }
-        bufferBitPointerIncrement(&ParticleAttributes.ports.tx.south.buffer.pointer);
+        bufferBitPointerIncrement(&ParticleAttributes.communication.ports.tx.south.buffer.pointer);
     }
 }
 
@@ -62,18 +62,18 @@ inline void initTransmission(void) {
     ParticleAttributes.node.state = STATE_TYPE_START;
     ParticleAttributes.node.type = NODE_TYPE_MASTER;
 
-    bufferBitPointerStart(&ParticleAttributes.ports.tx.south.buffer.pointer);
-    ParticleAttributes.ports.tx.south.dataEndPos.byteNumber = 7;
-    ParticleAttributes.ports.tx.south.dataEndPos.bitMask = 0x1;
+    bufferBitPointerStart(&ParticleAttributes.communication.ports.tx.south.buffer.pointer);
+    ParticleAttributes.communication.ports.tx.south.dataEndPos.byteNumber = 7;
+    ParticleAttributes.communication.ports.tx.south.dataEndPos.bitMask = 0x1;
 
     // the bytes to transmit
-    ParticleAttributes.ports.tx.south.buffer.bytes[0] = 0b10100110 | 0x1;
-    ParticleAttributes.ports.tx.south.buffer.bytes[1] = 0b10101010;
-    ParticleAttributes.ports.tx.south.buffer.bytes[2] = 0b10101010;
-    ParticleAttributes.ports.tx.south.buffer.bytes[3] = 0b01010101;
-    ParticleAttributes.ports.tx.south.buffer.bytes[4] = 0b10101010;
-    ParticleAttributes.ports.tx.south.buffer.bytes[5] = 0b01111110;
-    ParticleAttributes.ports.tx.south.buffer.bytes[6] = 0b00100110;
+    ParticleAttributes.communication.ports.tx.south.buffer.bytes[0] = 0b10100110 | 0x1;
+    ParticleAttributes.communication.ports.tx.south.buffer.bytes[1] = 0b10101010;
+    ParticleAttributes.communication.ports.tx.south.buffer.bytes[2] = 0b10101010;
+    ParticleAttributes.communication.ports.tx.south.buffer.bytes[3] = 0b01010101;
+    ParticleAttributes.communication.ports.tx.south.buffer.bytes[4] = 0b10101010;
+    ParticleAttributes.communication.ports.tx.south.buffer.bytes[5] = 0b01111110;
+    ParticleAttributes.communication.ports.tx.south.buffer.bytes[6] = 0b00100110;
 
     SOUTH_TX_SETUP;
     // return signal to default (locally low means high at receiver side)

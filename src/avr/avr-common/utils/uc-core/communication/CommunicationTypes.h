@@ -125,9 +125,13 @@ typedef struct RxPorts {
     RxPort south;
 } RxPorts;
 
-typedef struct Ports {
-    TimerCounterAdjustment timerAdjustment;
-    XmissionType xmissionState;
+typedef struct CommunicationPorts {
     TxPorts tx;
     RxPorts rx;
-} Ports;
+} CommunicationPorts;
+
+typedef struct Communication {
+    TimerCounterAdjustment timerAdjustment;
+    XmissionType xmissionState;
+    CommunicationPorts ports;
+} Communication;

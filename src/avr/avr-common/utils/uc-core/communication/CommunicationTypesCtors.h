@@ -81,11 +81,17 @@ CTOR_ATTRS void constructRxPorts(volatile RxPorts *o) {
     constructRxPort(&(o->south));
 }
 
-extern CTOR_ATTRS void constructPorts(volatile Ports *o);
+extern CTOR_ATTRS void constructCommunicationPorts(volatile CommunicationPorts *o);
 
-CTOR_ATTRS void constructPorts(volatile Ports *o) {
+CTOR_ATTRS void constructCommunicationPorts(volatile CommunicationPorts *o) {
     constructTxPorts(&(o->tx));
     constructRxPorts(&(o->rx));
+}
+
+extern CTOR_ATTRS void constructCommunication(volatile Communication *o);
+
+CTOR_ATTRS void constructCommunication(volatile Communication *o) {
     constructTimerCounterAdjustment(&o->timerAdjustment);
     o->xmissionState = STATE_TYPE_XMISSION_TYPE_DISABLED_TX_RX;
+    constructCommunicationPorts(&o->ports);
 }

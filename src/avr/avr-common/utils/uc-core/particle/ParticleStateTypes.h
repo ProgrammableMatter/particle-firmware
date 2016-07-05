@@ -107,9 +107,9 @@ typedef struct Periphery {
 typedef struct ParticleState {
     Node node;
     DiscoveryPulseCounters discoveryPulseCounters;
-    Ports ports;
+    Communication communication;
     Periphery periphery;
-    CommunicationPort communicationPorts;
+    CommunicationProtocol protocol;
 #ifdef SIMULATION
     uint8_t magicEndByte;
 #endif

@@ -51,9 +51,9 @@ extern CTOR_ATTRS void constructParticleState(volatile ParticleState *o);
 CTOR_ATTRS void constructParticleState(volatile ParticleState *o) {
     constructNode(&(o->node));
     constructDiscoveryPulseCounters(&(o->discoveryPulseCounters));
-    constructPorts(&(o->ports));
+    constructCommunication(&(o->communication));
     constructPeriphery(&(o->periphery));
-    constructCommunicationPort(&o->communicationPorts);
+    constructCommunicationProtocol(&o->protocol);
 #ifdef SIMULATION
     o->magicEndByte = 0xaa;
 #endif

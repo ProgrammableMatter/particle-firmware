@@ -9,12 +9,12 @@
 
 
 extern FUNC_ATTRS void __interpretWaitForBeingEnumeratedReception(volatile RxPort *rxPort,
-                                                                  volatile CommunicationProtocolState *o);
+                                                                  volatile CommunicationProtocolPortState *o);
 /**
  * Interprets reception in "wait for being enumerate states".
  */
 FUNC_ATTRS void __interpretWaitForBeingEnumeratedReception(volatile RxPort *rxPort,
-                                                           volatile CommunicationProtocolState *commPortState) {
+                                                           volatile CommunicationProtocolPortState *commPortState) {
 
     volatile Package *package = (Package *) rxPort->buffer.bytes;
     // interpret according to local reception protocol state
@@ -54,14 +54,14 @@ FUNC_ATTRS void __interpretWaitForBeingEnumeratedReception(volatile RxPort *rxPo
 }
 
 extern FUNC_ATTRS void __interpretEnumerateNeighbourReception(volatile RxPort *rxPort,
-                                                              volatile CommunicationProtocolState *commPortState,
+                                                              volatile CommunicationProtocolPortState *commPortState,
                                                               uint8_t expectedRemoteAddressRow,
                                                               uint8_t expectedRemoteAddressColumn);
 /**
  * Interprets reception in "enumerate neighbour" states.
  */
 FUNC_ATTRS void __interpretEnumerateNeighbourReception(volatile RxPort *rxPort,
-                                                       volatile CommunicationProtocolState *commPortState,
+                                                       volatile CommunicationProtocolPortState *commPortState,
                                                        uint8_t expectedRemoteAddressRow,
                                                        uint8_t expectedRemoteAddressColumn) {
     DEBUG_INT16_OUT(expectedRemoteAddressRow);
@@ -101,12 +101,12 @@ FUNC_ATTRS void __interpretEnumerateNeighbourReception(volatile RxPort *rxPort,
 }
 
 extern FUNC_ATTRS void interpretRxBuffer(volatile RxPort *rxPort,
-                                         volatile CommunicationProtocolState *commPortState);
+                                         volatile CommunicationProtocolPortState *commPortState);
 /**
  * interprets reception according to the particle state
  */
 FUNC_ATTRS void interpretRxBuffer(volatile RxPort *rxPort,
-                                  volatile CommunicationProtocolState *commPortState) {
+                                  volatile CommunicationProtocolPortState *commPortState) {
 
     DEBUG_CHAR_OUT('I');
     if (!isDataAvailable(rxPort)) {

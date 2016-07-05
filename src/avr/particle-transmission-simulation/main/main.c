@@ -35,20 +35,20 @@ int main(void) {
     ParticleAttributes.discoveryPulseCounters.loopCount = UINT8_MAX;
 //    ParticleAttributes.node.state = STATE_TYPE_TX_START;
     ParticleAttributes.node.type = NODE_TYPE_MASTER;
-    ParticleAttributes.ports.xmissionState = STATE_TYPE_XMISSION_TYPE_ENABLED_TX;
+    ParticleAttributes.communication.xmissionState = STATE_TYPE_XMISSION_TYPE_ENABLED_TX;
 
-    clearTransmissionPortBuffer(&ParticleAttributes.ports.tx.south);
-    ParticleAttributes.ports.tx.south.dataEndPos.bitMask = 1;
-    ParticleAttributes.ports.tx.south.dataEndPos.byteNumber = 7;
+    clearTransmissionPortBuffer(&ParticleAttributes.communication.ports.tx.south);
+    ParticleAttributes.communication.ports.tx.south.dataEndPos.bitMask = 1;
+    ParticleAttributes.communication.ports.tx.south.dataEndPos.byteNumber = 7;
 
     // least significant bit (start bit) must be set due tu the physically underlying protocol
-    ParticleAttributes.ports.tx.south.buffer.bytes[0] = 0b00100110 | 0x01;
-    ParticleAttributes.ports.tx.south.buffer.bytes[1] = 0b10101010;
-    ParticleAttributes.ports.tx.south.buffer.bytes[2] = 0b10101010;
-    ParticleAttributes.ports.tx.south.buffer.bytes[3] = 0b01010101;
-    ParticleAttributes.ports.tx.south.buffer.bytes[4] = 0b10101010;
-    ParticleAttributes.ports.tx.south.buffer.bytes[5] = 0b01111110;
-    ParticleAttributes.ports.tx.south.buffer.bytes[6] = 0b00100110;
+    ParticleAttributes.communication.ports.tx.south.buffer.bytes[0] = 0b00100110 | 0x01;
+    ParticleAttributes.communication.ports.tx.south.buffer.bytes[1] = 0b10101010;
+    ParticleAttributes.communication.ports.tx.south.buffer.bytes[2] = 0b10101010;
+    ParticleAttributes.communication.ports.tx.south.buffer.bytes[3] = 0b01010101;
+    ParticleAttributes.communication.ports.tx.south.buffer.bytes[4] = 0b10101010;
+    ParticleAttributes.communication.ports.tx.south.buffer.bytes[5] = 0b01111110;
+    ParticleAttributes.communication.ports.tx.south.buffer.bytes[6] = 0b00100110;
 
 
     // configure input/output pins
@@ -56,7 +56,7 @@ int main(void) {
     SOUTH_TX_LO;
     // setup and enable transmission/reception counter interrupt
     __enableTxRxTimer();
-    enableTransmission(&ParticleAttributes.ports.tx.south);
+    enableTransmission(&ParticleAttributes.communication.ports.tx.south);
 
     DELAY_US_15;
     DELAY_US_15;
