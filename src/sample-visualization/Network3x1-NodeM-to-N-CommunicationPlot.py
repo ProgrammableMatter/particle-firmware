@@ -1,4 +1,6 @@
 from collections import OrderedDict
+
+from Config.Mappings import charOutToHumanReadableAnnotation
 from LogSamplePlot import Plotter as pltr
 from LogSamplePlot import Filter as fltr
 from Config import Mappings as mappingConfig
@@ -29,42 +31,9 @@ if __name__ == "__main__":
     xData, yData, annotations = dataFilter.getData(txWirefilter)
     dataPlotter.addPlot(xData, yData, annotations, "[2] tx-north")
 
-    interpreterCharOutToHumanReadableAnnotation = {
-        "'I'": "interpret",
-        "'i'": "interpret out",
-        "'c'": "clr buff",
-        "'E'": "enum east",
-        "'e'": "enum south",
-        "'P'": "loop in",
-        "'p'": "loop out",
-
-        "'D'": "INITIATOR_STATE_TYPE_IDLE",
-        "'T'": "INITIATOR_STATE_TYPE_TRANSMIT",
-        "'F'": "INITIATOR_STATE_TYPE_TRANSMIT_WAIT_FOR_TX_FINISHED",
-        "'R'": "INITIATOR_STATE_TYPE_WAIT_FOR_RESPONSE",
-        "'A'": "INITIATOR_STATE_TYPE_TRANSMIT_ACK",
-        "'f'": "INITIATOR_STATE_TYPE_TRANSMIT_ACK_WAIT_FOR_TX_FINISHED",
-        "'d'": "RECEPTIONIST_STATE_TYPE_IDLE",
-        "'r'": "RECEPTIONIST_STATE_TYPE_RECEIVE",
-        "'a'": "RECEPTIONIST_STATE_TYPE_TRANSMIT_ACK",
-        "'g'": "RECEPTIONIST_STATE_TYPE_TRANSMIT_ACK_WAIT_TX_FINISHED",
-        "'h'": "RECEPTIONIST_STATE_TYPE_WAIT_FOR_RESPONSE",
-
-        "'M'": "comm: transaction finished",
-        "'V'": "comm: transaction restart",
-        "'W'": "state: wait for enum.",
-
-        "'0'": "0",
-        "'1'": "1",
-        "'|'": "|",
-        "'+'": "+",
-        "'x'": "x",
-        "'X'": "X",
-    }
-
     receptionInterruptValueMapping = {}
     counter = 0
-    for key in interpreterCharOutToHumanReadableAnnotation:
+    for key in charOutToHumanReadableAnnotation:
         receptionInterruptValueMapping[key] = counter
         counter += 1
 
@@ -81,33 +50,21 @@ if __name__ == "__main__":
     dataFilter.removeSamples(nodeTxCharOutFilter)
     dataFilter.filter(nodeTxCharOutFilter)
     xData, yData, annotations = dataFilter.getData(nodeTxCharOutFilter)
-    annotations = pltr.reMapAnnotation(annotations, interpreterCharOutToHumanReadableAnnotation)
+    annotations = pltr.reMapAnnotation(annotations, charOutToHumanReadableAnnotation)
     dataPlotter.addPlot(xData, yData, annotations, "[0] node states")
-
-    # nodeFilter = fltr.SampleFilter(domain="SRAM", name="int16-out", nodeId=0)
-    # dataFilter.removeSamples(nodeFilter)
-    # dataFilter.filter(nodeFilter)
-    # xData, yData, annotations = dataFilter.getData(nodeFilter)
-    # dataPlotter.addPlot(xData, yData, annotations, "[0] int16-out")
 
     nodeTxCharOutFilter = fltr.SampleFilter(domain="SRAM", name="char-out", nodeId=1)
     dataFilter.removeSamples(nodeTxCharOutFilter)
     dataFilter.filter(nodeTxCharOutFilter)
     xData, yData, annotations = dataFilter.getData(nodeTxCharOutFilter)
-    annotations = pltr.reMapAnnotation(annotations, interpreterCharOutToHumanReadableAnnotation)
+    annotations = pltr.reMapAnnotation(annotations, charOutToHumanReadableAnnotation)
     dataPlotter.addPlot(xData, yData, annotations, "[1] node states")
-
-    # nodeFilter = fltr.SampleFilter(domain="SRAM", name="int16-out", nodeId=1)
-    # dataFilter.removeSamples(nodeFilter)
-    # dataFilter.filter(nodeFilter)
-    # xData, yData, annotations = dataFilter.getData(nodeFilter)
-    # dataPlotter.addPlot(xData, yData, annotations, "[1] int16-out")
 
     nodeTxCharOutFilter = fltr.SampleFilter(domain="SRAM", name="char-out", nodeId=2)
     dataFilter.removeSamples(nodeTxCharOutFilter)
     dataFilter.filter(nodeTxCharOutFilter)
     xData, yData, annotations = dataFilter.getData(nodeTxCharOutFilter)
-    annotations = pltr.reMapAnnotation(annotations, interpreterCharOutToHumanReadableAnnotation)
+    annotations = pltr.reMapAnnotation(annotations, charOutToHumanReadableAnnotation)
     dataPlotter.addPlot(xData, yData, annotations, "[2] node states")
 
     dataPlotter.setWindowTitle("Network 3x1 Simulation")
