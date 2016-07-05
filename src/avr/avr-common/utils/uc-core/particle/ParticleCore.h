@@ -17,6 +17,7 @@
 #include "uc-core/configuration/Particle.h"
 #include "uc-core/communication-protocol/CommunicationProtocol.h"
 #include "uc-core/communication-protocol/CommunicationProtocolTypesCtors.h"
+#include "uc-core/communication-protocol/CommunicationProtocolPackageCtors.h"
 #include "uc-core/communication-protocol/Interpreter.h"
 
 
@@ -233,7 +234,7 @@ FUNC_ATTRS void __handleWaitForBeingEnumerated(volatile CommunicationProtocolPor
             break;
             // transmit ack with local address
         case COMMUNICATION_RECEPTIONIST_STATE_TYPE_TRANSMIT_ACK:
-            constructSendEnumeratedACKWithAddressToParent();
+            constructSendEnumeratedACKWithAddressToParentPackage();
             enableTransmission(&ParticleAttributes.communication.ports.tx.north);
             DEBUG_CHAR_OUT('f');
             commPortState->receptionistState = COMMUNICATION_RECEPTIONIST_STATE_TYPE_TRANSMIT_ACK_WAIT_TX_FINISHED;
