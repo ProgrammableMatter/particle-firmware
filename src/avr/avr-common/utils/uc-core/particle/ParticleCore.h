@@ -274,6 +274,15 @@ FUNC_ATTRS void __handleEnumerateNeighbour(volatile TxPort *txPort,
                                            uint8_t remoteAddressRow,
                                            uint8_t remoteAddressColumn,
                                            StateType endState) {
+
+    if (commPortState->stateTimeoutCounter == 0 &&
+        commPortState->initiatorState != COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT &&
+        commPortState->initiatorState != COMMUNICATION_INITIATOR_STATE_TYPE_IDLE) {
+        commPortState->initiatorState = COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT;
+        commPortState->stateTimeoutCounter = COMMUNICATION_PROTOCOL_TIMEOUT_COUNTER_MAX;
+        DEBUG_CHAR_OUT('b');
+    }
+
     switch (commPortState->initiatorState) {
         // transmit new address
         case COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT:
@@ -341,7 +350,6 @@ extern FUNC_ATTRS void __advanceCommunicationProtocolCounters(void) {
     if (ParticleAttributes.protocol.ports.south.stateTimeoutCounter > 0) {
         ParticleAttributes.protocol.ports.south.stateTimeoutCounter--;
     }
-
 }
 
 extern FUNC_ATTRS void __handleNeighboursDiscovery(void);
