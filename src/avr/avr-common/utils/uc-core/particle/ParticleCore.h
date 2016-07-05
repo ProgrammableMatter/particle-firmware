@@ -354,7 +354,7 @@ FUNC_ATTRS void particleTick(void) {
     advanceCommunicationProtocolCounters();
     __heartBeatToggle();
 
-    //// ---------------- init states ----------------
+    // ---------------- init states ----------------
 
     switch (ParticleAttributes.node.state) {
         case STATE_TYPE_START:
@@ -374,7 +374,7 @@ FUNC_ATTRS void particleTick(void) {
             SEI;
             break;
 
-            //// ---------------- discovery states ----------------
+            // ---------------- discovery states ----------------
 
         case STATE_TYPE_NEIGHBOURS_DISCOVERY:
             __discoveryLoopCount();
@@ -425,7 +425,7 @@ FUNC_ATTRS void particleTick(void) {
             clearReceptionBuffers();
             break;
 
-            //// ---------------- local enumeration states ----------------
+            // ---------------- local enumeration states ----------------
 
             // wait for incoming address from north neighbour
         case STATE_TYPE_WAIT_FOR_BEING_ENUMERATED:
@@ -436,7 +436,7 @@ FUNC_ATTRS void particleTick(void) {
             ParticleAttributes.node.state = STATE_TYPE_ENUMERATING_NEIGHBOURS;
             break;
 
-            //// ---------------- neighbour enumeration states ----------------
+            // ---------------- neighbour enumeration states ----------------
 
         case STATE_TYPE_ENUMERATING_NEIGHBOURS:
             // wait until neighbours reach state STATE_TYPE_WAIT_FOR_BEING_ENUMERATED and
@@ -448,7 +448,7 @@ FUNC_ATTRS void particleTick(void) {
             ParticleAttributes.node.state = STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR;
             break;
 
-            //// ---------------- east neighbour enumeration states ----------------
+            // ---------------- east neighbour enumeration states ----------------
 
         case STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR:
             __handleEnumerateNeighbour(&ParticleAttributes.communication.ports.tx.east,
@@ -466,7 +466,7 @@ FUNC_ATTRS void particleTick(void) {
             ParticleAttributes.node.state = STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR;
             break;
 
-            //// ---------------- south neighbour enumeration states ----------------
+            // ---------------- south neighbour enumeration states ----------------
 
         case STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR:
             __handleEnumerateNeighbour(&ParticleAttributes.communication.ports.tx.south,
@@ -482,7 +482,7 @@ FUNC_ATTRS void particleTick(void) {
             ParticleAttributes.node.state = STATE_TYPE_ENUMERATING_NEIGHBOURS_DONE;
             break;
 
-            //// ---------------- working states ----------------
+            // ---------------- working states ----------------
 
         case STATE_TYPE_ENUMERATING_NEIGHBOURS_DONE:
             ParticleAttributes.node.state = STATE_TYPE_IDLE;

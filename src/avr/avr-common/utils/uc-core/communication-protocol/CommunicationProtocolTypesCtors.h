@@ -67,7 +67,7 @@ extern CTOR_ATTRS void constructCommunicationProtocolPortState(volatile Communic
 CTOR_ATTRS void constructCommunicationProtocolPortState(volatile CommunicationProtocolPortState *o) {
     o->initiatorState = COMMUNICATION_INITIATOR_STATE_TYPE_IDLE;
     o->receptionistState = COMMUNICATION_RECEPTIONIST_STATE_TYPE_IDLE;
-    o->stateTimeoutCounter = COMMUNICATION_STATE_TIMEOUT_COUNTER;
+    o->stateTimeoutCounter = COMMUNICATION_PROTOCOL_TIMEOUT_COUNTER_MAX;
 }
 
 

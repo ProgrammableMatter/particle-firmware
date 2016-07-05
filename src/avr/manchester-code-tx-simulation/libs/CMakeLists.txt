@@ -1,3 +1,3 @@
-# @author: Raoul Rubien 2015
+# @author Raoul Rubien 2015
 
 add_subdirectory(uc-core)

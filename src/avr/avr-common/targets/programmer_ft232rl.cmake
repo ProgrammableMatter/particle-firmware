@@ -1,4 +1,4 @@
-# @author: Raoul Rubien 2015
+# @author Raoul Rubien 2015
 
 SET(PROGRAMMER ft232rl_dasa)
 

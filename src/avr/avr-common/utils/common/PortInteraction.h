@@ -1,5 +1,5 @@
 /**
- * @author: Raoul Rubien 2011
+ * @author Raoul Rubien 2011
  */
 
 #pragma once

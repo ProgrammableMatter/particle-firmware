@@ -56,16 +56,6 @@ FUNC_ATTRS void clearTransmissionPortBuffer(volatile TxPort *o) {
     bufferBitPointerStart(&o->buffer.pointer);
 }
 
-//extern FUNC_ATTRS void advanceCommunicationTimeoutCounter(volatile CommunicationProtocolState *commPortState);
-///**
-// * Advances the communication state timeout counter. A zero value indicates timeout.
-// */
-//FUNC_ATTRS void advanceCommunicationTimeoutCounter(volatile CommunicationProtocolState *commPortState) {
-//    if (commPortState->stateTimeoutCounter > 0) {
-//        commPortState->stateTimeoutCounter--;
-//    }
-//}
-
 extern FUNC_ATTRS void setReceptionistStateStart(volatile CommunicationProtocolPortState *commPortState);
 /**
  * Puts the receptionist in start state and sets the timeout counter.
@@ -74,6 +64,7 @@ FUNC_ATTRS void setReceptionistStateStart(volatile CommunicationProtocolPortStat
 //    ParticleAttributes.communicationProtocol.stateTimeoutCounter = COMMUNICATION_STATE_TIMEOUT_COUNTER;
     DEBUG_CHAR_OUT('r');
     commPortState->receptionistState = COMMUNICATION_RECEPTIONIST_STATE_TYPE_RECEIVE;
+    commPortState->stateTimeoutCounter = COMMUNICATION_PROTOCOL_TIMEOUT_COUNTER_MAX;
 }
 
 extern FUNC_ATTRS void setInitiatorStateStart(volatile CommunicationProtocolPortState *commPortState);
@@ -81,15 +72,7 @@ extern FUNC_ATTRS void setInitiatorStateStart(volatile CommunicationProtocolPort
  * Puts the initiator in start state and set the timeout counter.
  */
 FUNC_ATTRS void setInitiatorStateStart(volatile CommunicationProtocolPortState *commPortState) {
-//    ParticleAttributes.communicationProtocol.stateTimeoutCounter = COMMUNICATION_STATE_TIMEOUT_COUNTER;
     DEBUG_CHAR_OUT('T');
     commPortState->initiatorState = COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT;
+    commPortState->stateTimeoutCounter = COMMUNICATION_PROTOCOL_TIMEOUT_COUNTER_MAX;
 }
-
-//extern FUNC_ATTRS void reSetCommunicationProtocolReceptionTimeoutCounter(void);
-///**
-// *
-// */
-//FUNC_ATTRS void resetCommunicationReceptionTimeoutCounter(volatile CommunicationProtocolState *commPortState) {
-//    commPortState.stateTimeoutCounter = COMMUNICATION_STATE_TIMEOUT_COUNTER;
-//}

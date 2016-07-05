@@ -1,4 +1,4 @@
-# @author: Raoul Rubien 2015
+# @author Raoul Rubien 2015
 
 #include(${PROJECT_SOURCE_DIR}/crosscompile.cmake)
 
