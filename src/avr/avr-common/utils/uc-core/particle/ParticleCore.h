@@ -326,6 +326,24 @@ FUNC_ATTRS void __handleEnumerateNeighbour(volatile TxPort *txPort,
     }
 }
 
+extern FUNC_ATTRS void advanceCommunicationProtocolCounters(void);
+
+/**
+ * Advance communication timeout counters.
+ */
+extern FUNC_ATTRS void advanceCommunicationProtocolCounters(void) {
+    if (ParticleAttributes.protocol.ports.north.stateTimeoutCounter > 0) {
+        ParticleAttributes.protocol.ports.north.stateTimeoutCounter--;
+    }
+    if (ParticleAttributes.protocol.ports.east.stateTimeoutCounter > 0) {
+        ParticleAttributes.protocol.ports.east.stateTimeoutCounter--;
+    }
+    if (ParticleAttributes.protocol.ports.south.stateTimeoutCounter > 0) {
+        ParticleAttributes.protocol.ports.south.stateTimeoutCounter--;
+    }
+
+}
+
 extern FUNC_ATTRS void particleTick(void);
 /**
  * This function is called cyclically in the particle loop. It implements the
@@ -333,6 +351,7 @@ extern FUNC_ATTRS void particleTick(void);
  */
 FUNC_ATTRS void particleTick(void) {
     DEBUG_CHAR_OUT('P');
+    advanceCommunicationProtocolCounters();
     __heartBeatToggle();
 
     //// ---------------- init states ----------------
@@ -369,9 +388,7 @@ FUNC_ATTRS void particleTick(void) {
                     __disableDiscoverySensing();
                     ParticleAttributes.node.state = STATE_TYPE_NEIGHBOURS_DISCOVERED;
                 } else {
-                    // TODO: find the lower bound and decide how log a good delay is
-                    DELAY_US_15;
-                    DELAY_US_15;
+                    DISCOVERY_LOOP_DELAY;
                 }
                 __updateOriginNodeAddress();
             }
@@ -472,23 +489,20 @@ FUNC_ATTRS void particleTick(void) {
             break;
 
         case STATE_TYPE_IDLE:
-
-            // constructRxSnapshotBuffer(&o->snapshotsBuffer);
-            // todo: reset the manchester decoder state before next reception
-
             __receiveNorth();
             __receiveEast();
             __receiveSouth();
             break;
 
+        case STATE_TYPE_UNDEFINED:
         case STATE_TYPE_ERRONEOUS:
-        default:
+        case STATE_TYPE_STALE:
             forever {
                 LED_STATUS0_ON;
                 DELAY_MS_196;
                 LED_STATUS0_OFF;
                 DELAY_MS_196;
             }
-//            break;
+            break;
     }
 }
