@@ -112,6 +112,6 @@ if __name__ == "__main__":
     xData, yData, annotations = dataFilter.getData(nodeFilter)
     dataPlotter.addPlot(xData, yData, annotations, "[1] int16-out")
 
-    dataPlotter.setWindowTitle("Network 2x1 Simulation")
+    dataPlotter.setWindowTitle("Network 1x2 Simulation")
     dataFilter.printValues()
     dataPlotter.plot()
