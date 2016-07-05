@@ -21,6 +21,7 @@ FUNC_ATTRS int particleLoop(void) {
     constructParticleState(&ParticleAttributes);
     ParticleAttributes.node.state = STATE_TYPE_START;
     forever {
+        PARTICLE_LOOP_DELAY;
         particleTick();
         if (ParticleAttributes.node.state == STATE_TYPE_ERRONEOUS) {
             return 1;

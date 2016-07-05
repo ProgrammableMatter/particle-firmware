@@ -7,5 +7,6 @@
 /**
  * Amount of delay before each particle loop is entered.
  */
-#define PARTICLE_LOOP_DELAY \
-    DELAY_US_15
+//#define PARTICLE_LOOP_DELAY DELAY_US_5
+
+#define PARTICLE_LOOP_DELAY
