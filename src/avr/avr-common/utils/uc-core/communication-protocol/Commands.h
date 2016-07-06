@@ -24,4 +24,5 @@ extern FUNC_ATTRS void executeSetLocalAddress(volatile EnumerationPackage *packa
 FUNC_ATTRS void executeSetLocalAddress(volatile EnumerationPackage *package) {
     ParticleAttributes.node.address.row = package->addressRow0;
     ParticleAttributes.node.address.column = package->addressColumn0;
+    ParticleAttributes.protocol.hasNetworkGeometryDiscoveryBreadCrumb = package->hasNetworkGeometryDiscoveryBreadCrumb;
 }

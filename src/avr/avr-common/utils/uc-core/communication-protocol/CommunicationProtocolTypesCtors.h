@@ -33,4 +33,5 @@ extern CTOR_ATTRS void constructCommunicationProtocol(volatile CommunicationProt
 
 CTOR_ATTRS void constructCommunicationProtocol(volatile CommunicationProtocol *o) {
     constructCommunicationProtocolPorts(&o->ports);
+    o->hasNetworkGeometryDiscoveryBreadCrumb = false;
 }

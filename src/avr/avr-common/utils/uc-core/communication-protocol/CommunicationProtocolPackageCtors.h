@@ -24,13 +24,22 @@ CTOR_ATTRS void constructSendEnumeratePackage(volatile TxPort *txPort, uint8_t l
     Package *package = (Package *) txPort->buffer.bytes;
 
     package->asEnumerationPackage.__startBit = 1;
-//    package->asEnumerationPackage.headerIsStream = false;
-//    package->asEnumerationPackage.headerIsCommand = true;
-//    package->asEnumerationPackage.headerIsBroadcast = false;
+
+    // on local bread crumb available or origin node
+    if (ParticleAttributes.protocol.hasNetworkGeometryDiscoveryBreadCrumb
+        || ParticleAttributes.node.type == NODE_TYPE_ORIGIN) {
+        // on tx east or tx south and no east connectivity
+        if (txPort == &ParticleAttributes.communication.ports.tx.east
+            || (txPort == &ParticleAttributes.communication.ports.tx.south
+                && !ParticleAttributes.discoveryPulseCounters.east.isConnected)) {
+            package->asEnumerationPackage.hasNetworkGeometryDiscoveryBreadCrumb = true;
+        } else {
+            package->asEnumerationPackage.hasNetworkGeometryDiscoveryBreadCrumb = false;
+        }
+    }
     package->asEnumerationPackage.headerId = PACKAGE_HEADER_ID_TYPE_ENUMERATE;
     package->asEnumerationPackage.addressRow0 = localAddressRow;
     package->asEnumerationPackage.addressColumn0 = localAddressColumn;
-
     setBufferDataEndPointer(txPort->dataEndPos, EnumerationPackageBufferPointerSize);
 }
 

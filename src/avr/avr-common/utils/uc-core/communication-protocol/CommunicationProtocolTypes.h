@@ -116,10 +116,13 @@ typedef struct AckWithAddressPackage {
  */
 typedef struct EnumerationPackage {
     uint8_t __startBit : 1;
-    uint8_t headerIsBreadCrumb : 1;
+    uint8_t headerIsStream : 1;
     uint8_t headerId : 4;
-    uint8_t __reserved0 : 1;
-    uint8_t __reserved1 : 1;
+    /**
+     * Bread crumb is passed until the highest network address is reached.
+     */
+    uint8_t hasNetworkGeometryDiscoveryBreadCrumb : 1;
+    uint8_t __pad : 1;
     uint8_t addressRow0 : 8;
     uint8_t addressColumn0 : 8;
 } EnumerationPackage;
@@ -128,7 +131,7 @@ typedef struct EnumerationPackage {
  * PackageHeaderAddress length expressed as BufferPointer
  */
 #define EnumerationPackageBufferPointerSize \
-    ((((uint16_t) 0x0100) << 0)\
+    ((((uint16_t) 0x0100) << 0) \
     |((uint16_t) 0x0003))
 
 
@@ -153,7 +156,6 @@ typedef struct PackageHeaderAddressRange {
 #define PackageHeaderAddressRangeBufferPointerSize \
     ((((uint16_t) 0x0100) << 0) \
     |((uint16_t) 0x0005))
-
 
 
 /**
@@ -181,8 +183,6 @@ typedef struct TimePackage {
 typedef union Package {
     PackageHeader asHeader;
     AckPackage asACKPackage;
-//    PackageHeader asBroadcastHeader;
-
     AckWithAddressPackage asACKWithLocalAddress;
     AckWithAddressPackage asACKWithRemoteAddress;
     EnumerationPackage asEnumerationPackage;
@@ -212,4 +212,6 @@ typedef struct CommunicationProtocolPorts {
  */
 typedef struct CommunicationProtocol {
     CommunicationProtocolPorts ports;
+    uint8_t hasNetworkGeometryDiscoveryBreadCrumb : 1;
+    uint8_t __pad : 7;
 } CommunicationProtocol;
