@@ -31,7 +31,7 @@ CTOR_ATTRS void constructSendEnumeratePackage(volatile TxPort *txPort, uint8_t l
     package->asEnumerationPackage.addressRow0 = localAddressRow;
     package->asEnumerationPackage.addressColumn0 = localAddressColumn;
 
-    setBufferDataEndPointer(txPort->dataEndPos, PackageHeaderAddressBufferPointerSize);
+    setBufferDataEndPointer(txPort->dataEndPos, EnumerationPackageBufferPointerSize);
 }
 
 
@@ -44,7 +44,7 @@ CTOR_ATTRS void constructSendACKPackage(volatile TxPort *txPort) {
     Package *package = (Package *) txPort->buffer.bytes;
     package->asACKPackage.__startBit = 1;
     package->asACKPackage.headerId = PACKAGE_HEADER_ID_TYPE_ACK;
-    setBufferDataEndPointer(txPort->dataEndPos, PackageHeaderBufferPointerSize);
+    setBufferDataEndPointer(txPort->dataEndPos, AckPackagePointerSize);
 }
 
 extern CTOR_ATTRS void constructSendEnumeratedACKWithAddressToParentPackage(void);
@@ -58,7 +58,7 @@ CTOR_ATTRS void constructSendEnumeratedACKWithAddressToParentPackage(void) {
     package->asACKWithLocalAddress.addressRow0 = ParticleAttributes.node.address.row;
     package->asACKWithLocalAddress.addressColumn0 = ParticleAttributes.node.address.column;
     setBufferDataEndPointer(ParticleAttributes.communication.ports.tx.north.dataEndPos,
-                            PackageHeaderAddressBufferPointerSize);
+                            AckWithAddressPackageBufferPointerSize);
 }
 
 extern CTOR_ATTRS void constructSendSyncTimePackage(volatile TxPort *txPort);
@@ -70,5 +70,5 @@ CTOR_ATTRS void constructSendSyncTimePackage(volatile TxPort *txPort) {
     package->asSyncTimePackage.__startBit = 1;
     package->asSyncTimePackage.headerId = PACKAGE_HEADER_ID_TYPE_SYNC_TIME;
     package->asSyncTimePackage.time = TIMER_TX_RX_COUNTER_VALUE;
-    setBufferDataEndPointer(txPort->dataEndPos, PackageHeaderTimeBufferPointerSize);
+    setBufferDataEndPointer(txPort->dataEndPos, TimePackageBufferPointerSize);
 }

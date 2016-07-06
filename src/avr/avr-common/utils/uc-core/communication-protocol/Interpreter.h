@@ -23,7 +23,7 @@ FUNC_ATTRS void __interpretWaitForBeingEnumeratedReception(volatile RxPort *rxPo
         case COMMUNICATION_RECEPTIONIST_STATE_TYPE_RECEIVE:
             // on address package
             if (package->asHeader.headerId == PACKAGE_HEADER_ID_TYPE_ENUMERATE &&
-                equalsPackageSize(rxPort->buffer.pointer, PackageHeaderAddressBufferPointerSize)) {
+                equalsPackageSize(rxPort->buffer.pointer, EnumerationPackageBufferPointerSize)) {
                 executeSetLocalAddress(&package->asEnumerationPackage);
                 // send ack with local address back
                 DEBUG_CHAR_OUT('a');
@@ -34,7 +34,7 @@ FUNC_ATTRS void __interpretWaitForBeingEnumeratedReception(volatile RxPort *rxPo
 
             // on received ack
         case COMMUNICATION_RECEPTIONIST_STATE_TYPE_WAIT_FOR_RESPONSE:
-            if (equalsPackageSize(rxPort->buffer.pointer, PackageHeaderBufferPointerSize) &&
+            if (equalsPackageSize(rxPort->buffer.pointer, AckPackagePointerSize) &&
                 package->asACKPackage.headerId == PACKAGE_HEADER_ID_TYPE_ACK) {
                 DEBUG_CHAR_OUT('d');
                 commPortState->receptionistState = COMMUNICATION_RECEPTIONIST_STATE_TYPE_IDLE;
@@ -98,7 +98,7 @@ FUNC_ATTRS void __interpretEnumerateNeighbourAckReception(volatile RxPort *rxPor
         case COMMUNICATION_INITIATOR_STATE_TYPE_WAIT_FOR_RESPONSE:
             // on ack with data
             if (package->asHeader.headerId == PACKAGE_HEADER_ID_TYPE_ACK_WITH_DATA &&
-                equalsPackageSize(rxPort->buffer.pointer, PackageHeaderAddressBufferPointerSize)) {
+                equalsPackageSize(rxPort->buffer.pointer, AckWithAddressPackageBufferPointerSize)) {
                 // on correct address
                 if (expectedRemoteAddressRow == package->asACKWithRemoteAddress.addressRow0 &&
                     expectedRemoteAddressColumn == package->asACKWithRemoteAddress.addressColumn0) {
