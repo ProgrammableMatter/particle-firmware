@@ -24,16 +24,17 @@ typedef enum StateType {
 
     STATE_TYPE_WAIT_FOR_BEING_ENUMERATED, // wait for receiving a local address from parent/north port
     STATE_TYPE_LOCALLY_ENUMERATED, // local address is assigned successfully
-
     STATE_TYPE_ENUMERATING_NEIGHBOURS, // starting neighbour enumeration
-
     STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR, // assigning network address to east neighbour
     STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR_DONE, // east enumeration finished
-
     STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR, // assigning network address to south neighbour
     STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR_DONE, // south enumeration finished
-
     STATE_TYPE_ENUMERATING_NEIGHBOURS_DONE, // neighbour enumeration finished
+
+    STATE_TYPE_SYNC_EAST_NEIGHBOUR, // sending local time to east
+    STATE_TYPE_SYNC_EAST_NEIGHBOUR_DONE, // sending local time to east finished
+    STATE_TYPE_SYNC_SOUTH_NEIGHBOUR, // sending local time to south
+    STATE_TYPE_SYNC_SOUTH_NEIGHBOUR_DONE, // sending local time to south finished
 
     STATE_TYPE_IDLE, // waiting for commands
     STATE_TYPE_ERRONEOUS, // erroneous state machine state

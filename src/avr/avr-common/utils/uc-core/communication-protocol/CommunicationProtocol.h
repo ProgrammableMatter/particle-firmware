@@ -52,7 +52,7 @@ extern FUNC_ATTRS void clearTransmissionPortBuffer(volatile TxPort *o);
  * prepares the given transmission port for buffering and later transmission
  */
 FUNC_ATTRS void clearTransmissionPortBuffer(volatile TxPort *o) {
-    o->isTransmitting = false;
+    o->isTransmitting = false; // TODO: isTransmitting is cleared on each tx end
     bufferBitPointerStart(&o->buffer.pointer);
 }
 

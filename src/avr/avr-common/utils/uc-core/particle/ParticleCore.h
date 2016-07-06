@@ -266,7 +266,7 @@ extern FUNC_ATTRS void __handleEnumerateNeighbour(volatile TxPort *txPort,
                                                   uint8_t remoteAddressColumn,
                                                   StateType endState);
 /**
- * Handles "enumerate neighbour" communication states.
+ * Handles neighbour enumeration communication states.
  */
 FUNC_ATTRS void __handleEnumerateNeighbour(volatile TxPort *txPort,
                                            volatile CommunicationProtocolPortState *commPortState,
@@ -328,13 +328,59 @@ FUNC_ATTRS void __handleEnumerateNeighbour(volatile TxPort *txPort,
             }
             DEBUG_CHAR_OUT('D');
             commPortState->initiatorState = COMMUNICATION_INITIATOR_STATE_TYPE_IDLE;
+            goto __COMMUNICATION_INITIATOR_STATE_TYPE_IDLE;
             break;
 
+        __COMMUNICATION_INITIATOR_STATE_TYPE_IDLE:
         case COMMUNICATION_INITIATOR_STATE_TYPE_IDLE:
             ParticleAttributes.node.state = endState;
             break;
     }
 }
+
+extern FUNC_ATTRS void __handleSynchronizeNeighbour(volatile TxPort *txPort,
+                                                    volatile CommunicationProtocolPortState *commPortState,
+                                                    volatile PulseCounter *discoveryPulseCounter,
+                                                    StateType endState);
+/**
+ * Handles neighbour synchronization communication states.
+ */
+FUNC_ATTRS void __handleSynchronizeNeighbour(volatile TxPort *txPort,
+                                             volatile CommunicationProtocolPortState *commPortState,
+                                             volatile PulseCounter *discoveryPulseCounter,
+                                             StateType endState) {
+    switch (commPortState->initiatorState) {
+        // transmit local time
+        case COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT:
+            if (discoveryPulseCounter->isConnected) {
+                clearTransmissionPortBuffer(txPort);
+                constructSendSyncTimePackage(txPort);
+                enableTransmission(txPort);
+                commPortState->initiatorState = COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT_WAIT_FOR_TX_FINISHED;
+            } else {
+                ParticleAttributes.node.state = endState;
+            }
+            break;
+
+            // wait for tx finished
+        case COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT_WAIT_FOR_TX_FINISHED:
+            if (txPort->isTransmitting) {
+                break;
+            }
+            commPortState->initiatorState = COMMUNICATION_INITIATOR_STATE_TYPE_IDLE;
+            goto __COMMUNICATION_INITIATOR_STATE_TYPE_IDLE;
+            break;
+
+        case COMMUNICATION_INITIATOR_STATE_TYPE_WAIT_FOR_RESPONSE:
+        case COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT_ACK:
+        case COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT_ACK_WAIT_FOR_TX_FINISHED:
+        __COMMUNICATION_INITIATOR_STATE_TYPE_IDLE:
+        case COMMUNICATION_INITIATOR_STATE_TYPE_IDLE:
+            ParticleAttributes.node.state = endState;
+            break;
+    }
+}
+
 
 extern FUNC_ATTRS void __advanceCommunicationProtocolCounters(void);
 
@@ -417,7 +463,6 @@ extern FUNC_ATTRS void particleTick(void);
  */
 FUNC_ATTRS void particleTick(void) {
     DEBUG_CHAR_OUT('P');
-    __advanceCommunicationProtocolCounters();
     __heartBeatToggle();
 
     // ---------------- init states ----------------
@@ -492,6 +537,7 @@ FUNC_ATTRS void particleTick(void) {
                                        ParticleAttributes.node.address.row,
                                        ParticleAttributes.node.address.column + 1,
                                        STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR_DONE);
+            __advanceCommunicationProtocolCounters();
             break;
 
         case STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR_DONE:
@@ -510,15 +556,37 @@ FUNC_ATTRS void particleTick(void) {
                                        ParticleAttributes.node.address.row + 1,
                                        ParticleAttributes.node.address.column,
                                        STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR_DONE);
+            __advanceCommunicationProtocolCounters();
             break;
 
         case STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR_DONE:
             ParticleAttributes.node.state = STATE_TYPE_ENUMERATING_NEIGHBOURS_DONE;
             break;
 
+        case STATE_TYPE_ENUMERATING_NEIGHBOURS_DONE:
+            ParticleAttributes.node.state = STATE_TYPE_IDLE;
+            break;
+
             // ---------------- working states ----------------
 
-        case STATE_TYPE_ENUMERATING_NEIGHBOURS_DONE:
+        case STATE_TYPE_SYNC_EAST_NEIGHBOUR:
+            __handleSynchronizeNeighbour(&ParticleAttributes.communication.ports.tx.east,
+                                         &ParticleAttributes.protocol.ports.east,
+                                         &ParticleAttributes.discoveryPulseCounters.east,
+                                         STATE_TYPE_SYNC_EAST_NEIGHBOUR_DONE);
+            break;
+
+        case STATE_TYPE_SYNC_EAST_NEIGHBOUR_DONE:
+            ParticleAttributes.node.state = STATE_TYPE_SYNC_SOUTH_NEIGHBOUR;
+            break;
+
+        case STATE_TYPE_SYNC_SOUTH_NEIGHBOUR:
+            __handleSynchronizeNeighbour(&ParticleAttributes.communication.ports.tx.south,
+                                         &ParticleAttributes.protocol.ports.south,
+                                         &ParticleAttributes.discoveryPulseCounters.south,
+                                         STATE_TYPE_SYNC_SOUTH_NEIGHBOUR_DONE);
+            break;
+        case STATE_TYPE_SYNC_SOUTH_NEIGHBOUR_DONE:
             ParticleAttributes.node.state = STATE_TYPE_IDLE;
             break;
 

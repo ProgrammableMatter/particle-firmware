@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "InterpreterTypes.h"
 #include "CommunicationProtocolTypes.h"
+#include "Commands.h"
 
 
 extern FUNC_ATTRS void __interpretWaitForBeingEnumeratedReception(volatile RxPort *rxPort,
@@ -24,9 +24,7 @@ FUNC_ATTRS void __interpretWaitForBeingEnumeratedReception(volatile RxPort *rxPo
             // on address package
             if (package->asHeader.headerId == PACKAGE_HEADER_ID_TYPE_ENUMERATE &&
                 equalsPackageSize(rxPort->buffer.pointer, PackageHeaderAddressBufferPointerSize)) {
-                // set local address
-                ParticleAttributes.node.address.row = package->asEnumerationPackage.addressRow0;
-                ParticleAttributes.node.address.column = package->asEnumerationPackage.addressColumn0;
+                executeSetLocalAddress(&package->asEnumerationPackage);
                 // send ack with local address back
                 DEBUG_CHAR_OUT('a');
                 commPortState->receptionistState = COMMUNICATION_RECEPTIONIST_STATE_TYPE_TRANSMIT_ACK;
@@ -53,17 +51,43 @@ FUNC_ATTRS void __interpretWaitForBeingEnumeratedReception(volatile RxPort *rxPo
     }
 }
 
-extern FUNC_ATTRS void __interpretEnumerateNeighbourReception(volatile RxPort *rxPort,
+extern FUNC_ATTRS void __interpretReceivedPackage(volatile RxPort *rxPort
+        //, volatile CommunicationProtocolPortState *commPortState
+);
+
+/**
+ * Interpret received packages in idle state.
+ */
+FUNC_ATTRS void __interpretReceivedPackage(volatile RxPort *rxPort
+        //, volatile CommunicationProtocolPortState *commPortState
+) {
+    Package *package = (Package *) rxPort->buffer.bytes;
+
+    switch (package->asHeader.headerId) {
+
+        case PACKAGE_HEADER_ID_TYPE_SYNC_TIME:
+            executeSetLocalTime(&package->asSyncTimePackage);
+            clearReceptionBuffer(rxPort);
+            break;
+
+        default:
+            clearReceptionBuffer(rxPort);
+            break;
+    }
+}
+
+
+extern FUNC_ATTRS void __interpretEnumerateNeighbourAckReception(volatile RxPort *rxPort,
                                                               volatile CommunicationProtocolPortState *commPortState,
                                                               uint8_t expectedRemoteAddressRow,
                                                               uint8_t expectedRemoteAddressColumn);
 /**
- * Interprets reception in "enumerate neighbour" states.
+ * Interprets reception in neighbour enumeration states.
  */
-FUNC_ATTRS void __interpretEnumerateNeighbourReception(volatile RxPort *rxPort,
-                                                       volatile CommunicationProtocolPortState *commPortState,
-                                                       uint8_t expectedRemoteAddressRow,
-                                                       uint8_t expectedRemoteAddressColumn) {
+FUNC_ATTRS void __interpretEnumerateNeighbourAckReception(volatile RxPort *rxPort,
+                                                          volatile CommunicationProtocolPortState *commPortState,
+                                                          uint8_t expectedRemoteAddressRow,
+                                                          uint8_t expectedRemoteAddressColumn) {
     DEBUG_INT16_OUT(expectedRemoteAddressRow);
     DEBUG_INT16_OUT(ParticleAttributes.node.address.row);
     DEBUG_INT16_OUT(expectedRemoteAddressColumn);
@@ -109,7 +133,7 @@ FUNC_ATTRS void interpretRxBuffer(volatile RxPort *rxPort,
                                   volatile CommunicationProtocolPortState *commPortState) {
 
     DEBUG_CHAR_OUT('I');
-    if (!isDataAvailable(rxPort)) {
+    if (!rxPort->isDataBuffered) {
         DEBUG_CHAR_OUT('i');
         return;
     }
@@ -121,15 +145,20 @@ FUNC_ATTRS void interpretRxBuffer(volatile RxPort *rxPort,
 
 
         case STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR:
-            __interpretEnumerateNeighbourReception(rxPort, commPortState, ParticleAttributes.node.address.row,
+            __interpretEnumerateNeighbourAckReception(rxPort, commPortState,
+                                                      ParticleAttributes.node.address.row,
                                                    ParticleAttributes.node.address.column + 1);
             break;
 
 
         case STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR:
-            __interpretEnumerateNeighbourReception(rxPort, commPortState,
+            __interpretEnumerateNeighbourAckReception(rxPort, commPortState,
                                                    ParticleAttributes.node.address.row + 1,
-                                                   ParticleAttributes.node.address.column);
+                                                      ParticleAttributes.node.address.column);
+            break;
+
+        case STATE_TYPE_IDLE:
+            __interpretReceivedPackage(rxPort); //, commPortState);
             break;
 
         default:

@@ -8,9 +8,10 @@
 
 #pragma once
 
-#include "uc-core/particle/Globals.h"
 #include "./CommunicationProtocol.h"
 #include "./CommunicationProtocolTypes.h"
+#include "uc-core/particle/Globals.h"
+#include "uc-core/interrupts/TimerCounter.h"
 
 extern CTOR_ATTRS void constructSendEnumeratePackage(volatile TxPort *txPort,
                                                      uint8_t localAddressRow,
@@ -21,15 +22,14 @@ extern CTOR_ATTRS void constructSendEnumeratePackage(volatile TxPort *txPort,
 CTOR_ATTRS void constructSendEnumeratePackage(volatile TxPort *txPort, uint8_t localAddressRow,
                                               uint8_t localAddressColumn) {
     Package *package = (Package *) txPort->buffer.bytes;
-    PackageHeaderAddress *pha = &package->asEnumerationPackage;
 
-    pha->__startBit = 1;
-    pha->headerIsStream = false;
-    pha->headerIsCommand = true;
-    pha->headerIsBroadcast = false;
-    pha->headerId = PACKAGE_HEADER_ID_TYPE_ENUMERATE;
-    pha->addressRow0 = localAddressRow;
-    pha->addressColumn0 = localAddressColumn;
+    package->asEnumerationPackage.__startBit = 1;
+//    package->asEnumerationPackage.headerIsStream = false;
+//    package->asEnumerationPackage.headerIsCommand = true;
+//    package->asEnumerationPackage.headerIsBroadcast = false;
+    package->asEnumerationPackage.headerId = PACKAGE_HEADER_ID_TYPE_ENUMERATE;
+    package->asEnumerationPackage.addressRow0 = localAddressRow;
+    package->asEnumerationPackage.addressColumn0 = localAddressColumn;
 
     setBufferDataEndPointer(txPort->dataEndPos, PackageHeaderAddressBufferPointerSize);
 }
@@ -42,9 +42,8 @@ extern CTOR_ATTRS void constructSendACKPackage(volatile TxPort *txPort);
 CTOR_ATTRS void constructSendACKPackage(volatile TxPort *txPort) {
 //    PackageHeader *ph = &((Package *)txPort->buffer.bytes)->asACKPackage;
     Package *package = (Package *) txPort->buffer.bytes;
-    PackageHeader *ph = &package->asACKPackage;
-    ph->__startBit = 1;
-    ph->headerId = PACKAGE_HEADER_ID_TYPE_ACK;
+    package->asACKPackage.__startBit = 1;
+    package->asACKPackage.headerId = PACKAGE_HEADER_ID_TYPE_ACK;
     setBufferDataEndPointer(txPort->dataEndPos, PackageHeaderBufferPointerSize);
 }
 
@@ -54,11 +53,10 @@ extern CTOR_ATTRS void constructSendEnumeratedACKWithAddressToParentPackage(void
  */
 CTOR_ATTRS void constructSendEnumeratedACKWithAddressToParentPackage(void) {
     Package *package = (Package *) ParticleAttributes.communication.ports.tx.north.buffer.bytes;
-    PackageHeaderAddress *pha = &package->asACKWithLocalAddress;
-    pha->__startBit = 1;
-    pha->headerId = PACKAGE_HEADER_ID_TYPE_ACK_WITH_DATA;
-    pha->addressRow0 = ParticleAttributes.node.address.row;
-    pha->addressColumn0 = ParticleAttributes.node.address.column;
+    package->asACKWithLocalAddress.__startBit = 1;
+    package->asACKWithLocalAddress.headerId = PACKAGE_HEADER_ID_TYPE_ACK_WITH_DATA;
+    package->asACKWithLocalAddress.addressRow0 = ParticleAttributes.node.address.row;
+    package->asACKWithLocalAddress.addressColumn0 = ParticleAttributes.node.address.column;
     setBufferDataEndPointer(ParticleAttributes.communication.ports.tx.north.dataEndPos,
                             PackageHeaderAddressBufferPointerSize);
 }
@@ -69,8 +67,8 @@ extern CTOR_ATTRS void constructSendSyncTimePackage(volatile TxPort *txPort);
  */
 CTOR_ATTRS void constructSendSyncTimePackage(volatile TxPort *txPort) {
     Package *package = (Package *) txPort->buffer.bytes;
-    PackageHeaderTime *pht = &package->asSyncTimePackage;
-    pht->__startBit = 1;
-    pht->headerId = PACKAGE_HEADER_ID_TYPE_SYNC_TIME;
+    package->asSyncTimePackage.__startBit = 1;
+    package->asSyncTimePackage.headerId = PACKAGE_HEADER_ID_TYPE_SYNC_TIME;
+    package->asSyncTimePackage.time = TIMER_TX_RX_COUNTER_VALUE;
     setBufferDataEndPointer(txPort->dataEndPos, PackageHeaderTimeBufferPointerSize);
 }

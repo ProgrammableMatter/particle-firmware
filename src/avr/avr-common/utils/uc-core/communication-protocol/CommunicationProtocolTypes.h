@@ -94,6 +94,27 @@ typedef struct PackageHeaderAddress {
     |((uint16_t) 0x0003))
 
 /**
+ * describes a package header with subsequent enumeration address and bread crumb flag
+ */
+typedef struct PackageHeaderEnumeration {
+    uint8_t __startBit : 1;
+    uint8_t headerIsBreadCrumb : 1;
+    uint8_t __reserved0 : 1;
+    uint8_t __reserved1 : 1;
+    uint8_t headerId : 4;
+    uint8_t addressRow0 : 8;
+    uint8_t addressColumn0 : 8;
+} PackageHeaderEnumeration;
+
+/**
+ * PackageHeaderAddress length expressed as BufferPointer
+ */
+#define PackageHeaderEnumerationBufferPointerSize \
+    ((((uint16_t) 0x0100) << 0)\
+    |((uint16_t) 0x0003))
+
+
+/**
  * describes a package header with subsequent address range
  */
 typedef struct PackageHeaderAddressRange {
@@ -351,7 +372,7 @@ typedef union Package {
 
     PackageHeaderAddress asACKWithLocalAddress;
     PackageHeaderAddress asACKWithRemoteAddress;
-    PackageHeaderAddress asEnumerationPackage;
+    PackageHeaderEnumeration asEnumerationPackage;
     PackageHeaderTime asSyncTimePackage;
     PackageHeaderAddressRange asMulticastHeader;
 

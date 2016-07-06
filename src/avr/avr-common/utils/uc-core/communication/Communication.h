@@ -8,13 +8,13 @@
 #include "CommunicationTypes.h"
 #include "ManchesterDecodingTypes.h"
 
-extern FUNC_ATTRS bool isDataAvailable(volatile RxPort *o);
-/**
- * returns true if data on the specified is available, false otherwise
- */
-FUNC_ATTRS bool isDataAvailable(volatile RxPort *o) {
-    return o->isDataBuffered;
-}
+//extern FUNC_ATTRS bool isDataAvailable(volatile RxPort *o);
+///**
+// * returns true if data on the specified is available, false otherwise
+// */
+//FUNC_ATTRS bool isDataAvailable(volatile RxPort *o) {
+//    return o->isDataBuffered;
+//}
 
 extern FUNC_ATTRS void bufferBitPointerIncrement(volatile BufferBitPointer *o);
 /**
