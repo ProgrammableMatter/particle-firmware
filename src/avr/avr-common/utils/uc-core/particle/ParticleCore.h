@@ -388,13 +388,16 @@ extern FUNC_ATTRS void __advanceCommunicationProtocolCounters(void);
  * Advance communication timeout counters.
  */
 extern FUNC_ATTRS void __advanceCommunicationProtocolCounters(void) {
-    if (ParticleAttributes.protocol.ports.north.stateTimeoutCounter > 0) {
+    if (!ParticleAttributes.communication.ports.tx.north.isTransmitting &&
+        ParticleAttributes.protocol.ports.north.stateTimeoutCounter > 0) {
         ParticleAttributes.protocol.ports.north.stateTimeoutCounter--;
     }
-    if (ParticleAttributes.protocol.ports.east.stateTimeoutCounter > 0) {
+    if (!ParticleAttributes.communication.ports.tx.east.isTransmitting &&
+        ParticleAttributes.protocol.ports.east.stateTimeoutCounter > 0) {
         ParticleAttributes.protocol.ports.east.stateTimeoutCounter--;
     }
-    if (ParticleAttributes.protocol.ports.south.stateTimeoutCounter > 0) {
+    if (!ParticleAttributes.communication.ports.tx.south.isTransmitting &&
+        ParticleAttributes.protocol.ports.south.stateTimeoutCounter > 0) {
         ParticleAttributes.protocol.ports.south.stateTimeoutCounter--;
     }
 }
