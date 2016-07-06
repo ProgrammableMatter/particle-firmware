@@ -31,6 +31,11 @@ typedef enum StateType {
     STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR_DONE, // south enumeration finished
     STATE_TYPE_ENUMERATING_NEIGHBOURS_DONE, // neighbour enumeration finished
 
+    STATE_TYPE_ANNOUNCE_NETWORK_GEOMETRY, // last particle sends local address to the origin
+    STATE_TYPE_ANNOUNCE_NETWORK_GEOMETRY_RELAY, // relay announcement to origin state
+    STATE_TYPE_ANNOUNCE_NETWORK_GEOMETRY_RELAY_DONE, // relay state done
+    STATE_TYPE_ANNOUNCE_NETWORK_GEOMETRY_DONE, // local address announcement done
+
     STATE_TYPE_SYNC_EAST_NEIGHBOUR, // sending local time to east
     STATE_TYPE_SYNC_EAST_NEIGHBOUR_DONE, // sending local time to east finished
     STATE_TYPE_SYNC_SOUTH_NEIGHBOUR, // sending local time to south

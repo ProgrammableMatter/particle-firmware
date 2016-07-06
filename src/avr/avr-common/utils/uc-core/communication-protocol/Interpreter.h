@@ -29,7 +29,7 @@ FUNC_ATTRS void __interpretWaitForBeingEnumeratedReception(volatile RxPort *rxPo
                 DEBUG_CHAR_OUT('a');
                 commPortState->receptionistState = COMMUNICATION_RECEPTIONIST_STATE_TYPE_TRANSMIT_ACK;
             }
-            clearReceptionBuffer(rxPort);
+            clearReceptionPortBuffer(rxPort);
             break;
 
             // on received ack
@@ -40,13 +40,13 @@ FUNC_ATTRS void __interpretWaitForBeingEnumeratedReception(volatile RxPort *rxPo
                 commPortState->receptionistState = COMMUNICATION_RECEPTIONIST_STATE_TYPE_IDLE;
                 ParticleAttributes.node.state = STATE_TYPE_LOCALLY_ENUMERATED;
             }
-            clearReceptionBuffer(rxPort);
+            clearReceptionPortBuffer(rxPort);
             break;
 
         case COMMUNICATION_RECEPTIONIST_STATE_TYPE_IDLE:
         case COMMUNICATION_RECEPTIONIST_STATE_TYPE_TRANSMIT_ACK:
         case COMMUNICATION_RECEPTIONIST_STATE_TYPE_TRANSMIT_ACK_WAIT_TX_FINISHED:
-            clearReceptionBuffer(rxPort);
+            clearReceptionPortBuffer(rxPort);
             break;
     }
 }
@@ -67,11 +67,16 @@ FUNC_ATTRS void __interpretReceivedPackage(volatile RxPort *rxPort
 
         case PACKAGE_HEADER_ID_TYPE_SYNC_TIME:
             executeSetLocalTime(&package->asSyncTimePackage);
-            clearReceptionBuffer(rxPort);
+            clearReceptionPortBuffer(rxPort);
+            break;
+
+        case PACKAGE_HEADER_ID_TYPE_NETWORK_GEOMETRY_RESPONSE:
+            executeRelayAnnounceNetworkGeometryPackage(&package->asAnnounceNetworkGeometryPackage);
+            clearReceptionPortBuffer(rxPort);
             break;
 
         default:
-            clearReceptionBuffer(rxPort);
+            clearReceptionPortBuffer(rxPort);
             break;
     }
 }
@@ -111,7 +116,7 @@ FUNC_ATTRS void __interpretEnumerateNeighbourAckReception(volatile RxPort *rxPor
                 }
             }
 
-            clearReceptionBuffer(rxPort);
+            clearReceptionPortBuffer(rxPort);
             break;
         case COMMUNICATION_INITIATOR_STATE_TYPE_IDLE:
 //            ParticleAttributes.node.state = endState;

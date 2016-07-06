@@ -244,7 +244,7 @@ FUNC_ATTRS void __handleWaitForBeingEnumerated(volatile CommunicationProtocolPor
             if (ParticleAttributes.communication.ports.tx.north.isTransmitting) {
                 break;
             }
-            clearReceptionBuffer(&ParticleAttributes.communication.ports.rx.north);
+            clearReceptionPortBuffer(&ParticleAttributes.communication.ports.rx.north);
             DEBUG_CHAR_OUT('R');
             commPortState->receptionistState = COMMUNICATION_RECEPTIONIST_STATE_TYPE_WAIT_FOR_RESPONSE;
             break;
@@ -381,6 +381,75 @@ FUNC_ATTRS void __handleSynchronizeNeighbour(volatile TxPort *txPort,
     }
 }
 
+
+FUNC_ATTRS void __handleRelayAnnounceNetworkGeometry(StateType endState);
+
+/**
+ * Handles relaying network geometry communication states.
+ */
+FUNC_ATTRS void __handleRelayAnnounceNetworkGeometry(StateType endState) {
+    volatile CommunicationProtocolPortState *commPortState = &ParticleAttributes.protocol.ports.north;
+    switch (commPortState->initiatorState) {
+        case COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT:
+            enableTransmission(&ParticleAttributes.communication.ports.tx.north);
+            commPortState->initiatorState = COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT_WAIT_FOR_TX_FINISHED;
+            break;
+
+            // wait for tx finished
+        case COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT_WAIT_FOR_TX_FINISHED:
+            if (ParticleAttributes.communication.ports.tx.north.isTransmitting) {
+                break;
+            }
+            commPortState->initiatorState = COMMUNICATION_INITIATOR_STATE_TYPE_IDLE;
+            goto __COMMUNICATION_INITIATOR_STATE_TYPE_IDLE;
+            break;
+
+        case COMMUNICATION_INITIATOR_STATE_TYPE_WAIT_FOR_RESPONSE:
+        case COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT_ACK:
+        case COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT_ACK_WAIT_FOR_TX_FINISHED:
+        __COMMUNICATION_INITIATOR_STATE_TYPE_IDLE:
+        case COMMUNICATION_INITIATOR_STATE_TYPE_IDLE:
+            ParticleAttributes.node.state = endState;
+            break;
+    }
+}
+
+
+extern FUNC_ATTRS void __handleSendAnnounceNetworkGeometry(StateType endState);
+/**
+ * Handles network geometry announcement states.
+ */
+FUNC_ATTRS void __handleSendAnnounceNetworkGeometry(StateType endState) {
+    volatile TxPort *txPort = &ParticleAttributes.communication.ports.tx.north;
+    volatile CommunicationProtocolPortState *commPortState = &ParticleAttributes.protocol.ports.north;
+
+    switch (ParticleAttributes.protocol.ports.north.initiatorState) {
+        case COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT:
+            clearTransmissionPortBuffer(txPort);
+            constructSendAnnounceNetworkGeometryPackage(ParticleAttributes.node.address.row,
+                                                        ParticleAttributes.node.address.column);
+            enableTransmission(txPort);
+            commPortState->initiatorState = COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT_WAIT_FOR_TX_FINISHED;
+            break;
+
+            // wait for tx finished
+        case COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT_WAIT_FOR_TX_FINISHED:
+            if (txPort->isTransmitting) {
+                break;
+            }
+            commPortState->initiatorState = COMMUNICATION_INITIATOR_STATE_TYPE_IDLE;
+            goto __COMMUNICATION_INITIATOR_STATE_TYPE_IDLE;
+            break;
+
+        case COMMUNICATION_INITIATOR_STATE_TYPE_WAIT_FOR_RESPONSE:
+        case COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT_ACK:
+        case COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT_ACK_WAIT_FOR_TX_FINISHED:
+        __COMMUNICATION_INITIATOR_STATE_TYPE_IDLE:
+        case COMMUNICATION_INITIATOR_STATE_TYPE_IDLE:
+            ParticleAttributes.node.state = endState;
+            break;
+    }
+}
 
 extern FUNC_ATTRS void __advanceCommunicationProtocolCounters(void);
 
@@ -567,6 +636,31 @@ FUNC_ATTRS void particleTick(void) {
             break;
 
         case STATE_TYPE_ENUMERATING_NEIGHBOURS_DONE:
+            setInitiatorStateStart(&ParticleAttributes.protocol.ports.north);
+            ParticleAttributes.node.state = STATE_TYPE_ANNOUNCE_NETWORK_GEOMETRY;
+            break;
+
+            // ---------------- network geometry announcement states ----------------
+
+        case STATE_TYPE_ANNOUNCE_NETWORK_GEOMETRY:
+            // on right most, bottom most node
+            if ((ParticleAttributes.node.type == NODE_TYPE_TAIL) &&
+                (true == ParticleAttributes.protocol.hasNetworkGeometryDiscoveryBreadCrumb)) {
+                __handleSendAnnounceNetworkGeometry(STATE_TYPE_ANNOUNCE_NETWORK_GEOMETRY_DONE);
+            } else {
+                ParticleAttributes.node.state = STATE_TYPE_ANNOUNCE_NETWORK_GEOMETRY_DONE;
+            }
+            break;
+
+        case STATE_TYPE_ANNOUNCE_NETWORK_GEOMETRY_DONE:
+            ParticleAttributes.node.state = STATE_TYPE_IDLE;
+            break;
+
+        case STATE_TYPE_ANNOUNCE_NETWORK_GEOMETRY_RELAY:
+            __handleRelayAnnounceNetworkGeometry(STATE_TYPE_ANNOUNCE_NETWORK_GEOMETRY_RELAY_DONE);
+            break;
+
+        case STATE_TYPE_ANNOUNCE_NETWORK_GEOMETRY_RELAY_DONE:
             ParticleAttributes.node.state = STATE_TYPE_IDLE;
             break;
 

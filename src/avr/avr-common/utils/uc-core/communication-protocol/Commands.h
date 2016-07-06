@@ -5,6 +5,7 @@
 #pragma once
 
 #include "CommunicationProtocolTypes.h"
+#include "CommunicationProtocolPackageCtors.h"
 
 
 extern FUNC_ATTRS void executeSetLocalTime(volatile TimePackage *package);
@@ -25,4 +26,23 @@ FUNC_ATTRS void executeSetLocalAddress(volatile EnumerationPackage *package) {
     ParticleAttributes.node.address.row = package->addressRow0;
     ParticleAttributes.node.address.column = package->addressColumn0;
     ParticleAttributes.protocol.hasNetworkGeometryDiscoveryBreadCrumb = package->hasNetworkGeometryDiscoveryBreadCrumb;
+}
+
+
+extern FUNC_ATTRS void executeRelayAnnounceNetworkGeometryPackage(
+        volatile AnnounceNetworkGeometryPackage *package);
+/**
+ * If current node is the origin consume the package otherwise put the particle into relaying package state.
+ */
+FUNC_ATTRS void executeRelayAnnounceNetworkGeometryPackage(volatile AnnounceNetworkGeometryPackage *package) {
+
+    if (ParticleAttributes.node.type == NODE_TYPE_ORIGIN) {
+        ParticleAttributes.protocol.networkGeometry.rows = package->rows;
+        ParticleAttributes.protocol.networkGeometry.columns = package->columns;
+    } else {
+        clearTransmissionPortBuffer(&ParticleAttributes.communication.ports.tx.north);
+        constructSendAnnounceNetworkGeometryPackage(package->rows, package->columns);
+        setInitiatorStateStart(&ParticleAttributes.protocol.ports.north);
+        ParticleAttributes.node.state = STATE_TYPE_ANNOUNCE_NETWORK_GEOMETRY_RELAY;
+    }
 }

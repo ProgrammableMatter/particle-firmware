@@ -37,11 +37,11 @@ FUNC_ATTRS void clearReceptionBuffers(void) {
     ParticleAttributes.communication.ports.rx.south.isOverflowed = false;
 }
 
-extern FUNC_ATTRS void clearReceptionBuffer(volatile RxPort *o);
+extern FUNC_ATTRS void clearReceptionPortBuffer(volatile RxPort *o);
 /**
  * invalidates the given port's reception buffer
  */
-FUNC_ATTRS void clearReceptionBuffer(volatile RxPort *o) {
+FUNC_ATTRS void clearReceptionPortBuffer(volatile RxPort *o) {
     o->isDataBuffered = false;
     o->isOverflowed = false;
     DEBUG_CHAR_OUT('c');

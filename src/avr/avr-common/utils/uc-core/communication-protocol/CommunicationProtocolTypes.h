@@ -21,7 +21,7 @@ typedef enum PackageHeaderId {
     PACKAGE_HEADER_ID_TYPE_FORWARDING_OFF = 4,
     PACKAGE_HEADER_ID_TYPE_NETWORK_GEOMETRY_DISCLOSE = 5,
     PACKAGE_HEADER_ID_TYPE_NETWORK_GEOMETRY_RESPONSE = 6,
-    PACKAGE_HEADER_ID_TYPE_NETWORK_GEOMETRY_REQUEST = 7,
+//    PACKAGE_HEADER_ID_TYPE_NETWORK_GEOMETRY_REQUEST = 7,
     PACKAGE_HEADER_ID_TYPE_RESET = 8,
     PACKAGE_HEADER_ID_TYPE_SYNC_TIME = 9,
     PACKAGE_HEADER_ID_TYPE_PING_REQUEST = 10,
@@ -111,6 +111,28 @@ typedef struct AckWithAddressPackage {
     ((((uint16_t) 0x0100) << 0)\
     |((uint16_t) 0x0003))
 
+
+/**
+ * describes a header with subsequent network geometry
+ */
+typedef struct AnnounceNetworkGeometryPackage {
+    uint8_t __startBit : 1;
+    uint8_t headerIsStream : 1;
+    uint8_t headerId : 4;
+    uint8_t headerIsCommand : 1;
+    uint8_t headerIsBroadcast : 1;
+    uint8_t rows : 8;
+    uint8_t columns : 8;
+} AnnounceNetworkGeometryPackage;
+
+/**
+ * AnnounceNetworkGeometryPackage length expressed as BufferPointer
+ */
+#define AnnounceNetworkGeometryPackageBufferPointerSize \
+    ((((uint16_t) 0x0100) << 0)\
+    |((uint16_t) 0x0003))
+
+
 /**
  * describes a package header with subsequent enumeration address and bread crumb flag
  */
@@ -187,6 +209,7 @@ typedef union Package {
     AckWithAddressPackage asACKWithRemoteAddress;
     EnumerationPackage asEnumerationPackage;
     TimePackage asSyncTimePackage;
+    AnnounceNetworkGeometryPackage asAnnounceNetworkGeometryPackage;
 } Package;
 
 /**
@@ -208,10 +231,19 @@ typedef struct CommunicationProtocolPorts {
 } CommunicationProtocolPorts;
 
 /**
+ * describes the network geometry; valid row/col values are > 0
+ */
+typedef struct NetworkGeometry {
+    uint8_t rows;
+    uint8_t columns;
+} NetworkGeometry;
+
+/**
  * describes the communication ports
  */
 typedef struct CommunicationProtocol {
     CommunicationProtocolPorts ports;
+    NetworkGeometry networkGeometry;
     uint8_t hasNetworkGeometryDiscoveryBreadCrumb : 1;
     uint8_t __pad : 7;
 } CommunicationProtocol;

@@ -29,9 +29,18 @@ CTOR_ATTRS void constructCommunicationProtocolPorts(volatile CommunicationProtoc
     constructCommunicationProtocolPortState(&o->south);
 }
 
+
+extern CTOR_ATTRS void constructNetworkGeometry(volatile NetworkGeometry *o);
+
+CTOR_ATTRS void constructNetworkGeometry(volatile NetworkGeometry *o) {
+    o->rows = 0;
+    o->columns = 0;
+}
+
 extern CTOR_ATTRS void constructCommunicationProtocol(volatile CommunicationProtocol *o);
 
 CTOR_ATTRS void constructCommunicationProtocol(volatile CommunicationProtocol *o) {
     constructCommunicationProtocolPorts(&o->ports);
+    constructNetworkGeometry(&o->networkGeometry);
     o->hasNetworkGeometryDiscoveryBreadCrumb = false;
 }
