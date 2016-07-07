@@ -7,8 +7,8 @@
 /**
  * Amount of delay before each particle loop is entered.
  */
-#define PARTICLE_LOOP_DELAY
-//#define PARTICLE_LOOP_DELAY DELAY_US_5
+#define PARTICLE_MAIN_LOOP_DELAY
+//#define PARTICLE_MAIN_LOOP_DELAY DELAY_US_5
 
 /**
  * Delay separating particle loops while in discovery state.

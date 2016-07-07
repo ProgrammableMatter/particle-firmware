@@ -4,8 +4,6 @@
 
 #pragma once
 
-
-
 /**
  * Clock speed vs. minimum error ratio table, deprecated transmitter isr handling:
  *
@@ -48,11 +46,6 @@
 #define DEFAULT_MAX_LONG_RECEPTION_OVERTIME_PERCENTAGE_RATIO ((uint8_t) 102)
 
 /**
- * Heartbeat LED toggles every main-loop count
- */
-#define HEARTBEAT_LOOP_COUNT_TOGGLE ((uint8_t)20)
-
-/**
  * Number of buffer bytes for reception and transmission. Received snapshots are decoded to
  * the reception buffer. Data to be sent is read from the transmission buffer.
  */
@@ -61,6 +54,10 @@
 /**
  * Size of reception snapshot buffer per port. Sould be >= TX_RX_NUMBER_BUFFER_BYTES * 8 * 2 + 2
  */
-#define RX_NUMBER_SNAPSHOTS 114
-
+// 100% snapshots buffer
+//#define RX_NUMBER_SNAPSHOTS 114
+// 75% snapshots buffer
+//#define RX_NUMBER_SNAPSHOTS 85
+// 25% snapshots buffer
+#define RX_NUMBER_SNAPSHOTS 42
 
