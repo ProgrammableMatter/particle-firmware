@@ -17,7 +17,7 @@ extern FUNC_ATTRS int particleLoop(void);
  */
 FUNC_ATTRS int particleLoop(void) {
     forever {
-        PARTICLE_LOOP_DELAY;
+        PARTICLE_MAIN_LOOP_DELAY;
         particleTick();
         if (ParticleAttributes.node.state == STATE_TYPE_ERRONEOUS) {
             return 1;
