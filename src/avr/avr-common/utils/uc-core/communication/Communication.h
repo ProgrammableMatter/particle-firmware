@@ -47,12 +47,14 @@ FUNC_ATTRS bool isDataEndPosition(volatile TxPort *o) {
            o->dataEndPos.byteNumber == o->buffer.pointer.byteNumber;
 }
 
-extern FUNC_ATTRS bool isBufferEndPosition(volatile BufferBitPointer *o);
+//extern FUNC_ATTRS bool isBufferEndPosition(volatile BufferBitPointer *o);
 /**
  * Returns true if the pointer points at exactly one bit beyond the buffer's last bit.
  */
-FUNC_ATTRS bool isBufferEndPosition(volatile BufferBitPointer *o) {
-    return o->byteNumber == (sizeof(((PortBuffer *) (0))->bytes)) &&
-           o->bitMask == 0x1;
+//FUNC_ATTRS bool isBufferEndPosition(volatile BufferBitPointer *o) {
+//    return (o->byteNumber == (sizeof(((PortBuffer *) (0))->bytes))) && (o->bitMask == 0x1);
+//}
 
-}
+#define isBufferEndPosition(bufferBitPointer) \
+    (((bufferBitPointer)->byteNumber == (sizeof(((PortBuffer *) (0))->bytes))) && \
+    ((bufferBitPointer)->bitMask == 0x1))

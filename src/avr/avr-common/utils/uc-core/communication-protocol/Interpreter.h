@@ -26,7 +26,7 @@ FUNC_ATTRS void __interpretWaitForBeingEnumeratedReception(volatile RxPort *rxPo
                 equalsPackageSize(rxPort->buffer.pointer, EnumerationPackageBufferPointerSize)) {
                 executeSetLocalAddress(&package->asEnumerationPackage);
                 // send ack with local address back
-                DEBUG_CHAR_OUT('a');
+//                DEBUG_CHAR_OUT('a');
                 commPortState->receptionistState = COMMUNICATION_RECEPTIONIST_STATE_TYPE_TRANSMIT_ACK;
             }
             clearReceptionPortBuffer(rxPort);
@@ -36,7 +36,7 @@ FUNC_ATTRS void __interpretWaitForBeingEnumeratedReception(volatile RxPort *rxPo
         case COMMUNICATION_RECEPTIONIST_STATE_TYPE_WAIT_FOR_RESPONSE:
             if (equalsPackageSize(rxPort->buffer.pointer, AckPackagePointerSize) &&
                 package->asACKPackage.headerId == PACKAGE_HEADER_ID_TYPE_ACK) {
-                DEBUG_CHAR_OUT('d');
+//                DEBUG_CHAR_OUT('d');
                 commPortState->receptionistState = COMMUNICATION_RECEPTIONIST_STATE_TYPE_IDLE;
                 ParticleAttributes.node.state = STATE_TYPE_LOCALLY_ENUMERATED;
             }
@@ -93,10 +93,10 @@ FUNC_ATTRS void __interpretEnumerateNeighbourAckReception(volatile RxPort *rxPor
                                                           volatile CommunicationProtocolPortState *commPortState,
                                                           uint8_t expectedRemoteAddressRow,
                                                           uint8_t expectedRemoteAddressColumn) {
-    DEBUG_INT16_OUT(expectedRemoteAddressRow);
-    DEBUG_INT16_OUT(ParticleAttributes.node.address.row);
-    DEBUG_INT16_OUT(expectedRemoteAddressColumn);
-    DEBUG_INT16_OUT(ParticleAttributes.node.address.column);
+//    DEBUG_INT16_OUT(expectedRemoteAddressRow);
+//    DEBUG_INT16_OUT(ParticleAttributes.node.address.row);
+//    DEBUG_INT16_OUT(expectedRemoteAddressColumn);
+//    DEBUG_INT16_OUT(ParticleAttributes.node.address.column);
     volatile Package *package = (Package *) rxPort->buffer.bytes;
     switch (commPortState->initiatorState) {
         // on ack wih remote address
@@ -107,11 +107,11 @@ FUNC_ATTRS void __interpretEnumerateNeighbourAckReception(volatile RxPort *rxPor
                 // on correct address
                 if (expectedRemoteAddressRow == package->asACKWithRemoteAddress.addressRow0 &&
                     expectedRemoteAddressColumn == package->asACKWithRemoteAddress.addressColumn0) {
-                    DEBUG_CHAR_OUT('D');
+//                    DEBUG_CHAR_OUT('D');
                     commPortState->initiatorState = COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT_ACK;
                 } else { // on wrong address, restart transmission
-                    DEBUG_CHAR_OUT('V');
-                    DEBUG_CHAR_OUT('T');
+//                    DEBUG_CHAR_OUT('V');
+//                    DEBUG_CHAR_OUT('T');
                     commPortState->initiatorState = COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT;
                 }
             }
@@ -119,7 +119,6 @@ FUNC_ATTRS void __interpretEnumerateNeighbourAckReception(volatile RxPort *rxPor
             clearReceptionPortBuffer(rxPort);
             break;
         case COMMUNICATION_INITIATOR_STATE_TYPE_IDLE:
-//            ParticleAttributes.node.state = endState;
         case COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT:
         case COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT_WAIT_FOR_TX_FINISHED:
         case COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT_ACK:
@@ -138,10 +137,10 @@ FUNC_ATTRS void interpretRxBuffer(volatile RxPort *rxPort,
                                   volatile CommunicationProtocolPortState *commPortState) {
 
     DEBUG_CHAR_OUT('I');
-    if (!rxPort->isDataBuffered) {
-        DEBUG_CHAR_OUT('i');
-        return;
-    }
+//    if (!rxPort->isDataBuffered) {
+//        DEBUG_CHAR_OUT('i');
+//        return;
+//    }
 
     switch (ParticleAttributes.node.state) {
         case STATE_TYPE_WAIT_FOR_BEING_ENUMERATED:

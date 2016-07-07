@@ -11,21 +11,20 @@
 #include "uc-core/delay/delay.h"
 #include "uc-core/configuration/Particle.h"
 
-extern FUNC_ATTRS int particleLoop(void);
+extern inline int particleLoop(void);
 /**
  * The particle loop. It changes particle states and performs/execute tasks.
  */
-FUNC_ATTRS int particleLoop(void) {
+inline int particleLoop(void) {
     IO_PORTS_SETUP; // configure input/output pins
-
     constructParticleState(&ParticleAttributes);
     ParticleAttributes.node.state = STATE_TYPE_START;
     forever {
-        PARTICLE_LOOP_DELAY;
+        PARTICLE_MAIN_LOOP_DELAY;
         particleTick();
-        if (ParticleAttributes.node.state == STATE_TYPE_ERRONEOUS) {
-            return 1;
-        }
+//        if (ParticleAttributes.node.state == STATE_TYPE_ERRONEOUS) {
+//            return 1;
+//        }
     }
 }
 

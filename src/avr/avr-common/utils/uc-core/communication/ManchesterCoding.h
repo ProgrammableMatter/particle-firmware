@@ -80,7 +80,7 @@ FUNC_ATTRS void southTxLoImpl(void) {
     SOUTH_TX_LO;
 }
 
-
+extern FUNC_ATTRS void transmit(volatile TxPort *txPort, void (*txHiImpl)(void), void (*txLoImpl)(void));
 /**
  * puts the the next signal on the pin
  */

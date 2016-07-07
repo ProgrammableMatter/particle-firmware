@@ -19,8 +19,9 @@ SET(CTUNING "-funsigned-char -funsigned-bitfields -fpack-struct -fdce -fdata-sec
 SET(CDEFS "-DFUNC_ATTRS='' ${CDEFS}")
 #SET(CDEFS "-DCTOR_ATTRS='inline' ${CDEFS}")
 SET(CDEFS "-DCTOR_ATTRS='' ${CDEFS}")
+#SET(CDEFS "-DDECODING_FUNC_ATTRS='' ${CDEFS}")
+SET(CDEFS "-DDECODING_FUNC_ATTRS='inline' ${CDEFS}")
 
-#
 SET(COPT "-Os -fno-inline-small-functions -fno-inline") # for simulation purpose
 #SET(COPT "-O3 -fwhole-program") # for real MCU
 

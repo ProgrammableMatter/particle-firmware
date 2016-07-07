@@ -15,6 +15,7 @@
 #include "uc-core/interrupts/TimerCounter.h"
 #include "uc-core/interrupts/Interrupts.h"
 #include "uc-core/configuration/Particle.h"
+#include "uc-core/configuration/Periphery.h"
 #include "uc-core/communication-protocol/CommunicationProtocol.h"
 #include "uc-core/communication-protocol/CommunicationProtocolTypesCtors.h"
 #include "uc-core/communication-protocol/CommunicationProtocolPackageCtors.h"
@@ -201,32 +202,36 @@ FUNC_ATTRS void __updateOriginNodeAddress(void) {
 extern FUNC_ATTRS void __receiveNorth(void);
 
 FUNC_ATTRS void __receiveNorth(void) {
-    manchesterDecodeBuffer(&ParticleAttributes.communication.ports.rx.north);
-    interpretRxBuffer(&ParticleAttributes.communication.ports.rx.north,
-                      &ParticleAttributes.protocol.ports.north);
+    if (ParticleAttributes.discoveryPulseCounters.north.isConnected) {
+        manchesterDecodeBuffer(&ParticleAttributes.communication.ports.rx.north,
+                               &ParticleAttributes.protocol.ports.north, interpretRxBuffer);
+    }
 }
 
 extern FUNC_ATTRS void __receiveEast(void);
 
 FUNC_ATTRS void __receiveEast(void) {
-    manchesterDecodeBuffer(&ParticleAttributes.communication.ports.rx.east);
-    interpretRxBuffer(&ParticleAttributes.communication.ports.rx.east,
-                      &ParticleAttributes.protocol.ports.east);
+    if (ParticleAttributes.discoveryPulseCounters.east.isConnected) {
+        manchesterDecodeBuffer(&ParticleAttributes.communication.ports.rx.east,
+                               &ParticleAttributes.protocol.ports.east, interpretRxBuffer);
+    }
 }
 
 extern FUNC_ATTRS void __receiveSouth(void);
 
 FUNC_ATTRS void __receiveSouth(void) {
-    manchesterDecodeBuffer(&ParticleAttributes.communication.ports.rx.south);
-    interpretRxBuffer(&ParticleAttributes.communication.ports.rx.south,
-                      &ParticleAttributes.protocol.ports.south);
+    if (ParticleAttributes.discoveryPulseCounters.south.isConnected) {
+        manchesterDecodeBuffer(&ParticleAttributes.communication.ports.rx.south,
+                               &ParticleAttributes.protocol.ports.south, interpretRxBuffer);
+    }
 }
 
-extern FUNC_ATTRS void __handleWaitForBeingEnumerated(volatile CommunicationProtocolPortState *commPortState);
+extern FUNC_ATTRS void __handleWaitForBeingEnumerated(void);
 /**
  * Handles the "ait for being enumerated" state.
  */
-FUNC_ATTRS void __handleWaitForBeingEnumerated(volatile CommunicationProtocolPortState *commPortState) {
+FUNC_ATTRS void __handleWaitForBeingEnumerated(void) {
+    volatile CommunicationProtocolPortState *commPortState = &ParticleAttributes.protocol.ports.north;
     switch (commPortState->receptionistState) {
         // receive
         case COMMUNICATION_RECEPTIONIST_STATE_TYPE_RECEIVE:
@@ -382,7 +387,7 @@ FUNC_ATTRS void __handleSynchronizeNeighbour(volatile TxPort *txPort,
 }
 
 
-FUNC_ATTRS void __handleRelayAnnounceNetworkGeometry(StateType endState);
+extern FUNC_ATTRS void __handleRelayAnnounceNetworkGeometry(StateType endState);
 
 /**
  * Handles relaying network geometry communication states.
@@ -528,37 +533,43 @@ FUNC_ATTRS void __handleDiscoveryPulsingDone(void) {
     clearReceptionBuffers();
 }
 
-extern FUNC_ATTRS void particleTick(void);
+extern inline void particleTick(void);
+
 /**
  * This function is called cyclically in the particle loop. It implements the
  * behaviour and state machine of the particle.
  */
-FUNC_ATTRS void particleTick(void) {
-    DEBUG_CHAR_OUT('P');
+inline void particleTick(void) {
+//    DEBUG_CHAR_OUT('P');
     __heartBeatToggle();
 
     // ---------------- init states ----------------
 
     switch (ParticleAttributes.node.state) {
-        case STATE_TYPE_START:
-            __initParticle();
-            ParticleAttributes.node.state = STATE_TYPE_ACTIVE;
-            break;
-
         case STATE_TYPE_RESET:
             __disableReception();
             constructParticleState(&ParticleAttributes);
             ParticleAttributes.node.state = STATE_TYPE_START;
+            goto __STATE_TYPE_START;
             break;
 
+        __STATE_TYPE_START:
+        case STATE_TYPE_START:
+            __initParticle();
+            ParticleAttributes.node.state = STATE_TYPE_ACTIVE;
+            goto __STATE_TYPE_ACTIVE;
+            break;
+
+        __STATE_TYPE_ACTIVE:
         case STATE_TYPE_ACTIVE:
             ParticleAttributes.node.state = STATE_TYPE_NEIGHBOURS_DISCOVERY;
             __enableDiscovery();
             SEI;
+            goto __STATE_TYPE_NEIGHBOURS_DISCOVERY;
             break;
 
             // ---------------- discovery states ----------------
-
+        __STATE_TYPE_NEIGHBOURS_DISCOVERY:
         case STATE_TYPE_NEIGHBOURS_DISCOVERY:
             __handleNeighboursDiscovery();
             break;
@@ -566,8 +577,10 @@ FUNC_ATTRS void particleTick(void) {
         case STATE_TYPE_NEIGHBOURS_DISCOVERED:
             __discoveryLoopCount();
             ParticleAttributes.node.state = STATE_TYPE_DISCOVERY_PULSING;
+            goto __STATE_TYPE_DISCOVERY_PULSING;
             break;
 
+        __STATE_TYPE_DISCOVERY_PULSING:
         case STATE_TYPE_DISCOVERY_PULSING:
             __handleDiscoveryPulsing();
             break;
@@ -580,15 +593,17 @@ FUNC_ATTRS void particleTick(void) {
 
             // wait for incoming address from north neighbour
         case STATE_TYPE_WAIT_FOR_BEING_ENUMERATED:
-            __handleWaitForBeingEnumerated(&ParticleAttributes.protocol.ports.north);
+            __handleWaitForBeingEnumerated();
             break;
 
         case STATE_TYPE_LOCALLY_ENUMERATED:
             ParticleAttributes.node.state = STATE_TYPE_ENUMERATING_NEIGHBOURS;
+            goto __STATE_TYPE_ENUMERATING_NEIGHBOURS;
             break;
 
             // ---------------- neighbour enumeration states ----------------
 
+        __STATE_TYPE_ENUMERATING_NEIGHBOURS:
         case STATE_TYPE_ENUMERATING_NEIGHBOURS:
             // wait until neighbours reach state STATE_TYPE_WAIT_FOR_BEING_ENUMERATED and
             // reception times out (discovery signals may be mistakenly interpreted as data)
@@ -597,10 +612,12 @@ FUNC_ATTRS void particleTick(void) {
             setInitiatorStateStart(&ParticleAttributes.protocol.ports.east);
             DEBUG_CHAR_OUT('E');
             ParticleAttributes.node.state = STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR;
+            goto __STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR;
             break;
 
             // ---------------- east neighbour enumeration states ----------------
 
+        __STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR:
         case STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR:
             __handleEnumerateNeighbour(&ParticleAttributes.communication.ports.tx.east,
                                        &ParticleAttributes.protocol.ports.east,
@@ -616,10 +633,12 @@ FUNC_ATTRS void particleTick(void) {
             setInitiatorStateStart(&ParticleAttributes.protocol.ports.south);
             DEBUG_CHAR_OUT('e');
             ParticleAttributes.node.state = STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR;
+            goto __STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR;
             break;
 
             // ---------------- south neighbour enumeration states ----------------
 
+        __STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR:
         case STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR:
             __handleEnumerateNeighbour(&ParticleAttributes.communication.ports.tx.south,
                                        &ParticleAttributes.protocol.ports.south,
@@ -633,27 +652,34 @@ FUNC_ATTRS void particleTick(void) {
 
         case STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR_DONE:
             ParticleAttributes.node.state = STATE_TYPE_ENUMERATING_NEIGHBOURS_DONE;
+            goto __STATE_TYPE_ENUMERATING_NEIGHBOURS_DONE;
             break;
 
+        __STATE_TYPE_ENUMERATING_NEIGHBOURS_DONE:
         case STATE_TYPE_ENUMERATING_NEIGHBOURS_DONE:
             setInitiatorStateStart(&ParticleAttributes.protocol.ports.north);
             ParticleAttributes.node.state = STATE_TYPE_ANNOUNCE_NETWORK_GEOMETRY;
+            goto __STATE_TYPE_ANNOUNCE_NETWORK_GEOMETRY;
             break;
 
             // ---------------- network geometry announcement states ----------------
 
+        __STATE_TYPE_ANNOUNCE_NETWORK_GEOMETRY:
         case STATE_TYPE_ANNOUNCE_NETWORK_GEOMETRY:
-            // on right most, bottom most node
+            // on right most and bottom most node
             if ((ParticleAttributes.node.type == NODE_TYPE_TAIL) &&
                 (true == ParticleAttributes.protocol.hasNetworkGeometryDiscoveryBreadCrumb)) {
                 __handleSendAnnounceNetworkGeometry(STATE_TYPE_ANNOUNCE_NETWORK_GEOMETRY_DONE);
             } else {
                 ParticleAttributes.node.state = STATE_TYPE_ANNOUNCE_NETWORK_GEOMETRY_DONE;
+                goto __STATE_TYPE_ANNOUNCE_NETWORK_GEOMETRY_DONE;
             }
             break;
 
+        __STATE_TYPE_ANNOUNCE_NETWORK_GEOMETRY_DONE:
         case STATE_TYPE_ANNOUNCE_NETWORK_GEOMETRY_DONE:
             ParticleAttributes.node.state = STATE_TYPE_IDLE;
+            goto __STATE_TYPE_IDLE;
             break;
 
         case STATE_TYPE_ANNOUNCE_NETWORK_GEOMETRY_RELAY:
@@ -662,6 +688,7 @@ FUNC_ATTRS void particleTick(void) {
 
         case STATE_TYPE_ANNOUNCE_NETWORK_GEOMETRY_RELAY_DONE:
             ParticleAttributes.node.state = STATE_TYPE_IDLE;
+            goto __STATE_TYPE_IDLE;
             break;
 
             // ---------------- working states ----------------
@@ -675,8 +702,10 @@ FUNC_ATTRS void particleTick(void) {
 
         case STATE_TYPE_SYNC_EAST_NEIGHBOUR_DONE:
             ParticleAttributes.node.state = STATE_TYPE_SYNC_SOUTH_NEIGHBOUR;
+            goto __STATE_TYPE_SYNC_SOUTH_NEIGHBOUR;
             break;
 
+        __STATE_TYPE_SYNC_SOUTH_NEIGHBOUR:
         case STATE_TYPE_SYNC_SOUTH_NEIGHBOUR:
             __handleSynchronizeNeighbour(&ParticleAttributes.communication.ports.tx.south,
                                          &ParticleAttributes.protocol.ports.south,
@@ -685,8 +714,10 @@ FUNC_ATTRS void particleTick(void) {
             break;
         case STATE_TYPE_SYNC_SOUTH_NEIGHBOUR_DONE:
             ParticleAttributes.node.state = STATE_TYPE_IDLE;
+            goto __STATE_TYPE_IDLE;
             break;
 
+        __STATE_TYPE_IDLE:
         case STATE_TYPE_IDLE:
             __receiveNorth();
             __receiveEast();
@@ -704,4 +735,5 @@ FUNC_ATTRS void particleTick(void) {
             }
             break;
     }
+//    DEBUG_CHAR_OUT('p');
 }
