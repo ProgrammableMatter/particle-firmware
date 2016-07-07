@@ -32,8 +32,8 @@ charOutToHumanReadableAnnotation = {
     "'c'": "clr buff",
     "'E'": "enum east",
     "'e'": "enum south",
-    "'P'": "loop in",
-    "'p'": "loop out",
+    "'P'": "main loop in",
+    "'p'": "main loop out",
 
     "'D'": "INITIATOR_STATE_TYPE_IDLE",
     "'T'": "INITIATOR_STATE_TYPE_TRANSMIT",
