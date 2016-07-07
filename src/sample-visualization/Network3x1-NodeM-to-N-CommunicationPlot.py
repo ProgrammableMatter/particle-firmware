@@ -67,6 +67,34 @@ if __name__ == "__main__":
     annotations = pltr.reMapAnnotation(annotations, charOutToHumanReadableAnnotation)
     dataPlotter.addPlot(xData, yData, annotations, "[2] node states")
 
+
+
+
+    nodeInt16Filter = fltr.SampleFilter(domain="SRAM", name="int16-out", nodeId=0)
+    dataFilter.removeSamples(nodeInt16Filter)
+    dataFilter.filter(nodeInt16Filter)
+    xData, yData, annotations = dataFilter.getData(nodeInt16Filter)
+    # annotations = pltr.reMapAnnotation(annotations, charOutToHumanReadableAnnotation)
+    dataPlotter.addPlot(xData, yData, annotations, "[0] snapshot size")
+
+    nodeInt16Filter = fltr.SampleFilter(domain="SRAM", name="int16-out", nodeId=1)
+    dataFilter.removeSamples(nodeInt16Filter)
+    dataFilter.filter(nodeInt16Filter)
+    xData, yData, annotations = dataFilter.getData(nodeInt16Filter)
+    # annotations = pltr.reMapAnnotation(annotations, charOutToHumanReadableAnnotation)
+    dataPlotter.addPlot(xData, yData, annotations, "[1] snapshot size")
+
+    nodeInt16Filter = fltr.SampleFilter(domain="SRAM", name="int16-out", nodeId=2)
+    dataFilter.removeSamples(nodeInt16Filter)
+    dataFilter.filter(nodeInt16Filter)
+    xData, yData, annotations = dataFilter.getData(nodeInt16Filter)
+    # annotations = pltr.reMapAnnotation(annotations, charOutToHumanReadableAnnotation)
+    dataPlotter.addPlot(xData, yData, annotations, "[2] snapshot size")
+
+
+
+
+
     dataPlotter.setWindowTitle("Network 3x1 Simulation")
     dataFilter.printValues()
     dataPlotter.plot()
