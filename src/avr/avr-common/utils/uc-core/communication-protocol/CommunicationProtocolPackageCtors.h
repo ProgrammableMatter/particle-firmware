@@ -90,6 +90,7 @@ CTOR_ATTRS void constructSendAnnounceNetworkGeometryPackage(uint8_t row, uint8_t
     Package *package = (Package *) &ParticleAttributes.communication.ports.tx.north;
     package->asAnnounceNetworkGeometryPackage.__startBit = 1;
     package->asAnnounceNetworkGeometryPackage.headerId = PACKAGE_HEADER_ID_TYPE_NETWORK_GEOMETRY_RESPONSE;
+    package->asAnnounceNetworkGeometryPackage.enableBroadcast = true;
     package->asAnnounceNetworkGeometryPackage.rows = row;
     package->asAnnounceNetworkGeometryPackage.columns = column;
     setBufferDataEndPointer(ParticleAttributes.communication.ports.tx.north.dataEndPos,

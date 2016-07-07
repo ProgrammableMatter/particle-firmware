@@ -43,4 +43,5 @@ CTOR_ATTRS void constructCommunicationProtocol(volatile CommunicationProtocol *o
     constructCommunicationProtocolPorts(&o->ports);
     constructNetworkGeometry(&o->networkGeometry);
     o->hasNetworkGeometryDiscoveryBreadCrumb = false;
+    o->isBoradcastEnabled = false;
 }

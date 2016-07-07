@@ -135,13 +135,7 @@ extern FUNC_ATTRS void interpretRxBuffer(volatile RxPort *rxPort,
  */
 FUNC_ATTRS void interpretRxBuffer(volatile RxPort *rxPort,
                                   volatile CommunicationProtocolPortState *commPortState) {
-
     DEBUG_CHAR_OUT('I');
-//    if (!rxPort->isDataBuffered) {
-//        DEBUG_CHAR_OUT('i');
-//        return;
-//    }
-
     switch (ParticleAttributes.node.state) {
         case STATE_TYPE_WAIT_FOR_BEING_ENUMERATED:
             __interpretWaitForBeingEnumeratedReception(rxPort, commPortState);
@@ -168,7 +162,7 @@ FUNC_ATTRS void interpretRxBuffer(volatile RxPort *rxPort,
         default:
             break;
     }
-    DEBUG_CHAR_OUT('i');
+//    DEBUG_CHAR_OUT('i');
 }
 
 

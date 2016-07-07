@@ -22,7 +22,7 @@ typedef enum PackageHeaderId {
     PACKAGE_HEADER_ID_TYPE_NETWORK_GEOMETRY_DISCLOSE = 5,
     PACKAGE_HEADER_ID_TYPE_NETWORK_GEOMETRY_RESPONSE = 6,
 //    PACKAGE_HEADER_ID_TYPE_NETWORK_GEOMETRY_REQUEST = 7,
-    PACKAGE_HEADER_ID_TYPE_RESET = 8,
+            PACKAGE_HEADER_ID_TYPE_RESET = 8,
     PACKAGE_HEADER_ID_TYPE_SYNC_TIME = 9,
     PACKAGE_HEADER_ID_TYPE_PING_REQUEST = 10,
     PACKAGE_HEADER_ID_TYPE_PING_RESPONSE = 11,
@@ -63,7 +63,7 @@ typedef struct PackageHeader {
     uint8_t headerIsStream : 1;
     uint8_t headerId : 4;
     uint8_t headerIsCommand : 1;
-    uint8_t headerIsBroadcast : 1;
+    uint8_t enableBroadcast : 1;
 } PackageHeader;
 
 /**
@@ -81,7 +81,7 @@ typedef struct AckPackage {
     uint8_t headerIsStream : 1;
     uint8_t headerId : 4;
     uint8_t headerIsCommand : 1;
-    uint8_t headerIsBroadcast : 1;
+    uint8_t enableBroadcast : 1;
 } AckPackage;
 
 /**
@@ -99,7 +99,7 @@ typedef struct AckWithAddressPackage {
     uint8_t headerIsStream : 1;
     uint8_t headerId : 4;
     uint8_t headerIsCommand : 1;
-    uint8_t headerIsBroadcast : 1;
+    uint8_t enableBroadcast : 1;
     uint8_t addressRow0 : 8;
     uint8_t addressColumn0 : 8;
 } AckWithAddressPackage;
@@ -120,7 +120,7 @@ typedef struct AnnounceNetworkGeometryPackage {
     uint8_t headerIsStream : 1;
     uint8_t headerId : 4;
     uint8_t headerIsCommand : 1;
-    uint8_t headerIsBroadcast : 1;
+    uint8_t enableBroadcast : 1;
     uint8_t rows : 8;
     uint8_t columns : 8;
 } AnnounceNetworkGeometryPackage;
@@ -165,7 +165,7 @@ typedef struct PackageHeaderAddressRange {
     uint8_t headerIsStream : 1;
     uint8_t headerId : 4;
     uint8_t headerIsCommand : 1;
-    uint8_t headerIsBroadcast : 1;
+    uint8_t enableBroadcast : 1;
     uint8_t addressRow0 : 8;
     uint8_t addressColumn0 : 8;
     uint8_t addressRow1 : 8;
@@ -188,7 +188,7 @@ typedef struct TimePackage {
     uint8_t headerIsStream : 1;
     uint8_t headerId : 4;
     uint8_t headerIsCommand : 1;
-    uint8_t headerIsBroadcast : 1;
+    uint8_t enableBroadcast : 1;
     uint16_t time : 16;
 } TimePackage;
 
@@ -245,5 +245,6 @@ typedef struct CommunicationProtocol {
     CommunicationProtocolPorts ports;
     NetworkGeometry networkGeometry;
     uint8_t hasNetworkGeometryDiscoveryBreadCrumb : 1;
-    uint8_t __pad : 7;
+    uint8_t isBoradcastEnabled : 1;
+    uint8_t __pad : 6;
 } CommunicationProtocol;
