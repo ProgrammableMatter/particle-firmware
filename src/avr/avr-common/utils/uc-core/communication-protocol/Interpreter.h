@@ -62,7 +62,6 @@ FUNC_ATTRS void __interpretReceivedPackage(volatile RxPort *rxPort
         //, volatile CommunicationProtocolPortState *commPortState
 ) {
     Package *package = (Package *) rxPort->buffer.bytes;
-
     switch (package->asHeader.headerId) {
 
         case PACKAGE_HEADER_ID_TYPE_SYNC_TIME:

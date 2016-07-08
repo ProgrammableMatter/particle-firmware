@@ -140,10 +140,13 @@ ISR(TX_TIMER_INTERRUPT_VECT) {
                     if (ParticleAttributes.protocol.isSimultaneousTransmissionEnabled) {
                         transmit(ParticleAttributes.communication.ports.tx.simultaneous, simultaneousTxHiImpl,
                                  simultaneousTxLoImpl);
+                    } else {
+                        transmit(&ParticleAttributes.communication.ports.tx.north, northTxHiImpl,
+                                 northTxLoImpl);
+                        transmit(&ParticleAttributes.communication.ports.tx.east, eastTxHiImpl, eastTxLoImpl);
+                        transmit(&ParticleAttributes.communication.ports.tx.south, southTxHiImpl,
+                                 southTxLoImpl);
                     }
-                    transmit(&ParticleAttributes.communication.ports.tx.north, northTxHiImpl, northTxLoImpl);
-                    transmit(&ParticleAttributes.communication.ports.tx.east, eastTxHiImpl, eastTxLoImpl);
-                    transmit(&ParticleAttributes.communication.ports.tx.south, southTxHiImpl, southTxLoImpl);
                     scheduleNextTransmission();
                     break;
 

@@ -280,10 +280,10 @@ FUNC_ATTRS void __handleEnumerateNeighbour(volatile TxPort *txPort,
                                            uint8_t remoteAddressRow,
                                            uint8_t remoteAddressColumn,
                                            StateType endState) {
-
     if (commPortState->stateTimeoutCounter == 0 &&
         commPortState->initiatorState != COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT &&
         commPortState->initiatorState != COMMUNICATION_INITIATOR_STATE_TYPE_IDLE) {
+        // on timeout fall back to start state
         commPortState->initiatorState = COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT;
         commPortState->stateTimeoutCounter = COMMUNICATION_PROTOCOL_TIMEOUT_COUNTER_MAX;
         DEBUG_CHAR_OUT('b');
@@ -687,13 +687,8 @@ inline void particleTick(void) {
 
         case STATE_TYPE_SYNC_NEIGHBOUR:
             __handleSynchronizeNeighbour(
-                    // TODO: refactor particle structure
                     &ParticleAttributes.protocol.ports.east,
                     STATE_TYPE_SYNC_NEIGHBOUR_DONE);
-            // TODO: particle comm/proto ports and port
-            // counter should be bundled by their
-            // cardinal direction instead of implementation
-            // context
             break;
 
         case STATE_TYPE_SYNC_NEIGHBOUR_DONE:
