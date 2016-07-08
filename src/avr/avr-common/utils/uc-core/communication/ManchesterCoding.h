@@ -15,7 +15,7 @@ FUNC_ATTRS void __rectifyTransmissionBit(volatile TxPort *txPort, void (*txHiImp
                                          void (*txLoImpl)(void)) {
 
     if (isDataEndPosition(txPort)) { // on tx pointer match end position
-        txLoImpl(); // return signal to default (inverted on receiver side)
+        txLoImpl(); // return signal to default (inverted at receiver side)
         txPort->isTransmitting = false;
     } else {
         if (txPort->buffer.pointer.bitMask &
@@ -75,18 +75,9 @@ FUNC_ATTRS void simultaneousTxLoImpl(void) {
     SOUTH_TX_LO;
 }
 
-
-extern FUNC_ATTRS void simultaneousTxHiImpl(void);
-
-FUNC_ATTRS void simultaneousTxHiImpl(void) {
-    EAST_TX_HI;
-    SOUTH_TX_HI;
-}
-
 extern FUNC_ATTRS void southTxHiImpl(void);
 
 FUNC_ATTRS void southTxHiImpl(void) {
-    EAST_TX_HI;
     SOUTH_TX_HI;
 }
 
@@ -94,6 +85,13 @@ extern FUNC_ATTRS void southTxLoImpl(void);
 
 FUNC_ATTRS void southTxLoImpl(void) {
     SOUTH_TX_LO;
+}
+
+extern FUNC_ATTRS void simultaneousTxHiImpl(void);
+
+FUNC_ATTRS void simultaneousTxHiImpl(void) {
+    EAST_TX_HI;
+    SOUTH_TX_HI;
 }
 
 extern FUNC_ATTRS void transmit(volatile TxPort *txPort, void (*txHiImpl)(void), void (*txLoImpl)(void));
