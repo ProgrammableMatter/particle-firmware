@@ -9,9 +9,9 @@
 // DO NOT DECLARE GLOBALS __BEFORE__ PARTICLE ATTRIBUTES!
 
 /**
- * The particle global attributes describe states and contains reception buffers.
+ * The global particle state structure containing attributes, buffers and alike.
  */
-volatile ParticleState ParticleAttributes __attribute__ ((section (".noinit")));
+volatile Particle ParticleAttributes __attribute__ ((section (".noinit")));
 
 // OTHER GLOBALS CAN BE SAFELY DECLARED HERE:
 

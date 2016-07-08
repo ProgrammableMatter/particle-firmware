@@ -13,7 +13,9 @@
 
 
 extern CTOR_ATTRS void constructCommunicationProtocolPortState(volatile CommunicationProtocolPortState *o);
-
+/**
+ * constructor function
+ */
 CTOR_ATTRS void constructCommunicationProtocolPortState(volatile CommunicationProtocolPortState *o) {
     o->initiatorState = COMMUNICATION_INITIATOR_STATE_TYPE_IDLE;
     o->receptionistState = COMMUNICATION_RECEPTIONIST_STATE_TYPE_IDLE;
@@ -22,7 +24,9 @@ CTOR_ATTRS void constructCommunicationProtocolPortState(volatile CommunicationPr
 
 
 extern CTOR_ATTRS void constructCommunicationProtocolPorts(volatile CommunicationProtocolPorts *o);
-
+/**
+ * constructor function
+ */
 CTOR_ATTRS void constructCommunicationProtocolPorts(volatile CommunicationProtocolPorts *o) {
     constructCommunicationProtocolPortState(&o->north);
     constructCommunicationProtocolPortState(&o->east);
@@ -31,14 +35,18 @@ CTOR_ATTRS void constructCommunicationProtocolPorts(volatile CommunicationProtoc
 
 
 extern CTOR_ATTRS void constructNetworkGeometry(volatile NetworkGeometry *o);
-
+/**
+ * constructor function
+ */
 CTOR_ATTRS void constructNetworkGeometry(volatile NetworkGeometry *o) {
     o->rows = 0;
     o->columns = 0;
 }
 
 extern CTOR_ATTRS void constructCommunicationProtocol(volatile CommunicationProtocol *o);
-
+/**
+ * constructor function
+ */
 CTOR_ATTRS void constructCommunicationProtocol(volatile CommunicationProtocol *o) {
     constructCommunicationProtocolPorts(&o->ports);
     constructNetworkGeometry(&o->networkGeometry);

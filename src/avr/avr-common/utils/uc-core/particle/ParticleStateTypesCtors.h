@@ -7,9 +7,11 @@
 #include "uc-core/communication/CommunicationTypesCtors.h"
 #include "uc-core/communication-protocol/CommunicationProtocolTypesCtors.h"
 
-extern CTOR_ATTRS void constructPulseCounter(volatile PulseCounter *o);
-
-CTOR_ATTRS void constructPulseCounter(volatile PulseCounter *o) {
+extern CTOR_ATTRS void constructDiscoveryPulseCounter(volatile DiscoveryPulseCounter *o);
+/**
+ * constructor function
+ */
+CTOR_ATTRS void constructDiscoveryPulseCounter(volatile DiscoveryPulseCounter *o) {
     o->counter = 0;
     o->isConnected = false;
 //    *(uint8_t *) o = 0;
@@ -18,14 +20,16 @@ CTOR_ATTRS void constructPulseCounter(volatile PulseCounter *o) {
 extern CTOR_ATTRS void constructDiscoveryPulseCounters(volatile DiscoveryPulseCounters *o);
 
 CTOR_ATTRS void constructDiscoveryPulseCounters(volatile DiscoveryPulseCounters *o) {
-    constructPulseCounter(&(o->north));
-    constructPulseCounter(&(o->east));
-    constructPulseCounter(&(o->south));
+    constructDiscoveryPulseCounter(&(o->north));
+    constructDiscoveryPulseCounter(&(o->east));
+    constructDiscoveryPulseCounter(&(o->south));
     o->loopCount = 0;
 }
 
 extern CTOR_ATTRS void constructNodeAddress(volatile NodeAddress *o);
-
+/**
+ * constructor function
+ */
 CTOR_ATTRS void constructNodeAddress(volatile NodeAddress *o) {
 //    o->row = 1;
 //    o->column = 1;
@@ -41,14 +45,18 @@ CTOR_ATTRS void constructNode(volatile Node *o) {
 }
 
 extern CTOR_ATTRS void constructPeriphery(volatile Periphery *o);
-
+/**
+ * constructor function
+ */
 CTOR_ATTRS void constructPeriphery(volatile Periphery *o) {
     o->loopCount = 0;
 }
 
-extern CTOR_ATTRS void constructParticleState(volatile ParticleState *o);
-
-CTOR_ATTRS void constructParticleState(volatile ParticleState *o) {
+extern CTOR_ATTRS void constructParticle(volatile Particle *o);
+/**
+ * constructor function
+ */
+CTOR_ATTRS void constructParticle(volatile Particle *o) {
     constructNode(&(o->node));
     constructDiscoveryPulseCounters(&(o->discoveryPulseCounters));
     constructCommunication(&(o->communication));

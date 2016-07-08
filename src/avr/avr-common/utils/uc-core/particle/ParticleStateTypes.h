@@ -12,76 +12,110 @@
  * Possible particle's state machine states are listed in this enum.
  */
 typedef enum StateType {
-    STATE_TYPE_UNDEFINED = 0, // uninitialized state
-    STATE_TYPE_START, // particle is initialized
-    STATE_TYPE_ACTIVE, // start neighbour discovery
+    // uninitialized state
+            STATE_TYPE_UNDEFINED = 0,
+    // state when particle is initializing
+            STATE_TYPE_START,
+    // state when particle is fully initialized
+            STATE_TYPE_ACTIVE,
 
-    STATE_TYPE_NEIGHBOURS_DISCOVERY, // evaluates comm. port pulse counters
-    STATE_TYPE_NEIGHBOURS_DISCOVERED, // discovery ended
-    STATE_TYPE_DISCOVERY_PULSING, // keep pulsing post discovery
-    STATE_TYPE_DISCOVERY_PULSING_DONE,
-    STATE_TYPE_RESET, // state after reset command is received
+    // state when evaluating discovery pulses
+            STATE_TYPE_NEIGHBOURS_DISCOVERY,
+    // state wen discovery ended
+            STATE_TYPE_NEIGHBOURS_DISCOVERED,
+    // state of discovery pulsing period post discovery
+            STATE_TYPE_DISCOVERY_PULSING,
+    // state when discovery pulsing ended
+            STATE_TYPE_DISCOVERY_PULSING_DONE,
+    // state after reset
+            STATE_TYPE_RESET,
 
-    STATE_TYPE_WAIT_FOR_BEING_ENUMERATED, // wait for receiving a local address from parent/north port
-    STATE_TYPE_LOCALLY_ENUMERATED, // local address is assigned successfully
-    STATE_TYPE_ENUMERATING_NEIGHBOURS, // starting neighbour enumeration
-    STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR, // assigning network address to east neighbour
-    STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR_DONE, // east enumeration finished
-    STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR, // assigning network address to south neighbour
-    STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR_DONE, // south enumeration finished
-    STATE_TYPE_ENUMERATING_NEIGHBOURS_DONE, // neighbour enumeration finished
+    // state when waiting for /receiving local address from parent neighbor
+            STATE_TYPE_WAIT_FOR_BEING_ENUMERATED,
+    // state when local address is assigned successfully
+            STATE_TYPE_LOCALLY_ENUMERATED,
+    // state when starting neighbour enumeration
+            STATE_TYPE_ENUMERATING_NEIGHBOURS,
+    // state wen assigning network address to east neighbour
+            STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR,
+    // state when east enumeration finished
+            STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR_DONE,
+    // state when assigning network address to south neighbour
+            STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR,
+    // state when south enumeration finished
+            STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR_DONE,
+    // state when neighbour enumeration finished
+            STATE_TYPE_ENUMERATING_NEIGHBOURS_DONE,
 
-    STATE_TYPE_ANNOUNCE_NETWORK_GEOMETRY, // last particle sends local address to the origin
-    STATE_TYPE_ANNOUNCE_NETWORK_GEOMETRY_RELAY, // relay announcement to origin state
-    STATE_TYPE_ANNOUNCE_NETWORK_GEOMETRY_RELAY_DONE, // relay state done
-    STATE_TYPE_ANNOUNCE_NETWORK_GEOMETRY_DONE, // local address announcement done
+    // state when last particle sends local address to the origin
+            STATE_TYPE_ANNOUNCE_NETWORK_GEOMETRY,
+    // state when relaying the network address announcement to origin
+            STATE_TYPE_ANNOUNCE_NETWORK_GEOMETRY_RELAY,
+    // state when relaying relay is finished
+            STATE_TYPE_ANNOUNCE_NETWORK_GEOMETRY_RELAY_DONE,
+    // state when announcing network geometry is finished
+            STATE_TYPE_ANNOUNCE_NETWORK_GEOMETRY_DONE,
 
-    STATE_TYPE_SYNC_EAST_NEIGHBOUR, // sending local time to east
-    STATE_TYPE_SYNC_EAST_NEIGHBOUR_DONE, // sending local time to east finished
-    STATE_TYPE_SYNC_SOUTH_NEIGHBOUR, // sending local time to south
-    STATE_TYPE_SYNC_SOUTH_NEIGHBOUR_DONE, // sending local time to south finished
+    // state when sending local time to neighbours
+            STATE_TYPE_SYNC_NEIGHBOUR,
+    // state sending local time to neighbours finised
+            STATE_TYPE_SYNC_NEIGHBOUR_DONE,
 
-    STATE_TYPE_IDLE, // waiting for commands
-    STATE_TYPE_ERRONEOUS, // erroneous state machine state
-    STATE_TYPE_STALE // dead lock state after all operations, usually before shutdown
+    // working state when waiting for communication/commands or executing scheduled commands
+            STATE_TYPE_IDLE,
+    // erroneous machine state
+            STATE_TYPE_ERRONEOUS,
+    // dead lock state; usually before shutdown
+            STATE_TYPE_STALE
 } StateType;
 
 /**
- * The node type describes node's connectivity or in other words the position in the network.
+ * The node type describes node type according to the connectivity detected when discovery process
+ * finished.
  */
 typedef enum NodeType {
-    NODE_TYPE_INVALID = 0, // invalid or uninitialized note type
-    NODE_TYPE_ORPHAN, // no connection
-    NODE_TYPE_ORIGIN, // connected at south or south and east
-    NODE_TYPE_INTER_HEAD, // connected at north and south and east
-    NODE_TYPE_INTER_NODE, // connected at north and south
-    NODE_TYPE_TAIL, // connected at north
-    NODE_TYPE_MASTER // for testing purposes when the node is attached to the NODE_TYPE_ORIGIN node
+    // invalid or uninitialized note
+            NODE_TYPE_INVALID = 0,
+    // not connected node
+            NODE_TYPE_ORPHAN,
+    // node connected at south or south and east
+            NODE_TYPE_ORIGIN,
+    // node connected at north and south and east
+            NODE_TYPE_INTER_HEAD,
+    // node connected at north and south
+            NODE_TYPE_INTER_NODE,
+    // node connected at north
+            NODE_TYPE_TAIL,
+    // for testing purposes when the node is attached to the NODE_TYPE_ORIGIN node
+            NODE_TYPE_MASTER
 } NodeType;
 
 /**
- * A pulse counter and it's connectivity state.
+ * The dsicovery pulse counter stores the amount of discovery pulses and the connectivity state.
  */
-typedef struct PulseCounter {
-    uint8_t counter : 4; //pulse counter
-    uint8_t isConnected : 1; // connectivity flag
+typedef struct DiscoveryPulseCounter {
+    // discovery pulse counter
+    uint8_t counter : 4;
+    // connectivity flag
+    uint8_t isConnected : 1;
     uint8_t __pad : 3;
-} PulseCounter;
+} DiscoveryPulseCounter;
 
 /**
  * Stores the amount of incoming pulses for each communication channel. The isConnected flags are set
  * if the number of incoming pulses exceeds a specific threshold.
  */
 typedef struct DiscoveryPulseCounters {
-    PulseCounter north;
-    PulseCounter east;
-    PulseCounter south;
-    uint8_t loopCount; // discovery loop counter
+    DiscoveryPulseCounter north;
+    DiscoveryPulseCounter east;
+    DiscoveryPulseCounter south;
+    // discovery loop counter
+    uint8_t loopCount;
 } DiscoveryPulseCounters;
 
 /**
- * The node address in the network. It is spread from the origin node which assigns itself
- * the first address (row=1, column=1).
+ * The node address in the network. The origin node is addressed as row=1, column=1.
+ * Address (0,0) is reserved.
  */
 typedef struct NodeAddress {
     uint8_t row;
@@ -93,6 +127,9 @@ typedef struct NodeAddress {
  * Describes the node state type and address.
  */
 typedef struct Node {
+    /**
+     * Describes the global node states.
+     */
     StateType state;
     NodeType type;
     NodeAddress address;
@@ -100,25 +137,26 @@ typedef struct Node {
 
 
 /**
- * Counters/resources needed for platform's periphery.
+ * Counters/resources needed for non vital platform's periphery such as LEDs, test points and alike.
  */
 typedef struct Periphery {
-    uint8_t loopCount; // particle loop counter
+    // particle main loop counter
+    uint8_t loopCount;
 } Periphery;
 
 /**
- * The global particle state with references to the most important states, buffers, counters,
- * etc.
+ * The global particle structure containing buffers, states, counters and alike.
  */
-typedef struct ParticleState {
+typedef struct Particle {
     Node node;
     DiscoveryPulseCounters discoveryPulseCounters;
     Communication communication;
     Periphery periphery;
     CommunicationProtocol protocol;
 #ifdef SIMULATION
+    // a marker used to assure the correct interpretation of the particle structure when simulating
     uint8_t magicEndByte;
 #endif
-} ParticleState;
+} Particle;
 
 

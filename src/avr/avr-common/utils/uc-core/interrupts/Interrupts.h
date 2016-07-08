@@ -25,13 +25,14 @@
 
 #define TIMER_NEIGHBOUR_SENSE_COUNTER_ON_INTERRUPT_ROLLBACK 12
 
-extern FUNC_ATTRS void __handleInputInterrupt(volatile PulseCounter *discoveryPulseCounter,
+extern FUNC_ATTRS void __handleInputInterrupt(volatile DiscoveryPulseCounter *discoveryPulseCounter,
                                               volatile RxPort *rxPort,
                                               const bool isRxHigh);
 /**
  * Handles interrupt in input pins according to the particle state.
  */
-FUNC_ATTRS void __handleInputInterrupt(volatile PulseCounter *discoveryPulseCounter, volatile RxPort *rxPort,
+FUNC_ATTRS void __handleInputInterrupt(volatile DiscoveryPulseCounter *discoveryPulseCounter,
+                                       volatile RxPort *rxPort,
                                        const bool isRxHigh) {
     uint16_t timerCounterValue = TIMER_TX_RX_COUNTER_VALUE;
     switch (ParticleAttributes.node.state) {

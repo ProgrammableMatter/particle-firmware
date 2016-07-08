@@ -40,6 +40,8 @@ FUNC_ATTRS void executeRelayAnnounceNetworkGeometryPackage(volatile AnnounceNetw
     if (ParticleAttributes.node.type == NODE_TYPE_ORIGIN) {
         ParticleAttributes.protocol.networkGeometry.rows = package->rows;
         ParticleAttributes.protocol.networkGeometry.columns = package->columns;
+        ParticleAttributes.node.state =
+                STATE_TYPE_SYNC_NEIGHBOUR;
     } else {
         clearTransmissionPortBuffer(&ParticleAttributes.communication.ports.tx.north);
         constructSendAnnounceNetworkGeometryPackage(package->rows, package->columns);

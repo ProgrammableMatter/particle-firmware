@@ -8,14 +8,18 @@
 
 
 extern CTOR_ATTRS void constructBufferBitPointer(volatile BufferBitPointer *o);
-
+/**
+ * constructor function
+ */
 CTOR_ATTRS void constructBufferBitPointer(volatile BufferBitPointer *o) {
     o->byteNumber = 0;
     o->bitMask = 1;
 }
 
 extern CTOR_ATTRS void constructPortBuffer(volatile PortBuffer *o);
-
+/**
+ * constructor function
+ */
 CTOR_ATTRS void constructPortBuffer(volatile PortBuffer *o) {
     for (uint8_t i = 0; i < sizeof(o->bytes); i++) {
         o->bytes[i] = 0;
@@ -25,7 +29,9 @@ CTOR_ATTRS void constructPortBuffer(volatile PortBuffer *o) {
 }
 
 extern CTOR_ATTRS void constructTxPort(volatile TxPort *o);
-
+/**
+ * constructor function
+ */
 CTOR_ATTRS void constructTxPort(volatile TxPort *o) {
     constructPortBuffer(&(o->buffer));
     constructBufferBitPointer(&o->dataEndPos);
@@ -36,7 +42,9 @@ CTOR_ATTRS void constructTxPort(volatile TxPort *o) {
 }
 
 extern CTOR_ATTRS void constructTxPorts(volatile TxPorts *o);
-
+/**
+ * constructor function
+ */
 CTOR_ATTRS void constructTxPorts(volatile TxPorts *o) {
     constructTxPort(&(o->north));
     constructTxPort(&(o->east));
@@ -44,7 +52,9 @@ CTOR_ATTRS void constructTxPorts(volatile TxPorts *o) {
 }
 
 extern CTOR_ATTRS void constructRxPort(volatile RxPort *o);
-
+/**
+ * constructor function
+ */
 CTOR_ATTRS void constructRxPort(volatile RxPort *o) {
     constructRxSnapshotBuffer(&o->snapshotsBuffer);
     constructPortBuffer(&(o->buffer));
@@ -54,7 +64,9 @@ CTOR_ATTRS void constructRxPort(volatile RxPort *o) {
 }
 
 extern CTOR_ATTRS void constructTimerCounterAdjustment(volatile TimerCounterAdjustment *o);
-
+/**
+ * constructor function
+ */
 CTOR_ATTRS void constructTimerCounterAdjustment(volatile TimerCounterAdjustment *o) {
     o->maxShortIntervalDurationOvertimePercentageRatio = DEFAULT_MAX_SHORT_RECEPTION_OVERTIME_PERCENTAGE_RATIO;
     o->maxShortIntervalDuration =
@@ -74,7 +86,9 @@ CTOR_ATTRS void constructTimerCounterAdjustment(volatile TimerCounterAdjustment 
 }
 
 extern CTOR_ATTRS void constructRxPorts(volatile RxPorts *o);
-
+/**
+ * constructor function
+ */
 CTOR_ATTRS void constructRxPorts(volatile RxPorts *o) {
     constructRxPort(&(o->north));
     constructRxPort(&(o->east));
@@ -82,14 +96,18 @@ CTOR_ATTRS void constructRxPorts(volatile RxPorts *o) {
 }
 
 extern CTOR_ATTRS void constructCommunicationPorts(volatile CommunicationPorts *o);
-
+/**
+ * constructor function
+ */
 CTOR_ATTRS void constructCommunicationPorts(volatile CommunicationPorts *o) {
     constructTxPorts(&(o->tx));
     constructRxPorts(&(o->rx));
 }
 
 extern CTOR_ATTRS void constructCommunication(volatile Communication *o);
-
+/**
+ * constructor function
+ */
 CTOR_ATTRS void constructCommunication(volatile Communication *o) {
     constructTimerCounterAdjustment(&o->timerAdjustment);
     o->xmissionState = STATE_TYPE_XMISSION_TYPE_DISABLED_TX_RX;

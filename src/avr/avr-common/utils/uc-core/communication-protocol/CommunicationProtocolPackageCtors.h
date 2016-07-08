@@ -17,7 +17,7 @@ extern CTOR_ATTRS void constructSendEnumeratePackage(volatile TxPort *txPort,
                                                      uint8_t localAddressRow,
                                                      uint8_t localAddressColumn);
 /**
- * Constructs a SendEnumeratePackage at the beginning of parameter o.
+ * constructor function: builds the protocol package at the given port's buffer
  */
 CTOR_ATTRS void constructSendEnumeratePackage(volatile TxPort *txPort, uint8_t localAddressRow,
                                               uint8_t localAddressColumn) {
@@ -46,7 +46,7 @@ CTOR_ATTRS void constructSendEnumeratePackage(volatile TxPort *txPort, uint8_t l
 
 extern CTOR_ATTRS void constructSendACKPackage(volatile TxPort *txPort);
 /**
- * Constructs an empty ACK package at the given port tx buffer.
+ * constructor function: builds the protocol package at the given port's buffer
  */
 CTOR_ATTRS void constructSendACKPackage(volatile TxPort *txPort) {
 //    PackageHeader *ph = &((Package *)txPort->buffer.bytes)->asACKPackage;
@@ -58,7 +58,7 @@ CTOR_ATTRS void constructSendACKPackage(volatile TxPort *txPort) {
 
 extern CTOR_ATTRS void constructSendEnumeratedACKWithAddressToParentPackage(void);
 /**
- * Constructs an ACK package with 2 byte data payload as the address field at the given port tx buffer.
+ * constructor function: builds the protocol package at the given port's buffer
  */
 CTOR_ATTRS void constructSendEnumeratedACKWithAddressToParentPackage(void) {
     Package *package = (Package *) ParticleAttributes.communication.ports.tx.north.buffer.bytes;
@@ -72,7 +72,7 @@ CTOR_ATTRS void constructSendEnumeratedACKWithAddressToParentPackage(void) {
 
 extern CTOR_ATTRS void constructSendSyncTimePackage(volatile TxPort *txPort);
 /**
- * constructs a package containing the current uint16_t local time as payload
+ * constructor function: builds the protocol package at the given port's buffer
  */
 CTOR_ATTRS void constructSendSyncTimePackage(volatile TxPort *txPort) {
     Package *package = (Package *) txPort->buffer.bytes;
@@ -84,7 +84,7 @@ CTOR_ATTRS void constructSendSyncTimePackage(volatile TxPort *txPort) {
 
 extern CTOR_ATTRS void constructSendAnnounceNetworkGeometryPackage(uint8_t row, uint8_t column);
 /**
- * constructs a network geometry announcement package containing the local address
+ * constructor function: builds the protocol package at the given port's buffer
  */
 CTOR_ATTRS void constructSendAnnounceNetworkGeometryPackage(uint8_t row, uint8_t column) {
     Package *package = (Package *) &ParticleAttributes.communication.ports.tx.north;

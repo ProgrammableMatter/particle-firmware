@@ -58,7 +58,7 @@ ISR(TIMER_TX_COUNTER_CENTER_VECTOR) {
 }
 
 inline void initTransmission(void) {
-    constructParticleState(&ParticleAttributes);
+    constructParticle(&ParticleAttributes);
     ParticleAttributes.node.state = STATE_TYPE_START;
     ParticleAttributes.node.type = NODE_TYPE_MASTER;
 

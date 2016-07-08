@@ -265,7 +265,7 @@ FUNC_ATTRS void __handleWaitForBeingEnumerated(void) {
 
 extern FUNC_ATTRS void __handleEnumerateNeighbour(volatile TxPort *txPort,
                                                   volatile CommunicationProtocolPortState *commPortState,
-                                                  volatile PulseCounter *discoveryPulseCounter,
+                                                  volatile DiscoveryPulseCounter *discoveryPulseCounter,
                                                   void (receptionImpl)(void),
                                                   uint8_t remoteAddressRow,
                                                   uint8_t remoteAddressColumn,
@@ -275,7 +275,7 @@ extern FUNC_ATTRS void __handleEnumerateNeighbour(volatile TxPort *txPort,
  */
 FUNC_ATTRS void __handleEnumerateNeighbour(volatile TxPort *txPort,
                                            volatile CommunicationProtocolPortState *commPortState,
-                                           volatile PulseCounter *discoveryPulseCounter,
+                                           volatile DiscoveryPulseCounter *discoveryPulseCounter,
                                            void (receptionImpl)(void),
                                            uint8_t remoteAddressRow,
                                            uint8_t remoteAddressColumn,
@@ -345,14 +345,14 @@ FUNC_ATTRS void __handleEnumerateNeighbour(volatile TxPort *txPort,
 
 extern FUNC_ATTRS void __handleSynchronizeNeighbour(volatile TxPort *txPort,
                                                     volatile CommunicationProtocolPortState *commPortState,
-                                                    volatile PulseCounter *discoveryPulseCounter,
+                                                    volatile DiscoveryPulseCounter *discoveryPulseCounter,
                                                     StateType endState);
 /**
  * Handles neighbour synchronization communication states.
  */
 FUNC_ATTRS void __handleSynchronizeNeighbour(volatile TxPort *txPort,
                                              volatile CommunicationProtocolPortState *commPortState,
-                                             volatile PulseCounter *discoveryPulseCounter,
+                                             volatile DiscoveryPulseCounter *discoveryPulseCounter,
                                              StateType endState) {
     switch (commPortState->initiatorState) {
         // transmit local time
@@ -548,7 +548,7 @@ inline void particleTick(void) {
     switch (ParticleAttributes.node.state) {
         case STATE_TYPE_RESET:
             __disableReception();
-            constructParticleState(&ParticleAttributes);
+            constructParticle(&ParticleAttributes);
             ParticleAttributes.node.state = STATE_TYPE_START;
             goto __STATE_TYPE_START;
             break;
@@ -693,26 +693,14 @@ inline void particleTick(void) {
 
             // ---------------- working states ----------------
 
-        case STATE_TYPE_SYNC_EAST_NEIGHBOUR:
+        case STATE_TYPE_SYNC_NEIGHBOUR:
             __handleSynchronizeNeighbour(&ParticleAttributes.communication.ports.tx.east,
                                          &ParticleAttributes.protocol.ports.east,
                                          &ParticleAttributes.discoveryPulseCounters.east,
-                                         STATE_TYPE_SYNC_EAST_NEIGHBOUR_DONE);
+                                         STATE_TYPE_SYNC_NEIGHBOUR_DONE);
             break;
 
-        case STATE_TYPE_SYNC_EAST_NEIGHBOUR_DONE:
-            ParticleAttributes.node.state = STATE_TYPE_SYNC_SOUTH_NEIGHBOUR;
-            goto __STATE_TYPE_SYNC_SOUTH_NEIGHBOUR;
-            break;
-
-        __STATE_TYPE_SYNC_SOUTH_NEIGHBOUR:
-        case STATE_TYPE_SYNC_SOUTH_NEIGHBOUR:
-            __handleSynchronizeNeighbour(&ParticleAttributes.communication.ports.tx.south,
-                                         &ParticleAttributes.protocol.ports.south,
-                                         &ParticleAttributes.discoveryPulseCounters.south,
-                                         STATE_TYPE_SYNC_SOUTH_NEIGHBOUR_DONE);
-            break;
-        case STATE_TYPE_SYNC_SOUTH_NEIGHBOUR_DONE:
+        case STATE_TYPE_SYNC_NEIGHBOUR_DONE:
             ParticleAttributes.node.state = STATE_TYPE_IDLE;
             goto __STATE_TYPE_IDLE;
             break;

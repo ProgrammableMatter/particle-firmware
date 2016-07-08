@@ -17,7 +17,7 @@ extern inline int particleLoop(void);
  */
 inline int particleLoop(void) {
     IO_PORTS_SETUP; // configure input/output pins
-    constructParticleState(&ParticleAttributes);
+    constructParticle(&ParticleAttributes);
     ParticleAttributes.node.state = STATE_TYPE_START;
     forever {
         PARTICLE_MAIN_LOOP_DELAY;

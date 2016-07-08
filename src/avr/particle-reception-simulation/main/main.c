@@ -35,7 +35,7 @@ int main(void) {
     IO_PORTS_SETUP;
 
     ParticleAttributes.discoveryPulseCounters.loopCount = UINT8_MAX;
-    constructParticleState(&ParticleAttributes);
+    constructParticle(&ParticleAttributes);
 
     DEBUG_CHAR_OUT('1');
     RX_INTERRUPTS_CLEAR_PENDING;
