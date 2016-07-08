@@ -52,12 +52,16 @@
 #define TX_RX_NUMBER_BUFFER_BYTES 7
 
 /**
- * Size of reception snapshot buffer per port. Sould be >= TX_RX_NUMBER_BUFFER_BYTES * 8 * 2 + 2
+ * Size of reception snapshot buffer per port.
  */
-// 100% snapshots buffer
+// 100% snapshots buffer of TX_RX_NUMBER_BUFFER_BYTES
 //#define RX_NUMBER_SNAPSHOTS 114
 // 75% snapshots buffer
 //#define RX_NUMBER_SNAPSHOTS 85
+// 50% snapshots buffer
+//#define RX_NUMBER_SNAPSHOTS 57
 // 25% snapshots buffer
-#define RX_NUMBER_SNAPSHOTS 42
+#define RX_NUMBER_SNAPSHOTS 28
+// 13% snapshots buffer
+//#define RX_NUMBER_SNAPSHOTS 15
 
