@@ -11,17 +11,15 @@
 
 //unsigned char __stuff __attribute__((section(".noinit")));
 
-extern FUNC_ATTRS int particleLoop(void);
+extern inline int particleLoop(void);
+
 /**
  * A mocked up particle loop. It puts the particle in an initialized reception state.
  */
-FUNC_ATTRS int particleLoop(void) {
+inline int particleLoop(void) {
     forever {
         PARTICLE_MAIN_LOOP_DELAY;
         particleTick();
-        if (ParticleAttributes.node.state == STATE_TYPE_ERRONEOUS) {
-            return 1;
-        }
     }
 }
 
@@ -41,6 +39,7 @@ int main(void) {
 
     DEBUG_CHAR_OUT('1');
     RX_INTERRUPTS_CLEAR_PENDING;
+    ParticleAttributes.discoveryPulseCounters.north.isConnected = true;
     ParticleAttributes.node.type = NODE_TYPE_ORIGIN;
     ParticleAttributes.node.state = STATE_TYPE_IDLE;
 
