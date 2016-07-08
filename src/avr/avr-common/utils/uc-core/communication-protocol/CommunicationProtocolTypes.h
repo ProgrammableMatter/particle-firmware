@@ -80,16 +80,15 @@ typedef struct AckPackage {
     uint8_t __startBit : 1;
     uint8_t headerIsStream : 1;
     uint8_t headerId : 4;
-    uint8_t headerIsCommand : 1;
-    uint8_t enableBroadcast : 1;
+    uint8_t __pad : 2;
 } AckPackage;
 
 /**
  * AckPackage data length expressed as BufferPointer
  */
 #define AckPackagePointerSize \
-    ((((uint16_t) 0x0100) << 0) \
-    |((uint16_t) 0x0001))
+    ((((uint16_t) 0x0100) << 6) \
+    |((uint16_t) 0x0000))
 
 /**
  * describes a package header with subsequent address

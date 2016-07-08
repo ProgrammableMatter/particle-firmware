@@ -52,8 +52,10 @@ CTOR_ATTRS void constructSendACKPackage(volatile TxPort *txPort) {
 //    PackageHeader *ph = &((Package *)txPort->buffer.bytes)->asACKPackage;
     Package *package = (Package *) txPort->buffer.bytes;
     package->asACKPackage.__startBit = 1;
+    package->asACKPackage.headerIsStream = false;
     package->asACKPackage.headerId = PACKAGE_HEADER_ID_TYPE_ACK;
     setBufferDataEndPointer(txPort->dataEndPos, AckPackagePointerSize);
+
 }
 
 extern CTOR_ATTRS void constructSendEnumeratedACKWithAddressToParentPackage(void);
