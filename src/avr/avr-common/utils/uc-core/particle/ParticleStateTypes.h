@@ -56,12 +56,12 @@ typedef enum StateType {
     // state when announcing network geometry is finished
             STATE_TYPE_ANNOUNCE_NETWORK_GEOMETRY_DONE,
 
-    // state when sending local time to neighbours
+    // state when origin node sends local time to neighbours
             STATE_TYPE_SYNC_NEIGHBOUR,
-    // state sending local time to neighbours finised
+    // state when origin sending local time to neighbours has finished
             STATE_TYPE_SYNC_NEIGHBOUR_DONE,
 
-    // working state when waiting for communication/commands or executing scheduled commands
+    // working state when waiting for commands or executing scheduled tasks
             STATE_TYPE_IDLE,
     // erroneous machine state
             STATE_TYPE_ERRONEOUS,

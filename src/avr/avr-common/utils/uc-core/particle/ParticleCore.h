@@ -343,28 +343,21 @@ FUNC_ATTRS void __handleEnumerateNeighbour(volatile TxPort *txPort,
     }
 }
 
-extern FUNC_ATTRS void __handleSynchronizeNeighbour(volatile TxPort *txPort,
-                                                    volatile CommunicationProtocolPortState *commPortState,
-                                                    volatile DiscoveryPulseCounter *discoveryPulseCounter,
+extern FUNC_ATTRS void __handleSynchronizeNeighbour(volatile CommunicationProtocolPortState *commPortState,
                                                     StateType endState);
 /**
  * Handles neighbour synchronization communication states.
  */
-FUNC_ATTRS void __handleSynchronizeNeighbour(volatile TxPort *txPort,
-                                             volatile CommunicationProtocolPortState *commPortState,
-                                             volatile DiscoveryPulseCounter *discoveryPulseCounter,
+FUNC_ATTRS void __handleSynchronizeNeighbour(volatile CommunicationProtocolPortState *commPortState,
                                              StateType endState) {
+    volatile TxPort *txPort = ParticleAttributes.communication.ports.tx.simultaneous;
     switch (commPortState->initiatorState) {
-        // transmit local time
+        // transmit local time simultaneously on east and south ports
         case COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT:
-            if (discoveryPulseCounter->isConnected) {
-                clearTransmissionPortBuffer(txPort);
-                constructSendSyncTimePackage(txPort);
-                enableTransmission(txPort);
-                commPortState->initiatorState = COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT_WAIT_FOR_TX_FINISHED;
-            } else {
-                ParticleAttributes.node.state = endState;
-            }
+            clearTransmissionPortBuffer(txPort);
+            constructSendSyncTimePackage(txPort);
+            enableTransmission(txPort);
+            commPortState->initiatorState = COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT_WAIT_FOR_TX_FINISHED;
             break;
 
             // wait for tx finished
@@ -385,7 +378,6 @@ FUNC_ATTRS void __handleSynchronizeNeighbour(volatile TxPort *txPort,
             break;
     }
 }
-
 
 extern FUNC_ATTRS void __handleRelayAnnounceNetworkGeometry(StateType endState);
 
@@ -694,10 +686,14 @@ inline void particleTick(void) {
             // ---------------- working states ----------------
 
         case STATE_TYPE_SYNC_NEIGHBOUR:
-            __handleSynchronizeNeighbour(&ParticleAttributes.communication.ports.tx.east,
-                                         &ParticleAttributes.protocol.ports.east,
-                                         &ParticleAttributes.discoveryPulseCounters.east,
-                                         STATE_TYPE_SYNC_NEIGHBOUR_DONE);
+            __handleSynchronizeNeighbour(
+                    // TODO: refactor particle structure
+                    &ParticleAttributes.protocol.ports.east,
+                    STATE_TYPE_SYNC_NEIGHBOUR_DONE);
+            // TODO: particle comm/proto ports and port
+            // counter should be bundled by their
+            // cardinal direction instead of implementation
+            // context
             break;
 
         case STATE_TYPE_SYNC_NEIGHBOUR_DONE:
