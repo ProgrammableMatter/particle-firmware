@@ -15,7 +15,7 @@ extern FUNC_ATTRS void executeSetLocalTime(volatile TimePackage *package);
 FUNC_ATTRS void executeSetLocalTime(volatile TimePackage *package) {
     // TODO: compensation value missing
     TIMER_TX_RX_COUNTER_VALUE = package->time;
-    ParticleAttributes.protocol.isBoradcastEnabled = package->enableBroadcast;
+    ParticleAttributes.protocol.isBroadcastEnabled = package->enableBroadcast;
 }
 
 
@@ -48,5 +48,5 @@ FUNC_ATTRS void executeRelayAnnounceNetworkGeometryPackage(volatile AnnounceNetw
         setInitiatorStateStart(&ParticleAttributes.protocol.ports.north);
         ParticleAttributes.node.state = STATE_TYPE_ANNOUNCE_NETWORK_GEOMETRY_RELAY;
     }
-    ParticleAttributes.protocol.isBoradcastEnabled = package->enableBroadcast;
+    ParticleAttributes.protocol.isBroadcastEnabled = package->enableBroadcast;
 }

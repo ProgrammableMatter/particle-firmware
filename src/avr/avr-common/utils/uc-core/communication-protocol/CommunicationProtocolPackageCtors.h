@@ -78,6 +78,7 @@ CTOR_ATTRS void constructSendSyncTimePackage(volatile TxPort *txPort) {
     Package *package = (Package *) txPort->buffer.bytes;
     package->asSyncTimePackage.__startBit = 1;
     package->asSyncTimePackage.headerId = PACKAGE_HEADER_ID_TYPE_SYNC_TIME;
+    package->asSyncTimePackage.enableBroadcast = false;
     package->asSyncTimePackage.time = TIMER_TX_RX_COUNTER_VALUE;
     setBufferDataEndPointer(txPort->dataEndPos, TimePackageBufferPointerSize);
 }

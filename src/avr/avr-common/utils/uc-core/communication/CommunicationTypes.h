@@ -51,6 +51,7 @@ typedef struct TxPorts {
     TxPort north;
     TxPort east;
     TxPort south;
+    TxPort *simultaneous;
 } TxPorts;
 
 typedef struct RxPort {

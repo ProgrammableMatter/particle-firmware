@@ -46,9 +46,10 @@ extern CTOR_ATTRS void constructTxPorts(volatile TxPorts *o);
  * constructor function
  */
 CTOR_ATTRS void constructTxPorts(volatile TxPorts *o) {
-    constructTxPort(&(o->north));
-    constructTxPort(&(o->east));
-    constructTxPort(&(o->south));
+    constructTxPort(&o->north);
+    constructTxPort(&o->east);
+    constructTxPort(&o->south);
+    o->simultaneous = (TxPort *) &o->east;
 }
 
 extern CTOR_ATTRS void constructRxPort(volatile RxPort *o);

@@ -78,6 +78,13 @@ FUNC_ATTRS void scheduleNextTransmission(void) {
  * int. #19
  */
 ISR(NORTH_PIN_CHANGE_INTERRUPT_VECT) {
+    if (ParticleAttributes.protocol.isBroadcastEnabled) {
+        if (EAST_RX_IS_HI) {
+            simultaneousTxHiImpl();
+        } else {
+            simultaneousTxLoImpl();
+        }
+    }
     __handleInputInterrupt(&ParticleAttributes.discoveryPulseCounters.north,
                            &ParticleAttributes.communication.ports.rx.north,
                            NORTH_RX_IS_HI);
@@ -130,6 +137,10 @@ ISR(TX_TIMER_INTERRUPT_VECT) {
             switch (ParticleAttributes.communication.xmissionState) {
                 case STATE_TYPE_XMISSION_TYPE_ENABLED_TX_RX:
                 case STATE_TYPE_XMISSION_TYPE_ENABLED_TX:
+                    if (ParticleAttributes.protocol.isSimultaneousTransmissionEnabled) {
+                        transmit(ParticleAttributes.communication.ports.tx.simultaneous, simultaneousTxHiImpl,
+                                 simultaneousTxLoImpl);
+                    }
                     transmit(&ParticleAttributes.communication.ports.tx.north, northTxHiImpl, northTxLoImpl);
                     transmit(&ParticleAttributes.communication.ports.tx.east, eastTxHiImpl, eastTxLoImpl);
                     transmit(&ParticleAttributes.communication.ports.tx.south, southTxHiImpl, southTxLoImpl);

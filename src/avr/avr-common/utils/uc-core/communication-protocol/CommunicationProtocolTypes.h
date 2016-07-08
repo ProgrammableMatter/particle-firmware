@@ -245,6 +245,7 @@ typedef struct CommunicationProtocol {
     CommunicationProtocolPorts ports;
     NetworkGeometry networkGeometry;
     uint8_t hasNetworkGeometryDiscoveryBreadCrumb : 1;
-    uint8_t isBoradcastEnabled : 1;
-    uint8_t __pad : 6;
+    uint8_t isBroadcastEnabled : 1;
+    uint8_t isSimultaneousTransmissionEnabled : 1;
+    uint8_t __pad : 5;
 } CommunicationProtocol;
