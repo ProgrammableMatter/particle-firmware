@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <avr/sleep.h>
 #include "common/common.h"
 #include "Globals.h"
 #include "ParticleStateTypes.h"
@@ -93,6 +94,8 @@ FUNC_ATTRS void __initParticle(void) {
     RX_INTERRUPTS_SETUP; // configure input pins interrupts
     RX_INTERRUPTS_ENABLE; // enable input pin interrupts
     TIMER_NEIGHBOUR_SENSE_SETUP; // configure timer interrupt for neighbour sensing
+    sleep_disable();
+    set_sleep_mode(SLEEP_MODE_PWR_DOWN); // set sleep mode to power down
 }
 
 extern FUNC_ATTRS void __disableReceptionPinChangeInterrupts(void);
@@ -697,6 +700,13 @@ inline void particleTick(void) {
             __receiveNorth();
             __receiveEast();
             __receiveSouth();
+            break;
+
+        case STATE_TYPE_SLEEP_MODE:
+            sleep_enable();
+            SEI;
+            sleep_cpu();
+            sleep_disable();
             break;
 
         case STATE_TYPE_UNDEFINED:

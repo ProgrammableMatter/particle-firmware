@@ -66,7 +66,10 @@ typedef enum StateType {
     // erroneous machine state
             STATE_TYPE_ERRONEOUS,
     // dead lock state; usually before shutdown
-            STATE_TYPE_STALE
+            STATE_TYPE_STALE,
+
+    // state when before MCU goes int sleep mode
+            STATE_TYPE_SLEEP_MODE,
 } StateType;
 
 /**
