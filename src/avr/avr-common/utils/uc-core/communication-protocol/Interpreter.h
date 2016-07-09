@@ -66,7 +66,7 @@ FUNC_ATTRS void __interpretReceivedPackage(volatile RxPort *rxPort
     switch (package->asHeader.headerId) {
 
         case PACKAGE_HEADER_ID_TYPE_SYNC_TIME:
-            executeSetLocalTime(&package->asSyncTimePackage);
+            executeSynchronizeLocalTime(&package->asSyncTimePackage);
             clearReceptionPortBuffer(rxPort);
             break;
 
@@ -76,6 +76,7 @@ FUNC_ATTRS void __interpretReceivedPackage(volatile RxPort *rxPort
             break;
 
         default:
+            DEBUG_CHAR_OUT('u');
             clearReceptionPortBuffer(rxPort);
             break;
     }

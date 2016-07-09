@@ -7,6 +7,7 @@
 
 #include <stdint.h>
 
+extern inline void __delay_loop_2(uint16_t __count);
 /**
  * non static inline delay loop to be used in non static inline functions
  */
@@ -18,8 +19,6 @@ inline void __delay_loop_2(uint16_t __count) {
     : "0" (__count)
     );
 }
-
-extern inline void __delay_loop_2(uint16_t __count);
 
 #define DELAY_US_5 \
     __delay_loop_2(10)

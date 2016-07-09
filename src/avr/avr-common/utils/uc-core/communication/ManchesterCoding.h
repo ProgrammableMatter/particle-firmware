@@ -62,6 +62,18 @@ FUNC_ATTRS void eastTxHiImpl(void) {
     EAST_TX_HI;
 }
 
+extern FUNC_ATTRS void southTxHiImpl(void);
+
+FUNC_ATTRS void southTxHiImpl(void) {
+    SOUTH_TX_HI;
+}
+
+extern FUNC_ATTRS void southTxLoImpl(void);
+
+FUNC_ATTRS void southTxLoImpl(void) {
+    SOUTH_TX_LO;
+}
+
 extern FUNC_ATTRS void eastTxLoImpl(void);
 
 FUNC_ATTRS void eastTxLoImpl(void) {
@@ -72,18 +84,6 @@ extern FUNC_ATTRS void simultaneousTxLoImpl(void);
 
 FUNC_ATTRS void simultaneousTxLoImpl(void) {
     EAST_TX_LO;
-    SOUTH_TX_LO;
-}
-
-extern FUNC_ATTRS void southTxHiImpl(void);
-
-FUNC_ATTRS void southTxHiImpl(void) {
-    SOUTH_TX_HI;
-}
-
-extern FUNC_ATTRS void southTxLoImpl(void);
-
-FUNC_ATTRS void southTxLoImpl(void) {
     SOUTH_TX_LO;
 }
 

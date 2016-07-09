@@ -8,6 +8,7 @@
 #include <uc-core/configuration/IoPins.h>
 #include <uc-core/particle/Globals.h>
 #include <uc-core/particle/ParticleStateTypesCtors.h>
+#include <uc-core/delay/delay.h>
 
 #define TIMER_TX_ENABLE_COMPARE_TOP_INTERRUPT \
     __TIMER1_INTERRUPT_CLEAR_PENDING_COMPARE_A; \

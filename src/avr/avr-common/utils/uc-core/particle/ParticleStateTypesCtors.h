@@ -7,6 +7,17 @@
 #include "uc-core/communication/CommunicationTypesCtors.h"
 #include "uc-core/communication-protocol/CommunicationProtocolTypesCtors.h"
 
+extern void constructTimerCounterAdjustment(volatile TimerCounterAdjustment *o);
+
+/**
+ * constructor function
+ */
+void constructTimerCounterAdjustment(volatile TimerCounterAdjustment *o) {
+    o->counterOffset = 0;
+    o->isPositiveCounterOffset = true;
+    o->isCounterOffsetValid = false;
+}
+
 extern CTOR_ATTRS void constructDiscoveryPulseCounter(volatile DiscoveryPulseCounter *o);
 /**
  * constructor function
@@ -58,9 +69,10 @@ extern CTOR_ATTRS void constructParticle(volatile Particle *o);
  */
 CTOR_ATTRS void constructParticle(volatile Particle *o) {
     constructNode(&(o->node));
-    constructDiscoveryPulseCounters(&(o->discoveryPulseCounters));
-    constructCommunication(&(o->communication));
-    constructPeriphery(&(o->periphery));
+//    constructTimerCounterAdjustment(&o->timerCounterAdjustment);
+    constructDiscoveryPulseCounters(&o->discoveryPulseCounters);
+    constructCommunication(&o->communication);
+    constructPeriphery(&o->periphery);
     constructCommunicationProtocol(&o->protocol);
 #ifdef SIMULATION
     o->__structStartMarker = 0xaa;

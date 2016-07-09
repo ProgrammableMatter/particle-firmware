@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include "uc-core/delay/delay.h"
-
 /**
  * Delay separating particle loops while in discovery state.
  */

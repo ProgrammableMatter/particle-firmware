@@ -8,13 +8,24 @@
 #include "CommunicationProtocolPackageCtors.h"
 
 
-extern FUNC_ATTRS void executeSetLocalTime(volatile TimePackage *package);
+extern FUNC_ATTRS void executeSynchronizeLocalTime(volatile TimePackage *package);
 /**
- * Updates the local time.
+ * prepare local time synchronization
  */
-FUNC_ATTRS void executeSetLocalTime(volatile TimePackage *package) {
-    // TODO: compensation value missing
-    TIMER_TX_RX_COUNTER_VALUE = package->time;
+FUNC_ATTRS void executeSynchronizeLocalTime(volatile TimePackage *package) {
+//    uint16_t counterValue = TIMER_TX_RX_COUNTER_VALUE;
+    TIMER_TX_RX_COUNTER_VALUE = package->time -
+                                COMMUNICATION_PROTOCOL_TIME_SYNCHRONIZATION_COMPENSATION_OFFSET *
+                                (ParticleAttributes.node.address.row - 1 +
+                                 ParticleAttributes.node.address.column - 1);
+//    if (package->time > counterValue) {
+//        ParticleAttributes.timerCounterAdjustment.counterOffset = package->time - counterValue;
+//        ParticleAttributes.timerCounterAdjustment.isPositiveCounterOffset = true;
+//    } else {
+//        ParticleAttributes.timerCounterAdjustment.counterOffset = counterValue - package->time;
+//        ParticleAttributes.timerCounterAdjustment.isPositiveCounterOffset = false;
+//    }
+//    ParticleAttributes.timerCounterAdjustment.isCounterOffsetValid = true;
     ParticleAttributes.protocol.isBroadcastEnabled = package->enableBroadcast;
 }
 

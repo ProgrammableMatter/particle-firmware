@@ -64,7 +64,7 @@ typedef struct RxPort {
     uint8_t __pad : 6;
 } RxPort;
 
-typedef struct TimerCounterAdjustment {
+typedef struct TransmissionTimerAdjustment {
 
     /**
      * snapshot differences below this threshold are treated as short interval occurrences
@@ -118,7 +118,7 @@ typedef struct TimerCounterAdjustment {
     uint8_t isTransmissionClockShiftUpdateable : 1;
 
     uint8_t __pad : 6;
-} TimerCounterAdjustment;
+} TransmissionTimerAdjustment;
 
 typedef struct RxPorts {
     RxPort north;
@@ -132,7 +132,7 @@ typedef struct CommunicationPorts {
 } CommunicationPorts;
 
 typedef struct Communication {
-    TimerCounterAdjustment timerAdjustment;
+    TransmissionTimerAdjustment timerAdjustment;
     XmissionType xmissionState;
     CommunicationPorts ports;
 } Communication;

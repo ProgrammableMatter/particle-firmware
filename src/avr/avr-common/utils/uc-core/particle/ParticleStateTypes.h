@@ -148,6 +148,18 @@ typedef struct Periphery {
 } Periphery;
 
 /**
+ * keeps adjustment attributes for the internal 16bit timer/counter
+ */
+typedef struct TimerCounterAdjustment {
+    uint16_t localTime;
+    uint16_t remoteTime;
+    uint16_t counterOffset;
+    int8_t isPositiveCounterOffset : 1;
+    int8_t isCounterOffsetValid : 1;
+    int8_t __pad : 6;
+} TimerCounterAdjustment;
+
+/**
  * The global particle structure containing buffers, states, counters and alike.
  */
 typedef struct Particle {
@@ -156,6 +168,7 @@ typedef struct Particle {
     uint8_t __structStartMarker;
 #endif
     Node node;
+//    TimerCounterAdjustment timerCounterAdjustment;
     DiscoveryPulseCounters discoveryPulseCounters;
     Communication communication;
     Periphery periphery;

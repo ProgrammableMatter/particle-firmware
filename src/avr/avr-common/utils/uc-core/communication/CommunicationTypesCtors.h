@@ -64,27 +64,7 @@ CTOR_ATTRS void constructRxPort(volatile RxPort *o) {
     o->isDataBuffered = false;
 }
 
-extern CTOR_ATTRS void constructTimerCounterAdjustment(volatile TimerCounterAdjustment *o);
-/**
- * constructor function
- */
-CTOR_ATTRS void constructTimerCounterAdjustment(volatile TimerCounterAdjustment *o) {
-    o->maxShortIntervalDurationOvertimePercentageRatio = DEFAULT_MAX_SHORT_RECEPTION_OVERTIME_PERCENTAGE_RATIO;
-    o->maxShortIntervalDuration =
-            (DEFAULT_MAX_SHORT_RECEPTION_OVERTIME_PERCENTAGE_RATIO / 100.0) * DEFAULT_TX_RX_CLOCK_DELAY;
-    o->maxLongIntervalDurationOvertimePercentageRatio = DEFAULT_MAX_LONG_RECEPTION_OVERTIME_PERCENTAGE_RATIO;
-    o->maxLongIntervalDuration =
-            (DEFAULT_MAX_LONG_RECEPTION_OVERTIME_PERCENTAGE_RATIO / 100.0) * DEFAULT_TX_RX_CLOCK_DELAY;
 
-    o->transmissionClockDelay = DEFAULT_TX_RX_CLOCK_DELAY;
-    o->transmissionClockDelayHalf = DEFAULT_TX_RX_CLOCK_DELAY >> 1;
-    o->newTransmissionClockDelay = 0;
-    o->isTransmissionClockDelayUpdateable = false;
-
-    o->transmissionClockShift = 0;
-    o->newTransmissionClockShift = 0;
-    o->isTransmissionClockShiftUpdateable = false;
-}
 
 extern CTOR_ATTRS void constructRxPorts(volatile RxPorts *o);
 /**
@@ -105,12 +85,34 @@ CTOR_ATTRS void constructCommunicationPorts(volatile CommunicationPorts *o) {
     constructRxPorts(&(o->rx));
 }
 
+extern CTOR_ATTRS void constructTransmissionTimerAdjustment(volatile TransmissionTimerAdjustment *o);
+/**
+ * constructor function
+ */
+CTOR_ATTRS void constructTransmissionTimerAdjustment(volatile TransmissionTimerAdjustment *o) {
+    o->maxShortIntervalDurationOvertimePercentageRatio = DEFAULT_MAX_SHORT_RECEPTION_OVERTIME_PERCENTAGE_RATIO;
+    o->maxShortIntervalDuration =
+            (DEFAULT_MAX_SHORT_RECEPTION_OVERTIME_PERCENTAGE_RATIO / 100.0) * DEFAULT_TX_RX_CLOCK_DELAY;
+    o->maxLongIntervalDurationOvertimePercentageRatio = DEFAULT_MAX_LONG_RECEPTION_OVERTIME_PERCENTAGE_RATIO;
+    o->maxLongIntervalDuration =
+            (DEFAULT_MAX_LONG_RECEPTION_OVERTIME_PERCENTAGE_RATIO / 100.0) * DEFAULT_TX_RX_CLOCK_DELAY;
+
+    o->transmissionClockDelay = DEFAULT_TX_RX_CLOCK_DELAY;
+    o->transmissionClockDelayHalf = DEFAULT_TX_RX_CLOCK_DELAY >> 1;
+    o->newTransmissionClockDelay = 0;
+    o->isTransmissionClockDelayUpdateable = false;
+
+    o->transmissionClockShift = 0;
+    o->newTransmissionClockShift = 0;
+    o->isTransmissionClockShiftUpdateable = false;
+}
+
 extern CTOR_ATTRS void constructCommunication(volatile Communication *o);
 /**
  * constructor function
  */
 CTOR_ATTRS void constructCommunication(volatile Communication *o) {
-    constructTimerCounterAdjustment(&o->timerAdjustment);
+    constructTransmissionTimerAdjustment(&o->timerAdjustment);
     o->xmissionState = STATE_TYPE_XMISSION_TYPE_DISABLED_TX_RX;
     constructCommunicationPorts(&o->ports);
 }
