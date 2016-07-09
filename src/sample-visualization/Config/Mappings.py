@@ -58,5 +58,6 @@ charOutToHumanReadableAnnotation = {
     "'x'": "x",
     "'X'": "X",
 
-    "'b'" : "counter timeout"
+    "'b'" : "counter timeout",
+    "'u'" : "decode/interpreter error",
 }
