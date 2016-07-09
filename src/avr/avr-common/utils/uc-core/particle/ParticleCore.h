@@ -597,10 +597,6 @@ inline void particleTick(void) {
 
         __STATE_TYPE_ENUMERATING_NEIGHBOURS:
         case STATE_TYPE_ENUMERATING_NEIGHBOURS:
-            // wait until neighbours reach state STATE_TYPE_WAIT_FOR_BEING_ENUMERATED and
-            // reception times out (discovery signals may be mistakenly interpreted as data)
-        DELAY_US_150;
-            DELAY_US_150;
             setInitiatorStateStart(&ParticleAttributes.protocol.ports.east);
             DEBUG_CHAR_OUT('E');
             ParticleAttributes.node.state = STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR;
@@ -714,5 +710,4 @@ inline void particleTick(void) {
             }
             break;
     }
-//    DEBUG_CHAR_OUT('p');
 }

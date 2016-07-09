@@ -2,12 +2,6 @@
  * @author Raoul Rubien 2016
  */
 
-
-#include <avr/interrupt.h>
-#include <common/common.h>
-#include <uc-core/particle/ParticleStateTypesCtors.h>
-#include <uc-core/delay/delay.h>
-#include "uc-core/configuration/IoPins.h"
 #include "uc-core/particle/ParticleCore.h"
 
 //unsigned char __stuff __attribute__((section(".noinit")));
@@ -18,11 +12,7 @@ extern FUNC_ATTRS int particleLoop(void);
  */
 FUNC_ATTRS int particleLoop(void) {
     forever {
-        PARTICLE_MAIN_LOOP_DELAY;
         particleTick();
-        if (ParticleAttributes.node.state == STATE_TYPE_ERRONEOUS) {
-            return 1;
-        }
     }
 }
 

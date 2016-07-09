@@ -2,11 +2,6 @@
  * @author Raoul Rubien 2016
  */
 
-
-#include <avr/interrupt.h>
-#include <common/common.h>
-#include <uc-core/particle/ParticleStateTypes.h>
-#include "uc-core/configuration/IoPins.h"
 #include "uc-core/particle/ParticleCore.h"
 
 //unsigned char __stuff __attribute__((section(".noinit")));
@@ -18,11 +13,9 @@ extern inline int particleLoop(void);
  */
 inline int particleLoop(void) {
     forever {
-        PARTICLE_MAIN_LOOP_DELAY;
         particleTick();
     }
 }
-
 
 /**
  * starts

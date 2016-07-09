@@ -3,13 +3,7 @@
  */
 #pragma once
 
-#include "common/common.h"
-#include "ParticleStateTypes.h"
-#include "Globals.h"
 #include "ParticleCore.h"
-#include "uc-core/configuration/IoPins.h"
-#include "uc-core/delay/delay.h"
-#include "uc-core/configuration/Particle.h"
 
 extern inline int particleLoop(void);
 /**
@@ -20,11 +14,7 @@ inline int particleLoop(void) {
     constructParticle(&ParticleAttributes);
     ParticleAttributes.node.state = STATE_TYPE_START;
     forever {
-        PARTICLE_MAIN_LOOP_DELAY;
         particleTick();
-//        if (ParticleAttributes.node.state == STATE_TYPE_ERRONEOUS) {
-//            return 1;
-//        }
     }
 }
 
