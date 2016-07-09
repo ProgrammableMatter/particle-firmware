@@ -41,12 +41,16 @@ FUNC_ATTRS void executeRelayAnnounceNetworkGeometryPackage(volatile AnnounceNetw
         ParticleAttributes.protocol.networkGeometry.rows = package->rows;
         ParticleAttributes.protocol.networkGeometry.columns = package->columns;
         ParticleAttributes.protocol.isSimultaneousTransmissionEnabled = true;
+
+        //TODO refactoring needed
         ParticleAttributes.node.state = STATE_TYPE_SYNC_NEIGHBOUR;
+        setInitiatorStateStart(&ParticleAttributes.protocol.ports.east);
+
     } else {
         clearTransmissionPortBuffer(&ParticleAttributes.communication.ports.tx.north);
-        constructSendAnnounceNetworkGeometryPackage(package->rows, package->columns);
+        constructAnnounceNetworkGeometryPackage(package->rows, package->columns);
         setInitiatorStateStart(&ParticleAttributes.protocol.ports.north);
         ParticleAttributes.node.state = STATE_TYPE_ANNOUNCE_NETWORK_GEOMETRY_RELAY;
+        ParticleAttributes.protocol.isBroadcastEnabled = package->enableBroadcast;
     }
-    ParticleAttributes.protocol.isBroadcastEnabled = package->enableBroadcast;
 }

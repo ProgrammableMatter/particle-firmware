@@ -63,6 +63,7 @@ CTOR_ATTRS void constructParticle(volatile Particle *o) {
     constructPeriphery(&(o->periphery));
     constructCommunicationProtocol(&o->protocol);
 #ifdef SIMULATION
-    o->magicEndByte = 0xaa;
+    o->__structStartMarker = 0xaa;
+    o->__structEndMarker = 0xaa;
 #endif
 }

@@ -13,14 +13,14 @@
 #include "uc-core/particle/Globals.h"
 #include "uc-core/interrupts/TimerCounter.h"
 
-extern CTOR_ATTRS void constructSendEnumeratePackage(volatile TxPort *txPort,
-                                                     uint8_t localAddressRow,
-                                                     uint8_t localAddressColumn);
+extern CTOR_ATTRS void constructEnumeratePackage(volatile TxPort *txPort,
+                                                 uint8_t localAddressRow,
+                                                 uint8_t localAddressColumn);
 /**
  * constructor function: builds the protocol package at the given port's buffer
  */
-CTOR_ATTRS void constructSendEnumeratePackage(volatile TxPort *txPort, uint8_t localAddressRow,
-                                              uint8_t localAddressColumn) {
+CTOR_ATTRS void constructEnumeratePackage(volatile TxPort *txPort, uint8_t localAddressRow,
+                                          uint8_t localAddressColumn) {
     Package *package = (Package *) txPort->buffer.bytes;
 
     package->asEnumerationPackage.__startBit = 1;
@@ -44,25 +44,26 @@ CTOR_ATTRS void constructSendEnumeratePackage(volatile TxPort *txPort, uint8_t l
 }
 
 
-extern CTOR_ATTRS void constructSendACKPackage(volatile TxPort *txPort);
+extern CTOR_ATTRS void constructEnumerationACKPackage(volatile TxPort *txPort);
 /**
  * constructor function: builds the protocol package at the given port's buffer
  */
-CTOR_ATTRS void constructSendACKPackage(volatile TxPort *txPort) {
+CTOR_ATTRS void constructEnumerationACKPackage(volatile TxPort *txPort) {
 //    PackageHeader *ph = &((Package *)txPort->buffer.bytes)->asACKPackage;
     Package *package = (Package *) txPort->buffer.bytes;
     package->asACKPackage.__startBit = 1;
     package->asACKPackage.headerIsStream = false;
+    package->asACKPackage.enableBroadcast = true;
     package->asACKPackage.headerId = PACKAGE_HEADER_ID_TYPE_ACK;
     setBufferDataEndPointer(txPort->dataEndPos, AckPackagePointerSize);
 
 }
 
-extern CTOR_ATTRS void constructSendEnumeratedACKWithAddressToParentPackage(void);
+extern CTOR_ATTRS void constructEnumerateionACKWithAddressToParentPackage(void);
 /**
  * constructor function: builds the protocol package at the given port's buffer
  */
-CTOR_ATTRS void constructSendEnumeratedACKWithAddressToParentPackage(void) {
+CTOR_ATTRS void constructEnumerationACKWithAddressToParentPackage(void) {
     Package *package = (Package *) ParticleAttributes.communication.ports.tx.north.buffer.bytes;
     package->asACKWithLocalAddress.__startBit = 1;
     package->asACKWithLocalAddress.headerId = PACKAGE_HEADER_ID_TYPE_ACK_WITH_DATA;
@@ -72,11 +73,11 @@ CTOR_ATTRS void constructSendEnumeratedACKWithAddressToParentPackage(void) {
                             AckWithAddressPackageBufferPointerSize);
 }
 
-extern CTOR_ATTRS void constructSendSyncTimePackage(volatile TxPort *txPort);
+extern CTOR_ATTRS void constructSyncTimePackage(volatile TxPort *txPort);
 /**
  * constructor function: builds the protocol package at the given port's buffer
  */
-CTOR_ATTRS void constructSendSyncTimePackage(volatile TxPort *txPort) {
+CTOR_ATTRS void constructSyncTimePackage(volatile TxPort *txPort) {
     Package *package = (Package *) txPort->buffer.bytes;
     package->asSyncTimePackage.__startBit = 1;
     package->asSyncTimePackage.headerId = PACKAGE_HEADER_ID_TYPE_SYNC_TIME;
@@ -85,11 +86,11 @@ CTOR_ATTRS void constructSendSyncTimePackage(volatile TxPort *txPort) {
     setBufferDataEndPointer(txPort->dataEndPos, TimePackageBufferPointerSize);
 }
 
-extern CTOR_ATTRS void constructSendAnnounceNetworkGeometryPackage(uint8_t row, uint8_t column);
+extern CTOR_ATTRS void constructAnnounceNetworkGeometryPackage(uint8_t row, uint8_t column);
 /**
  * constructor function: builds the protocol package at the given port's buffer
  */
-CTOR_ATTRS void constructSendAnnounceNetworkGeometryPackage(uint8_t row, uint8_t column) {
+CTOR_ATTRS void constructAnnounceNetworkGeometryPackage(uint8_t row, uint8_t column) {
     Package *package = (Package *) &ParticleAttributes.communication.ports.tx.north;
     package->asAnnounceNetworkGeometryPackage.__startBit = 1;
     package->asAnnounceNetworkGeometryPackage.headerId = PACKAGE_HEADER_ID_TYPE_NETWORK_GEOMETRY_RESPONSE;

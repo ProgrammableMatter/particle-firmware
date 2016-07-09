@@ -172,7 +172,7 @@ FUNC_ATTRS void __enableReception(void) {
 
 extern FUNC_ATTRS void __heartBeatToggle(void);
 /**
- * Toggles heartbeat LED
+ * toggle heartbeat LED
  */
 FUNC_ATTRS void __heartBeatToggle(void) {
     ParticleAttributes.periphery.loopCount++;
@@ -239,7 +239,7 @@ FUNC_ATTRS void __handleWaitForBeingEnumerated(void) {
             break;
             // transmit ack with local address
         case COMMUNICATION_RECEPTIONIST_STATE_TYPE_TRANSMIT_ACK:
-            constructSendEnumeratedACKWithAddressToParentPackage();
+            constructEnumerationACKWithAddressToParentPackage();
             enableTransmission(&ParticleAttributes.communication.ports.tx.north);
             DEBUG_CHAR_OUT('f');
             commPortState->receptionistState = COMMUNICATION_RECEPTIONIST_STATE_TYPE_TRANSMIT_ACK_WAIT_TX_FINISHED;
@@ -294,7 +294,7 @@ FUNC_ATTRS void __handleEnumerateNeighbour(volatile TxPort *txPort,
         case COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT:
             if (discoveryPulseCounter->isConnected) {
                 clearTransmissionPortBuffer(txPort);
-                constructSendEnumeratePackage(txPort, remoteAddressRow, remoteAddressColumn);
+                constructEnumeratePackage(txPort, remoteAddressRow, remoteAddressColumn);
                 enableTransmission(txPort);
                 DEBUG_CHAR_OUT('F');
                 commPortState->initiatorState = COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT_WAIT_FOR_TX_FINISHED;
@@ -320,7 +320,7 @@ FUNC_ATTRS void __handleEnumerateNeighbour(volatile TxPort *txPort,
             // send ack back
         case COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT_ACK:
             clearTransmissionPortBuffer(txPort);
-            constructSendACKPackage(txPort);
+            constructEnumerationACKPackage(txPort);
             enableTransmission(txPort);
             DEBUG_CHAR_OUT('f');
             commPortState->initiatorState = COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT_ACK_WAIT_FOR_TX_FINISHED;
@@ -355,7 +355,7 @@ FUNC_ATTRS void __handleSynchronizeNeighbour(volatile CommunicationProtocolPortS
         // transmit local time simultaneously on east and south ports
         case COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT:
             clearTransmissionPortBuffer(txPort);
-            constructSendSyncTimePackage(txPort);
+            constructSyncTimePackage(txPort);
             enableTransmission(txPort);
             commPortState->initiatorState = COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT_WAIT_FOR_TX_FINISHED;
             break;
@@ -423,8 +423,8 @@ FUNC_ATTRS void __handleSendAnnounceNetworkGeometry(StateType endState) {
     switch (ParticleAttributes.protocol.ports.north.initiatorState) {
         case COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT:
             clearTransmissionPortBuffer(txPort);
-            constructSendAnnounceNetworkGeometryPackage(ParticleAttributes.node.address.row,
-                                                        ParticleAttributes.node.address.column);
+            constructAnnounceNetworkGeometryPackage(ParticleAttributes.node.address.row,
+                                                    ParticleAttributes.node.address.column);
             enableTransmission(txPort);
             commPortState->initiatorState = COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT_WAIT_FOR_TX_FINISHED;
             break;

@@ -37,8 +37,9 @@ FUNC_ATTRS void __interpretWaitForBeingEnumeratedReception(volatile RxPort *rxPo
             if (equalsPackageSize(rxPort->buffer.pointer, AckPackagePointerSize) &&
                 package->asACKPackage.headerId == PACKAGE_HEADER_ID_TYPE_ACK) {
 //                DEBUG_CHAR_OUT('d');
-                commPortState->receptionistState = COMMUNICATION_RECEPTIONIST_STATE_TYPE_IDLE;
+                ParticleAttributes.protocol.isBroadcastEnabled = package->asACKPackage.enableBroadcast;
                 ParticleAttributes.node.state = STATE_TYPE_LOCALLY_ENUMERATED;
+                commPortState->receptionistState = COMMUNICATION_RECEPTIONIST_STATE_TYPE_IDLE;
             }
             clearReceptionPortBuffer(rxPort);
             break;

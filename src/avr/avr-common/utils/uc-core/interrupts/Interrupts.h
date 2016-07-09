@@ -79,7 +79,7 @@ FUNC_ATTRS void scheduleNextTransmission(void) {
  */
 ISR(NORTH_PIN_CHANGE_INTERRUPT_VECT) {
     if (ParticleAttributes.protocol.isBroadcastEnabled) {
-        if (EAST_RX_IS_HI) {
+        if (NORTH_RX_IS_HI) {
             simultaneousTxHiImpl();
         } else {
             simultaneousTxLoImpl();

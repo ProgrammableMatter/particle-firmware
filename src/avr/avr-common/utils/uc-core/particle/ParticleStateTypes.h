@@ -148,6 +148,10 @@ typedef struct Periphery {
  * The global particle structure containing buffers, states, counters and alike.
  */
 typedef struct Particle {
+#ifdef SIMULATION
+    // a marker used to assure the correct interpretation of the particle structure when simulating
+    uint8_t __structStartMarker;
+#endif
     Node node;
     DiscoveryPulseCounters discoveryPulseCounters;
     Communication communication;
@@ -155,7 +159,7 @@ typedef struct Particle {
     CommunicationProtocol protocol;
 #ifdef SIMULATION
     // a marker used to assure the correct interpretation of the particle structure when simulating
-    uint8_t magicEndByte;
+    uint8_t __structEndMarker;
 #endif
 } Particle;
 
