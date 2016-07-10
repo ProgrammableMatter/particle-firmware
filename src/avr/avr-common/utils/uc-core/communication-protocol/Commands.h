@@ -13,19 +13,14 @@ extern FUNC_ATTRS void executeSynchronizeLocalTime(volatile TimePackage *package
  * prepare local time synchronization
  */
 FUNC_ATTRS void executeSynchronizeLocalTime(volatile TimePackage *package) {
-//    uint16_t counterValue = TIMER_TX_RX_COUNTER_VALUE;
-    TIMER_TX_RX_COUNTER_VALUE = package->time -
-                                COMMUNICATION_PROTOCOL_TIME_SYNCHRONIZATION_COMPENSATION_OFFSET *
+//    DEBUG_INT16_OUT(TIMER_TX_RX_COUNTER_VALUE);
+    TIMER_TX_RX_COUNTER_VALUE = package->time +
+                                COMMUNICATION_PROTOCOL_TIME_SYNCHRONIZATION_PER_NODE_INTERRUPT_LAG *
                                 (ParticleAttributes.node.address.row - 1 +
-                                 ParticleAttributes.node.address.column - 1);
-//    if (package->time > counterValue) {
-//        ParticleAttributes.timerCounterAdjustment.counterOffset = package->time - counterValue;
-//        ParticleAttributes.timerCounterAdjustment.isPositiveCounterOffset = true;
-//    } else {
-//        ParticleAttributes.timerCounterAdjustment.counterOffset = counterValue - package->time;
-//        ParticleAttributes.timerCounterAdjustment.isPositiveCounterOffset = false;
-//    }
-//    ParticleAttributes.timerCounterAdjustment.isCounterOffsetValid = true;
+                                 ParticleAttributes.node.address.column - 1) +
+                                COMMUNICATION_PROTOCOL_TIME_SYNCHRONIZATION_PACKAGE_RECEPTION_DURATION +
+                                COMMUNICATION_PROTOCOL_TIME_SYNCHRONIZATION_PACKAGE_EXECUTION_LAG +
+                                COMMUNICATION_PROTOCOL_TIME_SYNCHRONIZATION_MANUAL_ADJUSTMENT;
     ParticleAttributes.protocol.isBroadcastEnabled = package->enableBroadcast;
 }
 

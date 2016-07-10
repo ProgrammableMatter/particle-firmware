@@ -78,6 +78,7 @@ FUNC_ATTRS void scheduleNextTransmission(void) {
  * int. #19
  */
 ISR(NORTH_PIN_CHANGE_INTERRUPT_VECT) {
+//    DEBUG_INT16_OUT(TIMER_TX_RX_COUNTER_VALUE);
     if (ParticleAttributes.protocol.isBroadcastEnabled) {
         if (NORTH_RX_IS_HI) {
             simultaneousTxLoImpl();
