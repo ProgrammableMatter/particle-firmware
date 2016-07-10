@@ -1,7 +1,6 @@
+import gtk
 import matplotlib.pyplot as plt
-
 import Filter as flt
-
 from Config import Mappings as config
 
 
@@ -28,7 +27,6 @@ class Plotter:
         Create a new figure and plot data using blue, square markers.
         """
         points = plt.plot(xValues, yValues, linestyle="-", color="b", marker=".", picker=5)  # line plot
-
 
         for x, y, a in zip(points[0]._x, points[0]._y, annotations):
             annotation = points[0].axes.annotate("%s" % a, xy=(x, y), xycoords='data',
@@ -84,7 +82,9 @@ class Plotter:
             # self.lastXCoordinate = x
             if self.lastClickedXCoordinate != None:
                 difference = (self.lastClickedXCoordinate - x) * 1E-9
-                return '(t={:1.9f}[ms], y={:}) || t1={:1.9f}[ms] diff.={:1.9f}[ms]'.format(x * 1E-9, y, self.lastClickedXCoordinate * 1E-9, difference)
+                return '(t={:1.9f}[ms], y={:}) || t1={:1.9f}[ms] diff.={:1.9f}[ms]'.format(x * 1E-9, y,
+                                                                                           self.lastClickedXCoordinate * 1E-9,
+                                                                                           difference)
             return '(t={:1.9f}[ms], y={:})'.format(x * 1E-9, y)
 
         for plot in self.plots:
@@ -127,6 +127,9 @@ class Plotter:
                         if annotation.get_visible() == False:
                             annotation.set_visible(True)
                             self.lastClickedXCoordinate = float(chartPoint[0])
+                            clipboard = gtk.clipboard_get()
+                            clipboard.set_text(str(self.lastClickedXCoordinate * 1E-9))
+                            clipboard.store()
                             isVisibilityChanged = True
                     else:
                         if annotation.get_visible() == True:
