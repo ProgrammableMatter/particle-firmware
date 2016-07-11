@@ -24,13 +24,13 @@
 
 /**
  * Mean package reception duration approximate 3.07mS. Thus at 8MHz osc:
- * 3.070ms *8000 = ~24560clocks
- * 7.164ms *8000 = ~57312clocks
+ * 7.164ms *8000 = ~57312clocks, or more accurate:
+ * 7bytes*8bits*tx_clock_phase_delay => 56 * 1024 = 57344
+ *
  * rx: -----<|||||||>------
  *           ^-----^ package reception duration
- *
  */
-#define COMMUNICATION_PROTOCOL_TIME_SYNCHRONIZATION_PACKAGE_RECEPTION_DURATION ((uint16_t)57312)
+#define COMMUNICATION_PROTOCOL_TIME_SYNCHRONIZATION_PACKAGE_RECEPTION_DURATION ((uint16_t)57320)
 
 /**
  * Mean reception to execution latency in between last interrupt and execution of sync command.
@@ -45,4 +45,4 @@
 /**
  * In case of manual adjustment needed.
  */
-#define COMMUNICATION_PROTOCOL_TIME_SYNCHRONIZATION_MANUAL_ADJUSTMENT ((uint16_t)2400)
+#define COMMUNICATION_PROTOCOL_TIME_SYNCHRONIZATION_MANUAL_ADJUSTMENT ((uint16_t)2346)

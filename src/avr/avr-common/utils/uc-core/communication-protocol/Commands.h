@@ -6,13 +6,17 @@
 
 #include "CommunicationProtocolTypes.h"
 #include "CommunicationProtocolPackageCtors.h"
+#include "uc-core/communication/ManchesterDecodingTypes.h"
 
 
-extern FUNC_ATTRS void executeSynchronizeLocalTime(volatile TimePackage *package);
+extern FUNC_ATTRS void executeSynchronizeLocalTime(
+        volatile TimePackage *package);//, volatile RxSnapshotBuffer *snapshotBufer);
 /**
  * prepare local time synchronization
  */
-FUNC_ATTRS void executeSynchronizeLocalTime(volatile TimePackage *package) {
+FUNC_ATTRS void executeSynchronizeLocalTime(
+        volatile TimePackage *package) {//, volatile RxSnapshotBuffer *snapshotBuffer) {
+//    DEBUG_INT16_OUT(snapshotBuffer->temporaryTxStopSnapshotTimerValue - snapshotBuffer->temporaryTxStartSnapshotTimerValue);
 //    DEBUG_INT16_OUT(TIMER_TX_RX_COUNTER_VALUE);
     TIMER_TX_RX_COUNTER_VALUE = package->time +
                                 COMMUNICATION_PROTOCOL_TIME_SYNCHRONIZATION_PER_NODE_INTERRUPT_LAG *
@@ -26,6 +30,7 @@ FUNC_ATTRS void executeSynchronizeLocalTime(volatile TimePackage *package) {
 //    DEBUG_INT16_OUT(package->packageTransmissionLatency);
     ParticleAttributes.protocol.isBroadcastEnabled = package->enableBroadcast;
 //    __TIMER1_OVERFLOW_INTERRUPT_ENABLE;
+//    snapshotBuffer->temporaryTxStopSnapshotTimerValue = snapshotBuffer->temporaryTxStopSnapshotTimerValue - snapshotBuffer->temporaryTxStartSnapshotTimerValue;
 }
 
 
