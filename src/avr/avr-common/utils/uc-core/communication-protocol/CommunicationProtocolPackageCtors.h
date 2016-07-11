@@ -81,7 +81,7 @@ CTOR_ATTRS void constructSyncTimePackage(volatile TxPort *txPort) {
     Package *package = (Package *) txPort->buffer.bytes;
     package->asSyncTimePackage.__startBit = 1;
     package->asSyncTimePackage.headerId = PACKAGE_HEADER_ID_TYPE_SYNC_TIME;
-    package->asSyncTimePackage.enableBroadcast = false;
+    package->asSyncTimePackage.enableBroadcast = true;
     package->asSyncTimePackage.time = TIMER_TX_RX_COUNTER_VALUE;
     package->asSyncTimePackage.packageTransmissionLatency = COMMUNICATION_PROTOCOL_TIME_SYNCHRONIZATION_PACKAGE_RECEPTION_DURATION;
     package->asSyncTimePackage.stuffing = 0x5555;
@@ -94,7 +94,7 @@ extern CTOR_ATTRS void constructAnnounceNetworkGeometryPackage(uint8_t row, uint
  * constructor function: builds the protocol package at the given port's buffer
  */
 CTOR_ATTRS void constructAnnounceNetworkGeometryPackage(uint8_t row, uint8_t column) {
-    Package *package = (Package *) &ParticleAttributes.communication.ports.tx.north;
+    Package *package = (Package *) &ParticleAttributes.communication.ports.tx.north.buffer.bytes;
     package->asAnnounceNetworkGeometryPackage.__startBit = 1;
     package->asAnnounceNetworkGeometryPackage.headerId = PACKAGE_HEADER_ID_TYPE_NETWORK_GEOMETRY_RESPONSE;
     package->asAnnounceNetworkGeometryPackage.enableBroadcast = true;
@@ -102,4 +102,21 @@ CTOR_ATTRS void constructAnnounceNetworkGeometryPackage(uint8_t row, uint8_t col
     package->asAnnounceNetworkGeometryPackage.columns = column;
     setBufferDataEndPointer(ParticleAttributes.communication.ports.tx.north.dataEndPos,
                             AnnounceNetworkGeometryPackageBufferPointerSize);
+}
+
+
+extern CTOR_ATTRS void constructSetNetworkGeometryPackage(volatile TxPort *txPort, uint8_t row,
+                                                          uint8_t column);
+/**
+ * constructor function: builds the protocol package at the given port's buffer
+ */
+CTOR_ATTRS void constructSetNetworkGeometryPackage(volatile TxPort *txPort, uint8_t row, uint8_t column) {
+
+    Package *package = (Package *) &txPort->buffer.bytes;
+    package->asSetNetworkGeometryPackage.__startBit = 1;
+    package->asSetNetworkGeometryPackage.headerId = PACKAGE_HEADER_ID_TYPE_SET_NETWORK_GEOMETRY;
+    package->asSetNetworkGeometryPackage.enableBroadcast = true;
+    package->asSetNetworkGeometryPackage.rows = row;
+    package->asSetNetworkGeometryPackage.columns = column;
+    setBufferDataEndPointer(txPort->dataEndPos, SetNetworkGeometryPackageBufferPointerSize);
 }

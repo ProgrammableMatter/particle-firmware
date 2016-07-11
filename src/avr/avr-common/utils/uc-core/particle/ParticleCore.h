@@ -528,6 +528,58 @@ FUNC_ATTRS void __handleDiscoveryPulsingDone(void) {
     clearReceptionBuffers();
 }
 
+extern FUNC_ATTRS void __handleSetNetworkGeometry(uint8_t rows, uint8_t cols, StateType endState);
+/**
+ * set the set network geometry package and switches to the given state
+ */
+FUNC_ATTRS void __handleSetNetworkGeometry(uint8_t rows, uint8_t cols, StateType endState) {
+    // TODO refactoring needed
+    volatile CommunicationProtocolPortState *commPortState = &ParticleAttributes.protocol.ports.east;
+    volatile TxPort *txPort = ParticleAttributes.communication.ports.tx.simultaneous;
+
+    switch (commPortState->initiatorState) {
+        case COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT:
+            constructSetNetworkGeometryPackage(txPort, rows, cols);
+            enableTransmission(txPort);
+            commPortState->initiatorState = COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT_WAIT_FOR_TX_FINISHED;
+            break;
+
+            // wait for tx finished
+        case COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT_WAIT_FOR_TX_FINISHED:
+            if (txPort->isTransmitting) {
+                break;
+            }
+            commPortState->initiatorState = COMMUNICATION_INITIATOR_STATE_TYPE_IDLE;
+            goto __COMMUNICATION_INITIATOR_STATE_TYPE_IDLE;
+            break;
+
+        case COMMUNICATION_INITIATOR_STATE_TYPE_WAIT_FOR_RESPONSE:
+        case COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT_ACK:
+        case COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT_ACK_WAIT_FOR_TX_FINISHED:
+        __COMMUNICATION_INITIATOR_STATE_TYPE_IDLE:
+        case COMMUNICATION_INITIATOR_STATE_TYPE_IDLE:
+            ParticleAttributes.node.state = endState;
+            break;
+    }
+}
+
+extern FUNC_ATTRS void setNewNetworkGeometry(void);
+/**
+ * Transmits a new network geometry to the network. Particles outside the new boundary
+ * switch to sleep mode.
+ *
+ * @pre:
+ * + the network must be in broadcast mode
+ * + the ParticleAttributes.protocol.networkGeometry.rows/cols are set accordingly
+ */
+FUNC_ATTRS void setNewNetworkGeometry(void) {
+    // TODO refactoring necessary
+    setInitiatorStateStart(&ParticleAttributes.protocol.ports.east);
+    clearTransmissionPortBuffer(ParticleAttributes.communication.ports.tx.simultaneous);
+    ParticleAttributes.protocol.isSimultaneousTransmissionEnabled = true;
+    ParticleAttributes.node.state = STATE_TYPE_SEND_SET_NETWORK_GEOMETRY;
+}
+
 extern inline void particleTick(void);
 
 /**
@@ -653,7 +705,7 @@ inline void particleTick(void) {
             goto __STATE_TYPE_ANNOUNCE_NETWORK_GEOMETRY;
             break;
 
-            // ---------------- network geometry announcement states ----------------
+            // ---------------- network geometry detection/announcement states ----------------
 
         __STATE_TYPE_ANNOUNCE_NETWORK_GEOMETRY:
         case STATE_TYPE_ANNOUNCE_NETWORK_GEOMETRY:
@@ -694,7 +746,12 @@ inline void particleTick(void) {
             ParticleAttributes.node.state = STATE_TYPE_IDLE;
 //            __TIMER1_OVERFLOW_INTERRUPT_ENABLE;
 //            DEBUG_INT16_OUT(TIMER_TX_RX_COUNTER_VALUE);
-            goto __STATE_TYPE_IDLE;
+            break;
+
+        case STATE_TYPE_SEND_SET_NETWORK_GEOMETRY:
+            __handleSetNetworkGeometry(ParticleAttributes.protocol.networkGeometry.rows,
+                                       ParticleAttributes.protocol.networkGeometry.columns,
+                                       STATE_TYPE_IDLE);
             break;
 
         __STATE_TYPE_IDLE:
@@ -705,10 +762,12 @@ inline void particleTick(void) {
             break;
 
         case STATE_TYPE_SLEEP_MODE:
+            DEBUG_CHAR_OUT('z');
             sleep_enable();
-            SEI;
+            CLI;
             sleep_cpu();
             sleep_disable();
+            DEBUG_CHAR_OUT('Z');
             break;
 
         case STATE_TYPE_UNDEFINED:

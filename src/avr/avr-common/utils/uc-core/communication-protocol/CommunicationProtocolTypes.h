@@ -15,18 +15,18 @@
  */
 typedef enum PackageHeaderId {
     PACKAGE_HEADER_ID_TYPE_ENUMERATE = 0,
-    PACKAGE_HEADER_ID_TYPE_HEAT_WIRES = 1,
-    PACKAGE_HEADER_ID_TYPE_HEAT_WIRES_RANGE = 2,
-    PACKAGE_HEADER_ID_TYPE_FORWARDING_ON = 3,
-    PACKAGE_HEADER_ID_TYPE_FORWARDING_OFF = 4,
-    PACKAGE_HEADER_ID_TYPE_NETWORK_GEOMETRY_DISCLOSE = 5,
+    __PACKAGE_HEADER_ID_TYPE_HEAT_WIRES = 1,
+    __PACKAGE_HEADER_ID_TYPE_HEAT_WIRES_RANGE = 2,
+    __UNUSED1 = 3,
+    __UNUSED2 = 4,
+    PACKAGE_HEADER_ID_TYPE_SET_NETWORK_GEOMETRY = 5,
     PACKAGE_HEADER_ID_TYPE_NETWORK_GEOMETRY_RESPONSE = 6,
-//    PACKAGE_HEADER_ID_TYPE_NETWORK_GEOMETRY_REQUEST = 7,
-            PACKAGE_HEADER_ID_TYPE_RESET = 8,
+    __UNUSED3 = 7,
+    __PACKAGE_HEADER_ID_TYPE_RESET = 8,
     PACKAGE_HEADER_ID_TYPE_SYNC_TIME = 9,
-    PACKAGE_HEADER_ID_TYPE_PING_REQUEST = 10,
-    PACKAGE_HEADER_ID_TYPE_PING_RESPONSE = 11,
-    PACKAGE_HEADER_ID_TYPE_HEATING_MODE = 12,
+    __PACKAGE_HEADER_ID_TYPE_PING_REQUEST = 10,
+    __PACKAGE_HEADER_ID_TYPE_PING_RESPONSE = 11,
+    __PACKAGE_HEADER_ID_TYPE_HEATING_MODE = 12,
     PACKAGE_HEADER_ID_TYPE_ACK = 13,
     PACKAGE_HEADER_ID_TYPE_ACK_WITH_DATA = 14,
     PACKAGE_HEADER_ID_TYPE_EXTENDED_HEADER = 15
@@ -131,6 +131,25 @@ typedef struct AnnounceNetworkGeometryPackage {
     ((((uint16_t) 0x0100) << 0)\
     |((uint16_t) 0x0003))
 
+/**
+ * describes a header with subsequent network geometry
+ */
+typedef struct SetNetworkGeometryPackage {
+    uint8_t __startBit : 1;
+    uint8_t headerIsStream : 1;
+    uint8_t headerId : 4;
+    uint8_t __pad: 1;
+    uint8_t enableBroadcast : 1;
+    uint8_t rows : 8;
+    uint8_t columns : 8;
+} SetNetworkGeometryPackage;
+
+/**
+ * SetNetworkGeometryPackage length expressed as BufferPointer
+ */
+#define SetNetworkGeometryPackageBufferPointerSize \
+    ((((uint16_t) 0x0100) << 0)\
+    |((uint16_t) 0x0003))
 
 /**
  * describes a package header with subsequent enumeration address and bread crumb flag
@@ -211,6 +230,7 @@ typedef union Package {
     EnumerationPackage asEnumerationPackage;
     TimePackage asSyncTimePackage;
     AnnounceNetworkGeometryPackage asAnnounceNetworkGeometryPackage;
+    SetNetworkGeometryPackage asSetNetworkGeometryPackage;
 } Package;
 
 /**

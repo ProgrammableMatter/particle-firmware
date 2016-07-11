@@ -71,7 +71,12 @@ FUNC_ATTRS void __interpretReceivedPackage(volatile RxPort *rxPort
             break;
 
         case PACKAGE_HEADER_ID_TYPE_NETWORK_GEOMETRY_RESPONSE:
-            executeRelayAnnounceNetworkGeometryPackage(&package->asAnnounceNetworkGeometryPackage);
+            executeAnnounceNetworkGeometryPackage(&package->asAnnounceNetworkGeometryPackage);
+            clearReceptionPortBuffer(rxPort);
+            break;
+
+        case PACKAGE_HEADER_ID_TYPE_SET_NETWORK_GEOMETRY:
+            executeSetNetworkGeometryPackage(&package->asSetNetworkGeometryPackage);
             clearReceptionPortBuffer(rxPort);
             break;
 

@@ -45,12 +45,12 @@ FUNC_ATTRS void executeSetLocalAddress(volatile EnumerationPackage *package) {
 }
 
 
-extern FUNC_ATTRS void executeRelayAnnounceNetworkGeometryPackage(
+extern FUNC_ATTRS void executeAnnounceNetworkGeometryPackage(
         volatile AnnounceNetworkGeometryPackage *package);
 /**
  * If current node is the origin consume the package otherwise put the particle into relaying package state.
  */
-FUNC_ATTRS void executeRelayAnnounceNetworkGeometryPackage(volatile AnnounceNetworkGeometryPackage *package) {
+FUNC_ATTRS void executeAnnounceNetworkGeometryPackage(volatile AnnounceNetworkGeometryPackage *package) {
 
     if (ParticleAttributes.node.type == NODE_TYPE_ORIGIN) {
         ParticleAttributes.protocol.networkGeometry.rows = package->rows;
@@ -68,4 +68,21 @@ FUNC_ATTRS void executeRelayAnnounceNetworkGeometryPackage(volatile AnnounceNetw
         ParticleAttributes.node.state = STATE_TYPE_ANNOUNCE_NETWORK_GEOMETRY_RELAY;
         ParticleAttributes.protocol.isBroadcastEnabled = package->enableBroadcast;
     }
+}
+
+
+extern FUNC_ATTRS void executeSetNetworkGeometryPackage(volatile SetNetworkGeometryPackage *package);
+/**
+ * If current address is greater than the requested network geometry switch to sleep mode,
+ * otherwise preserve current state.
+ *
+ * @pre: the particle is set to broadcast mode
+ */
+FUNC_ATTRS void executeSetNetworkGeometryPackage(volatile SetNetworkGeometryPackage *package) {
+    ParticleAttributes.protocol.isBroadcastEnabled = package->enableBroadcast;
+    if (ParticleAttributes.node.address.row > package->rows ||
+        ParticleAttributes.node.address.column > package->columns) {
+        ParticleAttributes.node.state = STATE_TYPE_SLEEP_MODE;
+    }
+    // TODO: update the node type accordingly
 }
