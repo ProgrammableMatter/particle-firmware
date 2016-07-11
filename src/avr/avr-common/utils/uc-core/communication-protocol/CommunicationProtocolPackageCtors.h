@@ -83,7 +83,10 @@ CTOR_ATTRS void constructSyncTimePackage(volatile TxPort *txPort) {
     package->asSyncTimePackage.headerId = PACKAGE_HEADER_ID_TYPE_SYNC_TIME;
     package->asSyncTimePackage.enableBroadcast = false;
     package->asSyncTimePackage.time = TIMER_TX_RX_COUNTER_VALUE;
+    package->asSyncTimePackage.packageTransmissionLatency = COMMUNICATION_PROTOCOL_TIME_SYNCHRONIZATION_PACKAGE_RECEPTION_DURATION;
+    package->asSyncTimePackage.stuffing = 0x5555;
     setBufferDataEndPointer(txPort->dataEndPos, TimePackageBufferPointerSize);
+//    DEBUG_INT16_OUT(TIMER_TX_RX_COUNTER_VALUE);
 }
 
 extern CTOR_ATTRS void constructAnnounceNetworkGeometryPackage(uint8_t row, uint8_t column);

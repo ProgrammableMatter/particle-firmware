@@ -18,11 +18,14 @@ FUNC_ATTRS void executeSynchronizeLocalTime(volatile TimePackage *package) {
                                 COMMUNICATION_PROTOCOL_TIME_SYNCHRONIZATION_PER_NODE_INTERRUPT_LAG *
                                 (ParticleAttributes.node.address.row - 1 +
                                  ParticleAttributes.node.address.column - 1) +
-                                COMMUNICATION_PROTOCOL_TIME_SYNCHRONIZATION_PACKAGE_RECEPTION_DURATION +
+                                package->packageTransmissionLatency +
                                 COMMUNICATION_PROTOCOL_TIME_SYNCHRONIZATION_PACKAGE_EXECUTION_LAG +
                                 COMMUNICATION_PROTOCOL_TIME_SYNCHRONIZATION_MANUAL_ADJUSTMENT;
 //    DEBUG_INT16_OUT(TIMER_TX_RX_COUNTER_VALUE);
+//    DEBUG_INT16_OUT(package->time);
+//    DEBUG_INT16_OUT(package->packageTransmissionLatency);
     ParticleAttributes.protocol.isBroadcastEnabled = package->enableBroadcast;
+//    __TIMER1_OVERFLOW_INTERRUPT_ENABLE;
 }
 
 

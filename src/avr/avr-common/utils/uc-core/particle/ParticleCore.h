@@ -692,6 +692,8 @@ inline void particleTick(void) {
 
         case STATE_TYPE_SYNC_NEIGHBOUR_DONE:
             ParticleAttributes.node.state = STATE_TYPE_IDLE;
+//            __TIMER1_OVERFLOW_INTERRUPT_ENABLE;
+//            DEBUG_INT16_OUT(TIMER_TX_RX_COUNTER_VALUE);
             goto __STATE_TYPE_IDLE;
             break;
 

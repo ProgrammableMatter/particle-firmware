@@ -188,7 +188,9 @@ typedef struct TimePackage {
     uint8_t headerId : 4;
     uint8_t headerIsCommand : 1;
     uint8_t enableBroadcast : 1;
-    uint16_t time : 16;
+    uint16_t time;
+    uint16_t packageTransmissionLatency;
+    uint16_t stuffing;
 } TimePackage;
 
 /**
@@ -196,7 +198,7 @@ typedef struct TimePackage {
  */
 #define TimePackageBufferPointerSize  \
     ((((uint16_t) 0x0100) << 0) \
-    |((uint16_t) 0x0003))
+    |((uint16_t) 0x0007))
 
 /**
  * union for a convenient way to access buffered packages
