@@ -7,6 +7,7 @@
 #include "CommunicationProtocolTypes.h"
 #include "CommunicationProtocolPackageCtors.h"
 #include "uc-core/communication/ManchesterDecodingTypes.h"
+#include "uc-core/discovery/Discovery.h"
 
 
 extern FUNC_ATTRS void executeSynchronizeLocalTime(
@@ -84,5 +85,12 @@ FUNC_ATTRS void executeSetNetworkGeometryPackage(volatile SetNetworkGeometryPack
         ParticleAttributes.node.address.column > package->columns) {
         ParticleAttributes.node.state = STATE_TYPE_SLEEP_MODE;
     }
-    // TODO: update the node type accordingly
+    // update node type accordingly
+    if (ParticleAttributes.node.address.row == package->rows) {
+        ParticleAttributes.discoveryPulseCounters.south.isConnected = false;
+    }
+    if (ParticleAttributes.node.address.column == package->columns) {
+        ParticleAttributes.discoveryPulseCounters.east.isConnected = false;
+    }
+    updateAndDetermineNodeType();
 }

@@ -22,47 +22,6 @@
 #include "uc-core/communication-protocol/CommunicationProtocolPackageCtors.h"
 #include "uc-core/communication-protocol/Interpreter.h"
 
-
-extern FUNC_ATTRS bool __updateAndDetermineNodeType(void);
-/**
- * Updates the node type according to the amount of incoming pulses. The type {@link NodeType} is stored to
- * {@link ParticleAttributes.type}.
- * @return true if the node is fully connected, else false
- */
-FUNC_ATTRS bool __updateAndDetermineNodeType(void) {
-    if (ParticleAttributes.discoveryPulseCounters.north.isConnected) { // N
-        if (ParticleAttributes.discoveryPulseCounters.south.isConnected) { // N, S
-            if (ParticleAttributes.discoveryPulseCounters.east.isConnected) { // N, S, E
-                ParticleAttributes.node.type = NODE_TYPE_INTER_HEAD;
-                return true;
-            } else { // N,S,!E
-                ParticleAttributes.node.type = NODE_TYPE_INTER_NODE;
-            }
-        } else { // N, !S
-            if (ParticleAttributes.discoveryPulseCounters.east.isConnected) { // N, !S, E
-                ParticleAttributes.node.type = NODE_TYPE_INVALID;
-            } else { // N, !S, !E
-                ParticleAttributes.node.type = NODE_TYPE_TAIL;
-            }
-        }
-    } else { // !N
-        if (ParticleAttributes.discoveryPulseCounters.south.isConnected) { // !N, S
-            if (ParticleAttributes.discoveryPulseCounters.east.isConnected) { // !N, S, E
-                ParticleAttributes.node.type = NODE_TYPE_ORIGIN;
-            } else { // !N, S, !E
-                ParticleAttributes.node.type = NODE_TYPE_ORIGIN;
-            }
-        } else { // !N, !S
-            if (ParticleAttributes.discoveryPulseCounters.east.isConnected) { // !N, !S, E
-                ParticleAttributes.node.type = NODE_TYPE_ORIGIN;
-            } else { // !N, !S, !E
-                ParticleAttributes.node.type = NODE_TYPE_ORPHAN;
-            }
-        }
-    }
-    return false;
-}
-
 extern FUNC_ATTRS void __disableDiscoverySensing(void);
 
 FUNC_ATTRS void __disableDiscoverySensing(void) {
@@ -484,7 +443,7 @@ FUNC_ATTRS void __handleNeighboursDiscovery(void) {
     } else if (ParticleAttributes.discoveryPulseCounters.loopCount >=
                // on min. discovery loops exceeded
                MIN_NEIGHBOURS_DISCOVERY_LOOPS) {
-        if (__updateAndDetermineNodeType()) {
+        if (updateAndDetermineNodeType()) {
             // on distinct discovery
             __disableDiscoverySensing();
             ParticleAttributes.node.state = STATE_TYPE_NEIGHBOURS_DISCOVERED;
@@ -574,8 +533,8 @@ extern FUNC_ATTRS void setNewNetworkGeometry(void);
  */
 FUNC_ATTRS void setNewNetworkGeometry(void) {
     // TODO refactoring necessary
-    setInitiatorStateStart(&ParticleAttributes.protocol.ports.east);
     clearTransmissionPortBuffer(ParticleAttributes.communication.ports.tx.simultaneous);
+    setInitiatorStateStart(&ParticleAttributes.protocol.ports.east);
     ParticleAttributes.protocol.isSimultaneousTransmissionEnabled = true;
     ParticleAttributes.node.state = STATE_TYPE_SEND_SET_NETWORK_GEOMETRY;
 }
@@ -743,7 +702,16 @@ inline void particleTick(void) {
             break;
 
         case STATE_TYPE_SYNC_NEIGHBOUR_DONE:
+//            if (ParticleAttributes.node.type == NODE_TYPE_ORIGIN) {
+//                ParticleAttributes.protocol.networkGeometry.rows = 2;
+//                ParticleAttributes.protocol.networkGeometry.columns = 2;
+//                setNewNetworkGeometry();
+//                DELAY_MS_1;
+//            } else {
             ParticleAttributes.node.state = STATE_TYPE_IDLE;
+            goto __STATE_TYPE_IDLE;
+//            }
+
 //            __TIMER1_OVERFLOW_INTERRUPT_ENABLE;
 //            DEBUG_INT16_OUT(TIMER_TX_RX_COUNTER_VALUE);
             break;
