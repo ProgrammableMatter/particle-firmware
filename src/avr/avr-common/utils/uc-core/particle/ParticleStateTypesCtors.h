@@ -6,6 +6,7 @@
 #include "ParticleStateTypes.h"
 #include "uc-core/communication/CommunicationTypesCtors.h"
 #include "uc-core/communication-protocol/CommunicationProtocolTypesCtors.h"
+#include "uc-core/actuation/ActuationTypesCtors.h"
 
 extern void constructTimerCounterAdjustment(volatile TimerCounterAdjustment *o);
 
@@ -74,6 +75,7 @@ CTOR_ATTRS void constructParticle(volatile Particle *o) {
     constructCommunication(&o->communication);
     constructPeriphery(&o->periphery);
     constructCommunicationProtocol(&o->protocol);
+    constructActuationCommand(&o->actuationCommand);
 #ifdef SIMULATION
     o->__structStartMarker = 0xaa;
     o->__structEndMarker = 0xaa;

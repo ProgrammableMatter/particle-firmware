@@ -7,6 +7,7 @@
 #include <stdint.h>
 #include "uc-core/communication/CommunicationTypes.h"
 #include "uc-core/communication-protocol/CommunicationProtocolTypes.h"
+#include "uc-core/actuation/ActuationTypes.h"
 
 /**
  * Possible particle's state machine states are listed in this enum.
@@ -176,6 +177,7 @@ typedef struct Particle {
     Communication communication;
     Periphery periphery;
     CommunicationProtocol protocol;
+    ActuationCommand actuationCommand;
 #ifdef SIMULATION
     // a marker used to assure the correct interpretation of the particle structure when simulating
     uint8_t __structEndMarker;
