@@ -6,8 +6,12 @@
 /**
  * Keeps track of number intervals passed since time tracking was activated.
  * A time interval lasts (in theory) exactly 6mS in case of accurate CPU clock.
- * The counter overflows at 65000, or each 390 seconds or each 6 minutes and 30 seconds.
  */
-typedef struct LocalTime {
+typedef struct LocalTimeTracking {
     uint16_t numTimeIntervalPassed;
-} LocalTime;
+    /**
+     * adjustable delay for fine tuning
+     */
+    uint16_t interruptDelay;
+} LocalTimeTracking;
+

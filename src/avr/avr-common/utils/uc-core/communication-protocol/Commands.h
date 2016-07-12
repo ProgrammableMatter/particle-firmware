@@ -32,6 +32,9 @@ FUNC_ATTRS void executeSynchronizeLocalTime(
     ParticleAttributes.protocol.isBroadcastEnabled = package->enableBroadcast;
 //    __TIMER1_OVERFLOW_INTERRUPT_ENABLE;
 //    snapshotBuffer->temporaryTxStopSnapshotTimerValue = snapshotBuffer->temporaryTxStopSnapshotTimerValue - snapshotBuffer->temporaryTxStartSnapshotTimerValue;
+
+    // TODO: calculate and update local time interrupt adjustment: Particle.localTime.interruptDelay
+    // TODO: calculate and update communication clock delay ParticleAttributes.communication.timerAdjustment.*
 }
 
 

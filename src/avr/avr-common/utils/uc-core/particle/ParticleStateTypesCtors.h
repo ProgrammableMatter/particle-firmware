@@ -77,7 +77,7 @@ CTOR_ATTRS void constructParticle(volatile Particle *o) {
     constructPeriphery(&o->periphery);
     constructCommunicationProtocol(&o->protocol);
     constructActuationCommand(&o->actuationCommand);
-    constructLocalTime(&o->localTime);
+    constructLocalTimeTracking(&o->localTime);
 #ifdef SIMULATION
     o->__structStartMarker = 0xaa;
     o->__structEndMarker = 0xaa;
