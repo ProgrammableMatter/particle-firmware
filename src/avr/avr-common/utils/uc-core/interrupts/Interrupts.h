@@ -166,6 +166,14 @@ ISR(TX_TIMER_INTERRUPT_VECT) {
  */
 ISR(LOCAL_TIME_INTERRUPT_VECT) {
     advanceLocalTime();
+    scheduleNextLocalTimeInterrupt();
+
+    if (ParticleAttributes.actuationCommand.isScheduled) {
+        if (ParticleAttributes.actuationCommand.actuationStart.periodTimeStamp <=
+            ParticleAttributes.localTime.numTimeIntervalPassed) {
+            ParticleAttributes.node.state = STATE_TYPE_EXECUTE_ACTUATION_COMMAND;
+        }
+    }
 }
 
 EMPTY_INTERRUPT(TIMER1_OVERFLOW_INTERRUPT_VECT)

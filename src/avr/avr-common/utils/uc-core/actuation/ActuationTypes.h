@@ -56,13 +56,22 @@ typedef struct HeatingMode {
 } HeatingMode;
 
 /**
+ * describes a local time stamp
+ */
+typedef struct LocalTime {
+    uint16_t periodTimeStamp;
+} LocalTime;
+
+/**
  * Describes an actuation command.
  */
 typedef struct ActuationCommand {
     Actuators actuators;
     HeatingMode actuationPower;
     ActuationStateType executionState;
+    LocalTime actuationStart;
+    LocalTime actuationEnd;
     uint8_t isScheduled : 1;
-    uint8_t isToBeTerminated : 1;
+//    uint8_t isToBeTerminated : 1;
     uint8_t __pad : 7;
 } ActuationCommand;

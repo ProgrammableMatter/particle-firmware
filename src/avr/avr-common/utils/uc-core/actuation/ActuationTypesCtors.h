@@ -26,6 +26,14 @@ CTOR_ATTRS void constructHeatingMode(volatile HeatingMode *o) {
     o->dutyCycleLevel = HEATING_LEVEL_TYPE_MAXIMUM;
 }
 
+extern FUNC_ATTRS void constructLocalTime(volatile LocalTime *o);
+/**
+ * constructor function
+ */
+FUNC_ATTRS void constructLocalTime(volatile LocalTime *o) {
+    o->periodTimeStamp = 0;
+};
+
 extern CTOR_ATTRS void constructActuationCommand(volatile struct ActuationCommand *o);
 
 /**
@@ -34,7 +42,8 @@ extern CTOR_ATTRS void constructActuationCommand(volatile struct ActuationComman
 CTOR_ATTRS void constructActuationCommand(volatile struct ActuationCommand *o) {
     constructActuators(&o->actuators);
     constructHeatingMode(&o->actuationPower);
+    constructLocalTime(&o->actuationStart);
+    constructLocalTime(&o->actuationEnd);
     o->isScheduled = false;
-    o->isToBeTerminated = true;
     o->executionState = ACTUATION_STATE_TYPE_IDLE;
 }

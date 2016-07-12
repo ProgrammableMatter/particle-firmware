@@ -181,7 +181,7 @@ typedef struct Particle {
     Periphery periphery;
     CommunicationProtocol protocol;
     ActuationCommand actuationCommand;
-    LocalTime localTime;
+    LocalTimeTracking localTime;
 #ifdef SIMULATION
     // a marker used to assure the correct interpretation of the particle structure when simulating
     uint8_t __structEndMarker;

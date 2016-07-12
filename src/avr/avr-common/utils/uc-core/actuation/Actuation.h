@@ -17,6 +17,7 @@ FUNC_ATTRS void handleExecuteActuation(void (actuationDoneCallback)(void)) {
     switch (actuationCommand->executionState) {
         case ACTUATION_STATE_TYPE_IDLE:
             if (actuationCommand->isScheduled) {
+                actuationCommand->isScheduled = false;
                 actuationCommand->executionState = ACTUATION_STATE_TYPE_START;
             } else {
                 return;
@@ -29,8 +30,8 @@ FUNC_ATTRS void handleExecuteActuation(void (actuationDoneCallback)(void)) {
             break;
 
         case ACTUATION_STATE_TYPE_WORKING:
-            if (actuationCommand->isToBeTerminated) {
-                actuationCommand->isScheduled = false;
+            if (ParticleAttributes.actuationCommand.actuationEnd.periodTimeStamp <=
+                ParticleAttributes.localTime.numTimeIntervalPassed) {
                 actuationCommand->executionState = ACTUATION_STATE_TYPE_DONE;
             }
             return;

@@ -54,6 +54,7 @@ FUNC_ATTRS void __initParticle(void) {
     RX_INTERRUPTS_SETUP; // configure input pins interrupts
     RX_INTERRUPTS_ENABLE; // enable input pin interrupts
     TIMER_NEIGHBOUR_SENSE_SETUP; // configure timer interrupt for neighbour sensing
+    LOCAL_TIME_INTERRUPT_COMPARE_DISABLE;
     sleep_disable();
     set_sleep_mode(SLEEP_MODE_PWR_DOWN); // set sleep mode to power down
 }
@@ -531,6 +532,15 @@ FUNC_ATTRS void __onActuationDoneCallback(void) {
     ParticleAttributes.node.state = STATE_TYPE_IDLE;
 }
 
+extern FUNC_ATTRS void __enableLocalTimeInterrupt(void);
+/**
+ * enables the local time interrupt using current adjustment argument
+ */
+FUNC_ATTRS void __enableLocalTimeInterrupt(void) {
+    LOCAL_TIME_INTERRUPT_COMPARE_VALUE = ParticleAttributes.localTime.interruptDelay;
+    LOCAL_TIME_INTERRUPT_COMPARE_ENABLE;
+}
+
 extern FUNC_ATTRS void setNewNetworkGeometry(void);
 /**
  * Transmits a new network geometry to the network. Particles outside the new boundary
@@ -670,6 +680,7 @@ inline void particleTick(void) {
         case STATE_TYPE_ENUMERATING_NEIGHBOURS_DONE:
             setInitiatorStateStart(&ParticleAttributes.protocol.ports.north);
             ParticleAttributes.node.state = STATE_TYPE_ANNOUNCE_NETWORK_GEOMETRY;
+            __enableLocalTimeInterrupt();
             goto __STATE_TYPE_ANNOUNCE_NETWORK_GEOMETRY;
             break;
 
