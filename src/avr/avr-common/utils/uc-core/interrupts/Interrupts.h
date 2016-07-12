@@ -7,9 +7,9 @@
 #include <avr/pgmspace.h>
 #include <uc-core/particle/ParticleStateTypes.h>
 
-#include "Vectors.h"
-#include "TimerCounter.h"
-#include "Reception.h"
+#include "uc-core/configuration/interrupts/Vectors.h"
+#include "uc-core/configuration/interrupts/TimerCounter.h"
+#include "uc-core/configuration/interrupts/Reception.h"
 #include "uc-core/communication/Transmission.h"
 #include "uc-core/particle/Globals.h"
 #include "uc-core/discovery/Discovery.h"

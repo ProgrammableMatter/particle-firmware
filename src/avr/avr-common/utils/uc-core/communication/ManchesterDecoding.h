@@ -6,7 +6,7 @@
 
 #include "Communication.h"
 #include "ManchesterDecodingTypes.h"
-#include "uc-core/interrupts/TimerCounter.h"
+#include "uc-core/configuration/interrupts/TimerCounter.h"
 #include "simulation/SimulationMacros.h"
 #include "uc-core/configuration/Particle.h"
 
