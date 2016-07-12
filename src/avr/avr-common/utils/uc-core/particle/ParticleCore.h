@@ -21,6 +21,7 @@
 #include "uc-core/communication-protocol/CommunicationProtocolTypesCtors.h"
 #include "uc-core/communication-protocol/CommunicationProtocolPackageCtors.h"
 #include "uc-core/communication-protocol/Interpreter.h"
+#include "uc-core/actuation/Actuation.h"
 
 extern FUNC_ATTRS void __disableDiscoverySensing(void);
 
@@ -522,6 +523,14 @@ FUNC_ATTRS void __handleSetNetworkGeometry(uint8_t rows, uint8_t cols, StateType
     }
 }
 
+extern FUNC_ATTRS void __onActuationDoneCallback(void);
+/**
+ * callback when actuation command has finished
+ */
+FUNC_ATTRS void __onActuationDoneCallback(void) {
+    ParticleAttributes.node.state = STATE_TYPE_IDLE;
+}
+
 extern FUNC_ATTRS void setNewNetworkGeometry(void);
 /**
  * Transmits a new network geometry to the network. Particles outside the new boundary
@@ -720,6 +729,10 @@ inline void particleTick(void) {
             __handleSetNetworkGeometry(ParticleAttributes.protocol.networkGeometry.rows,
                                        ParticleAttributes.protocol.networkGeometry.columns,
                                        STATE_TYPE_IDLE);
+            break;
+
+        case STATE_TYPE_EXECUTE_ACTUATION_COMMAND:
+            handleExecuteActuation(__onActuationDoneCallback);
             break;
 
         __STATE_TYPE_IDLE:

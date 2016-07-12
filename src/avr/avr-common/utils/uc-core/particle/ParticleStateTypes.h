@@ -65,6 +65,8 @@ typedef enum StateType {
 
     // working state when origin broadcasts a new network geometry
             STATE_TYPE_SEND_SET_NETWORK_GEOMETRY,
+    // working state when actuation command is executed
+            STATE_TYPE_EXECUTE_ACTUATION_COMMAND,
 
     // working state when waiting for commands or executing scheduled tasks
             STATE_TYPE_IDLE,

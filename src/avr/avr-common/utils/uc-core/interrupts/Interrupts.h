@@ -158,13 +158,15 @@ ISR(TX_TIMER_INTERRUPT_VECT) {
     }
 }
 
+#include "uc-core/time/Time.h"
 
 /**
+ * On local time period passed interrupt.
  * int. #8
  */
-EMPTY_INTERRUPT(ACTUATOR_TIMER_INTERRUPT_VECT)
-//{
-//}
+ISR(LOCAL_TIME_INTERRUPT_VECT) {
+    advanceLocalTime();
+}
 
 EMPTY_INTERRUPT(TIMER1_OVERFLOW_INTERRUPT_VECT)
 //{

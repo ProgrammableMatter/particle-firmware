@@ -34,4 +34,7 @@ extern CTOR_ATTRS void constructActuationCommand(volatile struct ActuationComman
 CTOR_ATTRS void constructActuationCommand(volatile struct ActuationCommand *o) {
     constructActuators(&o->actuators);
     constructHeatingMode(&o->actuationPower);
+    o->isScheduled = false;
+    o->isToBeTerminated = true;
+    o->executionState = ACTUATION_STATE_TYPE_IDLE;
 }

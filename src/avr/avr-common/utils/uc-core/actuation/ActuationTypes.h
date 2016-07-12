@@ -15,6 +15,16 @@ typedef enum HeatingLevelType {
 } HeatingLevelType;
 
 /**
+ * Describes the actuation command execution state.
+ */
+typedef enum ActuationStateType {
+    ACTUATION_STATE_TYPE_IDLE,
+    ACTUATION_STATE_TYPE_START,
+    ACTUATION_STATE_TYPE_WORKING,
+    ACTUATION_STATE_TYPE_DONE,
+} ActuationStateType;
+
+/**
  * Describes which wires are to be actuated.
  */
 typedef struct Actuators {
@@ -51,4 +61,8 @@ typedef struct HeatingMode {
 typedef struct ActuationCommand {
     Actuators actuators;
     HeatingMode actuationPower;
+    ActuationStateType executionState;
+    uint8_t isScheduled : 1;
+    uint8_t isToBeTerminated : 1;
+    uint8_t __pad : 7;
 } ActuationCommand;
