@@ -170,7 +170,7 @@ ISR(LOCAL_TIME_INTERRUPT_VECT) {
 
     if (ParticleAttributes.actuationCommand.isScheduled) {
         if (ParticleAttributes.actuationCommand.actuationStart.periodTimeStamp <=
-            ParticleAttributes.localTime.numTimeIntervalPassed) {
+            ParticleAttributes.localTime.numTimePeriodsPassed) {
             ParticleAttributes.node.state = STATE_TYPE_EXECUTE_ACTUATION_COMMAND;
         }
     }

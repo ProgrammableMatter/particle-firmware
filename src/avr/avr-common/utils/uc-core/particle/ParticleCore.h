@@ -22,6 +22,7 @@
 #include "uc-core/communication-protocol/CommunicationProtocolPackageCtors.h"
 #include "uc-core/communication-protocol/Interpreter.h"
 #include "uc-core/actuation/Actuation.h"
+#include "Commands.h"
 
 extern FUNC_ATTRS void __disableDiscoverySensing(void);
 
@@ -541,25 +542,7 @@ FUNC_ATTRS void __enableLocalTimeInterrupt(void) {
     LOCAL_TIME_INTERRUPT_COMPARE_ENABLE;
 }
 
-extern FUNC_ATTRS void setNewNetworkGeometry(void);
-/**
- * Transmits a new network geometry to the network. Particles outside the new boundary
- * switch to sleep mode.
- *
- * @pre:
- * + the network must be in broadcast mode
- * + the ParticleAttributes.protocol.networkGeometry.rows/cols are set accordingly
- */
-FUNC_ATTRS void setNewNetworkGeometry(void) {
-    // TODO refactoring necessary
-    clearTransmissionPortBuffer(ParticleAttributes.communication.ports.tx.simultaneous);
-    setInitiatorStateStart(&ParticleAttributes.protocol.ports.east);
-    ParticleAttributes.protocol.isSimultaneousTransmissionEnabled = true;
-    ParticleAttributes.node.state = STATE_TYPE_SEND_SET_NETWORK_GEOMETRY;
-}
-
 extern inline void particleTick(void);
-
 /**
  * This function is called cyclically in the particle loop. It implements the
  * behaviour and state machine of the particle.
@@ -730,7 +713,6 @@ inline void particleTick(void) {
 //            } else {
             ParticleAttributes.node.state = STATE_TYPE_IDLE;
             goto __STATE_TYPE_IDLE;
-//            }
 
 //            __TIMER1_OVERFLOW_INTERRUPT_ENABLE;
 //            DEBUG_INT16_OUT(TIMER_TX_RX_COUNTER_VALUE);

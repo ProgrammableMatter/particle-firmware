@@ -25,26 +25,37 @@ typedef enum ActuationStateType {
 } ActuationStateType;
 
 /**
- * Describes which wires are to be actuated.
+ * Describes which wires are to be actuated. South and east wires will be
+ * actuated passively (pulled up or low), whereas north wires will be pulsed
+ * according to the power configuration.
  */
 typedef struct Actuators {
     /**
-     * in case of folding along y-axis
+     * north left wire
      */
     uint8_t northLeft : 1;
     /**
-     * in case of folding along y-axis
+     * north right wire
      */
     uint8_t northRight : 1;
     /**
-     * in case of folding along x-axis
+     * east left wire: in case of folding along x-axis
      */
     uint8_t eastLeft : 1;
     /**
-     * in case of folding along x-axis
+     * east right wire: in case of folding along x-axis
      */
     uint8_t eastRight : 1;
-    uint8_t __pad : 4;
+    /**
+     * south left wire
+     */
+    uint8_t southLeft :1;
+    /**
+     * south right wire
+     */
+    uint8_t southRight :1;
+
+    uint8_t __pad : 2;
 } Actuators;
 
 /**
@@ -66,11 +77,30 @@ typedef struct LocalTime {
  * Describes an actuation command.
  */
 typedef struct ActuationCommand {
+    /**
+     * actuator flags
+     */
     Actuators actuators;
+    /**
+     * power level configuration for all actuators
+     */
     HeatingMode actuationPower;
+    /**
+     * execution state machine states
+     */
     ActuationStateType executionState;
+    /**
+     * actuation start time
+     */
     LocalTime actuationStart;
+    /**
+     * actuation end time
+     */
     LocalTime actuationEnd;
+    /**
+     * scheduled flag: must be set to enable scheduling;
+     * is unset when execution has finished
+     */
     uint8_t isScheduled : 1;
     uint8_t __pad : 7;
 } ActuationCommand;

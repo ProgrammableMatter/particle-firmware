@@ -13,9 +13,9 @@ extern FUNC_ATTRS void advanceLocalTime(void);
  * overflows each 390 seconds or 6 minutes and 30 seconds.
  */
 FUNC_ATTRS void advanceLocalTime(void) {
-    ParticleAttributes.localTime.numTimeIntervalPassed++;
-    if (ParticleAttributes.localTime.numTimeIntervalPassed >= ParticleAttributes.localTime.interruptDelay) {
-        ParticleAttributes.localTime.numTimeIntervalPassed = 0;
+    ParticleAttributes.localTime.numTimePeriodsPassed++;
+    if (ParticleAttributes.localTime.numTimePeriodsPassed >= ParticleAttributes.localTime.interruptDelay) {
+        ParticleAttributes.localTime.numTimePeriodsPassed = 0;
     }
 }
 

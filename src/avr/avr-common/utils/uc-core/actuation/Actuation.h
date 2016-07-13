@@ -25,13 +25,14 @@ FUNC_ATTRS void handleExecuteActuation(void (actuationDoneCallback)(void)) {
             break;
 
         case ACTUATION_STATE_TYPE_START:
+//            DEBUG_CHAR_OUT('y');
             // enable pwm interrupt
             actuationCommand->executionState = ACTUATION_STATE_TYPE_WORKING;
             break;
 
         case ACTUATION_STATE_TYPE_WORKING:
-            if (ParticleAttributes.actuationCommand.actuationEnd.periodTimeStamp <=
-                ParticleAttributes.localTime.numTimeIntervalPassed) {
+            if (ParticleAttributes.actuationCommand.actuationEnd.periodTimeStamp <
+                ParticleAttributes.localTime.numTimePeriodsPassed) {
                 actuationCommand->executionState = ACTUATION_STATE_TYPE_DONE;
             }
             return;
@@ -40,8 +41,10 @@ FUNC_ATTRS void handleExecuteActuation(void (actuationDoneCallback)(void)) {
 
         case ACTUATION_STATE_TYPE_DONE:
             // disable pwm interrupt
+            ParticleAttributes.actuationCommand.isScheduled = false;
             actuationCommand->executionState = ACTUATION_STATE_TYPE_IDLE;
             actuationDoneCallback();
+//            DEBUG_CHAR_OUT('Y');
             break;
     }
 };
