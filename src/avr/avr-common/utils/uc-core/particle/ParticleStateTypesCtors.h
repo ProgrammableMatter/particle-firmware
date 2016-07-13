@@ -65,6 +65,47 @@ CTOR_ATTRS void constructPeriphery(volatile Periphery *o) {
     o->loopCount = 0;
 }
 
+extern CTOR_ATTRS void constructDirectionOrientedPort(volatile DirectionOrientedPort *o,
+                                                      volatile DiscoveryPulseCounter *discoveryPulseCounter,
+                                                      volatile TxPort *txPort, volatile RxPort *rxPort,
+                                                      volatile CommunicationProtocolPortState *protocolState);
+
+/**
+ * constructor function
+ */
+void CTOR_ATTRS constructDirectionOrientedPort(volatile DirectionOrientedPort *o,
+                                               volatile DiscoveryPulseCounter *discoveryPulseCounter,
+                                               volatile TxPort *txPort, volatile RxPort *rxPort,
+                                               volatile CommunicationProtocolPortState *protocolState) {
+    o->discoveryPulseCounter = (DiscoveryPulseCounter *) discoveryPulseCounter;
+    o->rxPort = (RxPort *) rxPort;
+    o->txPort = (TxPort *) txPort;
+    o->protocol = (CommunicationProtocolPortState *) protocolState;
+}
+
+extern void CTOR_ATTRS constructDirectionOrientedPorts(volatile DirectionOrientedPorts *o);
+
+/**
+ * constructor function
+ */
+void CTOR_ATTRS constructDirectionOrientedPorts(volatile DirectionOrientedPorts *o) {
+    constructDirectionOrientedPort(&o->north,
+                                   &ParticleAttributes.discoveryPulseCounters.north,
+                                   &ParticleAttributes.communication.ports.tx.north,
+                                   &ParticleAttributes.communication.ports.rx.north,
+                                   &ParticleAttributes.protocol.ports.north);
+    constructDirectionOrientedPort(&o->east,
+                                   &ParticleAttributes.discoveryPulseCounters.east,
+                                   &ParticleAttributes.communication.ports.tx.east,
+                                   &ParticleAttributes.communication.ports.rx.east,
+                                   &ParticleAttributes.protocol.ports.north);
+    constructDirectionOrientedPort(&o->south,
+                                   &ParticleAttributes.discoveryPulseCounters.south,
+                                   &ParticleAttributes.communication.ports.tx.south,
+                                   &ParticleAttributes.communication.ports.rx.south,
+                                   &ParticleAttributes.protocol.ports.south);
+}
+
 extern CTOR_ATTRS void constructParticle(volatile Particle *o);
 /**
  * constructor function
@@ -78,6 +119,7 @@ CTOR_ATTRS void constructParticle(volatile Particle *o) {
     constructCommunicationProtocol(&o->protocol);
     constructActuationCommand(&o->actuationCommand);
     constructLocalTimeTracking(&o->localTime);
+    constructDirectionOrientedPorts(&o->directionOrientedPorts);
 #ifdef SIMULATION
     o->__structStartMarker = 0xaa;
     o->__structEndMarker = 0xaa;

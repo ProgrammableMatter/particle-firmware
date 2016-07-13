@@ -167,6 +167,37 @@ typedef struct TimerCounterAdjustment {
 } TimerCounterAdjustment;
 
 /**
+ * facade to bundle port resources
+ */
+typedef struct DirectionOrientedPort {
+    /**
+     * discovery related
+     */
+    DiscoveryPulseCounter *discoveryPulseCounter;
+    /**
+     * communication related
+     */
+    TxPort *txPort;
+    /**
+     * communication related
+     */
+    RxPort *rxPort;
+    /**
+     * comm. protocol related
+     */
+    CommunicationProtocolPortState *protocol;
+} DirectionOrientedPort;
+
+/**
+ * facade to bundle port resources in a direction oriented way
+ */
+typedef struct DirectionOrientedPorts {
+    DirectionOrientedPort north;
+    DirectionOrientedPort east;
+    DirectionOrientedPort south;
+} DirectionOrientedPorts;
+
+/**
  * The global particle structure containing buffers, states, counters and alike.
  */
 typedef struct Particle {
@@ -174,14 +205,39 @@ typedef struct Particle {
     // a marker used to assure the correct interpretation of the particle structure when simulating
     uint8_t __structStartMarker;
 #endif
+    /**
+     * Node type, state and address fields.
+     */
     Node node;
-//    TimerCounterAdjustment timerCounterAdjustment;
+    /**
+     * Node connectivity settings and states.
+     */
     DiscoveryPulseCounters discoveryPulseCounters;
+    /**
+     * Communication (physical layer) related states and buffers.
+     */
     Communication communication;
+    /**
+     * Resources needed for non-essential periphery implementation such as LEDs, test points and alike.
+     */
     Periphery periphery;
+    /**
+     * Communication protocol (layer 1) related settings and states.
+     */
     CommunicationProtocol protocol;
+    /**
+     * Settings related to actuation command.
+     */
     ActuationCommand actuationCommand;
+    /**
+     * Local time and settings are stored to this field.
+     */
     LocalTimeTracking localTime;
+    /**
+     * Facade to bundle the DiscoveryPulseCounters, Communication and CommunicationProtocol port
+     * related resources in a direction oriented way.
+     */
+    DirectionOrientedPorts directionOrientedPorts;
 #ifdef SIMULATION
     // a marker used to assure the correct interpretation of the particle structure when simulating
     uint8_t __structEndMarker;
