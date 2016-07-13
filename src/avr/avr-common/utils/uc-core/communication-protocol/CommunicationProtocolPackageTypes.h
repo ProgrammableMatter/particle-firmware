@@ -15,7 +15,7 @@
  */
 typedef enum PackageHeaderId {
     PACKAGE_HEADER_ID_TYPE_ENUMERATE = 0,
-    __PACKAGE_HEADER_ID_TYPE_HEAT_WIRES = 1,
+    PACKAGE_HEADER_ID_TYPE_HEAT_WIRES = 1,
     __PACKAGE_HEADER_ID_TYPE_HEAT_WIRES_RANGE = 2,
     __UNUSED1 = 3,
     __UNUSED2 = 4,
@@ -35,18 +35,18 @@ typedef enum PackageHeaderId {
 /**
  * describes a package header
  */
-typedef struct PackageHeader {
+typedef struct HeaderPackage {
     uint8_t __startBit : 1;
     uint8_t __headerIsStream : 1;
     uint8_t headerId : 4;
     uint8_t __parityBit: 1;
     uint8_t __pad: 1;
-} PackageHeader;
+} HeaderPackage;
 
 /**
- * PackageHeader data length expressed as BufferPointer
+ * HeaderPackage data length expressed as BufferPointer
  */
-#define PackageHeaderPointerSize \
+#define HeaderPackagePointerSize \
     ((((uint16_t) 0x0100) << 6) \
     |((uint16_t) 0x0000))
 
@@ -198,10 +198,38 @@ typedef struct TimePackage {
     |((uint16_t) 0x0007))
 
 /**
+ * describes a package header with subsequent start time stamp and duration
+ */
+typedef struct HeatWiresPackage {
+    uint8_t __startBit : 1;
+    uint8_t __headerIsStream : 1;
+    uint8_t headerId : 4;
+    uint8_t __parityBit : 1;
+    uint8_t enableBroadcast : 1;
+    uint16_t startTimeStamp;
+    uint16_t duration;
+    uint8_t northLeft : 1;
+    uint8_t northRight: 1;
+    uint8_t eastLeft : 1;
+    uint8_t eastRight: 1;
+    uint8_t southLeft : 1;
+    uint8_t southRight: 1;
+    uint8_t __pad: 2;
+} HeatWiresPackage;
+
+/**
+ * HeatWiresPackage length expressed as BufferPointer
+ */
+#define HeatWiresPackageBufferPointerSize  \
+    ((((uint16_t) 0x0100) << 6) \
+    |((uint16_t) 0x0005))
+
+
+/**
  * union for a convenient way to access buffered packages
  */
 typedef union Package {
-    PackageHeader asHeader;
+    HeaderPackage asHeader;
     AckPackage asACKPackage;
     AckWithAddressPackage asACKWithLocalAddress;
     AckWithAddressPackage asACKWithRemoteAddress;
@@ -209,4 +237,5 @@ typedef union Package {
     TimePackage asSyncTimePackage;
     AnnounceNetworkGeometryPackage asAnnounceNetworkGeometryPackage;
     SetNetworkGeometryPackage asSetNetworkGeometryPackage;
+    HeatWiresPackage asHeatWiresPackage;
 } Package;

@@ -109,7 +109,6 @@ extern CTOR_ATTRS void constructSetNetworkGeometryPackage(volatile TxPort *txPor
  * constructor function: builds the protocol package at the given port's buffer
  */
 CTOR_ATTRS void constructSetNetworkGeometryPackage(volatile TxPort *txPort, uint8_t row, uint8_t column) {
-
     Package *package = (Package *) &txPort->buffer.bytes;
     package->asSetNetworkGeometryPackage.__startBit = 1;
     package->asSetNetworkGeometryPackage.headerId = PACKAGE_HEADER_ID_TYPE_SET_NETWORK_GEOMETRY;
@@ -117,4 +116,19 @@ CTOR_ATTRS void constructSetNetworkGeometryPackage(volatile TxPort *txPort, uint
     package->asSetNetworkGeometryPackage.rows = row;
     package->asSetNetworkGeometryPackage.columns = column;
     setBufferDataEndPointer(txPort->dataEndPos, SetNetworkGeometryPackageBufferPointerSize);
+}
+
+extern FUNC_ATTRS void constructHeatWiresPackage(volatile TxPort *txPort, uint16_t startTimeStamp,
+                                                 uint16_t duration);
+/**
+ * constructor function: builds the protocol package at the given port's buffer
+ */
+FUNC_ATTRS void constructHeatWiresPackage(volatile TxPort *txPort, uint16_t startTimeStamp,
+                                          uint16_t duration) {
+    Package *package = (Package *) txPort->buffer.bytes;
+    package->asHeatWiresPackage.__startBit = 1;
+    package->asHeatWiresPackage.headerId = PACKAGE_HEADER_ID_TYPE_HEAT_WIRES;
+    package->asHeatWiresPackage.enableBroadcast = false;
+    package->asHeatWiresPackage.startTimeStamp = startTimeStamp;
+    package->asHeatWiresPackage.duration = duration;
 }

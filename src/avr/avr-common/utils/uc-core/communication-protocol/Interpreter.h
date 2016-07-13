@@ -62,7 +62,7 @@ FUNC_ATTRS void __interpretReceivedPackage(volatile DirectionOrientedPort *port)
     switch (package->asHeader.headerId) {
 
         case PACKAGE_HEADER_ID_TYPE_SYNC_TIME:
-            executeSynchronizeLocalTime(&package->asSyncTimePackage);
+            executeSynchronizeLocalTimePackage(&package->asSyncTimePackage);
             clearReceptionPortBuffer(port->rxPort);
             break;
 
@@ -73,6 +73,11 @@ FUNC_ATTRS void __interpretReceivedPackage(volatile DirectionOrientedPort *port)
 
         case PACKAGE_HEADER_ID_TYPE_SET_NETWORK_GEOMETRY:
             executeSetNetworkGeometryPackage(&package->asSetNetworkGeometryPackage);
+            clearReceptionPortBuffer(port->rxPort);
+            break;
+
+        case PACKAGE_HEADER_ID_TYPE_HEAT_WIRES:
+            executeHeatWiresPackage(&package->asHeatWiresPackage);
             clearReceptionPortBuffer(port->rxPort);
             break;
 

@@ -10,12 +10,12 @@
 #include "uc-core/discovery/Discovery.h"
 
 
-extern FUNC_ATTRS void executeSynchronizeLocalTime(
+extern FUNC_ATTRS void executeSynchronizeLocalTimePackage(
         volatile TimePackage *package);//, volatile RxSnapshotBuffer *snapshotBufer);
 /**
  * prepare local time synchronization
  */
-FUNC_ATTRS void executeSynchronizeLocalTime(
+FUNC_ATTRS void executeSynchronizeLocalTimePackage(
         volatile TimePackage *package) {//, volatile RxSnapshotBuffer *snapshotBuffer) {
 //    DEBUG_INT16_OUT(snapshotBuffer->temporaryTxStopSnapshotTimerValue - snapshotBuffer->temporaryTxStartSnapshotTimerValue);
 //    DEBUG_INT16_OUT(TIMER_TX_RX_COUNTER_VALUE);
@@ -94,4 +94,31 @@ FUNC_ATTRS void executeSetNetworkGeometryPackage(volatile SetNetworkGeometryPack
         ParticleAttributes.discoveryPulseCounters.east.isConnected = false;
     }
     updateAndDetermineNodeType();
+}
+
+
+extern FUNC_ATTRS void executeHeatWiresPackage(volatile HeatWiresPackage *heatWiresPackage);
+/**
+ * Executes the heat wires package: extracts the payload and schedules the next actuator command.
+ */
+FUNC_ATTRS void executeHeatWiresPackage(volatile HeatWiresPackage *heatWiresPackage) {
+
+    if (!ParticleAttributes.protocol.isBroadcastEnabled) {
+        // TODO: infer local actuation command if package designated for neighbour
+        // TODO: route package if currently not in broadcast mode
+    }
+
+    if (ParticleAttributes.actuationCommand.executionState == ACTUATION_STATE_TYPE_IDLE) {
+        ParticleAttributes.actuationCommand.actuators.northLeft = heatWiresPackage->northLeft;
+        ParticleAttributes.actuationCommand.actuators.northRight = heatWiresPackage->northRight;
+        ParticleAttributes.actuationCommand.actuators.eastLeft = heatWiresPackage->eastLeft;
+        ParticleAttributes.actuationCommand.actuators.eastRight = heatWiresPackage->eastRight;
+        ParticleAttributes.actuationCommand.actuators.southLeft = heatWiresPackage->southLeft;
+        ParticleAttributes.actuationCommand.actuators.southRight = heatWiresPackage->southRight;
+        ParticleAttributes.actuationCommand.actuationStart.periodTimeStamp = heatWiresPackage->startTimeStamp;
+        ParticleAttributes.actuationCommand.actuationEnd.periodTimeStamp =
+                heatWiresPackage->startTimeStamp + heatWiresPackage->duration;
+        ParticleAttributes.protocol.isBroadcastEnabled = heatWiresPackage->enableBroadcast;
+        ParticleAttributes.actuationCommand.isScheduled = true;
+    }
 }
