@@ -134,7 +134,8 @@ ISR(TX_TIMER_INTERRUPT_VECT) {
                 case STATE_TYPE_XMISSION_TYPE_ENABLED_TX_RX:
                 case STATE_TYPE_XMISSION_TYPE_ENABLED_TX:
                     if (ParticleAttributes.protocol.isSimultaneousTransmissionEnabled) {
-                        transmit(ParticleAttributes.communication.ports.tx.simultaneous, simultaneousTxHiImpl,
+                        transmit(ParticleAttributes.directionOrientedPorts.simultaneous.txPort,
+                                 simultaneousTxHiImpl,
                                  simultaneousTxLoImpl);
                     } else {
                         transmit(&ParticleAttributes.communication.ports.tx.north, northTxHiImpl,

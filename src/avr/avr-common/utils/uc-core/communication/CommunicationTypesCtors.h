@@ -24,7 +24,7 @@ CTOR_ATTRS void constructPortBuffer(volatile PortBuffer *o) {
     for (uint8_t i = 0; i < sizeof(o->bytes); i++) {
         o->bytes[i] = 0;
     }
-//    o->bytes[0] = 0x1;
+    o->bytes[0] = 0x1; // set start bit
     constructBufferBitPointer(&(o->pointer));
 }
 
@@ -35,9 +35,10 @@ extern CTOR_ATTRS void constructTxPort(volatile TxPort *o);
 CTOR_ATTRS void constructTxPort(volatile TxPort *o) {
     constructPortBuffer(&(o->buffer));
     constructBufferBitPointer(&o->dataEndPos);
-    // TODO: why is the offset 1 instead of 2 (size of BufferBitPointer dataEndPos)
-    *((uint8_t *) (&o->dataEndPos + 1)) = 0x00;
-    o->buffer.bytes[0] = 0x1;
+    o->isTransmitting = false;
+    o->isTxClockPhase = false;
+    o->isDataBuffered = false;
+
     o->isTxClockPhase = false;
 }
 
@@ -49,7 +50,6 @@ CTOR_ATTRS void constructTxPorts(volatile TxPorts *o) {
     constructTxPort(&o->north);
     constructTxPort(&o->east);
     constructTxPort(&o->south);
-    o->simultaneous = (TxPort *) &o->east;
 }
 
 extern CTOR_ATTRS void constructRxPort(volatile RxPort *o);

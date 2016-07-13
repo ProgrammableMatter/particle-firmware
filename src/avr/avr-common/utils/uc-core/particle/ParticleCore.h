@@ -208,7 +208,7 @@ extern FUNC_ATTRS void __handleSynchronizeNeighbour(volatile CommunicationProtoc
  */
 FUNC_ATTRS void __handleSynchronizeNeighbour(volatile CommunicationProtocolPortState *commPortState,
                                              StateType endState) {
-    volatile TxPort *txPort = ParticleAttributes.communication.ports.tx.simultaneous;
+    volatile TxPort *txPort = ParticleAttributes.directionOrientedPorts.simultaneous.txPort;
     switch (commPortState->initiatorState) {
         // transmit local time simultaneously on east and south ports
         case COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT:
@@ -388,10 +388,8 @@ extern FUNC_ATTRS void __handleSetNetworkGeometry(uint8_t rows, uint8_t cols, St
  * set the set network geometry package and switches to the given state
  */
 FUNC_ATTRS void __handleSetNetworkGeometry(uint8_t rows, uint8_t cols, StateType endState) {
-    // TODO refactoring needed
-    volatile CommunicationProtocolPortState *commPortState = &ParticleAttributes.protocol.ports.east;
-    volatile TxPort *txPort = ParticleAttributes.communication.ports.tx.simultaneous;
-
+    volatile CommunicationProtocolPortState *commPortState = ParticleAttributes.directionOrientedPorts.simultaneous.protocol;
+    volatile TxPort *txPort = ParticleAttributes.directionOrientedPorts.simultaneous.txPort;
     switch (commPortState->initiatorState) {
         case COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT:
             constructSetNetworkGeometryPackage(txPort, rows, cols);

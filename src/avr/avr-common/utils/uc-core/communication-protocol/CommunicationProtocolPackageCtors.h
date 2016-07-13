@@ -9,7 +9,7 @@
 #pragma once
 
 #include "./CommunicationProtocol.h"
-#include "./CommunicationProtocolTypes.h"
+#include "./CommunicationProtocolPackageTypes.h"
 #include "uc-core/particle/Globals.h"
 #include "uc-core/configuration/interrupts/TimerCounter.h"
 

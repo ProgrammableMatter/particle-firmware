@@ -197,9 +197,22 @@ typedef struct DirectionOrientedPort {
  * facade to bundle port resources in a direction oriented way
  */
 typedef struct DirectionOrientedPorts {
+    /**
+     * north port resources
+     */
     DirectionOrientedPort north;
+    /**
+     * east port resources
+     */
     DirectionOrientedPort east;
+    /**
+     * south port resources
+     */
     DirectionOrientedPort south;
+    /**
+     * on simultaneous transmission this port refers to the east port resources
+     */
+    DirectionOrientedPort simultaneous;
 } DirectionOrientedPorts;
 
 /**

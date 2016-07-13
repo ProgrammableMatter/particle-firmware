@@ -113,6 +113,12 @@ void CTOR_ATTRS constructDirectionOrientedPorts(volatile DirectionOrientedPorts 
                                    &ParticleAttributes.communication.ports.rx.south,
                                    receiveSouth,
                                    &ParticleAttributes.protocol.ports.south);
+    constructDirectionOrientedPort(&o->simultaneous,
+                                   &ParticleAttributes.discoveryPulseCounters.east,
+                                   &ParticleAttributes.communication.ports.tx.east,
+                                   &ParticleAttributes.communication.ports.rx.east,
+                                   receiveEast,
+                                   &ParticleAttributes.protocol.ports.east);
 }
 
 extern CTOR_ATTRS void constructParticle(volatile Particle *o);

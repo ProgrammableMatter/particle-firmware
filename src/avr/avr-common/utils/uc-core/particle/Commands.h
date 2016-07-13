@@ -4,6 +4,9 @@
 
 #pragma once
 
+#include "Globals.h"
+#include "uc-core/communication-protocol/CommunicationProtocol.h"
+
 extern FUNC_ATTRS void setNewNetworkGeometry(void);
 /**
  * Transmits a new network geometry to the network. Particles outside the new boundary
@@ -14,9 +17,8 @@ extern FUNC_ATTRS void setNewNetworkGeometry(void);
  * + the ParticleAttributes.protocol.networkGeometry.rows/cols are set accordingly
  */
 FUNC_ATTRS void setNewNetworkGeometry(void) {
-    // TODO refactoring necessary
-    clearTransmissionPortBuffer(ParticleAttributes.communication.ports.tx.simultaneous);
-    setInitiatorStateStart(&ParticleAttributes.protocol.ports.east);
+    clearTransmissionPortBuffer(ParticleAttributes.directionOrientedPorts.simultaneous.txPort);
+    setInitiatorStateStart(ParticleAttributes.directionOrientedPorts.simultaneous.protocol);
     ParticleAttributes.protocol.isSimultaneousTransmissionEnabled = true;
     ParticleAttributes.node.state = STATE_TYPE_SEND_SET_NETWORK_GEOMETRY;
 }
