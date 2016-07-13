@@ -25,21 +25,19 @@
 
 #define TIMER_NEIGHBOUR_SENSE_COUNTER_ON_INTERRUPT_ROLLBACK 12
 
-extern FUNC_ATTRS void __handleInputInterrupt(volatile DiscoveryPulseCounter *discoveryPulseCounter,
-                                              volatile RxPort *rxPort,
+extern FUNC_ATTRS void __handleInputInterrupt(volatile DirectionOrientedPort *port,
                                               const bool isRxHigh);
 /**
  * Handles interrupt in input pins according to the particle state.
  */
-FUNC_ATTRS void __handleInputInterrupt(volatile DiscoveryPulseCounter *discoveryPulseCounter,
-                                       volatile RxPort *rxPort,
+FUNC_ATTRS void __handleInputInterrupt(volatile DirectionOrientedPort *port,
                                        const bool isRxHigh) {
     uint16_t timerCounterValue = TIMER_TX_RX_COUNTER_VALUE;
     switch (ParticleAttributes.node.state) {
         // on discovery pulse
         case STATE_TYPE_NEIGHBOURS_DISCOVERY:
             if (!isRxHigh) {
-                dispatchFallingDiscoveryEdge(discoveryPulseCounter);
+                dispatchFallingDiscoveryEdge(port->discoveryPulseCounter);
             }
             break;
 
@@ -48,7 +46,7 @@ FUNC_ATTRS void __handleInputInterrupt(volatile DiscoveryPulseCounter *discovery
                 // on data received
                 case STATE_TYPE_XMISSION_TYPE_ENABLED_TX_RX:
                 case STATE_TYPE_XMISSION_TYPE_ENABLED_RX:
-                    captureSnapshot(&timerCounterValue, isRxHigh, &rxPort->snapshotsBuffer);
+                    captureSnapshot(&timerCounterValue, isRxHigh, &port->rxPort->snapshotsBuffer);
                     break;
 
                 default:
@@ -86,8 +84,7 @@ ISR(NORTH_PIN_CHANGE_INTERRUPT_VECT) {
             simultaneousTxHiImpl();
         }
     }
-    __handleInputInterrupt(&ParticleAttributes.discoveryPulseCounters.north,
-                           &ParticleAttributes.communication.ports.rx.north,
+    __handleInputInterrupt(&ParticleAttributes.directionOrientedPorts.north,
                            NORTH_RX_IS_HI);
     RX_NORTH_INTERRUPT_CLEAR_PENDING;
 }
@@ -97,8 +94,7 @@ ISR(NORTH_PIN_CHANGE_INTERRUPT_VECT) {
  * int. #3
  */
 ISR(EAST_PIN_CHANGE_INTERRUPT_VECT) {
-    __handleInputInterrupt(&ParticleAttributes.discoveryPulseCounters.east,
-                           &ParticleAttributes.communication.ports.rx.east,
+    __handleInputInterrupt(&ParticleAttributes.directionOrientedPorts.east,
                            EAST_RX_IS_HI);
     RX_EAST_INTERRUPT_CLEAR_PENDING;
 }
@@ -108,8 +104,7 @@ ISR(EAST_PIN_CHANGE_INTERRUPT_VECT) {
  * int. #2
  */
 ISR(SOUTH_PIN_CHANGE_INTERRUPT_VECT) {
-    __handleInputInterrupt(&ParticleAttributes.discoveryPulseCounters.south,
-                           &ParticleAttributes.communication.ports.rx.south,
+    __handleInputInterrupt(&ParticleAttributes.directionOrientedPorts.south,
                            SOUTH_RX_IS_HI);
     RX_SOUTH_INTERRUPT_CLEAR_PENDING;
 }

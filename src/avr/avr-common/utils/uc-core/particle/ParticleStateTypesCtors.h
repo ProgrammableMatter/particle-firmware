@@ -8,6 +8,7 @@
 #include "uc-core/communication-protocol/CommunicationProtocolTypesCtors.h"
 #include "uc-core/actuation/ActuationTypesCtors.h"
 #include "uc-core/time/TimeTypesCtors.h"
+#include "PointerImplementation.h"
 
 extern void constructTimerCounterAdjustment(volatile TimerCounterAdjustment *o);
 
@@ -67,7 +68,9 @@ CTOR_ATTRS void constructPeriphery(volatile Periphery *o) {
 
 extern CTOR_ATTRS void constructDirectionOrientedPort(volatile DirectionOrientedPort *o,
                                                       volatile DiscoveryPulseCounter *discoveryPulseCounter,
-                                                      volatile TxPort *txPort, volatile RxPort *rxPort,
+                                                      volatile TxPort *txPort,
+                                                      volatile RxPort *rxPort,
+                                                      void (receivePimpl)(void),
                                                       volatile CommunicationProtocolPortState *protocolState);
 
 /**
@@ -75,11 +78,14 @@ extern CTOR_ATTRS void constructDirectionOrientedPort(volatile DirectionOriented
  */
 void CTOR_ATTRS constructDirectionOrientedPort(volatile DirectionOrientedPort *o,
                                                volatile DiscoveryPulseCounter *discoveryPulseCounter,
-                                               volatile TxPort *txPort, volatile RxPort *rxPort,
+                                               volatile TxPort *txPort,
+                                               volatile RxPort *rxPort,
+                                               void (receivePimpl)(void),
                                                volatile CommunicationProtocolPortState *protocolState) {
     o->discoveryPulseCounter = (DiscoveryPulseCounter *) discoveryPulseCounter;
     o->rxPort = (RxPort *) rxPort;
     o->txPort = (TxPort *) txPort;
+    o->receive = receivePimpl;
     o->protocol = (CommunicationProtocolPortState *) protocolState;
 }
 
@@ -93,16 +99,19 @@ void CTOR_ATTRS constructDirectionOrientedPorts(volatile DirectionOrientedPorts 
                                    &ParticleAttributes.discoveryPulseCounters.north,
                                    &ParticleAttributes.communication.ports.tx.north,
                                    &ParticleAttributes.communication.ports.rx.north,
+                                   receiveNorth,
                                    &ParticleAttributes.protocol.ports.north);
     constructDirectionOrientedPort(&o->east,
                                    &ParticleAttributes.discoveryPulseCounters.east,
                                    &ParticleAttributes.communication.ports.tx.east,
                                    &ParticleAttributes.communication.ports.rx.east,
-                                   &ParticleAttributes.protocol.ports.north);
+                                   receiveEast,
+                                   &ParticleAttributes.protocol.ports.east);
     constructDirectionOrientedPort(&o->south,
                                    &ParticleAttributes.discoveryPulseCounters.south,
                                    &ParticleAttributes.communication.ports.tx.south,
                                    &ParticleAttributes.communication.ports.rx.south,
+                                   receiveSouth,
                                    &ParticleAttributes.protocol.ports.south);
 }
 

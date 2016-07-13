@@ -182,6 +182,11 @@ typedef struct DirectionOrientedPort {
      * communication related
      */
     RxPort *rxPort;
+
+    /**
+     * pointer implementation: decode and interpret reception
+     */
+    void (*receive)(void);
     /**
      * comm. protocol related
      */
