@@ -61,6 +61,9 @@ charOutToHumanReadableAnnotation = {
     "'b'" : "counter timeout",
     "'u'" : "decode/interpreter error",
 
+    "'y'": "command executing",
+    "'Y'": "command executing done",
+
     "'z'" : "enter sleep mode",
     "'Z'" : "exit sleep mode",
 }
