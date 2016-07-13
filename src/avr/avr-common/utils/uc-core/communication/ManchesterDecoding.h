@@ -196,21 +196,15 @@ DECODING_FUNC_ATTRS void __approximateNewClockShift(volatile uint16_t *snapshotV
     ParticleAttributes.communication.timerAdjustment.isTransmissionClockShiftUpdateable = true;
 }
 
-extern FUNC_ATTRS void manchesterDecodeBuffer(volatile RxPort *rxPort,
-                                              volatile CommunicationProtocolPortState *commPortState,
-                                              void (interpreterImpl)
-                                                      (volatile RxPort *,
-                                                       volatile CommunicationProtocolPortState *));
+extern FUNC_ATTRS void manchesterDecodeBuffer(volatile DirectionOrientedPort *port,
+                                              void (*interpreterImpl)(volatile DirectionOrientedPort *));
 
 /**
  * decodes the specified buffer's snapshots to bits and bytes
  */
-FUNC_ATTRS void manchesterDecodeBuffer(volatile RxPort *rxPort,
-                                       volatile CommunicationProtocolPortState *commPortState,
-                                       void (interpreterImpl)
-                                               (volatile RxPort *,
-                                                volatile CommunicationProtocolPortState *)) {
-
+FUNC_ATTRS void manchesterDecodeBuffer(volatile DirectionOrientedPort *port,
+                                       void (*interpreterImpl)(volatile DirectionOrientedPort *)) {
+    volatile RxPort *rxPort = port->rxPort;
     if (rxPort->isDataBuffered == true) {
         return;
     }
@@ -307,7 +301,7 @@ FUNC_ATTRS void manchesterDecodeBuffer(volatile RxPort *rxPort,
             rxPort->isDataBuffered = true;
             ParticleAttributes.communication.timerAdjustment.isTransmissionClockDelayUpdateable = true;
             rxPort->snapshotsBuffer.decoderStates.decodingState = DECODER_STATE_TYPE_START;
-            interpreterImpl(rxPort, commPortState);
+            interpreterImpl(port);
             break;
     }
 }

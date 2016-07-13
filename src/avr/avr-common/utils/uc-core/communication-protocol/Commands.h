@@ -1,6 +1,6 @@
-//
-// Created by Raoul Rubien on 25.05.16.
-//
+/**
+ * @author Raoul Rubien  12.07.16.
+ */
 
 #pragma once
 
@@ -60,10 +60,8 @@ FUNC_ATTRS void executeAnnounceNetworkGeometryPackage(volatile AnnounceNetworkGe
         ParticleAttributes.protocol.networkGeometry.rows = package->rows;
         ParticleAttributes.protocol.networkGeometry.columns = package->columns;
         ParticleAttributes.protocol.isSimultaneousTransmissionEnabled = true;
-
-        //TODO refactoring needed
         ParticleAttributes.node.state = STATE_TYPE_SYNC_NEIGHBOUR;
-        setInitiatorStateStart(&ParticleAttributes.protocol.ports.east);
+        setInitiatorStateStart(ParticleAttributes.directionOrientedPorts.simultaneous.protocol);
 
     } else {
         clearTransmissionPortBuffer(&ParticleAttributes.communication.ports.tx.north);

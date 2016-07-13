@@ -13,8 +13,8 @@ extern FUNC_ATTRS void receiveNorth(void);
  */
 FUNC_ATTRS void receiveNorth(void) {
     if (ParticleAttributes.discoveryPulseCounters.north.isConnected) {
-        manchesterDecodeBuffer(&ParticleAttributes.communication.ports.rx.north,
-                               &ParticleAttributes.protocol.ports.north, interpretRxBuffer);
+        manchesterDecodeBuffer(&ParticleAttributes.directionOrientedPorts.north,
+                               interpretRxBuffer);
     }
 }
 
@@ -24,8 +24,8 @@ extern FUNC_ATTRS void receiveEast(void);
  */
 FUNC_ATTRS void receiveEast(void) {
     if (ParticleAttributes.discoveryPulseCounters.east.isConnected) {
-        manchesterDecodeBuffer(&ParticleAttributes.communication.ports.rx.east,
-                               &ParticleAttributes.protocol.ports.east, interpretRxBuffer);
+        manchesterDecodeBuffer(&ParticleAttributes.directionOrientedPorts.east,
+                               interpretRxBuffer);
     }
 }
 
@@ -35,7 +35,7 @@ extern FUNC_ATTRS void receiveSouth(void);
  */
 FUNC_ATTRS void receiveSouth(void) {
     if (ParticleAttributes.discoveryPulseCounters.south.isConnected) {
-        manchesterDecodeBuffer(&ParticleAttributes.communication.ports.rx.south,
-                               &ParticleAttributes.protocol.ports.south, interpretRxBuffer);
+        manchesterDecodeBuffer(&ParticleAttributes.directionOrientedPorts.south,
+                               interpretRxBuffer);
     }
 }
