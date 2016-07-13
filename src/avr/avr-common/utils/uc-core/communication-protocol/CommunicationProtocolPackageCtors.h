@@ -49,17 +49,15 @@ extern CTOR_ATTRS void constructEnumerationACKPackage(volatile TxPort *txPort);
  * constructor function: builds the protocol package at the given port's buffer
  */
 CTOR_ATTRS void constructEnumerationACKPackage(volatile TxPort *txPort) {
-//    PackageHeader *ph = &((Package *)txPort->buffer.bytes)->asACKPackage;
     Package *package = (Package *) txPort->buffer.bytes;
     package->asACKPackage.__startBit = 1;
-    package->asACKPackage.headerIsStream = false;
     package->asACKPackage.enableBroadcast = true;
     package->asACKPackage.headerId = PACKAGE_HEADER_ID_TYPE_ACK;
     setBufferDataEndPointer(txPort->dataEndPos, AckPackagePointerSize);
 
 }
 
-extern CTOR_ATTRS void constructEnumerateionACKWithAddressToParentPackage(void);
+extern CTOR_ATTRS void constructEnumerationACKWithAddressToParentPackage(void);
 /**
  * constructor function: builds the protocol package at the given port's buffer
  */

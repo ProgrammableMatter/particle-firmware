@@ -60,9 +60,10 @@ typedef enum CommunicationReceptionistStateTypes {
  */
 typedef struct PackageHeader {
     uint8_t __startBit : 1;
-    uint8_t headerIsStream : 1;
+    uint8_t __headerIsStream : 1;
     uint8_t headerId : 4;
-    uint8_t __pad: 2;
+    uint8_t __parityBit: 1;
+    uint8_t __pad: 1;
 } PackageHeader;
 
 /**
@@ -77,10 +78,10 @@ typedef struct PackageHeader {
  */
 typedef struct AckPackage {
     uint8_t __startBit : 1;
-    uint8_t headerIsStream : 1;
+    uint8_t __headerIsStream : 1;
     uint8_t headerId : 4;
+    uint8_t __parityBit: 1;
     uint8_t enableBroadcast : 1;
-    uint8_t __pad : 1;
 } AckPackage;
 
 /**
@@ -95,9 +96,9 @@ typedef struct AckPackage {
  */
 typedef struct AckWithAddressPackage {
     uint8_t __startBit : 1;
-    uint8_t headerIsStream : 1;
+    uint8_t __headerIsStream : 1;
     uint8_t headerId : 4;
-    uint8_t headerIsCommand : 1;
+    uint8_t __parityBit : 1;
     uint8_t enableBroadcast : 1;
     uint8_t addressRow0 : 8;
     uint8_t addressColumn0 : 8;
@@ -118,7 +119,7 @@ typedef struct AnnounceNetworkGeometryPackage {
     uint8_t __startBit : 1;
     uint8_t headerIsStream : 1;
     uint8_t headerId : 4;
-    uint8_t headerIsCommand : 1;
+    uint8_t __parityBit : 1;
     uint8_t enableBroadcast : 1;
     uint8_t rows : 8;
     uint8_t columns : 8;
@@ -136,9 +137,9 @@ typedef struct AnnounceNetworkGeometryPackage {
  */
 typedef struct SetNetworkGeometryPackage {
     uint8_t __startBit : 1;
-    uint8_t headerIsStream : 1;
+    uint8_t __headerIsStream : 1;
     uint8_t headerId : 4;
-    uint8_t __pad: 1;
+    uint8_t __parityBit: 1;
     uint8_t enableBroadcast : 1;
     uint8_t rows : 8;
     uint8_t columns : 8;
@@ -180,9 +181,9 @@ typedef struct EnumerationPackage {
  */
 typedef struct PackageHeaderAddressRange {
     uint8_t __startBit : 1;
-    uint8_t headerIsStream : 1;
+    uint8_t __headerIsStream : 1;
     uint8_t headerId : 4;
-    uint8_t headerIsCommand : 1;
+    uint8_t __parityBit : 1;
     uint8_t enableBroadcast : 1;
     uint8_t addressRow0 : 8;
     uint8_t addressColumn0 : 8;
@@ -203,9 +204,9 @@ typedef struct PackageHeaderAddressRange {
  */
 typedef struct TimePackage {
     uint8_t __startBit : 1;
-    uint8_t headerIsStream : 1;
+    uint8_t __headerIsStream : 1;
     uint8_t headerId : 4;
-    uint8_t headerIsCommand : 1;
+    uint8_t __parityBit : 1;
     uint8_t enableBroadcast : 1;
     uint16_t time;
     uint16_t packageTransmissionLatency;
