@@ -134,15 +134,11 @@ ISR(TX_TIMER_INTERRUPT_VECT) {
                 case STATE_TYPE_XMISSION_TYPE_ENABLED_TX_RX:
                 case STATE_TYPE_XMISSION_TYPE_ENABLED_TX:
                     if (ParticleAttributes.protocol.isSimultaneousTransmissionEnabled) {
-                        transmit(ParticleAttributes.directionOrientedPorts.simultaneous.txPort,
-                                 simultaneousTxHiImpl,
-                                 simultaneousTxLoImpl);
+                        transmit(&ParticleAttributes.directionOrientedPorts.simultaneous);
                     } else {
-                        transmit(&ParticleAttributes.communication.ports.tx.north, northTxHiImpl,
-                                 northTxLoImpl);
-                        transmit(&ParticleAttributes.communication.ports.tx.east, eastTxHiImpl, eastTxLoImpl);
-                        transmit(&ParticleAttributes.communication.ports.tx.south, southTxHiImpl,
-                                 southTxLoImpl);
+                        transmit(&ParticleAttributes.directionOrientedPorts.north);
+                        transmit(&ParticleAttributes.directionOrientedPorts.east);
+                        transmit(&ParticleAttributes.directionOrientedPorts.south);
                     }
                     scheduleNextTransmission();
                     break;

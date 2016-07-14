@@ -6,12 +6,12 @@
 
 //unsigned char __stuff __attribute__((section(".noinit")));
 
-extern inline int particleLoop(void);
+extern inline void particleLoop(void);
 
 /**
  * A mocked up particle loop. It puts the particle in an initialized reception state.
  */
-inline int particleLoop(void) {
+inline void particleLoop(void) {
     forever {
         particleTick();
     }
@@ -41,6 +41,7 @@ int main(void) {
     __enableReception();
 
     SEI;
-    return particleLoop();
+    particleLoop();
+    return 0;
 }
 

@@ -9,7 +9,6 @@
 #include "uc-core/communication/ManchesterDecodingTypes.h"
 #include "uc-core/discovery/Discovery.h"
 
-
 extern FUNC_ATTRS void executeSynchronizeLocalTimePackage(
         volatile TimePackage *package);//, volatile RxSnapshotBuffer *snapshotBufer);
 /**
@@ -96,6 +95,67 @@ FUNC_ATTRS void executeSetNetworkGeometryPackage(volatile SetNetworkGeometryPack
     updateAndDetermineNodeType();
 }
 
+extern FUNC_ATTRS void __inferLocalEastHeatWiresCommand(volatile HeatWiresPackage *heatWiresPackage);
+/**
+ * infer a local actuation command if package's destination is the east neighbour
+ */
+FUNC_ATTRS void __inferLocalEastHeatWiresCommand(volatile HeatWiresPackage *heatWiresPackage) {
+    if (ParticleAttributes.actuationCommand.executionState == ACTUATION_STATE_TYPE_IDLE) {
+        ParticleAttributes.actuationCommand.actuators.eastLeft = heatWiresPackage->northRight;
+        ParticleAttributes.actuationCommand.actuators.eastRight = heatWiresPackage->northLeft;
+        ParticleAttributes.actuationCommand.actuationStart.periodTimeStamp = heatWiresPackage->startTimeStamp;
+        ParticleAttributes.actuationCommand.actuationEnd.periodTimeStamp =
+                heatWiresPackage->startTimeStamp + heatWiresPackage->duration;
+        ParticleAttributes.actuationCommand.isScheduled = true;
+    }
+}
+
+
+extern FUNC_ATTRS void __inferLocalSouthHeatWiresCommand(volatile HeatWiresPackage *heatWiresPackage);
+/**
+ * infer a local actuation command if package's destination is the south neighbour
+ */
+FUNC_ATTRS void __inferLocalSouthHeatWiresCommand(volatile HeatWiresPackage *heatWiresPackage) {
+    if (ParticleAttributes.actuationCommand.executionState == ACTUATION_STATE_TYPE_IDLE) {
+        ParticleAttributes.actuationCommand.actuators.southLeft = heatWiresPackage->northRight;
+        ParticleAttributes.actuationCommand.actuators.southRight = heatWiresPackage->northLeft;
+        ParticleAttributes.actuationCommand.actuationStart.periodTimeStamp = heatWiresPackage->startTimeStamp;
+        ParticleAttributes.actuationCommand.actuationEnd.periodTimeStamp =
+                heatWiresPackage->startTimeStamp + heatWiresPackage->duration;
+        ParticleAttributes.actuationCommand.isScheduled = true;
+    }
+}
+
+extern FUNC_ATTRS void __volatileSramMemcopy(volatile void *source, volatile void *destination,
+                                             uint8_t numBytes);
+/**
+ * Copies numBytes from source to destination.
+ */
+FUNC_ATTRS void __volatileSramMemcopy(volatile void *source, volatile void *destination,
+                                      uint8_t numBytes) {
+    for (uint8_t idx = 0; idx <= numBytes; idx++) {
+        ((uint8_t *) destination)[idx] = ((uint8_t *) source)[idx];
+    }
+}
+
+extern FUNC_ATTRS void __prepareRelayHeatWiresPackage(volatile HeatWiresPackage *heatWiresPackage,
+                                                      volatile DirectionOrientedPort *port,
+                                                      StateType endState);
+/**
+ * duplicates heat wires command package and prepares for transmission start
+ */
+FUNC_ATTRS void __prepareRelayHeatWiresPackage(volatile HeatWiresPackage *heatWiresPackage,
+                                               volatile DirectionOrientedPort *port, StateType endState) {
+    clearTransmissionPortBuffer(port->txPort);
+    __volatileSramMemcopy(heatWiresPackage, &port->txPort->buffer.bytes,
+                          (uint8_t) (HeatWiresPackageBufferPointerSize & 0x00ff));
+    setBufferDataEndPointer(port->txPort->dataEndPos, HeatWiresPackageBufferPointerSize);
+    setInitiatorStateStart(port->protocol);
+    ParticleAttributes.protocol.isBroadcastEnabled = false;
+    ParticleAttributes.protocol.isSimultaneousTransmissionEnabled = false;
+    ParticleAttributes.node.state = endState;
+}
+
 
 extern FUNC_ATTRS void executeHeatWiresPackage(volatile HeatWiresPackage *heatWiresPackage);
 /**
@@ -103,22 +163,47 @@ extern FUNC_ATTRS void executeHeatWiresPackage(volatile HeatWiresPackage *heatWi
  */
 FUNC_ATTRS void executeHeatWiresPackage(volatile HeatWiresPackage *heatWiresPackage) {
 
-    if (!ParticleAttributes.protocol.isBroadcastEnabled) {
-        // TODO: infer local actuation command if package designated for neighbour
-        // TODO: route package if currently not in broadcast mode
-    }
-
-    if (ParticleAttributes.actuationCommand.executionState == ACTUATION_STATE_TYPE_IDLE) {
+    if (ParticleAttributes.node.address.row == heatWiresPackage->addressRow0 &&
+        ParticleAttributes.node.address.column == heatWiresPackage->addressColumn0 &&
+        ParticleAttributes.actuationCommand.executionState == ACTUATION_STATE_TYPE_IDLE) {
+        // on package reached destination: consume package
         ParticleAttributes.actuationCommand.actuators.northLeft = heatWiresPackage->northLeft;
         ParticleAttributes.actuationCommand.actuators.northRight = heatWiresPackage->northRight;
-        ParticleAttributes.actuationCommand.actuators.eastLeft = heatWiresPackage->eastLeft;
-        ParticleAttributes.actuationCommand.actuators.eastRight = heatWiresPackage->eastRight;
-        ParticleAttributes.actuationCommand.actuators.southLeft = heatWiresPackage->southLeft;
-        ParticleAttributes.actuationCommand.actuators.southRight = heatWiresPackage->southRight;
         ParticleAttributes.actuationCommand.actuationStart.periodTimeStamp = heatWiresPackage->startTimeStamp;
         ParticleAttributes.actuationCommand.actuationEnd.periodTimeStamp =
                 heatWiresPackage->startTimeStamp + heatWiresPackage->duration;
         ParticleAttributes.protocol.isBroadcastEnabled = heatWiresPackage->enableBroadcast;
         ParticleAttributes.actuationCommand.isScheduled = true;
+    } else if (!ParticleAttributes.protocol.isBroadcastEnabled) {
+        // on package forwarding
+        if (ParticleAttributes.node.address.row + 1 == heatWiresPackage->addressRow0 &&
+            ParticleAttributes.node.address.column == heatWiresPackage->addressColumn0) {
+            // on package destination equals south neighbour:
+            // infer local command, forward package
+            __inferLocalSouthHeatWiresCommand(heatWiresPackage);
+            __prepareRelayHeatWiresPackage(
+                    (volatile HeatWiresPackage *) &ParticleAttributes.directionOrientedPorts.north.rxPort->buffer.bytes,
+                    &ParticleAttributes.directionOrientedPorts.south, STATE_TYPE_SENDING_PACKAGE_TO_SOUTH);
+
+        } else if (ParticleAttributes.node.address.row == heatWiresPackage->addressRow0 &&
+                   ParticleAttributes.node.address.column + 1 == heatWiresPackage->addressColumn0) {
+            // on package destination equals east neighbour:
+            // infer local command, forward package
+            __inferLocalEastHeatWiresCommand(heatWiresPackage);
+            __prepareRelayHeatWiresPackage(
+                    (volatile HeatWiresPackage *) &ParticleAttributes.directionOrientedPorts.north.rxPort->buffer.bytes,
+                    &ParticleAttributes.directionOrientedPorts.east, STATE_TYPE_SENDING_PACKAGE_TO_EAST);
+        }
+        else if (ParticleAttributes.node.address.column < heatWiresPackage->addressColumn0) {
+            // on route package to east: forward package
+            __prepareRelayHeatWiresPackage(
+                    (volatile HeatWiresPackage *) &ParticleAttributes.directionOrientedPorts.north.rxPort->buffer.bytes,
+                    &ParticleAttributes.directionOrientedPorts.east, STATE_TYPE_SENDING_PACKAGE_TO_EAST);
+        } else if (ParticleAttributes.node.address.row < heatWiresPackage->addressRow0) {
+            // on route package to south: forward package
+            __prepareRelayHeatWiresPackage(
+                    (volatile HeatWiresPackage *) &ParticleAttributes.directionOrientedPorts.north.rxPort->buffer.bytes,
+                    &ParticleAttributes.directionOrientedPorts.south, STATE_TYPE_SENDING_PACKAGE_TO_SOUTH);
+        }
     }
 }

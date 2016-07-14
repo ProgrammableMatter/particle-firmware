@@ -6,107 +6,52 @@
 
 #include "ManchesterDecodingTypes.h"
 
-extern FUNC_ATTRS void __rectifyTransmissionBit(volatile TxPort *txPort, void (*txHiImpl)(void),
-                                                void (*txLoImpl)(void));
+extern FUNC_ATTRS void __rectifyTransmissionBit(volatile DirectionOrientedPort *port);
 /**
  * rectifies/modulates the transmission signal according to the upcoming bit
  */
-FUNC_ATTRS void __rectifyTransmissionBit(volatile TxPort *txPort, void (*txHiImpl)(void),
-                                         void (*txLoImpl)(void)) {
+FUNC_ATTRS void __rectifyTransmissionBit(volatile DirectionOrientedPort *port) {
 
-    if (isDataEndPosition(txPort)) { // on tx pointer match end position
-        txLoImpl(); // return signal to default (inverted at receiver side)
-        txPort->isTransmitting = false;
+    if (isDataEndPosition(port->txPort)) { // on tx pointer match end position
+        port->txLowPimpl(); // return signal to default (inverted at receiver side)
+        port->txPort->isTransmitting = false;
     } else {
-        if (txPort->buffer.pointer.bitMask &
-            txPort->buffer.bytes[txPort->buffer.pointer.byteNumber]) {
-            txHiImpl();
+        if (port->txPort->buffer.pointer.bitMask &
+            port->txPort->buffer.bytes[port->txPort->buffer.pointer.byteNumber]) {
+            port->txHighPimpl();
         } else {
-            txLoImpl();
+            port->txLowPimpl();
         }
     }
 }
 
-extern FUNC_ATTRS void __modulateTransmissionBit(volatile TxPort *txPort, void (*txHiImpl)(void),
-                                                 void (*txLoImpl)(void));
+extern FUNC_ATTRS void __modulateTransmissionBit(volatile DirectionOrientedPort *port);
 /**
  * modulates the transmission signal according to the current bit and increments the buffer pointer
  */
-FUNC_ATTRS void __modulateTransmissionBit(volatile TxPort *txPort, void (*txHiImpl)(void),
-                                          void (*txLoImpl)(void)) {
-    if (txPort->buffer.pointer.bitMask &
-        txPort->buffer.bytes[txPort->buffer.pointer.byteNumber]) {
-        txLoImpl();
+FUNC_ATTRS void __modulateTransmissionBit(volatile DirectionOrientedPort *port) {
+    if (port->txPort->buffer.pointer.bitMask &
+        port->txPort->buffer.bytes[port->txPort->buffer.pointer.byteNumber]) {
+        port->txLowPimpl();
     } else {
-        txHiImpl();
+        port->txHighPimpl();
     }
-    bufferBitPointerIncrement(&txPort->buffer.pointer);
+    bufferBitPointerIncrement(&port->txPort->buffer.pointer);
 }
 
-
-extern FUNC_ATTRS void northTxHiImpl(void);
-
-FUNC_ATTRS void northTxHiImpl(void) {
-    NORTH_TX_HI;
-}
-
-extern FUNC_ATTRS void northTxLoImpl(void);
-
-FUNC_ATTRS void northTxLoImpl(void) {
-    NORTH_TX_LO;
-}
-
-extern FUNC_ATTRS void eastTxHiImpl(void);
-
-FUNC_ATTRS void eastTxHiImpl(void) {
-    EAST_TX_HI;
-}
-
-extern FUNC_ATTRS void southTxHiImpl(void);
-
-FUNC_ATTRS void southTxHiImpl(void) {
-    SOUTH_TX_HI;
-}
-
-extern FUNC_ATTRS void southTxLoImpl(void);
-
-FUNC_ATTRS void southTxLoImpl(void) {
-    SOUTH_TX_LO;
-}
-
-extern FUNC_ATTRS void eastTxLoImpl(void);
-
-FUNC_ATTRS void eastTxLoImpl(void) {
-    EAST_TX_LO;
-}
-
-extern FUNC_ATTRS void simultaneousTxLoImpl(void);
-
-FUNC_ATTRS void simultaneousTxLoImpl(void) {
-    EAST_TX_LO;
-    SOUTH_TX_LO;
-}
-
-extern FUNC_ATTRS void simultaneousTxHiImpl(void);
-
-FUNC_ATTRS void simultaneousTxHiImpl(void) {
-    EAST_TX_HI;
-    SOUTH_TX_HI;
-}
-
-extern FUNC_ATTRS void transmit(volatile TxPort *txPort, void (*txHiImpl)(void), void (*txLoImpl)(void));
+extern FUNC_ATTRS void transmit(volatile DirectionOrientedPort *port);
 /**
  * puts the the next signal on the pin
  */
-FUNC_ATTRS void transmit(volatile TxPort *txPort, void (*txHiImpl)(void), void (*txLoImpl)(void)) {
-    if (!txPort->isDataBuffered || !txPort->isTransmitting) {
+FUNC_ATTRS void transmit(volatile DirectionOrientedPort *port) {
+    if (!port->txPort->isDataBuffered || !port->txPort->isTransmitting) {
         return;
     }
 
-    if (txPort->isTxClockPhase) {
-        __rectifyTransmissionBit(txPort, txHiImpl, txLoImpl);
+    if (port->txPort->isTxClockPhase) {
+        __rectifyTransmissionBit(port);
     } else {
-        __modulateTransmissionBit(txPort, txHiImpl, txLoImpl);
+        __modulateTransmissionBit(port);
     }
-    txPort->isTxClockPhase++;
+    port->txPort->isTxClockPhase++;
 }

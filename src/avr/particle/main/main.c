@@ -5,7 +5,8 @@
 #include <uc-core/particle/ParticleLoop.h>
 
 int main(void) {
-    return particleLoop();
+    particleLoop();
+    return 0;
 }
 
 

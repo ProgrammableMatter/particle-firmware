@@ -9,6 +9,7 @@
 #include "uc-core/actuation/ActuationTypesCtors.h"
 #include "uc-core/time/TimeTypesCtors.h"
 #include "PointerImplementation.h"
+#include "uc-core/communication/PointerImplementation.h"
 
 extern void constructTimerCounterAdjustment(volatile TimerCounterAdjustment *o);
 
@@ -71,6 +72,8 @@ extern CTOR_ATTRS void constructDirectionOrientedPort(volatile DirectionOriented
                                                       volatile TxPort *txPort,
                                                       volatile RxPort *rxPort,
                                                       void (receivePimpl)(void),
+                                                      void (txHighPimpl)(void),
+                                                      void (txLowPimpl)(void),
                                                       volatile CommunicationProtocolPortState *protocolState);
 
 /**
@@ -81,11 +84,15 @@ void CTOR_ATTRS constructDirectionOrientedPort(volatile DirectionOrientedPort *o
                                                volatile TxPort *txPort,
                                                volatile RxPort *rxPort,
                                                void (receivePimpl)(void),
+                                               void (txHighPimpl)(void),
+                                               void (txLowPimpl)(void),
                                                volatile CommunicationProtocolPortState *protocolState) {
     o->discoveryPulseCounter = (DiscoveryPulseCounter *) discoveryPulseCounter;
     o->rxPort = (RxPort *) rxPort;
     o->txPort = (TxPort *) txPort;
-    o->receive = receivePimpl;
+    o->receivePimpl = receivePimpl;
+    o->txHighPimpl = txHighPimpl;
+    o->txLowPimpl = txLowPimpl;
     o->protocol = (CommunicationProtocolPortState *) protocolState;
 }
 
@@ -100,24 +107,32 @@ void CTOR_ATTRS constructDirectionOrientedPorts(volatile DirectionOrientedPorts 
                                    &ParticleAttributes.communication.ports.tx.north,
                                    &ParticleAttributes.communication.ports.rx.north,
                                    receiveNorth,
+                                   northTxHiImpl,
+                                   northTxLoImpl,
                                    &ParticleAttributes.protocol.ports.north);
     constructDirectionOrientedPort(&o->east,
                                    &ParticleAttributes.discoveryPulseCounters.east,
                                    &ParticleAttributes.communication.ports.tx.east,
                                    &ParticleAttributes.communication.ports.rx.east,
                                    receiveEast,
+                                   eastTxHiImpl,
+                                   eastTxLoImpl,
                                    &ParticleAttributes.protocol.ports.east);
     constructDirectionOrientedPort(&o->south,
                                    &ParticleAttributes.discoveryPulseCounters.south,
                                    &ParticleAttributes.communication.ports.tx.south,
                                    &ParticleAttributes.communication.ports.rx.south,
                                    receiveSouth,
+                                   southTxHiImpl,
+                                   southTxLoImpl,
                                    &ParticleAttributes.protocol.ports.south);
     constructDirectionOrientedPort(&o->simultaneous,
                                    &ParticleAttributes.discoveryPulseCounters.east,
                                    &ParticleAttributes.communication.ports.tx.east,
                                    &ParticleAttributes.communication.ports.rx.east,
                                    receiveEast,
+                                   simultaneousTxHiImpl,
+                                   simultaneousTxLoImpl,
                                    &ParticleAttributes.protocol.ports.east);
 }
 

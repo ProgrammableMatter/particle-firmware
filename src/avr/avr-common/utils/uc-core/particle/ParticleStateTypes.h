@@ -68,6 +68,15 @@ typedef enum StateType {
     // working state when actuation command is executed
             STATE_TYPE_EXECUTE_ACTUATION_COMMAND,
 
+    // working state when transmitting package to north
+            STATE_TYPE_SENDING_PACKAGE_TO_NORTH,
+    // working state when transmitting package to east
+            STATE_TYPE_SENDING_PACKAGE_TO_EAST,
+    // working state while transmitting package to east and south simultaneously
+            STATE_TYPE_SENDING_PACKAGE_TO_EAST_AND_SOUTH,
+    // working state while transmitting package to south
+            STATE_TYPE_SENDING_PACKAGE_TO_SOUTH,
+
     // working state when waiting for commands or executing scheduled tasks
             STATE_TYPE_IDLE,
     // erroneous machine state
@@ -186,7 +195,12 @@ typedef struct DirectionOrientedPort {
     /**
      * pointer implementation: decode and interpret reception
      */
-    void (*receive)(void);
+    void (*receivePimpl)(void);
+
+    void (*txHighPimpl)(void);
+
+    void (*txLowPimpl)(void);
+
     /**
      * comm. protocol related
      */

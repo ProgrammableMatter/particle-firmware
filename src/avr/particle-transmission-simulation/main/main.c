@@ -6,11 +6,11 @@
 
 //unsigned char __stuff __attribute__((section(".noinit")));
 
-extern FUNC_ATTRS int particleLoop(void);
+extern FUNC_ATTRS void particleLoop(void);
 /**
  * A mocked up particle loop. It puts the particle in an initialized reception state.
  */
-FUNC_ATTRS int particleLoop(void) {
+FUNC_ATTRS void particleLoop(void) {
     forever {
         particleTick();
     }
@@ -66,6 +66,7 @@ int main(void) {
 //    TIMER_TX_RX_DISABLE_COMPARE_INTERRUPT;
 //    ParticleAttributes.node.state = STATE_TYPE_STALE;
     forever;
+    return 0;
 }
 
 

@@ -23,7 +23,7 @@ CTOR_ATTRS void constructEnumeratePackage(volatile TxPort *txPort, uint8_t local
                                           uint8_t localAddressColumn) {
     Package *package = (Package *) txPort->buffer.bytes;
 
-    package->asEnumerationPackage.__startBit = 1;
+    package->asEnumerationPackage.startBit = 1;
 
     // on local bread crumb available or origin node
     if (ParticleAttributes.protocol.hasNetworkGeometryDiscoveryBreadCrumb
@@ -50,7 +50,7 @@ extern CTOR_ATTRS void constructEnumerationACKPackage(volatile TxPort *txPort);
  */
 CTOR_ATTRS void constructEnumerationACKPackage(volatile TxPort *txPort) {
     Package *package = (Package *) txPort->buffer.bytes;
-    package->asACKPackage.__startBit = 1;
+    package->asACKPackage.startBit = 1;
     package->asACKPackage.enableBroadcast = true;
     package->asACKPackage.headerId = PACKAGE_HEADER_ID_TYPE_ACK;
     setBufferDataEndPointer(txPort->dataEndPos, AckPackagePointerSize);
@@ -63,7 +63,7 @@ extern CTOR_ATTRS void constructEnumerationACKWithAddressToParentPackage(void);
  */
 CTOR_ATTRS void constructEnumerationACKWithAddressToParentPackage(void) {
     Package *package = (Package *) ParticleAttributes.communication.ports.tx.north.buffer.bytes;
-    package->asACKWithLocalAddress.__startBit = 1;
+    package->asACKWithLocalAddress.startBit = 1;
     package->asACKWithLocalAddress.headerId = PACKAGE_HEADER_ID_TYPE_ACK_WITH_DATA;
     package->asACKWithLocalAddress.addressRow0 = ParticleAttributes.node.address.row;
     package->asACKWithLocalAddress.addressColumn0 = ParticleAttributes.node.address.column;
@@ -77,9 +77,10 @@ extern CTOR_ATTRS void constructSyncTimePackage(volatile TxPort *txPort);
  */
 CTOR_ATTRS void constructSyncTimePackage(volatile TxPort *txPort) {
     Package *package = (Package *) txPort->buffer.bytes;
-    package->asSyncTimePackage.__startBit = 1;
+    package->asSyncTimePackage.startBit = 1;
     package->asSyncTimePackage.headerId = PACKAGE_HEADER_ID_TYPE_SYNC_TIME;
-    package->asSyncTimePackage.enableBroadcast = true;
+//    package->asSyncTimePackage.enableBroadcast = true;
+    package->asSyncTimePackage.enableBroadcast = false;
     package->asSyncTimePackage.time = TIMER_TX_RX_COUNTER_VALUE;
     package->asSyncTimePackage.packageTransmissionLatency = COMMUNICATION_PROTOCOL_TIME_SYNCHRONIZATION_PACKAGE_RECEPTION_DURATION;
     package->asSyncTimePackage.stuffing = 0x5555;
@@ -93,7 +94,7 @@ extern CTOR_ATTRS void constructAnnounceNetworkGeometryPackage(uint8_t row, uint
  */
 CTOR_ATTRS void constructAnnounceNetworkGeometryPackage(uint8_t row, uint8_t column) {
     Package *package = (Package *) &ParticleAttributes.communication.ports.tx.north.buffer.bytes;
-    package->asAnnounceNetworkGeometryPackage.__startBit = 1;
+    package->asAnnounceNetworkGeometryPackage.startBit = 1;
     package->asAnnounceNetworkGeometryPackage.headerId = PACKAGE_HEADER_ID_TYPE_NETWORK_GEOMETRY_RESPONSE;
     package->asAnnounceNetworkGeometryPackage.enableBroadcast = true;
     package->asAnnounceNetworkGeometryPackage.rows = row;
@@ -110,7 +111,7 @@ extern CTOR_ATTRS void constructSetNetworkGeometryPackage(volatile TxPort *txPor
  */
 CTOR_ATTRS void constructSetNetworkGeometryPackage(volatile TxPort *txPort, uint8_t row, uint8_t column) {
     Package *package = (Package *) &txPort->buffer.bytes;
-    package->asSetNetworkGeometryPackage.__startBit = 1;
+    package->asSetNetworkGeometryPackage.startBit = 1;
     package->asSetNetworkGeometryPackage.headerId = PACKAGE_HEADER_ID_TYPE_SET_NETWORK_GEOMETRY;
     package->asSetNetworkGeometryPackage.enableBroadcast = true;
     package->asSetNetworkGeometryPackage.rows = row;
@@ -118,17 +119,28 @@ CTOR_ATTRS void constructSetNetworkGeometryPackage(volatile TxPort *txPort, uint
     setBufferDataEndPointer(txPort->dataEndPos, SetNetworkGeometryPackageBufferPointerSize);
 }
 
-extern FUNC_ATTRS void constructHeatWiresPackage(volatile TxPort *txPort, uint16_t startTimeStamp,
+extern FUNC_ATTRS void constructHeatWiresPackage(volatile TxPort *txPort,
+                                                 NodeAddress *address,
+                                                 Actuators *wires,
+                                                 uint16_t startTimeStamp,
                                                  uint16_t duration);
 /**
  * constructor function: builds the protocol package at the given port's buffer
  */
-FUNC_ATTRS void constructHeatWiresPackage(volatile TxPort *txPort, uint16_t startTimeStamp,
+FUNC_ATTRS void constructHeatWiresPackage(volatile TxPort *txPort, NodeAddress *address,
+                                          Actuators *wires,
+                                          uint16_t startTimeStamp,
                                           uint16_t duration) {
     Package *package = (Package *) txPort->buffer.bytes;
-    package->asHeatWiresPackage.__startBit = 1;
+    package->asHeatWiresPackage.startBit = 1;
     package->asHeatWiresPackage.headerId = PACKAGE_HEADER_ID_TYPE_HEAT_WIRES;
     package->asHeatWiresPackage.enableBroadcast = false;
+    package->asHeatWiresPackage.addressRow0 = address->row;
+    package->asHeatWiresPackage.addressColumn0 = address->column;
     package->asHeatWiresPackage.startTimeStamp = startTimeStamp;
-    package->asHeatWiresPackage.duration = duration;
+    package->asHeatWiresPackage.duration = duration & 0x00ff;
+    package->asHeatWiresPackage.durationMsb = duration & 0x0300;
+    package->asHeatWiresPackage.northLeft = wires->northLeft;
+    package->asHeatWiresPackage.northRight = wires->northRight;
+    setBufferDataEndPointer(txPort->dataEndPos, HeatWiresPackageBufferPointerSize);
 }
