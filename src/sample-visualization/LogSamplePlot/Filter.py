@@ -164,10 +164,14 @@ class Filter:
                     doubleValue = self.__toDoubleValue(state)
                     if doubleValue == None:
                         print("warn: no value mapping for [%s][%s][%s]=%s" % (nodeId,domain,name,state))
-                    else:
-                        sampleAsTuple = Sample.toTuple(Sample(picoSeconds, doubleValue, state))
-                        self.nodeIdToDomainToNameToSamples[nodeId][domain][name].append(sampleAsTuple)
-                        # print("%s == %s" % (SampleFilter.toString(sampleFilter), state))
+                        if len(lastSample) == 1 and Sample.fromTuple(lastSample[0]).value == 0:
+                            doubleValue = 1
+                        else:
+                            doubleValue = 0
+
+                    sampleAsTuple = Sample.toTuple(Sample(picoSeconds, doubleValue, state))
+                    self.nodeIdToDomainToNameToSamples[nodeId][domain][name].append(sampleAsTuple)
+                    # print("%s == %s" % (SampleFilter.toString(sampleFilter), state))
 
     def __timeStampToPicoSeconds(self, matchedTimeStampRegexpGroups):
         """

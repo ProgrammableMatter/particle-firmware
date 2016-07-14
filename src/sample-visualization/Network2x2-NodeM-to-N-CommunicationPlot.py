@@ -86,7 +86,33 @@ if __name__ == "__main__":
     annotations = pltr.reMapAnnotation(annotations, charOutToHumanReadableAnnotation)
     dataPlotter.addPlot(xData, yData, annotations, "[3] node states")
 
+    #
+    #
+    #
+    #
+    #
+    #
+    #
 
+    sramFilter = fltr.SampleFilter(domain="SRAM", name="Particle.node.state", nodeId=0)
+    dataFilter.filter(sramFilter)
+    xData, yData, annotations = dataFilter.getData(sramFilter)
+    dataPlotter.addPlot(xData, yData, annotations, "[%s] Particle.node.state" % sramFilter.nodeId)
+
+    sramFilter = fltr.SampleFilter(domain="SRAM", name="Particle.node.state", nodeId=1)
+    dataFilter.filter(sramFilter)
+    xData, yData, annotations = dataFilter.getData(sramFilter)
+    dataPlotter.addPlot(xData, yData, annotations, "[%s] Particle.node.state" % sramFilter.nodeId)
+
+    sramFilter = fltr.SampleFilter(domain="SRAM", name="Particle.node.state", nodeId=2)
+    dataFilter.filter(sramFilter)
+    xData, yData, annotations = dataFilter.getData(sramFilter)
+    dataPlotter.addPlot(xData, yData, annotations, "[%s] Particle.node.state" % sramFilter.nodeId)
+
+    sramFilter = fltr.SampleFilter(domain="SRAM", name="Particle.node.state", nodeId=3)
+    dataFilter.filter(sramFilter)
+    xData, yData, annotations = dataFilter.getData(sramFilter)
+    dataPlotter.addPlot(xData, yData, annotations, "[%s] Particle.node.state" % sramFilter.nodeId)
 
     dataPlotter.setWindowTitle("Network 2x2 Simulation")
     dataFilter.printValues()
