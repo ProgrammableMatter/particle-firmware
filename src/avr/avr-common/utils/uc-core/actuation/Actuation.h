@@ -42,6 +42,12 @@ FUNC_ATTRS void handleExecuteActuation(void (actuationDoneCallback)(void)) {
         case ACTUATION_STATE_TYPE_DONE:
             // disable pwm interrupt
             ParticleAttributes.actuationCommand.isScheduled = false;
+            ParticleAttributes.actuationCommand.actuators.northLeft = false;
+            ParticleAttributes.actuationCommand.actuators.northRight = false;
+            ParticleAttributes.actuationCommand.actuators.eastLeft = false;
+            ParticleAttributes.actuationCommand.actuators.eastRight = false;
+            ParticleAttributes.actuationCommand.actuators.southLeft = false;
+            ParticleAttributes.actuationCommand.actuators.southRight = false;
             actuationCommand->executionState = ACTUATION_STATE_TYPE_IDLE;
             actuationDoneCallback();
 //            DEBUG_CHAR_OUT('Y');

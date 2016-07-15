@@ -62,7 +62,7 @@ inline void initTransmission(void) {
     ParticleAttributes.node.type = NODE_TYPE_MASTER;
 
     bufferBitPointerStart(&ParticleAttributes.communication.ports.tx.south.buffer.pointer);
-    ParticleAttributes.communication.ports.tx.south.dataEndPos.byteNumber = 7;
+    ParticleAttributes.communication.ports.tx.south.dataEndPos.byteNumber = 8;
     ParticleAttributes.communication.ports.tx.south.dataEndPos.bitMask = 0x1;
 
     // the bytes to transmit
@@ -73,6 +73,7 @@ inline void initTransmission(void) {
     ParticleAttributes.communication.ports.tx.south.buffer.bytes[4] = 0b10101010;
     ParticleAttributes.communication.ports.tx.south.buffer.bytes[5] = 0b01111110;
     ParticleAttributes.communication.ports.tx.south.buffer.bytes[6] = 0b00100110;
+    ParticleAttributes.communication.ports.tx.south.buffer.bytes[7] = 0b01010110;
 
     SOUTH_TX_SETUP;
     // return signal to default (locally low means high at receiver side)

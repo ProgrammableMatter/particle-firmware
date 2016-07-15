@@ -5,7 +5,8 @@
 #pragma once
 
 #include "Globals.h"
-#include "uc-core/communication-protocol/CommunicationProtocol.h"
+//#include "uc-core/communication-protocol/CommunicationProtocol.h"
+#include "uc-core/communication-protocol/Commands.h"
 #include "uc-core/communication-protocol/CommunicationProtocolPackageCtors.h"
 
 extern FUNC_ATTRS void setNewNetworkGeometry(void);
@@ -112,37 +113,77 @@ FUNC_ATTRS void handleEnumerateNeighbour(volatile DirectionOrientedPort *port,
 }
 
 
-extern FUNC_ATTRS void sendHeatWire(NodeAddress *nodeAddress, Actuators *wires, uint16_t timeStamp,
-                                    uint16_t duration);
+extern FUNC_ATTRS void sendHeatWires(NodeAddress *nodeAddress, Actuators *wires, uint16_t timeStamp,
+                                     uint16_t duration);
 /**
- * Constructs a heat wire command and puts the particle into sending mode.
+ * Constructs a heat wires command and puts the particle into sending mode.
  * Destination addresses must be route-able from this node on. That means
  * i) the destination must be in same column but row is greater than current node's row or
  * ii) the destination resides in a different column but the current row equals 1.
  * Otherwise the request is skipped.
  */
-FUNC_ATTRS void sendHeatWire(NodeAddress *nodeAddress, Actuators *wires, uint16_t timeStamp,
-                             uint16_t duration) {
-    if (nodeAddress->column > ParticleAttributes.node.address.column &&
-        ParticleAttributes.node.address.row == 1) {
-        // on package port destination equals east
-        ParticleAttributes.protocol.isSimultaneousTransmissionEnabled = false;
-        clearTransmissionPortBuffer(ParticleAttributes.directionOrientedPorts.east.txPort);
-        setInitiatorStateStart(ParticleAttributes.directionOrientedPorts.east.protocol);
-        constructHeatWiresPackage(ParticleAttributes.directionOrientedPorts.east.txPort,
-                                  nodeAddress, wires, timeStamp, duration);
-        ParticleAttributes.node.state = STATE_TYPE_SENDING_PACKAGE_TO_EAST;
-        enableTransmission(ParticleAttributes.directionOrientedPorts.east.txPort);
-    } else if (nodeAddress->column == ParticleAttributes.node.address.column &&
-               nodeAddress->row > ParticleAttributes.node.address.row) {
-        // on package port destination equals south
-        ParticleAttributes.protocol.isSimultaneousTransmissionEnabled = false;
-        clearTransmissionPortBuffer(ParticleAttributes.directionOrientedPorts.south.txPort);
-        setInitiatorStateStart(ParticleAttributes.directionOrientedPorts.south.protocol);
-        constructHeatWiresPackage(ParticleAttributes.directionOrientedPorts.south.txPort,
-                                  nodeAddress, wires, timeStamp, duration);
-        ParticleAttributes.node.state = STATE_TYPE_SENDING_PACKAGE_TO_SOUTH;
-        enableTransmission(ParticleAttributes.directionOrientedPorts.south.txPort);
+FUNC_ATTRS void sendHeatWires(NodeAddress *nodeAddress, Actuators *wires, uint16_t timeStamp,
+                              uint16_t duration) {
+    if (ParticleAttributes.node.address.row > nodeAddress->row &&
+        ParticleAttributes.node.address.column > nodeAddress->column) {
+        // illegal address
+        return;
     }
-    // else skip request
+
+    TxPort temporaryPackagePort;
+    constructHeatWiresPackage(&temporaryPackagePort, nodeAddress,
+                              wires, timeStamp, duration);
+    // interpret the constructed package
+    executeHeatWiresPackage((HeatWiresPackage *) temporaryPackagePort.buffer.bytes);
+}
+
+
+FUNC_ATTRS void sendHeatWiresRange(NodeAddress *nodeAddressTopLeft, NodeAddress *nodeAddressBottomRight,
+                                   Actuators *wires, uint16_t timeStamp,
+                                   uint16_t duration);
+/**
+ * Constructs a heat wires range command and puts the particle into sending mode. The
+ * rectangular range span is defined by the first address (left top) and second address (bottom right).
+ * It must span at least two nodes. The top left address must be route-able from this node on. That means
+ * i) the top left address must be in same column but row is greater than current node's row or
+ * ii) the top left address resides in a different column but the current row equals 1.
+ * Otherwise the request is skipped.
+ */
+FUNC_ATTRS void sendHeatWiresRange(NodeAddress *nodeAddressTopLeft, NodeAddress *nodeAddressBottomRight,
+                                   Actuators *wires, uint16_t timeStamp,
+                                   uint16_t duration) {
+
+    if (nodeAddressBottomRight->row < nodeAddressTopLeft->row ||
+        nodeAddressBottomRight->column < nodeAddressTopLeft->column) {
+        // illegal range defined
+        return;
+    }
+    if (((nodeAddressBottomRight->row - nodeAddressTopLeft->row) +
+         (nodeAddressBottomRight->column - nodeAddressTopLeft->column)) < 1) {
+        // illegal range defined
+        return;
+    }
+
+    if (ParticleAttributes.node.address.row != 1 &&
+        (nodeAddressTopLeft->column != ParticleAttributes.node.address.column ||
+         nodeAddressBottomRight->column != ParticleAttributes.node.address.column)) {
+        // not route-able top left address
+        return;
+    }
+
+    if (nodeAddressTopLeft->row < ParticleAttributes.node.address.row ||
+        nodeAddressTopLeft->column < ParticleAttributes.node.address.column) {
+        // not route-able top left address
+        return;
+    }
+
+    // @ pre: range spans at least 2 nodes
+    // @ pre: top left is route-able from this node
+
+//    TxPort temporaryPackagePort;
+    constructHeatWiresRangePackage(ParticleAttributes.directionOrientedPorts.north.txPort, nodeAddressTopLeft,
+                                   nodeAddressBottomRight, wires, timeStamp, duration);
+    // interpret the constructed package
+    executeHeatWiresRangePackage(
+            (HeatWiresRangePackage *) ParticleAttributes.directionOrientedPorts.north.txPort->buffer.bytes);
 }

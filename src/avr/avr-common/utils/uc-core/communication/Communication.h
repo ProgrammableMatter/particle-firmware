@@ -19,7 +19,7 @@
 
 extern FUNC_ATTRS void bufferBitPointerIncrement(volatile BufferBitPointer *o);
 /**
- * Increments the bit mask and the byte number accordingly. Does not verify the buffer boundary.
+ * Increments the bit mask and the byte number accordingly.
  */
 FUNC_ATTRS void bufferBitPointerIncrement(volatile BufferBitPointer *o) {
     o->bitMask <<= 1;

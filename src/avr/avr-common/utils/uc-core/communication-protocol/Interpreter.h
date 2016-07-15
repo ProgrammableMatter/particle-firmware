@@ -81,6 +81,11 @@ FUNC_ATTRS void __interpretReceivedPackage(volatile DirectionOrientedPort *port)
             clearReceptionPortBuffer(port->rxPort);
             break;
 
+        case PACKAGE_HEADER_ID_TYPE_HEAT_WIRES_RANGE:
+            executeHeatWiresRangePackage(&package->asHeatWiresRangePackage);
+            clearReceptionPortBuffer(port->rxPort);
+            break;
+
         default:
             DEBUG_CHAR_OUT('u');
             clearReceptionPortBuffer(port->rxPort);

@@ -49,19 +49,20 @@
  * Number of buffer bytes for reception and transmission. Received snapshots are decoded to
  * the reception buffer. Data to be sent is read from the transmission buffer.
  */
-#define TX_RX_NUMBER_BUFFER_BYTES 7
+#define TX_RX_NUMBER_BUFFER_BYTES 9
 
 /**
  * Size of reception snapshot buffer per port.
  */
-// 100% snapshots buffer of TX_RX_NUMBER_BUFFER_BYTES
+// 88% snapshots buffer of 8 byte
 //#define RX_NUMBER_SNAPSHOTS 114
-// 75% snapshots buffer
+// 65% snapshots buffer of 8 byte
 //#define RX_NUMBER_SNAPSHOTS 85
-// 50% snapshots buffer
-//#define RX_NUMBER_SNAPSHOTS 57
-// 25% snapshots buffer
-#define RX_NUMBER_SNAPSHOTS 28
-// 13% snapshots buffer
+// 44% snapshots buffer of 8 byte
+// TODO: find lower snapshot buffer bound and adjust RX_NUMBER_SNAPSHOTS setting
+#define RX_NUMBER_SNAPSHOTS 57
+// 22% snapshots buffer of 8 byte
+//#define RX_NUMBER_SNAPSHOTS 28
+// 12% snapshots buffer of 8 byte
 //#define RX_NUMBER_SNAPSHOTS 15
 

@@ -10,13 +10,16 @@
 
 #include <stdint.h>
 
+#define __pointerBytes(numBytes) ((uint16_t) numBytes)
+#define __pointerBits(numBits) (((uint16_t) 0x0100) << numBits)
+
 /**
  * describes possible header IDs. Note the enum values must not exceed uint8_t max.
  */
 typedef enum PackageHeaderId {
     PACKAGE_HEADER_ID_TYPE_ENUMERATE = 0,
     PACKAGE_HEADER_ID_TYPE_HEAT_WIRES = 1,
-    __PACKAGE_HEADER_ID_TYPE_HEAT_WIRES_RANGE = 2,
+    PACKAGE_HEADER_ID_TYPE_HEAT_WIRES_RANGE = 2,
     __UNUSED1 = 3,
     __UNUSED2 = 4,
     PACKAGE_HEADER_ID_TYPE_SET_NETWORK_GEOMETRY = 5,
@@ -37,10 +40,9 @@ typedef enum PackageHeaderId {
  */
 typedef struct HeaderPackage {
     uint8_t startBit : 1;
-    uint8_t __headerIsStream : 1;
     uint8_t headerId : 4;
     uint8_t __parityBit: 1;
-    uint8_t __pad: 1;
+    uint8_t __pad: 2;
 } HeaderPackage;
 
 /**
@@ -55,10 +57,10 @@ typedef struct HeaderPackage {
  */
 typedef struct AckPackage {
     uint8_t startBit : 1;
-    uint8_t __headerIsStream : 1;
     uint8_t headerId : 4;
     uint8_t __parityBit: 1;
     uint8_t enableBroadcast : 1;
+    uint8_t __pad : 1;
 } AckPackage;
 
 /**
@@ -73,10 +75,10 @@ typedef struct AckPackage {
  */
 typedef struct AckWithAddressPackage {
     uint8_t startBit : 1;
-    uint8_t __headerIsStream : 1;
     uint8_t headerId : 4;
     uint8_t __parityBit : 1;
     uint8_t enableBroadcast : 1;
+    uint8_t __unused : 1;
     uint8_t addressRow0 : 8;
     uint8_t addressColumn0 : 8;
 } AckWithAddressPackage;
@@ -94,10 +96,10 @@ typedef struct AckWithAddressPackage {
  */
 typedef struct AnnounceNetworkGeometryPackage {
     uint8_t startBit : 1;
-    uint8_t __headerIsStream : 1;
     uint8_t headerId : 4;
     uint8_t __parityBit : 1;
     uint8_t enableBroadcast : 1;
+    uint8_t __unused : 1;
     uint8_t rows : 8;
     uint8_t columns : 8;
 } AnnounceNetworkGeometryPackage;
@@ -114,10 +116,10 @@ typedef struct AnnounceNetworkGeometryPackage {
  */
 typedef struct SetNetworkGeometryPackage {
     uint8_t startBit : 1;
-    uint8_t __headerIsStream : 1;
     uint8_t headerId : 4;
     uint8_t __parityBit: 1;
     uint8_t enableBroadcast : 1;
+    uint8_t __unused : 1;
     uint8_t rows : 8;
     uint8_t columns : 8;
 } SetNetworkGeometryPackage;
@@ -134,13 +136,13 @@ typedef struct SetNetworkGeometryPackage {
  */
 typedef struct EnumerationPackage {
     uint8_t startBit : 1;
-    uint8_t __headerIsStream : 1;
     uint8_t headerId : 4;
+    uint8_t __parityBit : 1;
     /**
      * Bread crumb is passed until the highest network address is reached.
      */
     uint8_t hasNetworkGeometryDiscoveryBreadCrumb : 1;
-    uint8_t __pad : 1;
+    uint8_t __unused : 1;
     uint8_t addressRow0 : 8;
     uint8_t addressColumn0 : 8;
 } EnumerationPackage;
@@ -152,39 +154,15 @@ typedef struct EnumerationPackage {
     ((((uint16_t) 0x0100) << 0) \
     |((uint16_t) 0x0003))
 
-
-///**
-// * describes a package header with subsequent address range
-// */
-//typedef struct PackageHeaderAddressRange {
-//    uint8_t startBit : 1;
-//    uint8_t __headerIsStream : 1;
-//    uint8_t headerId : 4;
-//    uint8_t __parityBit : 1;
-//    uint8_t enableBroadcast : 1;
-//    uint8_t addressRow0 : 8;
-//    uint8_t addressColumn0 : 8;
-//    uint8_t addressRow1 : 8;
-//    uint8_t addressColumn1 : 8;
-//} PackageHeaderAddressRange;
-
-///**
-// * PackageHeaderAddressRange length expressed as BufferPointer
-// */
-//#define PackageHeaderAddressRangeBufferPointerSize
-//    ((((uint16_t) 0x0100) << 0)
-//    |((uint16_t) 0x0005))
-
-
 /**
  * describes a package header with uint16_t subsequent time field
  */
 typedef struct TimePackage {
     uint8_t startBit : 1;
-    uint8_t __headerIsStream : 1;
     uint8_t headerId : 4;
     uint8_t __parityBit : 1;
     uint8_t enableBroadcast : 1;
+    uint8_t __unused : 1;
     uint16_t time;
     uint16_t packageTransmissionLatency;
     uint16_t stuffing;
@@ -198,14 +176,14 @@ typedef struct TimePackage {
     |((uint16_t) 0x0007))
 
 /**
- * describes a package header with subsequent start time stamp and duration
+ * describes a package header with subsequent address, start time stamp, duration and wires flags
  */
 typedef struct HeatWiresPackage {
     uint8_t startBit : 1;
-    uint8_t __headerIsStream : 1;
     uint8_t headerId : 4;
     uint8_t __parityBit : 1;
     uint8_t enableBroadcast : 1;
+    uint8_t __unused : 1;
     uint8_t addressRow0 : 8;
     uint8_t addressColumn0 : 8;
     uint16_t startTimeStamp : 16;
@@ -220,9 +198,34 @@ typedef struct HeatWiresPackage {
  * HeatWiresPackage length expressed as BufferPointer
  */
 #define HeatWiresPackageBufferPointerSize  \
-    ((((uint16_t) 0x0100) << 0) \
-    |((uint16_t) 0x0007))
+    ((((uint16_t) 0x0100) << 4) \
+    |((uint16_t) 0x0006))
 
+/**
+ * describes a package header with subsequent addres range, start time stamp, duration and wires flags
+ */
+typedef struct HeatWiresRangePackage {
+    uint8_t startBit : 1;
+    uint8_t headerId : 4;
+    uint8_t __parityBit : 1;
+    uint8_t enableBroadcast : 1;
+    uint8_t __unused : 1;
+    uint8_t addressRow0 : 8;
+    uint8_t addressColumn0 : 8;
+    uint8_t addressRow1 : 8;
+    uint8_t addressColumn1 : 8;
+    uint16_t startTimeStamp : 16;
+    uint8_t duration : 8;
+    uint8_t durationMsb : 2;
+    uint8_t northLeft : 1;
+    uint8_t northRight: 1;
+    uint8_t __pad: 4;
+} HeatWiresRangePackage;
+
+/**
+ * HeatWiresRangePackage length expressed as BufferPointer
+ */
+#define HeatWiresRangePackageBufferPointerSize (__pointerBytes(8) | __pointerBits(4))
 
 /**
  * union for a convenient way to access buffered packages
@@ -237,4 +240,5 @@ typedef union Package {
     AnnounceNetworkGeometryPackage asAnnounceNetworkGeometryPackage;
     SetNetworkGeometryPackage asSetNetworkGeometryPackage;
     HeatWiresPackage asHeatWiresPackage;
+    HeatWiresRangePackage asHeatWiresRangePackage;
 } Package;

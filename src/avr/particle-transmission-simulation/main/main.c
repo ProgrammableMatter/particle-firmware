@@ -28,7 +28,7 @@ int main(void) {
 
     clearTransmissionPortBuffer(&ParticleAttributes.communication.ports.tx.south);
     ParticleAttributes.communication.ports.tx.south.dataEndPos.bitMask = 1;
-    ParticleAttributes.communication.ports.tx.south.dataEndPos.byteNumber = 7;
+    ParticleAttributes.communication.ports.tx.south.dataEndPos.byteNumber = 8;
 
     // least significant bit (start bit) must be set due tu the physically underlying protocol
     ParticleAttributes.communication.ports.tx.south.buffer.bytes[0] = 0b00100110 | 0x01;
@@ -38,6 +38,7 @@ int main(void) {
     ParticleAttributes.communication.ports.tx.south.buffer.bytes[4] = 0b10101010;
     ParticleAttributes.communication.ports.tx.south.buffer.bytes[5] = 0b01111110;
     ParticleAttributes.communication.ports.tx.south.buffer.bytes[6] = 0b00100110;
+    ParticleAttributes.communication.ports.tx.south.buffer.bytes[7] = 0b01010110;
 
 
     // configure input/output pins

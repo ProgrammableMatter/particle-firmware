@@ -201,18 +201,16 @@ FUNC_ATTRS void __handleWaitForBeingEnumerated(void) {
     }
 }
 
-extern FUNC_ATTRS void __handleSynchronizeNeighbour(volatile CommunicationProtocolPortState *commPortState,
-                                                    StateType endState);
+extern FUNC_ATTRS void __handleSynchronizeNeighbour(StateType endState);
 /**
  * Handles neighbour synchronization communication states.
  */
-FUNC_ATTRS void __handleSynchronizeNeighbour(volatile CommunicationProtocolPortState *commPortState,
-                                             StateType endState) {
+FUNC_ATTRS void __handleSynchronizeNeighbour(StateType endState) {
+    volatile CommunicationProtocolPortState *commPortState = ParticleAttributes.directionOrientedPorts.simultaneous.protocol;
     volatile TxPort *txPort = ParticleAttributes.directionOrientedPorts.simultaneous.txPort;
     switch (commPortState->initiatorState) {
         // transmit local time simultaneously on east and south ports
         case COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT:
-            clearTransmissionPortBuffer(txPort);
             constructSyncTimePackage(txPort);
             enableTransmission(txPort);
             commPortState->initiatorState = COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT_WAIT_FOR_TX_FINISHED;
@@ -280,7 +278,6 @@ FUNC_ATTRS void __handleSendAnnounceNetworkGeometry(StateType endState) {
 
     switch (ParticleAttributes.protocol.ports.north.initiatorState) {
         case COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT:
-            clearTransmissionPortBuffer(txPort);
             constructAnnounceNetworkGeometryPackage(ParticleAttributes.node.address.row,
                                                     ParticleAttributes.node.address.column);
             enableTransmission(txPort);
@@ -424,8 +421,6 @@ FUNC_ATTRS void __handleSendPackage(volatile DirectionOrientedPort *port, StateT
     volatile CommunicationProtocolPortState *commPortState = port->protocol;
     switch (commPortState->initiatorState) {
         case COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT:
-            // TODO other bufferBitPointerStart must also be set in the respective __handlexxxPackage function
-            bufferBitPointerStart(&port->txPort->buffer.pointer);
             enableTransmission(port->txPort);
             commPortState->initiatorState = COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT_WAIT_FOR_TX_FINISHED;
             break;
@@ -618,24 +613,28 @@ inline void particleTick(void) {
             // ---------------- working states: sync neighbour ----------------
 
         case STATE_TYPE_SYNC_NEIGHBOUR:
-            __handleSynchronizeNeighbour(
-                    &ParticleAttributes.protocol.ports.east,
-                    STATE_TYPE_SYNC_NEIGHBOUR_DONE);
+            __handleSynchronizeNeighbour(STATE_TYPE_SYNC_NEIGHBOUR_DONE);
             break;
 
         case STATE_TYPE_SYNC_NEIGHBOUR_DONE:
+
+            // TODO: refactor test code
             if (ParticleAttributes.node.type == NODE_TYPE_ORIGIN) {
                 ParticleAttributes.protocol.networkGeometry.rows = 2;
                 ParticleAttributes.protocol.networkGeometry.columns = 2;
 //                setNewNetworkGeometry();
                 Actuators actuators;
-                actuators.northLeft = true;
-                actuators.northRight = false;
-                NodeAddress nodeAddress;
-                nodeAddress.row = 2;
-                nodeAddress.column = 2;
+                actuators.northLeft = false;
+                actuators.northRight = true;
+                NodeAddress nodeAddress1;
+                nodeAddress1.row = 1;
+                nodeAddress1.column = 2;
+                NodeAddress nodeAddress2;
+                nodeAddress2.row = 2;
+                nodeAddress2.column = 2;
                 DELAY_MS_1;
-                sendHeatWire(&nodeAddress, &actuators, 50000, 10);
+//                sendHeatWires(&nodeAddress1, &actuators, 50000, 10);
+                sendHeatWiresRange(&nodeAddress1, &nodeAddress2, &actuators, 50000, 10);
             } else {
                 ParticleAttributes.node.state = STATE_TYPE_IDLE;
                 goto __STATE_TYPE_IDLE;

@@ -22,9 +22,9 @@ typedef enum XmissionType {
  * Describes a bit within a 4 byte buffer.
  */
 typedef struct BufferBitPointer {
-    uint8_t byteNumber : 3; // byte number
-    uint8_t __pad: 5;
-    uint8_t bitMask; // the bit in the byte
+    uint8_t byteNumber : 4; // the referenced byte index
+    uint8_t __pad: 4;
+    uint8_t bitMask; // the referenced bit in the byte
 } BufferBitPointer;
 
 /**
