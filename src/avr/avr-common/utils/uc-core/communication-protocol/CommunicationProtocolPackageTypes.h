@@ -48,9 +48,7 @@ typedef struct HeaderPackage {
 /**
  * HeaderPackage data length expressed as BufferPointer
  */
-#define HeaderPackagePointerSize \
-    ((((uint16_t) 0x0100) << 6) \
-    |((uint16_t) 0x0000))
+#define HeaderPackagePointerSize (__pointerBytes(0) | __pointerBits(6))
 
 /**
  * describes a package header
@@ -66,9 +64,7 @@ typedef struct AckPackage {
 /**
  * AckPackage data length expressed as BufferPointer
  */
-#define AckPackagePointerSize \
-    ((((uint16_t) 0x0100) << 7) \
-    |((uint16_t) 0x0000))
+#define AckPackagePointerSize (__pointerBytes(0) | __pointerBits(7))
 
 /**
  * describes a package header with subsequent address
@@ -86,10 +82,7 @@ typedef struct AckWithAddressPackage {
 /**
  * PackageHeaderAddress length expressed as BufferPointer
  */
-#define AckWithAddressPackageBufferPointerSize \
-    ((((uint16_t) 0x0100) << 0)\
-    |((uint16_t) 0x0003))
-
+#define AckWithAddressPackageBufferPointerSize (__pointerBytes(3) | __pointerBits(0))
 
 /**
  * describes a header with subsequent network geometry
@@ -107,9 +100,7 @@ typedef struct AnnounceNetworkGeometryPackage {
 /**
  * AnnounceNetworkGeometryPackage length expressed as BufferPointer
  */
-#define AnnounceNetworkGeometryPackageBufferPointerSize \
-    ((((uint16_t) 0x0100) << 0)\
-    |((uint16_t) 0x0003))
+#define AnnounceNetworkGeometryPackageBufferPointerSize (__pointerBytes(3) | __pointerBits(0))
 
 /**
  * describes a header with subsequent network geometry
@@ -127,9 +118,7 @@ typedef struct SetNetworkGeometryPackage {
 /**
  * SetNetworkGeometryPackage length expressed as BufferPointer
  */
-#define SetNetworkGeometryPackageBufferPointerSize \
-    ((((uint16_t) 0x0100) << 0)\
-    |((uint16_t) 0x0003))
+#define SetNetworkGeometryPackageBufferPointerSize (__pointerBytes(3) | __pointerBits(0))
 
 /**
  * describes a package header with subsequent enumeration address and bread crumb flag
@@ -150,9 +139,7 @@ typedef struct EnumerationPackage {
 /**
  * PackageHeaderAddress length expressed as BufferPointer
  */
-#define EnumerationPackageBufferPointerSize \
-    ((((uint16_t) 0x0100) << 0) \
-    |((uint16_t) 0x0003))
+#define EnumerationPackageBufferPointerSize (__pointerBytes(3) | __pointerBits(0))
 
 /**
  * describes a package header with uint16_t subsequent time field
@@ -171,9 +158,7 @@ typedef struct TimePackage {
 /**
  * PackageHeaderTime length expressed as BufferPointer
  */
-#define TimePackageBufferPointerSize  \
-    ((((uint16_t) 0x0100) << 0) \
-    |((uint16_t) 0x0007))
+#define TimePackageBufferPointerSize (__pointerBytes(7) | __pointerBits(0))
 
 /**
  * describes a package header with subsequent address, start time stamp, duration and wires flags
@@ -197,9 +182,7 @@ typedef struct HeatWiresPackage {
 /**
  * HeatWiresPackage length expressed as BufferPointer
  */
-#define HeatWiresPackageBufferPointerSize  \
-    ((((uint16_t) 0x0100) << 4) \
-    |((uint16_t) 0x0006))
+#define HeatWiresPackageBufferPointerSize (__pointerBytes(6) | __pointerBits(4))
 
 /**
  * describes a package header with subsequent addres range, start time stamp, duration and wires flags
