@@ -77,6 +77,18 @@ typedef enum StateType {
     // working state while transmitting package to south
             STATE_TYPE_SENDING_PACKAGE_TO_SOUTH,
 
+    // working state when transmitting package to north followed by preparing for sleep mode
+            STATE_TYPE_SENDING_PACKAGE_TO_NORTH_THEN_PREPARE_SLEEP,
+    // working state when transmitting package to east followed by preparing for sleep mode
+            STATE_TYPE_SENDING_PACKAGE_TO_EAST_THEN_PREPARE_SLEEP,
+    // working state while transmitting package to east and south simultaneously followed by preparing for sleep mode
+            STATE_TYPE_SENDING_PACKAGE_TO_EAST_AND_SOUTH_THEN_PREPARE_SLEEP,
+    // working state while transmitting package to south followed by preparing for sleep mode
+            STATE_TYPE_SENDING_PACKAGE_TO_SOUTH_THEN_PREPARE_SLEEP,
+
+    // working state when waiting for all transmissions to be finished followed by sleep mode
+            STATE_TYPE_PREPARE_FOR_SLEEP,
+
     // working state when waiting for commands or executing scheduled tasks
             STATE_TYPE_IDLE,
     // erroneous machine state

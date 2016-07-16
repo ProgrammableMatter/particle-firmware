@@ -108,19 +108,19 @@ CTOR_ATTRS void constructAnnounceNetworkGeometryPackage(uint8_t row, uint8_t col
 }
 
 
-extern CTOR_ATTRS void constructSetNetworkGeometryPackage(volatile TxPort *txPort, uint8_t row,
-                                                          uint8_t column);
+extern CTOR_ATTRS void constructSetNetworkGeometryPackage(volatile TxPort *txPort, uint8_t rows,
+                                                          uint8_t columns);
 /**
  * constructor function: builds the protocol package at the given port's buffer
  */
-CTOR_ATTRS void constructSetNetworkGeometryPackage(volatile TxPort *txPort, uint8_t row, uint8_t column) {
+CTOR_ATTRS void constructSetNetworkGeometryPackage(volatile TxPort *txPort, uint8_t rows, uint8_t columns) {
     clearTransmissionPortBuffer(txPort);
     Package *package = (Package *) txPort->buffer.bytes;
     package->asSetNetworkGeometryPackage.startBit = 1;
     package->asSetNetworkGeometryPackage.headerId = PACKAGE_HEADER_ID_TYPE_SET_NETWORK_GEOMETRY;
     package->asSetNetworkGeometryPackage.enableBroadcast = true;
-    package->asSetNetworkGeometryPackage.rows = row;
-    package->asSetNetworkGeometryPackage.columns = column;
+    package->asSetNetworkGeometryPackage.rows = rows;
+    package->asSetNetworkGeometryPackage.columns = columns;
     setBufferDataEndPointer(txPort->dataEndPos, SetNetworkGeometryPackageBufferPointerSize);
 }
 

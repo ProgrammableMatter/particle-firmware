@@ -244,7 +244,7 @@ FUNC_ATTRS void __handleSynchronizeNeighbourDone(StateType endState) {
 #  if defined(SIMULATION_SET_NEW_NETWORK_GEOMETRY_TEST)
     if (ParticleAttributes.node.type == NODE_TYPE_ORIGIN) {
         ParticleAttributes.protocol.networkGeometry.rows = 2;
-        ParticleAttributes.protocol.networkGeometry.columns = 2;
+        ParticleAttributes.protocol.networkGeometry.columns = 1;
         DELAY_MS_1;
         setNewNetworkGeometry();
         return;
@@ -702,6 +702,27 @@ inline void particleTick(void) {
                                 STATE_TYPE_IDLE);
             break;
 
+        case STATE_TYPE_SENDING_PACKAGE_TO_NORTH_THEN_PREPARE_SLEEP:
+            __handleSendPackage(&ParticleAttributes.directionOrientedPorts.north,
+                                STATE_TYPE_PREPARE_FOR_SLEEP);
+            break;
+
+        case STATE_TYPE_SENDING_PACKAGE_TO_EAST_THEN_PREPARE_SLEEP:
+            __handleSendPackage(&ParticleAttributes.directionOrientedPorts.east,
+                                STATE_TYPE_PREPARE_FOR_SLEEP);
+            break;
+
+        case STATE_TYPE_SENDING_PACKAGE_TO_EAST_AND_SOUTH_THEN_PREPARE_SLEEP:
+            __handleSendPackage(&ParticleAttributes.directionOrientedPorts.simultaneous,
+                                STATE_TYPE_PREPARE_FOR_SLEEP);
+            break;
+
+        case STATE_TYPE_SENDING_PACKAGE_TO_SOUTH_THEN_PREPARE_SLEEP:
+            __handleSendPackage(&ParticleAttributes.directionOrientedPorts.south,
+                                STATE_TYPE_PREPARE_FOR_SLEEP);
+            break;
+
+
             // ---------------- working states: receiving/interpreting commands ----------------
 
         __STATE_TYPE_IDLE:
@@ -711,7 +732,17 @@ inline void particleTick(void) {
             ParticleAttributes.directionOrientedPorts.south.receivePimpl();
             break;
 
-            // ---------------- standby states: sleep mode ----------------
+            // ---------------- standby states: sleep mode related states ----------------
+
+        case STATE_TYPE_PREPARE_FOR_SLEEP:
+            if (ParticleAttributes.directionOrientedPorts.north.txPort->isTransmitting ||
+                ParticleAttributes.directionOrientedPorts.east.txPort->isTransmitting ||
+                ParticleAttributes.directionOrientedPorts.south.txPort->isTransmitting) {
+                break;
+            }
+            ParticleAttributes.node.state = STATE_TYPE_SLEEP_MODE;
+            break;
+
         case STATE_TYPE_SLEEP_MODE:
             DEBUG_CHAR_OUT('z');
             sleep_enable();

@@ -110,29 +110,41 @@ extern FUNC_ATTRS void executeSetNetworkGeometryPackage(volatile SetNetworkGeome
  */
 FUNC_ATTRS void executeSetNetworkGeometryPackage(volatile SetNetworkGeometryPackage *package) {
 
+    bool deactivateParticle = false;
+    if (ParticleAttributes.node.address.row > package->rows &&
+        ParticleAttributes.node.address.column > package->columns) {
+        deactivateParticle = true;
+    }
+
     if (!ParticleAttributes.protocol.isBroadcastEnabled) {
         // on disabled broadcast: relay package
         bool routeToEast = ParticleAttributes.discoveryPulseCounters.east.isConnected;
         bool routeToSouth = ParticleAttributes.discoveryPulseCounters.south.isConnected;
 
         if (routeToEast && routeToSouth) {
+            StateType nextState = (deactivateParticle)
+                                  ? STATE_TYPE_SENDING_PACKAGE_TO_EAST_AND_SOUTH_THEN_PREPARE_SLEEP
+                                  : STATE_TYPE_SENDING_PACKAGE_TO_EAST_AND_SOUTH;
             __relayPackage((Package *) package, &ParticleAttributes.directionOrientedPorts.simultaneous,
-                           SetNetworkGeometryPackageBufferPointerSize,
-                           STATE_TYPE_SENDING_PACKAGE_TO_EAST_AND_SOUTH);
+                           SetNetworkGeometryPackageBufferPointerSize, nextState);
         } else if (routeToEast) {
+            StateType nextState = (deactivateParticle) ? STATE_TYPE_SENDING_PACKAGE_TO_EAST_THEN_PREPARE_SLEEP
+                                                       : STATE_TYPE_SENDING_PACKAGE_TO_EAST;
             __relayPackage((Package *) package, &ParticleAttributes.directionOrientedPorts.east,
-                           SetNetworkGeometryPackageBufferPointerSize, STATE_TYPE_SENDING_PACKAGE_TO_EAST);
+                           SetNetworkGeometryPackageBufferPointerSize, nextState);
         } else if (routeToSouth) {
+            StateType nextState = (deactivateParticle)
+                                  ? STATE_TYPE_SENDING_PACKAGE_TO_SOUTH_THEN_PREPARE_SLEEP
+                                  : STATE_TYPE_SENDING_PACKAGE_TO_SOUTH;
             __relayPackage((Package *) package, &ParticleAttributes.directionOrientedPorts.south,
-                           SetNetworkGeometryPackageBufferPointerSize, STATE_TYPE_SENDING_PACKAGE_TO_SOUTH);
+                           SetNetworkGeometryPackageBufferPointerSize, nextState);
+        } else {
+            ParticleAttributes.node.state = STATE_TYPE_SLEEP_MODE;
         }
     }
 
     ParticleAttributes.protocol.isBroadcastEnabled = package->enableBroadcast;
-    if (ParticleAttributes.node.address.row > package->rows ||
-        ParticleAttributes.node.address.column > package->columns) {
-        ParticleAttributes.node.state = STATE_TYPE_SLEEP_MODE;
-    }
+
     // update node type accordingly
     if (ParticleAttributes.node.address.row == package->rows) {
         ParticleAttributes.discoveryPulseCounters.south.isConnected = false;
