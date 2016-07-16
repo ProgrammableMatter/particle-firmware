@@ -182,6 +182,8 @@ DECODING_FUNC_ATTRS void __approximateNewClockSpeed(volatile RxPort *rxPort) {
             (ParticleAttributes.communication.timerAdjustment.newTransmissionClockDelay /
              rxPort->snapshotsBuffer.numberHalfCyclesPassed) * 2;
     ParticleAttributes.communication.timerAdjustment.isTransmissionClockDelayUpdateable = true;
+
+    // TODO: clock speed adjustment implementation regarding __approximateNewClockSpeed() outcome is missing
 }
 
 
@@ -194,6 +196,8 @@ DECODING_FUNC_ATTRS void __approximateNewClockShift(volatile uint16_t *snapshotV
     ParticleAttributes.communication.timerAdjustment.newTransmissionClockShift =
             (*snapshotValue % ParticleAttributes.communication.timerAdjustment.transmissionClockDelay) / 2;
     ParticleAttributes.communication.timerAdjustment.isTransmissionClockShiftUpdateable = true;
+
+    // TODO: clock synchronization implementation regarding __approximateNewClockShift() outcome is missing
 }
 
 extern FUNC_ATTRS void manchesterDecodeBuffer(volatile DirectionOrientedPort *port,
@@ -229,7 +233,7 @@ FUNC_ATTRS void manchesterDecodeBuffer(volatile DirectionOrientedPort *port,
                         __approximateNewClockShift(&timerValue);
                     }
 
-                    DEBUG_CHAR_OUT('|');
+                    DEBUG_CHAR_OUT('+');
                     rxPort->snapshotsBuffer.decoderStates.decodingState = DECODER_STATE_TYPE_DECODING;
                     __rxSnapshotBufferDequeue(&rxPort->snapshotsBuffer);
                     goto __DECODER_STATE_TYPE_DECODING;
@@ -275,6 +279,9 @@ FUNC_ATTRS void manchesterDecodeBuffer(volatile DirectionOrientedPort *port,
                     __rxSnapshotBufferDequeue(&rxPort->snapshotsBuffer);
                     // on overdue: difference of two snapshots exceed the max. rx clock duration
                 } else {
+#ifdef SIMULATION
+                    rxPort->snapshotsBuffer.decoderStates.decodingState = DECODER_STATE_TYPE_POST_TIMEOUT_PROCESS;
+#endif
                     goto __DECODER_STATE_TYPE_POST_TIMEOUT_PROCESS;
                 }
             }
@@ -289,6 +296,9 @@ FUNC_ATTRS void manchesterDecodeBuffer(volatile DirectionOrientedPort *port,
 //                DEBUG_INT16_OUT(difference);
                 if (difference >=
                     2 * ParticleAttributes.communication.timerAdjustment.transmissionClockDelay) {
+#ifdef SIMULATION
+                    rxPort->snapshotsBuffer.decoderStates.decodingState = DECODER_STATE_TYPE_POST_TIMEOUT_PROCESS;
+#endif
                     goto __DECODER_STATE_TYPE_POST_TIMEOUT_PROCESS;
                 }
             }
@@ -296,7 +306,7 @@ FUNC_ATTRS void manchesterDecodeBuffer(volatile DirectionOrientedPort *port,
 
         __DECODER_STATE_TYPE_POST_TIMEOUT_PROCESS:
         case DECODER_STATE_TYPE_POST_TIMEOUT_PROCESS:
-            DEBUG_CHAR_OUT('+');
+            DEBUG_CHAR_OUT('|');
             __approximateNewClockSpeed(rxPort);
             rxPort->isDataBuffered = true;
             ParticleAttributes.communication.timerAdjustment.isTransmissionClockDelayUpdateable = true;
