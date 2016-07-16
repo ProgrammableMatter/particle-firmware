@@ -123,8 +123,6 @@ FUNC_ATTRS void __enableReceptionHardwareForConnectedPorts(void) {
 extern FUNC_ATTRS void __disableReception(void);
 
 FUNC_ATTRS void __disableReception(void) {
-    // TODO refactoring: remove xmissionState and directly dis-/enable rx interrupts
-    ParticleAttributes.communication.xmissionState = STATE_TYPE_XMISSION_TYPE_DISABLED_TX_RX;
     __disableReceptionPinChangeInterrupts();
 }
 
@@ -133,8 +131,6 @@ extern FUNC_ATTRS void __enableReception(void);
 FUNC_ATTRS void __enableReception(void) {
     __enableTxRxTimer();
     __enableReceptionHardwareForConnectedPorts();
-    // TODO refactoring: remove xmissionState and directly dis-/enable rx interrupts
-    ParticleAttributes.communication.xmissionState = STATE_TYPE_XMISSION_TYPE_ENABLED_TX_RX;
 }
 
 extern FUNC_ATTRS void __heartBeatToggle(void);
@@ -257,7 +253,10 @@ FUNC_ATTRS void __handleSynchronizeNeighbourDone(StateType endState) {
     }
 #  elif defined(SIMULATION_HEAT_WIRES_TEST)
     if (ParticleAttributes.node.type == NODE_TYPE_ORIGIN) {
-      NodeAddress nodeAddress;
+        Actuators actuators;
+        actuators.northLeft = false;
+        actuators.northRight = true;
+        NodeAddress nodeAddress;
         nodeAddress.row = 1;
         nodeAddress.column = 2;
         DELAY_MS_1;

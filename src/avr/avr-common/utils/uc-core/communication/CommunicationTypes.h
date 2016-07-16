@@ -9,17 +9,6 @@
 #include "uc-core/configuration/Particle.h"
 
 /**
- * describes the transmission/reception states
- */
-// TODO refactoring: remove xmissionState
-typedef enum XmissionType {
-    STATE_TYPE_XMISSION_TYPE_ENABLED_TX = 0, // transmission only
-    STATE_TYPE_XMISSION_TYPE_ENABLED_TX_RX, // tx/rx
-    STATE_TYPE_XMISSION_TYPE_ENABLED_RX, // reception only
-    STATE_TYPE_XMISSION_TYPE_DISABLED_TX_RX // tx/rx disabled
-} XmissionType;
-
-/**
  * Describes a bit within a 4 byte buffer.
  */
 typedef struct BufferBitPointer {
@@ -133,6 +122,5 @@ typedef struct CommunicationPorts {
 
 typedef struct Communication {
     TransmissionTimerAdjustment timerAdjustment;
-    XmissionType xmissionState;
     CommunicationPorts ports;
 } Communication;

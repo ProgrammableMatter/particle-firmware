@@ -113,7 +113,5 @@ extern CTOR_ATTRS void constructCommunication(volatile Communication *o);
  */
 CTOR_ATTRS void constructCommunication(volatile Communication *o) {
     constructTransmissionTimerAdjustment(&o->timerAdjustment);
-    // TODO refactoring: remove xmissionState
-    o->xmissionState = STATE_TYPE_XMISSION_TYPE_DISABLED_TX_RX;
     constructCommunicationPorts(&o->ports);
 }

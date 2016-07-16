@@ -24,7 +24,6 @@ int main(void) {
     constructParticle(&ParticleAttributes);
     ParticleAttributes.discoveryPulseCounters.loopCount = UINT8_MAX;
     ParticleAttributes.node.type = NODE_TYPE_MASTER;
-    ParticleAttributes.communication.xmissionState = STATE_TYPE_XMISSION_TYPE_ENABLED_TX;
 
     clearTransmissionPortBuffer(&ParticleAttributes.communication.ports.tx.south);
     ParticleAttributes.communication.ports.tx.south.dataEndPos.bitMask = 1;

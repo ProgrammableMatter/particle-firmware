@@ -42,16 +42,8 @@ FUNC_ATTRS void __handleInputInterrupt(volatile DirectionOrientedPort *port,
             break;
 
         default:
-            switch (ParticleAttributes.communication.xmissionState) {
-                // on data received
-                case STATE_TYPE_XMISSION_TYPE_ENABLED_TX_RX:
-                case STATE_TYPE_XMISSION_TYPE_ENABLED_RX:
-                    captureSnapshot(&timerCounterValue, isRxHigh, &port->rxPort->snapshotsBuffer);
-                    break;
-
-                default:
-                    break;
-            }
+            // on data received
+            captureSnapshot(&timerCounterValue, isRxHigh, &port->rxPort->snapshotsBuffer);
             break;
     }
 }
@@ -130,22 +122,14 @@ ISR(TX_TIMER_INTERRUPT_VECT) {
 
             // otherwise process transmission
         default:
-            switch (ParticleAttributes.communication.xmissionState) {
-                case STATE_TYPE_XMISSION_TYPE_ENABLED_TX_RX:
-                case STATE_TYPE_XMISSION_TYPE_ENABLED_TX:
-                    if (ParticleAttributes.protocol.isSimultaneousTransmissionEnabled) {
-                        transmit(&ParticleAttributes.directionOrientedPorts.simultaneous);
-                    } else {
-                        transmit(&ParticleAttributes.directionOrientedPorts.north);
-                        transmit(&ParticleAttributes.directionOrientedPorts.east);
-                        transmit(&ParticleAttributes.directionOrientedPorts.south);
-                    }
-                    scheduleNextTransmission();
-                    break;
-
-                default:
-                    break;
+            if (ParticleAttributes.protocol.isSimultaneousTransmissionEnabled) {
+                transmit(&ParticleAttributes.directionOrientedPorts.simultaneous);
+            } else {
+                transmit(&ParticleAttributes.directionOrientedPorts.north);
+                transmit(&ParticleAttributes.directionOrientedPorts.east);
+                transmit(&ParticleAttributes.directionOrientedPorts.south);
             }
+            scheduleNextTransmission();
             break;
     }
 }
