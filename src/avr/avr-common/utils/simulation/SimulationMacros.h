@@ -9,7 +9,6 @@
 
 #    include <avr/io.h>
 
-#    define IS_SIMULATION true
 #    define IF_DEBUG_SWITCH_TO_ERRONEOUS_STATE \
     CLI; \
     ParticleAttributes.node.state = STATE_TYPE_ERRONEOUS
@@ -39,7 +38,6 @@ inline void writeToUart(const char *string) {
 extern inline void writeToUart(const char *);
 
 #  else
-#    define IS_SIMULATION false
 #    define IF_DEBUG_SWITCH_TO_ERRONEOUS_STATE
 #    define DEBUG_CHAR_OUT(value)
 #    define DEBUG_INT16_OUT(value)
