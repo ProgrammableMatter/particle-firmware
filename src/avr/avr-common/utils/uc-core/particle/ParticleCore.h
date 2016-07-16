@@ -247,8 +247,6 @@ FUNC_ATTRS void __handleSynchronizeNeighbourDone(StateType endState) {
         ParticleAttributes.protocol.networkGeometry.columns = 2;
         DELAY_MS_1;
         setNewNetworkGeometry();
-    } else {
-        ParticleAttributes.node.state = endState;
         return;
     }
 #  elif defined(SIMULATION_HEAT_WIRES_TEST)
@@ -257,12 +255,10 @@ FUNC_ATTRS void __handleSynchronizeNeighbourDone(StateType endState) {
         actuators.northLeft = false;
         actuators.northRight = true;
         NodeAddress nodeAddress;
-        nodeAddress.row = 1;
+        nodeAddress.row = 2;
         nodeAddress.column = 2;
         DELAY_MS_1;
         sendHeatWires(&nodeAddress, &actuators, 50000, 10);
-    } else {
-        ParticleAttributes.node.state = endState;
         return;
     }
 #  elif defined(SIMULATION_HEAT_WIRES_RANGE_TEST)
@@ -278,8 +274,6 @@ FUNC_ATTRS void __handleSynchronizeNeighbourDone(StateType endState) {
         toAddress.column = 2;
         DELAY_MS_1;
         sendHeatWiresRange(&fromAddress, &toAddress, &actuators, 50000, 10);
-    } else {
-        ParticleAttributes.node.state = endState;
         return;
     }
 #  endif

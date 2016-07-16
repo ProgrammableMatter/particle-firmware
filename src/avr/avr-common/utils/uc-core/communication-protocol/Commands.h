@@ -162,23 +162,6 @@ FUNC_ATTRS void __volatileSram9ByteMemcopy(volatile void *source, volatile void 
     ((uint8_t *) destination)[8] = ((uint8_t *) source)[8];
 }
 
-extern FUNC_ATTRS void __prepareRelayHeatWiresPackage(volatile HeatWiresPackage *heatWiresPackage,
-                                                      volatile DirectionOrientedPort *port,
-                                                      StateType endState);
-/**
- * duplicates heat wires command package and prepares for transmission start
- */
-FUNC_ATTRS void __prepareRelayHeatWiresPackage(volatile HeatWiresPackage *heatWiresPackage,
-                                               volatile DirectionOrientedPort *port, StateType endState) {
-    clearTransmissionPortBuffer(port->txPort);
-    __volatileSram9ByteMemcopy(heatWiresPackage, port->txPort->buffer.bytes);
-    setBufferDataEndPointer(port->txPort->dataEndPos, HeatWiresPackageBufferPointerSize);
-    setInitiatorStateStart(port->protocol);
-    ParticleAttributes.protocol.isBroadcastEnabled = false;
-    ParticleAttributes.protocol.isSimultaneousTransmissionEnabled = false;
-    ParticleAttributes.node.state = endState;
-}
-
 extern FUNC_ATTRS void __scheduleHeatWiresCommand(volatile Package *package);
 /**
  * interpret a heat wires or heat wires range package and schedules the command
@@ -210,40 +193,56 @@ extern FUNC_ATTRS void executeHeatWiresPackage(volatile HeatWiresPackage *heatWi
  * Executes the heat wires package: extracts the payload and schedules the next actuator command.
  */
 FUNC_ATTRS void executeHeatWiresPackage(volatile HeatWiresPackage *heatWiresPackage) {
-
     if (ParticleAttributes.node.address.row == heatWiresPackage->addressRow0 &&
         ParticleAttributes.node.address.column == heatWiresPackage->addressColumn0 &&
         ParticleAttributes.actuationCommand.executionState == ACTUATION_STATE_TYPE_IDLE) {
         // on package reached destination: consume package
         __scheduleHeatWiresCommand((Package *) heatWiresPackage);
-    } else if (!ParticleAttributes.protocol.isBroadcastEnabled) {
-        // on package forwarding
-        if (ParticleAttributes.node.address.row + 1 == heatWiresPackage->addressRow0 &&
-            ParticleAttributes.node.address.column == heatWiresPackage->addressColumn0) {
-            // on package destination equals south neighbour: infer local command, forward package
-            __inferSouthActuatorCommand((Package *) heatWiresPackage);
-            __prepareRelayHeatWiresPackage(
-                    (volatile HeatWiresPackage *) ParticleAttributes.directionOrientedPorts.north.rxPort->buffer.bytes,
-                    &ParticleAttributes.directionOrientedPorts.south, STATE_TYPE_SENDING_PACKAGE_TO_SOUTH);
+        return;
+    }
 
-        } else if (ParticleAttributes.node.address.row == heatWiresPackage->addressRow0 &&
-                   ParticleAttributes.node.address.column + 1 == heatWiresPackage->addressColumn0) {
-            // on package destination equals east neighbour: infer local command, forward package
+    // on package forwarding
+    bool routeToEast = false, routeToSouth = false, inferLocalCommand = false;
+
+    if (ParticleAttributes.node.address.column < heatWiresPackage->addressColumn0) {
+        routeToEast = true;
+    } else if (ParticleAttributes.node.address.column == heatWiresPackage->addressColumn0) {
+        routeToSouth = true;
+    }
+
+    if ((ParticleAttributes.node.address.row + 1 == heatWiresPackage->addressRow0 &&
+         ParticleAttributes.node.address.column == heatWiresPackage->addressColumn0) ||
+        (ParticleAttributes.node.address.row == heatWiresPackage->addressRow0 &&
+         ParticleAttributes.node.address.column + 1 == heatWiresPackage->addressColumn0)) {
+        inferLocalCommand = true;
+    }
+
+    if (routeToEast) {
+        clearTransmissionPortBuffer(ParticleAttributes.directionOrientedPorts.east.txPort);
+        __volatileSram9ByteMemcopy(heatWiresPackage,
+                                   ParticleAttributes.directionOrientedPorts.east.txPort->buffer.bytes);
+        setBufferDataEndPointer(ParticleAttributes.directionOrientedPorts.east.txPort->dataEndPos,
+                                HeatWiresPackageBufferPointerSize);
+        setInitiatorStateStart(ParticleAttributes.directionOrientedPorts.east.protocol);
+        ParticleAttributes.protocol.isBroadcastEnabled = false;
+        ParticleAttributes.protocol.isSimultaneousTransmissionEnabled = false;
+        ParticleAttributes.node.state = STATE_TYPE_SENDING_PACKAGE_TO_EAST;
+
+        if (inferLocalCommand) {
             __inferEastActuatorCommand((Package *) heatWiresPackage);
-            __prepareRelayHeatWiresPackage(
-                    (volatile HeatWiresPackage *) ParticleAttributes.directionOrientedPorts.north.rxPort->buffer.bytes,
-                    &ParticleAttributes.directionOrientedPorts.east, STATE_TYPE_SENDING_PACKAGE_TO_EAST);
         }
-        else if (ParticleAttributes.node.address.column < heatWiresPackage->addressColumn0) {
-            // on route package to east: forward package
-            __prepareRelayHeatWiresPackage(
-                    (volatile HeatWiresPackage *) ParticleAttributes.directionOrientedPorts.north.rxPort->buffer.bytes,
-                    &ParticleAttributes.directionOrientedPorts.east, STATE_TYPE_SENDING_PACKAGE_TO_EAST);
-        } else if (ParticleAttributes.node.address.row < heatWiresPackage->addressRow0) {
-            // on route package to south: forward package
-            __prepareRelayHeatWiresPackage(
-                    (volatile HeatWiresPackage *) ParticleAttributes.directionOrientedPorts.north.rxPort->buffer.bytes,
-                    &ParticleAttributes.directionOrientedPorts.south, STATE_TYPE_SENDING_PACKAGE_TO_SOUTH);
+    } else if (routeToSouth) {
+        clearTransmissionPortBuffer(ParticleAttributes.directionOrientedPorts.south.txPort);
+        __volatileSram9ByteMemcopy(heatWiresPackage,
+                                   ParticleAttributes.directionOrientedPorts.south.txPort->buffer.bytes);
+        setBufferDataEndPointer(ParticleAttributes.directionOrientedPorts.south.txPort->dataEndPos,
+                                HeatWiresPackageBufferPointerSize);
+        setInitiatorStateStart(ParticleAttributes.directionOrientedPorts.south.protocol);
+        ParticleAttributes.protocol.isBroadcastEnabled = false;
+        ParticleAttributes.protocol.isSimultaneousTransmissionEnabled = false;
+        ParticleAttributes.node.state = STATE_TYPE_SENDING_PACKAGE_TO_SOUTH;
+        if (inferLocalCommand) {
+            __inferSouthActuatorCommand((Package *) heatWiresPackage);
         }
     }
 }

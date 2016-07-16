@@ -153,13 +153,11 @@ FUNC_ATTRS void interpretRxBuffer(volatile DirectionOrientedPort *port) {
             __interpretWaitForBeingEnumeratedReception(rxPort, commPortState);
             break;
 
-
         case STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR:
             __interpretEnumerateNeighbourAckReception(rxPort, commPortState,
                                                       ParticleAttributes.node.address.row,
                                                       ParticleAttributes.node.address.column + 1);
             break;
-
 
         case STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR:
             __interpretEnumerateNeighbourAckReception(rxPort, commPortState,
