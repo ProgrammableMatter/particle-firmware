@@ -180,10 +180,10 @@ FUNC_ATTRS void sendHeatWiresRange(NodeAddress *nodeAddressTopLeft, NodeAddress 
     // @ pre: range spans at least 2 nodes
     // @ pre: top left is route-able from this node
 
-//    TxPort temporaryPackagePort;
-    constructHeatWiresRangePackage(ParticleAttributes.directionOrientedPorts.north.txPort, nodeAddressTopLeft,
+    TxPort temporaryPackagePort;
+    constructHeatWiresRangePackage(&temporaryPackagePort, nodeAddressTopLeft,
                                    nodeAddressBottomRight, wires, timeStamp, duration);
     // interpret the constructed package
     executeHeatWiresRangePackage(
-            (HeatWiresRangePackage *) ParticleAttributes.directionOrientedPorts.north.txPort->buffer.bytes);
+            (HeatWiresRangePackage *) &temporaryPackagePort.buffer.bytes);
 }
