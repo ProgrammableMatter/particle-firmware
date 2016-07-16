@@ -51,21 +51,21 @@ if __name__ == "__main__":
     dataFilter.filter(nodeTxCharOutFilter)
     xData, yData, annotations = dataFilter.getData(nodeTxCharOutFilter)
     annotations = pltr.reMapAnnotation(annotations, charOutToHumanReadableAnnotation)
-    dataPlotter.addPlot(xData, yData, annotations, "[0] node states")
+    dataPlotter.addPlot(xData, yData, annotations, "[0] char-out")
 
     nodeTxCharOutFilter = fltr.SampleFilter(domain="SRAM", name="char-out", nodeId=1)
     dataFilter.removeSamples(nodeTxCharOutFilter)
     dataFilter.filter(nodeTxCharOutFilter)
     xData, yData, annotations = dataFilter.getData(nodeTxCharOutFilter)
     annotations = pltr.reMapAnnotation(annotations, charOutToHumanReadableAnnotation)
-    dataPlotter.addPlot(xData, yData, annotations, "[1] node states")
+    dataPlotter.addPlot(xData, yData, annotations, "[1] char-out")
 
     nodeTxCharOutFilter = fltr.SampleFilter(domain="SRAM", name="char-out", nodeId=2)
     dataFilter.removeSamples(nodeTxCharOutFilter)
     dataFilter.filter(nodeTxCharOutFilter)
     xData, yData, annotations = dataFilter.getData(nodeTxCharOutFilter)
     annotations = pltr.reMapAnnotation(annotations, charOutToHumanReadableAnnotation)
-    dataPlotter.addPlot(xData, yData, annotations, "[2] node states")
+    dataPlotter.addPlot(xData, yData, annotations, "[2] char-out")
 
 
 
@@ -91,6 +91,26 @@ if __name__ == "__main__":
     # annotations = pltr.reMapAnnotation(annotations, charOutToHumanReadableAnnotation)
     dataPlotter.addPlot(xData, yData, annotations, "[2] snapshot size")
 
+    #
+    #
+    #
+    #
+    #
+
+    sramFilter = fltr.SampleFilter(domain="SRAM", name="Particle.node.state", nodeId=0)
+    dataFilter.filter(sramFilter)
+    xData, yData, annotations = dataFilter.getData(sramFilter)
+    dataPlotter.addPlot(xData, yData, annotations, "[%s] Particle.node.state" % sramFilter.nodeId)
+
+    sramFilter = fltr.SampleFilter(domain="SRAM", name="Particle.node.state", nodeId=1)
+    dataFilter.filter(sramFilter)
+    xData, yData, annotations = dataFilter.getData(sramFilter)
+    dataPlotter.addPlot(xData, yData, annotations, "[%s] Particle.node.state" % sramFilter.nodeId)
+
+    sramFilter = fltr.SampleFilter(domain="SRAM", name="Particle.node.state", nodeId=2)
+    dataFilter.filter(sramFilter)
+    xData, yData, annotations = dataFilter.getData(sramFilter)
+    dataPlotter.addPlot(xData, yData, annotations, "[%s] Particle.node.state" % sramFilter.nodeId)
 
 
 

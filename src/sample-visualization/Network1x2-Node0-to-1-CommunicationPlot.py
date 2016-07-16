@@ -56,7 +56,7 @@ if __name__ == "__main__":
     dataFilter.filter(nodeTxCharOutFilter)
     xData, yData, annotations = dataFilter.getData(nodeTxCharOutFilter)
     annotations = pltr.reMapAnnotation(annotations, charOutToHumanReadableAnnotation)
-    dataPlotter.addPlot(xData, yData, annotations, "[0] node states")
+    dataPlotter.addPlot(xData, yData, annotations, "[0] char-out")
 
     nodeFilter = fltr.SampleFilter(domain="SRAM", name="int16-out", nodeId=0)
     dataFilter.removeSamples(nodeFilter)
@@ -70,7 +70,7 @@ if __name__ == "__main__":
     dataFilter.filter(nodeTxCharOutFilter)
     xData, yData, annotations = dataFilter.getData(nodeTxCharOutFilter)
     annotations = pltr.reMapAnnotation(annotations, charOutToHumanReadableAnnotation)
-    dataPlotter.addPlot(xData, yData, annotations, "[1] node states")
+    dataPlotter.addPlot(xData, yData, annotations, "[1] char-out")
 
     nodeFilter = fltr.SampleFilter(domain="SRAM", name="int16-out", nodeId=1)
     dataFilter.removeSamples(nodeFilter)

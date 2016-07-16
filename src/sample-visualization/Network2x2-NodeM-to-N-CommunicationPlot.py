@@ -20,7 +20,6 @@ if __name__ == "__main__":
     xData, yData, annotations = dataFilter.getData(txWirefilter)
     dataPlotter.addPlot(xData, yData, annotations, "[2] tx-north")
 
-
     txWirefilter = fltr.SampleFilter(domain="WIRE", name="tx-south", nodeId=0)
     dataFilter.filter(txWirefilter)
     xData, yData, annotations = dataFilter.getData(txWirefilter)
@@ -30,7 +29,6 @@ if __name__ == "__main__":
     dataFilter.filter(txWirefilter)
     xData, yData, annotations = dataFilter.getData(txWirefilter)
     dataPlotter.addPlot(xData, yData, annotations, "[1] tx-north")
-
 
     txWirefilter = fltr.SampleFilter(domain="WIRE", name="tx-south", nodeId=2)
     dataFilter.filter(txWirefilter)
@@ -63,30 +61,53 @@ if __name__ == "__main__":
     dataFilter.filter(nodeTxCharOutFilter)
     xData, yData, annotations = dataFilter.getData(nodeTxCharOutFilter)
     annotations = pltr.reMapAnnotation(annotations, charOutToHumanReadableAnnotation)
-    dataPlotter.addPlot(xData, yData, annotations, "[0] node states")
+    dataPlotter.addPlot(xData, yData, annotations, "[0] char-out")
 
     nodeTxCharOutFilter = fltr.SampleFilter(domain="SRAM", name="char-out", nodeId=1)
     dataFilter.removeSamples(nodeTxCharOutFilter)
     dataFilter.filter(nodeTxCharOutFilter)
     xData, yData, annotations = dataFilter.getData(nodeTxCharOutFilter)
     annotations = pltr.reMapAnnotation(annotations, charOutToHumanReadableAnnotation)
-    dataPlotter.addPlot(xData, yData, annotations, "[1] node states")
+    dataPlotter.addPlot(xData, yData, annotations, "[1] char-out")
 
     nodeTxCharOutFilter = fltr.SampleFilter(domain="SRAM", name="char-out", nodeId=2)
     dataFilter.removeSamples(nodeTxCharOutFilter)
     dataFilter.filter(nodeTxCharOutFilter)
     xData, yData, annotations = dataFilter.getData(nodeTxCharOutFilter)
     annotations = pltr.reMapAnnotation(annotations, charOutToHumanReadableAnnotation)
-    dataPlotter.addPlot(xData, yData, annotations, "[2] node states")
+    dataPlotter.addPlot(xData, yData, annotations, "[2] char-out")
 
     nodeTxCharOutFilter = fltr.SampleFilter(domain="SRAM", name="char-out", nodeId=3)
     dataFilter.removeSamples(nodeTxCharOutFilter)
     dataFilter.filter(nodeTxCharOutFilter)
     xData, yData, annotations = dataFilter.getData(nodeTxCharOutFilter)
     annotations = pltr.reMapAnnotation(annotations, charOutToHumanReadableAnnotation)
-    dataPlotter.addPlot(xData, yData, annotations, "[3] node states")
+    dataPlotter.addPlot(xData, yData, annotations, "[3] char-out")
 
-    #
+    nodeId = 1
+    register = "Particle.communication.ports.rx.north.snapshotsBuffer.decoderStates.decodingState"
+    decoderFilter = fltr.SampleFilter(domain="SRAM", name=register, nodeId=nodeId)
+    dataFilter.removeSamples(decoderFilter)
+    dataFilter.filter(decoderFilter)
+    xData, yData, annotations = dataFilter.getData(decoderFilter)
+    dataPlotter.addPlot(xData, yData, annotations, "[%s] %s" % (decoderFilter.nodeId, register))
+
+    nodeId = 2
+    register = "Particle.communication.ports.rx.north.snapshotsBuffer.decoderStates.decodingState"
+    decoderFilter = fltr.SampleFilter(domain="SRAM", name=register, nodeId=nodeId)
+    dataFilter.removeSamples(decoderFilter)
+    dataFilter.filter(decoderFilter)
+    xData, yData, annotations = dataFilter.getData(decoderFilter)
+    dataPlotter.addPlot(xData, yData, annotations, "[%s] %s" % (decoderFilter.nodeId, register))
+
+    nodeId = 3
+    register = "Particle.communication.ports.rx.north.snapshotsBuffer.decoderStates.decodingState"
+    decoderFilter = fltr.SampleFilter(domain="SRAM", name=register, nodeId=nodeId)
+    dataFilter.removeSamples(decoderFilter)
+    dataFilter.filter(decoderFilter)
+    xData, yData, annotations = dataFilter.getData(decoderFilter)
+    dataPlotter.addPlot(xData, yData, annotations, "[%s] %s" % (decoderFilter.nodeId, register))
+
     #
     #
     #
