@@ -43,7 +43,7 @@
  *
  */
 #define DEFAULT_MAX_SHORT_RECEPTION_OVERTIME_PERCENTAGE_RATIO ((uint8_t) 59)
-#define DEFAULT_MAX_LONG_RECEPTION_OVERTIME_PERCENTAGE_RATIO ((uint8_t) 102)
+#define DEFAULT_MAX_LONG_RECEPTION_OVERTIME_PERCENTAGE_RATIO ((uint8_t) 112)
 
 /**
  * Number of buffer bytes for reception and transmission. Received snapshots are decoded to
@@ -57,12 +57,12 @@
 // 88% snapshots buffer of 8 byte
 //#define RX_NUMBER_SNAPSHOTS 114
 // 65% snapshots buffer of 8 byte
+//#define RX_NUMBER_SNAPSHOTS 90
 //#define RX_NUMBER_SNAPSHOTS 85
 // 44% snapshots buffer of 8 byte
-// TODO: find lower snapshot buffer bound and adjust RX_NUMBER_SNAPSHOTS setting
-#define RX_NUMBER_SNAPSHOTS 57
+//#define RX_NUMBER_SNAPSHOTS 57
 // 22% snapshots buffer of 8 byte
-//#define RX_NUMBER_SNAPSHOTS 28
-// 12% snapshots buffer of 8 byte
+#define RX_NUMBER_SNAPSHOTS 28
+// 12% snapshots buffer of 8 byte: still above min. lower bound
 //#define RX_NUMBER_SNAPSHOTS 15
 
