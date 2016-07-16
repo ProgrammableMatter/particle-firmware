@@ -123,6 +123,7 @@ FUNC_ATTRS void __enableReceptionHardwareForConnectedPorts(void) {
 extern FUNC_ATTRS void __disableReception(void);
 
 FUNC_ATTRS void __disableReception(void) {
+    // TODO refactoring: remove xmissionState and directly dis-/enable rx interrupts
     ParticleAttributes.communication.xmissionState = STATE_TYPE_XMISSION_TYPE_DISABLED_TX_RX;
     __disableReceptionPinChangeInterrupts();
 }
@@ -132,6 +133,7 @@ extern FUNC_ATTRS void __enableReception(void);
 FUNC_ATTRS void __enableReception(void) {
     __enableTxRxTimer();
     __enableReceptionHardwareForConnectedPorts();
+    // TODO refactoring: remove xmissionState and directly dis-/enable rx interrupts
     ParticleAttributes.communication.xmissionState = STATE_TYPE_XMISSION_TYPE_ENABLED_TX_RX;
 }
 
@@ -233,6 +235,57 @@ FUNC_ATTRS void __handleSynchronizeNeighbour(StateType endState) {
             ParticleAttributes.node.state = endState;
             break;
     }
+}
+
+extern FUNC_ATTRS void __handleSynchronizeNeighbourDone(StateType endState);
+/**
+ * Handles the sync neighbour done state. In general it simply switches to the specified state,
+ * but if simulation/test macros are defined it redirects to other states accordingly.
+ */
+
+FUNC_ATTRS void __handleSynchronizeNeighbourDone(StateType endState) {
+#ifdef SIMULATION
+#  if defined(SIMULATION_SET_NEW_NETWORK_GEOMETRY_TEST)
+    if (ParticleAttributes.node.type == NODE_TYPE_ORIGIN) {
+        ParticleAttributes.protocol.networkGeometry.rows = 2;
+        ParticleAttributes.protocol.networkGeometry.columns = 2;
+        DELAY_MS_1;
+        setNewNetworkGeometry();
+    } else {
+        ParticleAttributes.node.state = endState;
+        return;
+    }
+#  elif defined(SIMULATION_HEAT_WIRES_TEST)
+    if (ParticleAttributes.node.type == NODE_TYPE_ORIGIN) {
+      NodeAddress nodeAddress;
+        nodeAddress.row = 1;
+        nodeAddress.column = 2;
+        DELAY_MS_1;
+        sendHeatWires(&nodeAddress, &actuators, 50000, 10);
+    } else {
+        ParticleAttributes.node.state = endState;
+        return;
+    }
+#  elif defined(SIMULATION_HEAT_WIRES_RANGE_TEST)
+    if (ParticleAttributes.node.type == NODE_TYPE_ORIGIN) {
+        Actuators actuators;
+        actuators.northLeft = false;
+        actuators.northRight = true;
+        NodeAddress fromAddress;
+        fromAddress.row = 1;
+        fromAddress.column = 2;
+        NodeAddress toAddress;
+        toAddress.row = 2;
+        toAddress.column = 2;
+        DELAY_MS_1;
+        sendHeatWiresRange(&fromAddress, &toAddress, &actuators, 50000, 10);
+    } else {
+        ParticleAttributes.node.state = endState;
+        return;
+    }
+#  endif
+#endif
+    ParticleAttributes.node.state = endState;
 }
 
 extern FUNC_ATTRS void __handleRelayAnnounceNetworkGeometry(StateType endState);
@@ -617,30 +670,7 @@ inline void particleTick(void) {
             break;
 
         case STATE_TYPE_SYNC_NEIGHBOUR_DONE:
-
-            // TODO: refactor test code
-            if (ParticleAttributes.node.type == NODE_TYPE_ORIGIN) {
-                ParticleAttributes.protocol.networkGeometry.rows = 2;
-                ParticleAttributes.protocol.networkGeometry.columns = 2;
-//                setNewNetworkGeometry();
-                Actuators actuators;
-                actuators.northLeft = false;
-                actuators.northRight = true;
-                NodeAddress nodeAddress1;
-                nodeAddress1.row = 1;
-                nodeAddress1.column = 2;
-                NodeAddress nodeAddress2;
-                nodeAddress2.row = 2;
-                nodeAddress2.column = 2;
-                DELAY_MS_1;
-//                sendHeatWires(&nodeAddress1, &actuators, 50000, 10);
-                sendHeatWiresRange(&nodeAddress1, &nodeAddress2, &actuators, 50000, 10);
-            } else {
-                ParticleAttributes.node.state = STATE_TYPE_IDLE;
-                goto __STATE_TYPE_IDLE;
-            }
-//            __TIMER1_OVERFLOW_INTERRUPT_ENABLE;
-//            DEBUG_INT16_OUT(TIMER_TX_RX_COUNTER_VALUE);
+            __handleSynchronizeNeighbourDone(STATE_TYPE_IDLE);
             break;
 
             // ---------------- working states: set network geometry----------------
