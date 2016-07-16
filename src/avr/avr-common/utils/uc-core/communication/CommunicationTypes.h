@@ -11,6 +11,7 @@
 /**
  * describes the transmission/reception states
  */
+// TODO refactoring: remove xmissionState
 typedef enum XmissionType {
     STATE_TYPE_XMISSION_TYPE_ENABLED_TX = 0, // transmission only
     STATE_TYPE_XMISSION_TYPE_ENABLED_TX_RX, // tx/rx
