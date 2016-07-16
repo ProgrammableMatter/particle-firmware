@@ -15,25 +15,26 @@ extern FUNC_ATTRS void setNewNetworkGeometry(void);
  * switch to sleep mode.
  *
  * @pre:
- * + the network must be in broadcast mode
- * + the ParticleAttributes.protocol.networkGeometry.rows/cols are set accordingly
+ * the ParticleAttributes.protocol.networkGeometry.rows/cols are set accordingly
  */
 FUNC_ATTRS void setNewNetworkGeometry(void) {
-    clearTransmissionPortBuffer(ParticleAttributes.directionOrientedPorts.simultaneous.txPort);
-    setInitiatorStateStart(ParticleAttributes.directionOrientedPorts.simultaneous.protocol);
-    ParticleAttributes.protocol.isSimultaneousTransmissionEnabled = true;
-    ParticleAttributes.node.state = STATE_TYPE_SEND_SET_NETWORK_GEOMETRY;
+    TxPort temporaryPackagePort;
+    constructSetNetworkGeometryPackage(&temporaryPackagePort,
+                                       ParticleAttributes.protocol.networkGeometry.rows,
+                                       ParticleAttributes.protocol.networkGeometry.columns);
+    // interpret the constructed package
+    executeSetNetworkGeometryPackage((SetNetworkGeometryPackage *) &temporaryPackagePort.buffer.bytes);
 }
 
-extern FUNC_ATTRS void scheduleActiationCommand(uint16_t startPeriodTimeStamp, uint16_t endPeriodTimeStamp);
-/**
- * Schedules an actuation command starting and ending at the specified time stamps.
- */
-FUNC_ATTRS void scheduleActiationCommand(uint16_t startPeriodTimeStamp, uint16_t endPeriodTimeStamp) {
-    ParticleAttributes.actuationCommand.actuationStart.periodTimeStamp = startPeriodTimeStamp;
-    ParticleAttributes.actuationCommand.actuationEnd.periodTimeStamp = endPeriodTimeStamp;
-    ParticleAttributes.actuationCommand.isScheduled = true;
-}
+//extern FUNC_ATTRS void scheduleActuationCommand(uint16_t startPeriodTimeStamp, uint16_t endPeriodTimeStamp);
+///**
+// * Schedules an actuation command starting and ending at the specified time stamps.
+// */
+//FUNC_ATTRS void scheduleActuationCommand(uint16_t startPeriodTimeStamp, uint16_t endPeriodTimeStamp) {
+//    ParticleAttributes.actuationCommand.actuationStart.periodTimeStamp = startPeriodTimeStamp;
+//    ParticleAttributes.actuationCommand.actuationEnd.periodTimeStamp = endPeriodTimeStamp;
+//    ParticleAttributes.actuationCommand.isScheduled = true;
+//}
 
 extern FUNC_ATTRS void handleEnumerateNeighbour(
         volatile DirectionOrientedPort *port,
