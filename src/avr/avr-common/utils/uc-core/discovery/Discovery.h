@@ -35,7 +35,7 @@ FUNC_ATTRS bool updateAndDetermineNodeType(void) {
             }
         } else { // N, !S
             if (ParticleAttributes.discoveryPulseCounters.east.isConnected) { // N, !S, E
-                ParticleAttributes.node.type = NODE_TYPE_INVALID;
+                ParticleAttributes.node.type = NODE_TYPE_INTER_HEAD;
             } else { // N, !S, !E
                 ParticleAttributes.node.type = NODE_TYPE_TAIL;
             }
