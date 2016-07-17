@@ -127,11 +127,11 @@ typedef struct EnumerationPackage {
     uint8_t startBit : 1;
     uint8_t headerId : 4;
     uint8_t __parityBit : 1;
+    uint8_t enableBroadcast : 1;
     /**
      * Bread crumb is passed until the highest network address is reached.
      */
     uint8_t hasNetworkGeometryDiscoveryBreadCrumb : 1;
-    uint8_t __unused : 1;
     uint8_t addressRow0 : 8;
     uint8_t addressColumn0 : 8;
 } EnumerationPackage;

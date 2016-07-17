@@ -25,6 +25,8 @@ CTOR_ATTRS void constructEnumeratePackage(volatile TxPort *txPort, uint8_t local
     Package *package = (Package *) txPort->buffer.bytes;
 
     package->asEnumerationPackage.startBit = 1;
+    package->asEnumerationPackage.headerId = PACKAGE_HEADER_ID_TYPE_ENUMERATE;
+    package->asEnumerationPackage.enableBroadcast = false;
 
     // on local bread crumb available or origin node
     if (ParticleAttributes.protocol.hasNetworkGeometryDiscoveryBreadCrumb
@@ -38,7 +40,6 @@ CTOR_ATTRS void constructEnumeratePackage(volatile TxPort *txPort, uint8_t local
             package->asEnumerationPackage.hasNetworkGeometryDiscoveryBreadCrumb = false;
         }
     }
-    package->asEnumerationPackage.headerId = PACKAGE_HEADER_ID_TYPE_ENUMERATE;
     package->asEnumerationPackage.addressRow0 = localAddressRow;
     package->asEnumerationPackage.addressColumn0 = localAddressColumn;
     setBufferDataEndPointer(txPort->dataEndPos, EnumerationPackageBufferPointerSize);
