@@ -104,16 +104,18 @@ FUNC_ATTRS void __relayPackage(volatile Package *source, volatile DirectionOrien
 
 extern FUNC_ATTRS void executeSetNetworkGeometryPackage(volatile SetNetworkGeometryPackage *package);
 /**
- * If current address is greater than the requested network geometry switch to sleep mode,
- * otherwise preserve current state.
- *
+ * Executes a set new network geometry command. The network geometry spans a in a rectangular shape
+ * from node address (1,1) to inclusive the address transported by the package. If the current
+ * address resides outside the range, the particle relays the package and switches to sleep mode.
+ * Otherwise it preserves current state.
  */
 FUNC_ATTRS void executeSetNetworkGeometryPackage(volatile SetNetworkGeometryPackage *package) {
 
     bool deactivateParticle = false;
-    if (ParticleAttributes.node.address.row > package->rows &&
+    if (ParticleAttributes.node.address.row > package->rows ||
         ParticleAttributes.node.address.column > package->columns) {
         deactivateParticle = true;
+        ParticleAttributes.node.state = STATE_TYPE_PREPARE_FOR_SLEEP;
     }
 
     if (!ParticleAttributes.protocol.isBroadcastEnabled) {
@@ -138,8 +140,6 @@ FUNC_ATTRS void executeSetNetworkGeometryPackage(volatile SetNetworkGeometryPack
                                   : STATE_TYPE_SENDING_PACKAGE_TO_SOUTH;
             __relayPackage((Package *) package, &ParticleAttributes.directionOrientedPorts.south,
                            SetNetworkGeometryPackageBufferPointerSize, nextState);
-        } else {
-            ParticleAttributes.node.state = STATE_TYPE_SLEEP_MODE;
         }
     }
 
