@@ -285,6 +285,10 @@ def reMapAnnotation(oldAnnotation, oldToNewMapping):
     :param oldToNewMapping: the mapping
     :return: the new annotation list
     """
+
+    if oldAnnotation == None or oldToNewMapping == None:
+        return
+
     newAnnotationList = []
     for a in oldAnnotation:
         if oldToNewMapping[a] == None:
