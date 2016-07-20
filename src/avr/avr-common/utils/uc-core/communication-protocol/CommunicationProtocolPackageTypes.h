@@ -42,13 +42,15 @@ typedef struct HeaderPackage {
     uint8_t startBit : 1;
     uint8_t headerId : 4;
     uint8_t __parityBit: 1;
-    uint8_t __pad: 2;
+    uint8_t enableBroadcast : 1;
+    uint8_t __pad: 1;
 } HeaderPackage;
 
 /**
  * HeaderPackage data length expressed as BufferPointer
  */
-#define HeaderPackagePointerSize (__pointerBytes(0) | __pointerBits(6))
+#define HeaderPackagePointerSize (__pointerBytes(0) | __pointerBits(7))
+
 
 /**
  * describes a package header
