@@ -11,7 +11,6 @@
 #include "./CommunicationProtocol.h"
 #include "./CommunicationProtocolPackageTypes.h"
 #include "uc-core/particle/Globals.h"
-#include "uc-core/configuration/interrupts/TimerCounter.h"
 
 extern CTOR_ATTRS void constructEnumeratePackage(volatile TxPort *txPort,
                                                  uint8_t localAddressRow,

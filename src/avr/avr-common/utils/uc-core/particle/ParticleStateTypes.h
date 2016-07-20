@@ -86,9 +86,6 @@ typedef enum StateType {
     // working state while transmitting package to south followed by preparing for sleep mode
             STATE_TYPE_SENDING_PACKAGE_TO_SOUTH_THEN_PREPARE_SLEEP,
 
-    // working state when waiting for all transmissions to be finished followed by sleep mode
-            STATE_TYPE_PREPARE_FOR_SLEEP,
-
     // working state when waiting for commands or executing scheduled tasks
             STATE_TYPE_IDLE,
     // erroneous machine state
@@ -96,6 +93,8 @@ typedef enum StateType {
     // dead lock state; usually before shutdown
             STATE_TYPE_STALE,
 
+    // working state when waiting for all transmissions to be finished followed by sleep mode
+            STATE_TYPE_PREPARE_FOR_SLEEP,
     // state when before MCU goes int sleep mode
             STATE_TYPE_SLEEP_MODE,
 } StateType;

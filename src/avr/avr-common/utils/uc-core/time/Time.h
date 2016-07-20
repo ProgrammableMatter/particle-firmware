@@ -7,23 +7,16 @@
 #include "TimeTypes.h"
 #include "uc-core/particle/Globals.h"
 
-extern FUNC_ATTRS void advanceLocalTime(void);
 /**
  * Increments the local time period counter which, if correctly adjusted,
- * overflows each 390 seconds or 6 minutes and 30 seconds.
+ * overflows each (1/F_CPU * LOCAL_TIME_INTERRUPT_COMPARE_VALUE * 2^16)=532.48 seconds
+ * or 8 minutes and 52.48 seconds.
  */
-FUNC_ATTRS void advanceLocalTime(void) {
-    ParticleAttributes.localTime.numTimePeriodsPassed++;
-    if (ParticleAttributes.localTime.numTimePeriodsPassed >= ParticleAttributes.localTime.interruptDelay) {
-        ParticleAttributes.localTime.numTimePeriodsPassed = 0;
-    }
-}
-
-extern FUNC_ATTRS void scheduleNextLocalTimeInterrupt(void);
+#define ADVANCE_LOCAL_TIME \
+    (ParticleAttributes.localTime.numTimePeriodsPassed++)
 
 /**
  * schedule the next time interrupt
  */
-extern FUNC_ATTRS void scheduleNextLocalTimeInterrupt(void) {
-    LOCAL_TIME_INTERRUPT_COMPARE_VALUE += ParticleAttributes.localTime.interruptDelay;
-}
+#define SCHEDULE_NEXT_LOCAL_TIME_INTERUPT \
+    (LOCAL_TIME_INTERRUPT_COMPARE_VALUE += ParticleAttributes.localTime.interruptDelay)

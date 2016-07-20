@@ -6,7 +6,6 @@
 
 #include "Communication.h"
 #include "ManchesterDecodingTypes.h"
-#include "uc-core/configuration/interrupts/TimerCounter.h"
 
 extern CTOR_ATTRS void constructSnapshot(volatile Snapshot *o);
 /**

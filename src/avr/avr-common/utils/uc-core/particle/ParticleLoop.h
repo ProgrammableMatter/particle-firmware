@@ -5,10 +5,11 @@
 
 #include "ParticleCore.h"
 
-extern inline void particleLoop(void);
 /**
  * The particle loop. It changes particle states and performs/execute tasks.
  */
+extern inline void particleLoop(void);
+
 inline void particleLoop(void) {
     IO_PORTS_SETUP; // configure input/output pins
     constructParticle(&ParticleAttributes);

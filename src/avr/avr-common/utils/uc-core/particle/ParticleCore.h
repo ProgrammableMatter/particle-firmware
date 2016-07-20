@@ -12,11 +12,13 @@
 #include "uc-core/configuration/IoPins.h"
 #include "uc-core/delay/delay.h"
 #include "uc-core/discovery/Discovery.h"
-#include "uc-core/configuration/interrupts/Reception.h"
-#include "uc-core/configuration/interrupts/TimerCounter.h"
-#include "uc-core/interrupts/Interrupts.h"
 #include "uc-core/configuration/Particle.h"
 #include "uc-core/configuration/Periphery.h"
+#include "uc-core/configuration/interrupts/Reception.h"
+#include "uc-core/configuration/interrupts/TxRxTimer.h"
+#include "uc-core/configuration/interrupts/DiscoveryTimer.h"
+#include "uc-core/configuration/interrupts/ActuationTimer.h"
+#include "uc-core/interrupts/Interrupts.h"
 #include "uc-core/communication-protocol/CommunicationProtocol.h"
 #include "uc-core/communication-protocol/CommunicationProtocolTypesCtors.h"
 #include "uc-core/communication-protocol/CommunicationProtocolPackageCtors.h"
@@ -55,7 +57,8 @@ FUNC_ATTRS void __initParticle(void) {
     RX_INTERRUPTS_SETUP; // configure input pins interrupts
     RX_INTERRUPTS_ENABLE; // enable input pin interrupts
     TIMER_NEIGHBOUR_SENSE_SETUP; // configure timer interrupt for neighbour sensing
-    LOCAL_TIME_INTERRUPT_COMPARE_DISABLE;
+    LOCAL_TIME_INTERRUPT_COMPARE_DISABLE; // prepare local time timer interrupt
+    ACTUATOR_INTERRUPT_SETUP; // prepare actuation interrupt
     sleep_disable();
     set_sleep_mode(SLEEP_MODE_PWR_DOWN); // set sleep mode to power down
 }
@@ -498,6 +501,22 @@ FUNC_ATTRS void __onActuationDoneCallback(void) {
     ParticleAttributes.node.state = STATE_TYPE_IDLE;
 }
 
+/**
+ * Checks whether an actuation is to be executed. Switches state if an actuation
+ * command is scheduled and the current local time indicates an actuation start.
+ */
+extern FUNC_ATTRS void __handleIsActuationCommandPeriod(void);
+
+FUNC_ATTRS void __handleIsActuationCommandPeriod(void) {
+    if (ParticleAttributes.actuationCommand.isScheduled &&
+        ParticleAttributes.actuationCommand.executionState == ACTUATION_STATE_TYPE_IDLE) {
+        if (ParticleAttributes.actuationCommand.actuationStart.periodTimeStamp <=
+            ParticleAttributes.localTime.numTimePeriodsPassed) {
+            ParticleAttributes.node.state = STATE_TYPE_EXECUTE_ACTUATION_COMMAND;
+        }
+    }
+}
+
 extern FUNC_ATTRS void __enableLocalTimeInterrupt(void);
 /**
  * enables the local time interrupt using current adjustment argument
@@ -730,6 +749,7 @@ inline void particleTick(void) {
             ParticleAttributes.directionOrientedPorts.north.receivePimpl();
             ParticleAttributes.directionOrientedPorts.east.receivePimpl();
             ParticleAttributes.directionOrientedPorts.south.receivePimpl();
+            __handleIsActuationCommandPeriod();
             break;
 
             // ---------------- standby states: sleep mode related states ----------------

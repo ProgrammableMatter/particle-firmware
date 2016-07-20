@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "uc-core/configuration/interrupts/TimerCounter.h"
+#include "uc-core/configuration/interrupts/TxRxTimer.h"
 #include "simulation/SimulationMacros.h"
 
 extern FUNC_ATTRS void scheduleNextTxInterrupt(void);

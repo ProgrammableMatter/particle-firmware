@@ -9,7 +9,6 @@
 #include "uc-core/communication-protocol/Commands.h"
 #include "uc-core/communication-protocol/CommunicationProtocolPackageCtors.h"
 
-extern FUNC_ATTRS void setNewNetworkGeometry(void);
 /**
  * Transmits a new network geometry to the network. Particles outside the new boundary
  * switch to sleep mode.
@@ -17,6 +16,8 @@ extern FUNC_ATTRS void setNewNetworkGeometry(void);
  * @pre:
  * the ParticleAttributes.protocol.networkGeometry.rows/cols are set accordingly
  */
+extern FUNC_ATTRS void setNewNetworkGeometry(void);
+
 FUNC_ATTRS void setNewNetworkGeometry(void) {
     TxPort temporaryPackagePort;
     constructSetNetworkGeometryPackage(&temporaryPackagePort,
@@ -36,14 +37,15 @@ FUNC_ATTRS void setNewNetworkGeometry(void) {
 //    ParticleAttributes.actuationCommand.isScheduled = true;
 //}
 
+/**
+ * Handles neighbour enumeration communication states.
+ */
 extern FUNC_ATTRS void handleEnumerateNeighbour(
         volatile DirectionOrientedPort *port,
         uint8_t remoteAddressRow,
         uint8_t remoteAddressColumn,
         StateType endState);
-/**
- * Handles neighbour enumeration communication states.
- */
+
 FUNC_ATTRS void handleEnumerateNeighbour(volatile DirectionOrientedPort *port,
                                          uint8_t remoteAddressRow,
                                          uint8_t remoteAddressColumn,
@@ -113,9 +115,6 @@ FUNC_ATTRS void handleEnumerateNeighbour(volatile DirectionOrientedPort *port,
     }
 }
 
-
-extern FUNC_ATTRS void sendHeatWires(NodeAddress *nodeAddress, Actuators *wires, uint16_t timeStamp,
-                                     uint16_t duration);
 /**
  * Constructs a heat wires command and puts the particle into sending mode.
  * Destination addresses must be route-able from this node on. That means
@@ -123,6 +122,9 @@ extern FUNC_ATTRS void sendHeatWires(NodeAddress *nodeAddress, Actuators *wires,
  * ii) the destination resides in a different column but the current row equals 1.
  * Otherwise the request is skipped.
  */
+extern FUNC_ATTRS void sendHeatWires(NodeAddress *nodeAddress, Actuators *wires, uint16_t timeStamp,
+                                     uint16_t duration);
+
 FUNC_ATTRS void sendHeatWires(NodeAddress *nodeAddress, Actuators *wires, uint16_t timeStamp,
                               uint16_t duration) {
     if (ParticleAttributes.node.address.row > nodeAddress->row &&
@@ -139,9 +141,6 @@ FUNC_ATTRS void sendHeatWires(NodeAddress *nodeAddress, Actuators *wires, uint16
 }
 
 
-FUNC_ATTRS void sendHeatWiresRange(NodeAddress *nodeAddressTopLeft, NodeAddress *nodeAddressBottomRight,
-                                   Actuators *wires, uint16_t timeStamp,
-                                   uint16_t duration);
 /**
  * Constructs a heat wires range command and puts the particle into sending mode. The
  * rectangular range span is defined by the first address (left top) and second address (bottom right).
@@ -150,6 +149,10 @@ FUNC_ATTRS void sendHeatWiresRange(NodeAddress *nodeAddressTopLeft, NodeAddress 
  * ii) the top left address resides in a different column but the current row equals 1.
  * Otherwise the request is skipped.
  */
+extern FUNC_ATTRS void sendHeatWiresRange(NodeAddress *nodeAddressTopLeft,
+                                          NodeAddress *nodeAddressBottomRight,
+                                          Actuators *wires, uint16_t timeStamp,
+                                          uint16_t duration);
 FUNC_ATTRS void sendHeatWiresRange(NodeAddress *nodeAddressTopLeft, NodeAddress *nodeAddressBottomRight,
                                    Actuators *wires, uint16_t timeStamp,
                                    uint16_t duration) {

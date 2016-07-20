@@ -3,24 +3,22 @@
  */
 #pragma once
 
-#include <avr/interrupt.h>
-#include <avr/pgmspace.h>
-#include <uc-core/particle/ParticleStateTypes.h>
-
-#include "uc-core/configuration/interrupts/Vectors.h"
-#include "uc-core/configuration/interrupts/TimerCounter.h"
-#include "uc-core/configuration/interrupts/Reception.h"
-#include "uc-core/communication/Transmission.h"
 #include "uc-core/particle/Globals.h"
-#include "uc-core/discovery/Discovery.h"
 #include "uc-core/configuration/IoPins.h"
-#include "uc-core/communication/ManchesterDecoding.h"
+#include "uc-core/configuration/interrupts/Vectors.h"
+#include "uc-core/configuration/interrupts/TxRxTimer.h"
+#include "uc-core/configuration/interrupts/LocalTime.h"
+#include "uc-core/configuration/interrupts/Reception.h"
+#include "uc-core/discovery/Discovery.h"
+#include "uc-core/communication/Transmission.h"
 #include "uc-core/communication/ManchesterCoding.h"
+#include "uc-core/communication/ManchesterDecoding.h"
+#include "uc-core/time/Time.h"
 
 #ifdef SIMULATION
 
+#  include <avr/pgmspace.h>
 #  include "simulation/SimulationMacros.h"
-
 #endif
 
 #define TIMER_NEIGHBOUR_SENSE_COUNTER_ON_INTERRUPT_ROLLBACK 12
@@ -64,8 +62,8 @@ FUNC_ATTRS void scheduleNextTransmission(void) {
 
 
 /**
- * north RX pin change interrupt on logical pin change
- * int. #19
+ * interrupt routine on north RX pin change interrupt on logical pin change
+ * simulator int. #19
  */
 ISR(NORTH_PIN_CHANGE_INTERRUPT_VECT) {
 //    DEBUG_INT16_OUT(TIMER_TX_RX_COUNTER_VALUE);
@@ -82,8 +80,8 @@ ISR(NORTH_PIN_CHANGE_INTERRUPT_VECT) {
 }
 
 /**
- * east RX pin change interrupt on logical pin change
- * int. #3
+ * interrupt routine on east RX pin change interrupt on logical pin change
+ * simulator int. #3
  */
 ISR(EAST_PIN_CHANGE_INTERRUPT_VECT) {
     __handleInputInterrupt(&ParticleAttributes.directionOrientedPorts.east,
@@ -93,7 +91,7 @@ ISR(EAST_PIN_CHANGE_INTERRUPT_VECT) {
 
 /**
  * south RX pin change interrupt on logical pin change
- * int. #2
+ * simulator int. #2
  */
 ISR(SOUTH_PIN_CHANGE_INTERRUPT_VECT) {
     __handleInputInterrupt(&ParticleAttributes.directionOrientedPorts.south,
@@ -102,7 +100,8 @@ ISR(SOUTH_PIN_CHANGE_INTERRUPT_VECT) {
 }
 
 /**
- * int. #7
+ * on transmission/discovery timer compare match interrupt
+ * simulator int. #7
  */
 ISR(TX_TIMER_INTERRUPT_VECT) {
 
@@ -134,55 +133,44 @@ ISR(TX_TIMER_INTERRUPT_VECT) {
     }
 }
 
-#include "uc-core/time/Time.h"
-
 /**
- * On local time period passed interrupt.
- * int. #8
+ * on local time period passed interrupt
+ * simulator int. #8
  */
 ISR(LOCAL_TIME_INTERRUPT_VECT) {
-    advanceLocalTime();
-    scheduleNextLocalTimeInterrupt();
+    ADVANCE_LOCAL_TIME;
+    SCHEDULE_NEXT_LOCAL_TIME_INTERUPT;
+}
 
-    if (ParticleAttributes.actuationCommand.isScheduled) {
-        if (ParticleAttributes.actuationCommand.actuationStart.periodTimeStamp <=
-            ParticleAttributes.localTime.numTimePeriodsPassed) {
-            ParticleAttributes.node.state = STATE_TYPE_EXECUTE_ACTUATION_COMMAND;
-        }
+EMPTY_INTERRUPT(__UNUSED_TIMER1_OVERFLOW_INTERRUPT_VECT)
+
+/**
+ * actuator pwm interrupt routine: on actuator pwm compare match interrupt
+ * simulator int. #20
+ */
+ISR(ACTUATOR_PWM_INTERRUPT_VECT) {
+    if (ParticleAttributes.actuationCommand.actuators.northLeft) {
+        // on actuate north tx wire
+        // @pre deactivated: NORTH_TX_LO;
+        NORTH_TX_TOGGLE;
     }
-}
-
-EMPTY_INTERRUPT(TIMER1_OVERFLOW_INTERRUPT_VECT)
-//{
-//    EAST_TX_TOGGLE;
-//    SOUTH_TX_TOGGLE;
-//}
-
-# ifdef SIMULATION
-
-const char isrVector0Msg[] PROGMEM = "BAD ISR";
-/**
- * On external pin, power-on reset, brown-out reset, watchdog reset.
- */
-ISR(_VECTOR(0)) {
-    writeToUart((PGM_P) pgm_read_word(&(isrVector0Msg)));
-    IF_DEBUG_SWITCH_TO_ERRONEOUS_STATE;
-}
-
-/**
- * on timer 0 compare
- * int #19
- */
-ISR(__UNUSED_TIMER0_COMPARE_INTERRUPT_VECT) {
-    writeToUart((PGM_P) pgm_read_word(&(isrVector0Msg)));
-    IF_DEBUG_SWITCH_TO_ERRONEOUS_STATE;
+    if (ParticleAttributes.actuationCommand.actuators.northRight) {
+        // on actuate north rx wire
+        // @pre deactivated: == NORTH_RX_SWITCH_HI;
+        NORTH_RX_SWITCH_TOGGLE;
+    }
 }
 
 /**
  * on timer 0 overflow
- * int #9
+ * simulator int. #10
  */
-ISR(__UNUSED_TIMER0_OVERFLOW_INTERRUPT_VECT) {
+EMPTY_INTERRUPT(__UNUSED_TIMER0_OVERFLOW_INTERRUPT_VECT)
+
+# ifdef SIMULATION
+const char isrVector0Msg[] PROGMEM = "BAD ISR";
+
+ISR(RESET_VECT) {
     writeToUart((PGM_P) pgm_read_word(&(isrVector0Msg)));
     IF_DEBUG_SWITCH_TO_ERRONEOUS_STATE;
 }
@@ -190,16 +178,8 @@ ISR(__UNUSED_TIMER0_OVERFLOW_INTERRUPT_VECT) {
 ISR(BADISR_vect) {
     IF_DEBUG_SWITCH_TO_ERRONEOUS_STATE;
 }
-
 #  else
-
-EMPTY_INTERRUPT(_VECTOR(0))
-
-EMPTY_INTERRUPT(__UNUSED_TIMER0_COMPARE_INTERRUPT_VECT)
-
-EMPTY_INTERRUPT(__UNUSED_TIMER0_OVERFLOW_INTERRUPT_VECT)
-
+EMPTY_INTERRUPT(RESET_VECT)
 EMPTY_INTERRUPT(BADISR_vect)
-
 #  endif
 
