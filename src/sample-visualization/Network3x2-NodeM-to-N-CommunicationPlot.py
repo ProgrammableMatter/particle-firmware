@@ -10,13 +10,13 @@ if __name__ == "__main__":
     dataFilter = fltr.Filter(inputConfig.logFile, mappingConfig.wireToFloatValueMapping)
     dataPlotter = pltr.Plotter()
 
-    numRows = 1
-    numColumns = 3
+    numRows = 3
+    numColumns = 2
     nodesTotal = numRows * numColumns
 
-    # column 1 to 2
+    # column 1
 
-    filter = fltr.SampleFilter(domain="WIRE", name="tx-east", nodeId=0)
+    filter = fltr.SampleFilter(domain="WIRE", name="tx-south", nodeId=0)
     dataFilter.filter(filter)
     xData, yData, annotations = dataFilter.getData(filter)
     dataPlotter.addPlot(xData, yData, annotations, "[%s] %s" % (filter.nodeId, filter.name))
@@ -26,14 +26,44 @@ if __name__ == "__main__":
     xData, yData, annotations = dataFilter.getData(filter)
     dataPlotter.addPlot(xData, yData, annotations, "[%s] %s" % (filter.nodeId, filter.name))
 
-    # column 2 to 3
-
-    filter = fltr.SampleFilter(domain="WIRE", name="tx-east", nodeId=1)
+    filter = fltr.SampleFilter(domain="WIRE", name="tx-south", nodeId=1)
     dataFilter.filter(filter)
     xData, yData, annotations = dataFilter.getData(filter)
     dataPlotter.addPlot(xData, yData, annotations, "[%s] %s" % (filter.nodeId, filter.name))
 
     filter = fltr.SampleFilter(domain="WIRE", name="tx-north", nodeId=2)
+    dataFilter.filter(filter)
+    xData, yData, annotations = dataFilter.getData(filter)
+    dataPlotter.addPlot(xData, yData, annotations, "[%s] %s" % (filter.nodeId, filter.name))
+
+    # column 2
+
+    filter = fltr.SampleFilter(domain="WIRE", name="tx-east", nodeId=0)
+    dataFilter.filter(filter)
+    xData, yData, annotations = dataFilter.getData(filter)
+    dataPlotter.addPlot(xData, yData, annotations, "[%s] %s" % (filter.nodeId, filter.name))
+
+    filter = fltr.SampleFilter(domain="WIRE", name="tx-north", nodeId=3)
+    dataFilter.filter(filter)
+    xData, yData, annotations = dataFilter.getData(filter)
+    dataPlotter.addPlot(xData, yData, annotations, "[%s] %s" % (filter.nodeId, filter.name))
+
+    filter = fltr.SampleFilter(domain="WIRE", name="tx-south", nodeId=3)
+    dataFilter.filter(filter)
+    xData, yData, annotations = dataFilter.getData(filter)
+    dataPlotter.addPlot(xData, yData, annotations, "[%s] %s" % (filter.nodeId, filter.name))
+
+    filter = fltr.SampleFilter(domain="WIRE", name="tx-north", nodeId=4)
+    dataFilter.filter(filter)
+    xData, yData, annotations = dataFilter.getData(filter)
+    dataPlotter.addPlot(xData, yData, annotations, "[%s] %s" % (filter.nodeId, filter.name))
+
+    filter = fltr.SampleFilter(domain="WIRE", name="tx-south", nodeId=4)
+    dataFilter.filter(filter)
+    xData, yData, annotations = dataFilter.getData(filter)
+    dataPlotter.addPlot(xData, yData, annotations, "[%s] %s" % (filter.nodeId, filter.name))
+
+    filter = fltr.SampleFilter(domain="WIRE", name="tx-north", nodeId=5)
     dataFilter.filter(filter)
     xData, yData, annotations = dataFilter.getData(filter)
     dataPlotter.addPlot(xData, yData, annotations, "[%s] %s" % (filter.nodeId, filter.name))
