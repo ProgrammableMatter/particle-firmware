@@ -21,7 +21,7 @@
 #include "uc-core/interrupts/Interrupts.h"
 #include "uc-core/communication-protocol/CommunicationProtocol.h"
 #include "uc-core/communication-protocol/CommunicationProtocolTypesCtors.h"
-#include "uc-core/communication-protocol/CommunicationProtocolPackageCtors.h"
+#include "uc-core/communication-protocol/CommunicationProtocolPackageTypesCtors.h"
 #include "uc-core/actuation/Actuation.h"
 #include "Commands.h"
 
@@ -279,7 +279,22 @@ FUNC_ATTRS void __handleSynchronizeNeighbourDoneOrRuntest(StateType endState) {
         sendHeatWiresRange(&fromAddress, &toAddress, &actuators, 50000, 10);
         return;
     }
+#  elif defined(SIMULATION_HEAT_WIRES_MODE_TEST)
+    if (ParticleAttributes.node.type == NODE_TYPE_ORIGIN) {
+        DELAY_MS_1;
+        sendHeatWiresModePackage(HEATING_LEVEL_TYPE_STRONG);
+        return;
+    }
+#  elif defined(SIMULATION_SEND_HEADER_TEST)
+    if (ParticleAttributes.node.type == NODE_TYPE_ORIGIN) {
+        HeaderPackage package;
+        package.enableBroadcast = true;
+        DELAY_MS_1;
+        sendHeaderPackage(&package);
+        return;
+    }
 #  endif
+
 #endif
     ParticleAttributes.node.state = endState;
 }

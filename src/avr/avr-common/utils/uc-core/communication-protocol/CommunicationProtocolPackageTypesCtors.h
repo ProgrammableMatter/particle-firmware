@@ -227,3 +227,21 @@ CTOR_ATTRS void constructHeaderPackage(volatile TxPort *txPort) {
     package->asHeader.enableBroadcast = false;
     setBufferDataEndPointer(txPort->dataEndPos, HeaderPackagePointerSize);
 }
+
+/**
+ * Constructor function: builds the protocol package at the given port's buffer.
+ */
+extern CTOR_ATTRS void constructHeatWiresModePackage(volatile TxPort *txPort,
+                                                     HeatingLevelType heatingPowerLevel);
+
+CTOR_ATTRS void constructHeatWiresModePackage(volatile TxPort *txPort,
+                                              HeatingLevelType heatingPowerLevel) {
+    // TODO enhancement: calculate and set parity bit
+    clearTransmissionPortBuffer(txPort);
+    Package *package = (Package *) txPort->buffer.bytes;
+    package->asHeatWiresModePackage.startBit = 1;
+    package->asHeatWiresModePackage.headerId = PACKAGE_HEADER_ID_TYPE_HEAT_WIRES_MODE;
+    package->asHeatWiresModePackage.enableBroadcast = false;
+    package->asHeatWiresModePackage.heatMode = heatingPowerLevel;
+    setBufferDataEndPointer(txPort->dataEndPos, HeatWiresModePackageBufferPointerSize);
+}

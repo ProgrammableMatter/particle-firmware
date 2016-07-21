@@ -7,7 +7,7 @@
 #pragma once
 
 #include "CommunicationProtocolTypes.h"
-#include "CommunicationProtocolPackageCtors.h"
+#include "CommunicationProtocolPackageTypesCtors.h"
 #include "uc-core/communication/ManchesterDecodingTypes.h"
 #include "uc-core/discovery/Discovery.h"
 #include "uc-core/communication/Transmission.h"
@@ -258,7 +258,8 @@ FUNC_ATTRS void __scheduleHeatWiresCommand(volatile Package *package) {
 }
 
 /**
- * Forward/route package and execute a heat wires package. Forwarding is skipped in broadcast mode.
+ * Forward/route package and execute a heat wires package.
+ * Forwarding is skipped in broadcast mode.
  * Performs simultaneous transmission on splitting points.
  */
 extern FUNC_ATTRS void executeHeatWiresPackage(volatile HeatWiresPackage *heatWiresPackage);
@@ -314,7 +315,8 @@ FUNC_ATTRS void executeHeatWiresPackage(volatile HeatWiresPackage *heatWiresPack
 }
 
 /**
- * Forward/route package and execute a heat wires range package. Forwarding is skipped in broadcast mode.
+ * Forward/route package and execute a heat wires range package.
+ * Forwarding is skipped in broadcast mode.
  * Performs simultaneous transmission on splitting points.
  */
 extern FUNC_ATTRS void executeHeatWiresRangePackage(volatile HeatWiresRangePackage *heatWiresRangePackage);
@@ -411,7 +413,8 @@ FUNC_ATTRS void executeHeatWiresRangePackage(volatile HeatWiresRangePackage *hea
 
 /**
  * Forwards a header package to all connected ports and interpret the relevant content.
- * Forwarding is skipped in broadcast mode. Performs simultaneous transmission on splitting points.
+ * Forwarding is skipped in broadcast mode.
+ * Performs simultaneous transmission on splitting points.
  */
 extern FUNC_ATTRS void executeHeaderPackage(volatile HeaderPackage *package);
 
@@ -436,4 +439,35 @@ FUNC_ATTRS void executeHeaderPackage(volatile HeaderPackage *package) {
     }
 
     ParticleAttributes.protocol.isBroadcastEnabled = package->enableBroadcast;
+}
+
+/**
+ * Forwards package and interpret the relevant content.
+ * Forwarding is skipped in broadcast mode.
+ * Performs simultaneous transmission on splitting points.
+ */
+extern FUNC_ATTRS void executeHeatWiresModePackage(volatile HeatWiresModePackage *package);
+
+FUNC_ATTRS void executeHeatWiresModePackage(volatile HeatWiresModePackage *package) {
+
+    if (!ParticleAttributes.protocol.isBroadcastEnabled) {
+        // on disabled broadcast: relay package
+        bool routeToEast = ParticleAttributes.discoveryPulseCounters.east.isConnected;
+        bool routeToSouth = ParticleAttributes.discoveryPulseCounters.south.isConnected;
+
+        if (routeToEast && routeToSouth) {
+            __relayPackage((Package *) package, &ParticleAttributes.directionOrientedPorts.simultaneous,
+                           SetNetworkGeometryPackageBufferPointerSize,
+                           STATE_TYPE_SENDING_PACKAGE_TO_EAST_AND_SOUTH);
+        } else if (routeToEast) {
+            __relayPackage((Package *) package, &ParticleAttributes.directionOrientedPorts.east,
+                           SetNetworkGeometryPackageBufferPointerSize, STATE_TYPE_SENDING_PACKAGE_TO_EAST);
+        } else if (routeToSouth) {
+            __relayPackage((Package *) package, &ParticleAttributes.directionOrientedPorts.south,
+                           SetNetworkGeometryPackageBufferPointerSize, STATE_TYPE_SENDING_PACKAGE_TO_SOUTH);
+        }
+    }
+
+    ParticleAttributes.protocol.isBroadcastEnabled = package->enableBroadcast;
+    ParticleAttributes.actuationCommand.actuationPower.dutyCycleLevel = package->heatMode;
 }

@@ -13,3 +13,6 @@ add_subdirectory(manchester-code-tx-simulation)
 add_subdirectory(particle-simulation-heatwires-test)
 add_subdirectory(particle-simulation-heatwiresrange-test)
 add_subdirectory(particle-simulation-setnewnetworkgeometry-test)
+add_subdirectory(particle-simulation-sendheader-test)
+add_subdirectory(particle-simulation-heatwiresmode-test)
+

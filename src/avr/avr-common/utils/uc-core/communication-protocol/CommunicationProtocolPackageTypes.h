@@ -18,8 +18,8 @@ typedef enum PackageHeaderId {
     PACKAGE_HEADER_ID_TYPE_ENUMERATE = 0,
     PACKAGE_HEADER_ID_TYPE_HEAT_WIRES = 1,
     PACKAGE_HEADER_ID_TYPE_HEAT_WIRES_RANGE = 2,
-    PACKAGE_HEADER_ID_HEADER = 3,
-    __UNUSED2 = 4,
+    PACKAGE_HEADER_ID_TYPE_HEAT_WIRES_MODE = 3,
+    PACKAGE_HEADER_ID_HEADER = 4,
     PACKAGE_HEADER_ID_TYPE_SET_NETWORK_GEOMETRY = 5,
     PACKAGE_HEADER_ID_TYPE_NETWORK_GEOMETRY_RESPONSE = 6,
     __UNUSED3 = 7,
@@ -185,7 +185,7 @@ typedef struct HeatWiresPackage {
 #define HeatWiresPackageBufferPointerSize (__pointerBytes(6) | __pointerBits(4))
 
 /**
- * describes a package header with subsequent addres range, start time stamp, duration and wires flags
+ * describes a package header with subsequent address range, start time stamp, duration and wires flags
  */
 typedef struct HeatWiresRangePackage {
     uint8_t startBit : 1;
@@ -211,6 +211,24 @@ typedef struct HeatWiresRangePackage {
 #define HeatWiresRangePackageBufferPointerSize (__pointerBytes(8) | __pointerBits(4))
 
 /**
+ * describes a package header with subsequent heat mode field
+ */
+typedef struct HeatWiresModePackage {
+    uint8_t startBit : 1;
+    uint8_t headerId : 4;
+    uint8_t parityBit : 1;
+    uint8_t enableBroadcast : 1;
+    uint8_t __unused : 1;
+    uint8_t heatMode : 2;
+    uint8_t __pad: 6;
+} HeatWiresModePackage;
+
+/**
+ * HeatWiresModePackage length expressed as BufferPointer
+ */
+#define HeatWiresModePackageBufferPointerSize (__pointerBytes(1) | __pointerBits(2))
+
+/**
  * union for a convenient way to access buffered packages
  */
 typedef union Package {
@@ -224,4 +242,5 @@ typedef union Package {
     SetNetworkGeometryPackage asSetNetworkGeometryPackage;
     HeatWiresPackage asHeatWiresPackage;
     HeatWiresRangePackage asHeatWiresRangePackage;
+    HeatWiresModePackage asHeatWiresModePackage;
 } Package;

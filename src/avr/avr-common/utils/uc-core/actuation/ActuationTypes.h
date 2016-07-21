@@ -1,5 +1,7 @@
 /**
- * @author Raoul Rubien  12.07.16.
+ * @author Raoul Rubien  12.07.2016
+ *
+ * Actuation types definition.
  */
 
 #pragma once

@@ -22,7 +22,7 @@ FUNC_ATTRS void setNewNetworkGeometry(void) {
                                        ParticleAttributes.protocol.networkGeometry.rows,
                                        ParticleAttributes.protocol.networkGeometry.columns);
     // interpret the constructed package
-    executeSetNetworkGeometryPackage((SetNetworkGeometryPackage *) &temporaryPackagePort.buffer.bytes);
+    executeSetNetworkGeometryPackage((SetNetworkGeometryPackage *) temporaryPackagePort.buffer.bytes);
 }
 
 //extern FUNC_ATTRS void scheduleActuationCommand(uint16_t startPeriodTimeStamp, uint16_t endPeriodTimeStamp);
@@ -114,6 +114,19 @@ FUNC_ATTRS void handleEnumerateNeighbour(volatile DirectionOrientedPort *port,
 }
 
 /**
+ * Sends a heat wires mode package to neighbours.
+ */
+extern FUNC_ATTRS void sendHeatWiresModePackage(HeatingLevelType heatingPowerLevel);
+
+FUNC_ATTRS void sendHeatWiresModePackage(HeatingLevelType heatingPowerLevel) {
+    TxPort temporaryPackagePort;
+    constructHeatWiresModePackage(&temporaryPackagePort, heatingPowerLevel);
+
+    // interpret the constructed package
+    executeHeatWiresModePackage((HeatWiresModePackage *) temporaryPackagePort.buffer.bytes);
+}
+
+/**
  * Constructs a heat wires command and puts the particle into sending mode.
  * Destination addresses must be route-able from this node on. That means
  * i) the destination must be in same column but row is greater than current node's row or
@@ -192,7 +205,7 @@ FUNC_ATTRS void sendHeatWiresRange(NodeAddress *nodeAddressTopLeft, NodeAddress 
                                    nodeAddressBottomRight, wires, timeStamp, duration);
     // interpret the constructed package
     executeHeatWiresRangePackage(
-            (HeatWiresRangePackage *) &temporaryPackagePort.buffer.bytes);
+            (HeatWiresRangePackage *) temporaryPackagePort.buffer.bytes);
 }
 
 
