@@ -5,9 +5,7 @@
 #pragma once
 
 #include "Globals.h"
-//#include "uc-core/communication-protocol/CommunicationProtocol.h"
 #include "uc-core/communication-protocol/Commands.h"
-#include "uc-core/communication-protocol/CommunicationProtocolPackageCtors.h"
 
 /**
  * Transmits a new network geometry to the network. Particles outside the new boundary
@@ -157,6 +155,7 @@ extern FUNC_ATTRS void sendHeatWiresRange(NodeAddress *nodeAddressTopLeft,
                                           NodeAddress *nodeAddressBottomRight,
                                           Actuators *wires, uint16_t timeStamp,
                                           uint16_t duration);
+
 FUNC_ATTRS void sendHeatWiresRange(NodeAddress *nodeAddressTopLeft, NodeAddress *nodeAddressBottomRight,
                                    Actuators *wires, uint16_t timeStamp,
                                    uint16_t duration) {
@@ -194,4 +193,15 @@ FUNC_ATTRS void sendHeatWiresRange(NodeAddress *nodeAddressTopLeft, NodeAddress 
     // interpret the constructed package
     executeHeatWiresRangePackage(
             (HeatWiresRangePackage *) &temporaryPackagePort.buffer.bytes);
+}
+
+
+/**
+ * Sends a header package to neighbours.
+ */
+extern FUNC_ATTRS void sendHeaderPackage(HeaderPackage *package);
+
+FUNC_ATTRS void sendHeaderPackage(HeaderPackage *package) {
+    // interpret the package
+    executeHeaderPackage(package);
 }

@@ -1,5 +1,7 @@
 /**
- * @author Raoul Rubien  13.07.16.
+ * @author Raoul Rubien  13.07.2016
+ *
+ * Communication related types definitions.
  */
 
 #pragma once

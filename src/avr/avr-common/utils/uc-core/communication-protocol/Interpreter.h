@@ -1,6 +1,8 @@
-//
-// Created by Raoul Rubien on 25.05.16.
-//
+/**
+ * Created by Raoul Rubien on 25.05.2016
+ *
+ * Interpreter implementation.
+ */
 
 #pragma once
 
@@ -8,13 +10,15 @@
 #include "Commands.h"
 
 
+/**
+ * Interprets reception in wait for being enumerate states.
+ */
 extern FUNC_ATTRS void __interpretWaitForBeingEnumeratedReception(volatile RxPort *rxPort,
                                                                   volatile CommunicationProtocolPortState *o);
-/**
- * Interprets reception in "wait for being enumerate states".
- */
+
 FUNC_ATTRS void __interpretWaitForBeingEnumeratedReception(volatile RxPort *rxPort,
                                                            volatile CommunicationProtocolPortState *commPortState) {
+    // TODO enhancement: check parity bit == expected parity bit
 
     volatile Package *package = (Package *) rxPort->buffer.bytes;
     // interpret according to local reception protocol state
@@ -52,12 +56,14 @@ FUNC_ATTRS void __interpretWaitForBeingEnumeratedReception(volatile RxPort *rxPo
     }
 }
 
+/**
+ * Interpret received packages in working state.
+ */
 extern FUNC_ATTRS void __interpretReceivedPackage(volatile DirectionOrientedPort *port);
 
-/**
- * Interpret received packages in idle state.
- */
 FUNC_ATTRS void __interpretReceivedPackage(volatile DirectionOrientedPort *port) {
+    // TODO enhancement: check equalsPackageSize() == expected size
+    // TODO enhancement: check parity bit == expected parity bit
     Package *package = (Package *) port->rxPort->buffer.bytes;
     switch (package->asHeader.headerId) {
 
@@ -86,6 +92,11 @@ FUNC_ATTRS void __interpretReceivedPackage(volatile DirectionOrientedPort *port)
             clearReceptionPortBuffer(port->rxPort);
             break;
 
+        case PACKAGE_HEADER_ID_HEADER:
+            executeHeaderPackage(&package->asHeader);
+            clearReceptionPortBuffer(port->rxPort);
+            break;
+
         default:
             DEBUG_CHAR_OUT('u');
             clearReceptionPortBuffer(port->rxPort);
@@ -94,17 +105,19 @@ FUNC_ATTRS void __interpretReceivedPackage(volatile DirectionOrientedPort *port)
 }
 
 
+/**
+ * Interprets reception buffer in neighbour enumeration states.
+ */
 extern FUNC_ATTRS void __interpretEnumerateNeighbourAckReception(volatile RxPort *rxPort,
                                                                  volatile CommunicationProtocolPortState *commPortState,
                                                                  uint8_t expectedRemoteAddressRow,
                                                                  uint8_t expectedRemoteAddressColumn);
-/**
- * Interprets reception in neighbour enumeration states.
- */
+
 FUNC_ATTRS void __interpretEnumerateNeighbourAckReception(volatile RxPort *rxPort,
                                                           volatile CommunicationProtocolPortState *commPortState,
                                                           uint8_t expectedRemoteAddressRow,
                                                           uint8_t expectedRemoteAddressColumn) {
+    // TODO enhancement: check parity bit == expected parity bit
 //    DEBUG_INT16_OUT(expectedRemoteAddressRow);
 //    DEBUG_INT16_OUT(ParticleAttributes.node.address.row);
 //    DEBUG_INT16_OUT(expectedRemoteAddressColumn);
@@ -137,14 +150,16 @@ FUNC_ATTRS void __interpretEnumerateNeighbourAckReception(volatile RxPort *rxPor
         case COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT_ACK_WAIT_FOR_TX_FINISHED:
             break;
     }
-
 }
 
-extern FUNC_ATTRS void interpretRxBuffer(volatile DirectionOrientedPort *port);
 /**
- * interprets reception according to the particle state
+ * Interprets reception buffer in respect to the current particle state.
  */
+extern FUNC_ATTRS void interpretRxBuffer(volatile DirectionOrientedPort *port);
+
 FUNC_ATTRS void interpretRxBuffer(volatile DirectionOrientedPort *port) {
+    // TODO enhancement: check equalsPackageSize() == expected size
+    // TODO enhancement: check parity bit == expected parity bit
     volatile RxPort *rxPort = port->rxPort;
     volatile CommunicationProtocolPortState *commPortState = port->protocol;
     DEBUG_CHAR_OUT('I');

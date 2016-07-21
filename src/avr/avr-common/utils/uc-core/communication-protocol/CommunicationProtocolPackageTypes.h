@@ -1,9 +1,7 @@
 /**
- * @author Raoul Rubien  13.07.16.
- */
-
-/**
- * definition of all package types that can be transmitted/received
+ * @author Raoul Rubien  13.07.2016
+ *
+ * Definition of all package types that can be transmitted/received.
  */
 
 #pragma once
@@ -20,7 +18,7 @@ typedef enum PackageHeaderId {
     PACKAGE_HEADER_ID_TYPE_ENUMERATE = 0,
     PACKAGE_HEADER_ID_TYPE_HEAT_WIRES = 1,
     PACKAGE_HEADER_ID_TYPE_HEAT_WIRES_RANGE = 2,
-    __UNUSED1 = 3,
+    PACKAGE_HEADER_ID_HEADER = 3,
     __UNUSED2 = 4,
     PACKAGE_HEADER_ID_TYPE_SET_NETWORK_GEOMETRY = 5,
     PACKAGE_HEADER_ID_TYPE_NETWORK_GEOMETRY_RESPONSE = 6,
@@ -41,7 +39,7 @@ typedef enum PackageHeaderId {
 typedef struct HeaderPackage {
     uint8_t startBit : 1;
     uint8_t headerId : 4;
-    uint8_t __parityBit: 1;
+    uint8_t parityBit: 1;
     uint8_t enableBroadcast : 1;
     uint8_t __pad: 1;
 } HeaderPackage;
@@ -58,7 +56,7 @@ typedef struct HeaderPackage {
 typedef struct AckPackage {
     uint8_t startBit : 1;
     uint8_t headerId : 4;
-    uint8_t __parityBit: 1;
+    uint8_t parityBit: 1;
     uint8_t enableBroadcast : 1;
     uint8_t __pad : 1;
 } AckPackage;
@@ -74,7 +72,7 @@ typedef struct AckPackage {
 typedef struct AckWithAddressPackage {
     uint8_t startBit : 1;
     uint8_t headerId : 4;
-    uint8_t __parityBit : 1;
+    uint8_t parityBit : 1;
     uint8_t enableBroadcast : 1;
     uint8_t __unused : 1;
     uint8_t addressRow0 : 8;
@@ -92,7 +90,7 @@ typedef struct AckWithAddressPackage {
 typedef struct AnnounceNetworkGeometryPackage {
     uint8_t startBit : 1;
     uint8_t headerId : 4;
-    uint8_t __parityBit : 1;
+    uint8_t parityBit : 1;
     uint8_t enableBroadcast : 1;
     uint8_t __unused : 1;
     uint8_t rows : 8;
@@ -110,7 +108,7 @@ typedef struct AnnounceNetworkGeometryPackage {
 typedef struct SetNetworkGeometryPackage {
     uint8_t startBit : 1;
     uint8_t headerId : 4;
-    uint8_t __parityBit: 1;
+    uint8_t parityBit: 1;
     uint8_t enableBroadcast : 1;
     uint8_t __unused : 1;
     uint8_t rows : 8;
@@ -128,7 +126,7 @@ typedef struct SetNetworkGeometryPackage {
 typedef struct EnumerationPackage {
     uint8_t startBit : 1;
     uint8_t headerId : 4;
-    uint8_t __parityBit : 1;
+    uint8_t parityBit : 1;
     uint8_t enableBroadcast : 1;
     /**
      * Bread crumb is passed until the highest network address is reached.
@@ -149,7 +147,7 @@ typedef struct EnumerationPackage {
 typedef struct TimePackage {
     uint8_t startBit : 1;
     uint8_t headerId : 4;
-    uint8_t __parityBit : 1;
+    uint8_t parityBit : 1;
     uint8_t enableBroadcast : 1;
     uint8_t __unused : 1;
     uint16_t time;
@@ -168,7 +166,7 @@ typedef struct TimePackage {
 typedef struct HeatWiresPackage {
     uint8_t startBit : 1;
     uint8_t headerId : 4;
-    uint8_t __parityBit : 1;
+    uint8_t parityBit : 1;
     uint8_t enableBroadcast : 1;
     uint8_t __unused : 1;
     uint8_t addressRow0 : 8;
@@ -192,7 +190,7 @@ typedef struct HeatWiresPackage {
 typedef struct HeatWiresRangePackage {
     uint8_t startBit : 1;
     uint8_t headerId : 4;
-    uint8_t __parityBit : 1;
+    uint8_t parityBit : 1;
     uint8_t enableBroadcast : 1;
     uint8_t __unused : 1;
     uint8_t addressRow0 : 8;

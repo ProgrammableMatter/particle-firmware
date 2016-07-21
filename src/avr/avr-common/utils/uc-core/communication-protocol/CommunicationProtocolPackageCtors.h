@@ -1,9 +1,7 @@
-//
-// Created by Raoul Rubien on 05.07.16
-//
-
 /**
- * implementation of in buffer constructing tx/rx protocol package
+ * Created by Raoul Rubien on 05.07.16
+ *
+ * In buffer construction of protocol package related implementation.
  */
 
 #pragma once
@@ -12,23 +10,24 @@
 #include "./CommunicationProtocolPackageTypes.h"
 #include "uc-core/particle/Globals.h"
 
-/**
- * constructor function: builds the protocol package at the given port's buffer
- */
-extern CTOR_ATTRS void constructHeaderPackage(volatile TxPort *txPort, uint8_t headerId,
-                                              bool enableBroadcast);
+///**
+// * Constructor function: builds the protocol package at the given port's buffer.
+// */
+//extern CTOR_ATTRS void constructHeaderPackage(volatile TxPort *txPort, uint8_t headerId,
+//                                              bool enableBroadcast);
+//
+//CTOR_ATTRS void constructHeaderPackage(volatile TxPort *txPort, uint8_t headerId, bool enableBroadcast) {
+//    // TODO enhancement: calculate and set parity bit
+//    clearTransmissionPortBuffer(txPort);
+//    Package *package = (Package *) txPort->buffer.bytes;
+//    package->asHeader.startBit = 1;
+//    package->asHeader.headerId = headerId;
+//    package->asHeader.enableBroadcast = enableBroadcast;
+//    setBufferDataEndPointer(txPort->dataEndPos, HeaderPackagePointerSize);
+//}
 
-CTOR_ATTRS void constructHeaderPackage(volatile TxPort *txPort, uint8_t headerId, bool enableBroadcast) {
-    clearTransmissionPortBuffer(txPort);
-    Package *package = (Package *) txPort->buffer.bytes;
-    package->asHeader.startBit = 1;
-    package->asHeader.headerId = headerId;
-    package->asHeader.enableBroadcast = enableBroadcast;
-    setBufferDataEndPointer(txPort->dataEndPos, HeaderPackagePointerSize);
-}
-
 /**
- * constructor function: builds the protocol package at the given port's buffer
+ * Constructor function: builds the protocol package at the given port's buffer.
  */
 extern CTOR_ATTRS void constructEnumeratePackage(volatile TxPort *txPort,
                                                  uint8_t localAddressRow,
@@ -36,6 +35,7 @@ extern CTOR_ATTRS void constructEnumeratePackage(volatile TxPort *txPort,
 
 CTOR_ATTRS void constructEnumeratePackage(volatile TxPort *txPort, uint8_t localAddressRow,
                                           uint8_t localAddressColumn) {
+    // TODO enhancement: calculate and set parity bit
     clearTransmissionPortBuffer(txPort);
     Package *package = (Package *) txPort->buffer.bytes;
 
@@ -62,11 +62,12 @@ CTOR_ATTRS void constructEnumeratePackage(volatile TxPort *txPort, uint8_t local
 
 
 /**
- * constructor function: builds the protocol package at the given port's buffer
+ * Constructor function: builds the protocol package at the given port's buffer.
  */
 extern CTOR_ATTRS void constructEnumerationACKPackage(volatile TxPort *txPort);
 
 CTOR_ATTRS void constructEnumerationACKPackage(volatile TxPort *txPort) {
+    // TODO enhancement: calculate and set parity bit
     clearTransmissionPortBuffer(txPort);
     Package *package = (Package *) txPort->buffer.bytes;
     package->asACKPackage.startBit = 1;
@@ -77,10 +78,12 @@ CTOR_ATTRS void constructEnumerationACKPackage(volatile TxPort *txPort) {
 }
 
 /**
- * constructor function: builds the protocol package at the given port's buffer
+ * Constructor function: builds the protocol package at the given port's buffer.
  */
 extern CTOR_ATTRS void constructEnumerationACKWithAddressToParentPackage(void);
+
 CTOR_ATTRS void constructEnumerationACKWithAddressToParentPackage(void) {
+    // TODO enhancement: calculate and set parity bit
     clearTransmissionPortBuffer(ParticleAttributes.directionOrientedPorts.north.txPort);
     Package *package = (Package *) ParticleAttributes.directionOrientedPorts.north.txPort->buffer.bytes;
     package->asACKWithLocalAddress.startBit = 1;
@@ -92,10 +95,12 @@ CTOR_ATTRS void constructEnumerationACKWithAddressToParentPackage(void) {
 }
 
 /**
- * constructor function: builds the protocol package at the given port's buffer
+ * Constructor function: builds the protocol package at the given port's buffer.
  */
 extern CTOR_ATTRS void constructSyncTimePackage(volatile TxPort *txPort);
+
 CTOR_ATTRS void constructSyncTimePackage(volatile TxPort *txPort) {
+    // TODO enhancement: calculate and set parity bit
     clearTransmissionPortBuffer(txPort);
     Package *package = (Package *) txPort->buffer.bytes;
     package->asSyncTimePackage.startBit = 1;
@@ -109,10 +114,12 @@ CTOR_ATTRS void constructSyncTimePackage(volatile TxPort *txPort) {
 }
 
 /**
- * constructor function: builds the protocol package at the given port's buffer
+ * Constructor function: builds the protocol package at the given port's buffer.
  */
 extern CTOR_ATTRS void constructAnnounceNetworkGeometryPackage(uint8_t row, uint8_t column);
+
 CTOR_ATTRS void constructAnnounceNetworkGeometryPackage(uint8_t row, uint8_t column) {
+    // TODO enhancement: calculate and set parity bit
     clearTransmissionPortBuffer(ParticleAttributes.directionOrientedPorts.north.txPort);
     Package *package = (Package *) ParticleAttributes.directionOrientedPorts.north.txPort->buffer.bytes;
     package->asAnnounceNetworkGeometryPackage.startBit = 1;
@@ -126,11 +133,13 @@ CTOR_ATTRS void constructAnnounceNetworkGeometryPackage(uint8_t row, uint8_t col
 
 
 /**
- * constructor function: builds the protocol package at the given port's buffer
+ * Constructor function: builds the protocol package at the given port's buffer.
  */
 extern CTOR_ATTRS void constructSetNetworkGeometryPackage(volatile TxPort *txPort, uint8_t rows,
                                                           uint8_t columns);
+
 CTOR_ATTRS void constructSetNetworkGeometryPackage(volatile TxPort *txPort, uint8_t rows, uint8_t columns) {
+    // TODO enhancement: calculate and set parity bit
     clearTransmissionPortBuffer(txPort);
     Package *package = (Package *) txPort->buffer.bytes;
     package->asSetNetworkGeometryPackage.startBit = 1;
@@ -142,17 +151,19 @@ CTOR_ATTRS void constructSetNetworkGeometryPackage(volatile TxPort *txPort, uint
 }
 
 /**
- * constructor function: builds the protocol package at the given port's buffer
+ * Constructor function: builds the protocol package at the given port's buffer.
  */
 extern FUNC_ATTRS void constructHeatWiresPackage(volatile TxPort *txPort,
                                                  NodeAddress *address,
                                                  Actuators *wires,
                                                  uint16_t startTimeStamp,
                                                  uint16_t duration);
+
 FUNC_ATTRS void constructHeatWiresPackage(volatile TxPort *txPort, NodeAddress *address,
                                           Actuators *wires,
                                           uint16_t startTimeStamp,
                                           uint16_t duration) {
+    // TODO enhancement: calculate and set parity bit
     clearTransmissionPortBuffer(txPort);
     Package *package = (Package *) txPort->buffer.bytes;
     package->asHeatWiresPackage.startBit = 1;
@@ -169,7 +180,7 @@ FUNC_ATTRS void constructHeatWiresPackage(volatile TxPort *txPort, NodeAddress *
 }
 
 /**
- * constructor function: builds the protocol package at the given port's buffer
+ * Constructor function: builds the protocol package at the given port's buffer.
  */
 extern FUNC_ATTRS void constructHeatWiresRangePackage(volatile TxPort *txPort,
                                                       NodeAddress *nodeAddressTopLeft,
@@ -177,12 +188,14 @@ extern FUNC_ATTRS void constructHeatWiresRangePackage(volatile TxPort *txPort,
                                                       Actuators *wires,
                                                       uint16_t startTimeStamp,
                                                       uint16_t duration);
+
 FUNC_ATTRS void constructHeatWiresRangePackage(volatile TxPort *txPort,
                                                NodeAddress *nodeAddressTopLeft,
                                                NodeAddress *nodeAddressBottomRight,
                                                Actuators *wires,
                                                uint16_t startTimeStamp,
                                                uint16_t duration) {
+    // TODO enhancement: calculate and set parity bit
     clearTransmissionPortBuffer(txPort);
     Package *package = (Package *) txPort->buffer.bytes;
     package->asHeatWiresRangePackage.startBit = 1;
@@ -198,4 +211,19 @@ FUNC_ATTRS void constructHeatWiresRangePackage(volatile TxPort *txPort,
     package->asHeatWiresRangePackage.northLeft = wires->northLeft;
     package->asHeatWiresRangePackage.northRight = wires->northRight;
     setBufferDataEndPointer(txPort->dataEndPos, HeatWiresRangePackageBufferPointerSize);
+}
+
+/**
+ * Constructor function: builds the protocol package at the given port's buffer.
+ */
+extern CTOR_ATTRS void constructHeaderPackage(volatile TxPort *txPort);
+
+CTOR_ATTRS void constructHeaderPackage(volatile TxPort *txPort) {
+    // TODO enhancement: calculate and set parity bit
+    clearTransmissionPortBuffer(txPort);
+    Package *package = (Package *) txPort->buffer.bytes;
+    package->asHeader.startBit = 1;
+    package->asSetNetworkGeometryPackage.headerId = PACKAGE_HEADER_ID_HEADER;
+    package->asHeader.enableBroadcast = false;
+    setBufferDataEndPointer(txPort->dataEndPos, HeaderPackagePointerSize);
 }
