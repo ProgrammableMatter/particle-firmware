@@ -121,6 +121,10 @@ FUNC_ATTRS void handleEnumerateNeighbour(volatile DirectionOrientedPort *port,
  * i) the destination must be in same column but row is greater than current node's row or
  * ii) the destination resides in a different column but the current row equals 1.
  * Otherwise the request is skipped.
+ * @param nodeAddress the node address
+ * @param wires affected actuator flags
+ * @param timeStamp the time stamp when the actuation should start
+ * @param duration 10bit actuation duration {@link #HeatWiresPackage}
  */
 extern FUNC_ATTRS void sendHeatWires(NodeAddress *nodeAddress, Actuators *wires, uint16_t timeStamp,
                                      uint16_t duration);

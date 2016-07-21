@@ -13,10 +13,25 @@
  * or 8 minutes and 52.48 seconds.
  */
 #define ADVANCE_LOCAL_TIME \
-    (ParticleAttributes.localTime.numTimePeriodsPassed++)
+    ( \
+        (ParticleAttributes.localTime.numTimePeriodsPassed >= ParticleAttributes.localTime.timePeriodInterruptDelay) \
+        ? (ParticleAttributes.localTime.numTimePeriodsPassed = 0) \
+        : (ParticleAttributes.localTime.numTimePeriodsPassed++) \
+    )
 
 /**
  * schedule the next time interrupt
  */
 #define SCHEDULE_NEXT_LOCAL_TIME_INTERUPT \
-    (LOCAL_TIME_INTERRUPT_COMPARE_VALUE += ParticleAttributes.localTime.interruptDelay)
+    (LOCAL_TIME_INTERRUPT_COMPARE_VALUE += ParticleAttributes.localTime.timePeriodInterruptDelay)
+
+
+/**
+ * enables the local time interrupt using current adjustment argument
+ */
+extern FUNC_ATTRS void enableLocalTimeInterrupt(void);
+
+FUNC_ATTRS void enableLocalTimeInterrupt(void) {
+    LOCAL_TIME_INTERRUPT_COMPARE_VALUE = ParticleAttributes.localTime.timePeriodInterruptDelay;
+    LOCAL_TIME_INTERRUPT_COMPARE_ENABLE;
+}

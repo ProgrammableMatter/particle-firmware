@@ -12,6 +12,6 @@ typedef struct LocalTimeTracking {
     /**
      * adjustable delay for fine tuning
      */
-    uint16_t interruptDelay;
+    uint16_t timePeriodInterruptDelay;
 } LocalTimeTracking;
 

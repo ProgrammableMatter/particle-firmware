@@ -236,13 +236,13 @@ FUNC_ATTRS void __handleSynchronizeNeighbour(StateType endState) {
     }
 }
 
-extern FUNC_ATTRS void __handleSynchronizeNeighbourDone(StateType endState);
+extern FUNC_ATTRS void __handleSynchronizeNeighbourDoneOrRuntest(StateType endState);
 /**
  * Handles the sync neighbour done state. In general it simply switches to the specified state,
  * but if simulation/test macros are defined it redirects to other states accordingly.
  */
 
-FUNC_ATTRS void __handleSynchronizeNeighbourDone(StateType endState) {
+FUNC_ATTRS void __handleSynchronizeNeighbourDoneOrRuntest(StateType endState) {
 #ifdef SIMULATION
 #  if defined(SIMULATION_SET_NEW_NETWORK_GEOMETRY_TEST)
     if (ParticleAttributes.node.type == NODE_TYPE_ORIGIN) {
@@ -255,13 +255,13 @@ FUNC_ATTRS void __handleSynchronizeNeighbourDone(StateType endState) {
 #  elif defined(SIMULATION_HEAT_WIRES_TEST)
     if (ParticleAttributes.node.type == NODE_TYPE_ORIGIN) {
         Actuators actuators;
-        actuators.northLeft = false;
+        actuators.northLeft = true;
         actuators.northRight = true;
         NodeAddress nodeAddress;
         nodeAddress.row = 2;
         nodeAddress.column = 2;
         DELAY_MS_1;
-        sendHeatWires(&nodeAddress, &actuators, 50000, 10);
+        sendHeatWires(&nodeAddress, &actuators, 5, 2);
         return;
     }
 #  elif defined(SIMULATION_HEAT_WIRES_RANGE_TEST)
@@ -517,15 +517,6 @@ FUNC_ATTRS void __handleIsActuationCommandPeriod(void) {
     }
 }
 
-extern FUNC_ATTRS void __enableLocalTimeInterrupt(void);
-/**
- * enables the local time interrupt using current adjustment argument
- */
-FUNC_ATTRS void __enableLocalTimeInterrupt(void) {
-    LOCAL_TIME_INTERRUPT_COMPARE_VALUE = ParticleAttributes.localTime.interruptDelay;
-    LOCAL_TIME_INTERRUPT_COMPARE_ENABLE;
-}
-
 extern inline void particleTick(void);
 
 /**
@@ -642,7 +633,7 @@ inline void particleTick(void) {
         case STATE_TYPE_ENUMERATING_NEIGHBOURS_DONE:
             setInitiatorStateStart(&ParticleAttributes.protocol.ports.north);
             ParticleAttributes.node.state = STATE_TYPE_ANNOUNCE_NETWORK_GEOMETRY;
-            __enableLocalTimeInterrupt();
+            enableLocalTimeInterrupt();
             goto __STATE_TYPE_ANNOUNCE_NETWORK_GEOMETRY;
             break;
 
@@ -682,7 +673,7 @@ inline void particleTick(void) {
             break;
 
         case STATE_TYPE_SYNC_NEIGHBOUR_DONE:
-            __handleSynchronizeNeighbourDone(STATE_TYPE_IDLE);
+            __handleSynchronizeNeighbourDoneOrRuntest(STATE_TYPE_IDLE);
             break;
 
             // ---------------- working states: set network geometry----------------

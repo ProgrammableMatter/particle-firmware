@@ -221,7 +221,8 @@ FUNC_ATTRS void __scheduleHeatWiresCommand(volatile Package *package) {
         ParticleAttributes.actuationCommand.actuators.northRight = heatWiresPackage->northRight;
         ParticleAttributes.actuationCommand.actuationStart.periodTimeStamp = heatWiresPackage->startTimeStamp;
         ParticleAttributes.actuationCommand.actuationEnd.periodTimeStamp =
-                heatWiresPackage->startTimeStamp + heatWiresPackage->duration;
+                heatWiresPackage->startTimeStamp +
+                ((((uint16_t) heatWiresPackage->durationMsb) << 8) | heatWiresPackage->duration);
         ParticleAttributes.protocol.isBroadcastEnabled = heatWiresPackage->enableBroadcast;
         ParticleAttributes.actuationCommand.isScheduled = true;
     } else if (package->asHeader.headerId == PACKAGE_HEADER_ID_TYPE_HEAT_WIRES_RANGE) {
@@ -230,7 +231,8 @@ FUNC_ATTRS void __scheduleHeatWiresCommand(volatile Package *package) {
         ParticleAttributes.actuationCommand.actuators.northRight = heatWiresRangePackage->northRight;
         ParticleAttributes.actuationCommand.actuationStart.periodTimeStamp = heatWiresRangePackage->startTimeStamp;
         ParticleAttributes.actuationCommand.actuationEnd.periodTimeStamp =
-                heatWiresRangePackage->startTimeStamp + heatWiresRangePackage->duration;
+                heatWiresRangePackage->startTimeStamp +
+                ((((uint16_t) heatWiresRangePackage->durationMsb) << 8) | heatWiresRangePackage->duration);
         ParticleAttributes.protocol.isBroadcastEnabled = heatWiresRangePackage->enableBroadcast;
         ParticleAttributes.actuationCommand.isScheduled = true;
     }

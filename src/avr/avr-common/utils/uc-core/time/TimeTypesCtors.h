@@ -14,5 +14,5 @@ extern CTOR_ATTRS void constructLocalTimeTracking(volatile LocalTimeTracking *o)
  */
 extern CTOR_ATTRS void constructLocalTimeTracking(volatile LocalTimeTracking *o) {
     o->numTimePeriodsPassed = 0;
-    o->interruptDelay = LOCAL_TIME_DEFAULT_INTERRUPT_DELAY;
+    o->timePeriodInterruptDelay = LOCAL_TIME_DEFAULT_INTERRUPT_DELAY;
 }

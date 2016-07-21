@@ -23,7 +23,7 @@ extern CTOR_ATTRS void constructHeatingMode(volatile HeatingMode *o);
  * constructor function
  */
 CTOR_ATTRS void constructHeatingMode(volatile HeatingMode *o) {
-    o->dutyCycleLevel = HEATING_LEVEL_TYPE_MAXIMUM;
+    o->dutyCycleLevel = HEATING_LEVEL_TYPE_MEDIUM;
 }
 
 extern FUNC_ATTRS void constructLocalTime(volatile LocalTime *o);
