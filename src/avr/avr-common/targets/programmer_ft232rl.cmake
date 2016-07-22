@@ -1,4 +1,4 @@
-# @author Raoul Rubien 2015
+# @author Raoul Rubien 2016
 
 SET(PROGRAMMER ft232rl_dasa)
 
@@ -27,5 +27,6 @@ SET(PROGRAMMER_TARGET t20)
 # -t enter terminal mode (debug only)
 # -E exitspec: reset, noreset, vcc, novcc, d_high, d_low; not supported by all programmer i.e. ft232rl_dasa
 SET(PROGRAMMER_EXTRA_FLAGS "-VuveC${PROJECTS_SOURCE_ROOT}/avr-common/targets/avrdude_ft232rl-dasa_attiny20.conf")
+
 # hack to release RTS and let device leave reset mode
 SET(POST_PROGRAMMING_COMMAND "&&" "python" "-c'import" "serial" "\\\;" "serial.Serial(\"${PROGRAMMER_PORT}\").setRTS(0)'")

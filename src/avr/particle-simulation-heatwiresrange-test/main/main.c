@@ -1,5 +1,5 @@
 /**
- * @author Raoul Rubien 2015
+ * @author Raoul Rubien 2016
  */
 
 #define SIMULATION_HEAT_WIRES_RANGE_TEST

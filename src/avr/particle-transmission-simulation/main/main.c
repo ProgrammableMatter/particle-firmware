@@ -6,10 +6,11 @@
 
 //unsigned char __stuff __attribute__((section(".noinit")));
 
-extern FUNC_ATTRS void particleLoop(void);
 /**
  * A mocked up particle loop. It puts the particle in an initialized reception state.
  */
+extern FUNC_ATTRS void particleLoop(void);
+
 FUNC_ATTRS void particleLoop(void) {
     forever {
         particleTick();
