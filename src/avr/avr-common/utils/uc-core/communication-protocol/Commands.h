@@ -110,6 +110,12 @@ FUNC_ATTRS void __relayPackage(volatile Package *source, volatile DirectionOrien
     __volatileSram9ByteMemcopy(source, destination->txPort->buffer.bytes);
     setBufferDataEndPointer(destination->txPort->dataEndPos, dataEndPointer);
     ParticleAttributes.node.state = endState;
+
+    if (destination == &ParticleAttributes.directionOrientedPorts.simultaneous) {
+        ParticleAttributes.protocol.isSimultaneousTransmissionEnabled = true;
+    } else {
+        ParticleAttributes.protocol.isSimultaneousTransmissionEnabled = false;
+    }
 }
 
 
@@ -295,7 +301,6 @@ FUNC_ATTRS void executeHeatWiresPackage(volatile HeatWiresPackage *heatWiresPack
                            HeatWiresPackageBufferPointerSize,
                            STATE_TYPE_SENDING_PACKAGE_TO_EAST);
             ParticleAttributes.protocol.isBroadcastEnabled = false;
-            ParticleAttributes.protocol.isSimultaneousTransmissionEnabled = false;
         }
         if (inferLocalCommand) {
             __inferEastActuatorCommand((Package *) heatWiresPackage);
@@ -306,7 +311,6 @@ FUNC_ATTRS void executeHeatWiresPackage(volatile HeatWiresPackage *heatWiresPack
                            HeatWiresPackageBufferPointerSize,
                            STATE_TYPE_SENDING_PACKAGE_TO_SOUTH);
             ParticleAttributes.protocol.isBroadcastEnabled = false;
-            ParticleAttributes.protocol.isSimultaneousTransmissionEnabled = false;
         }
         if (inferLocalCommand) {
             __inferSouthActuatorCommand((Package *) heatWiresPackage);
@@ -372,7 +376,6 @@ FUNC_ATTRS void executeHeatWiresRangePackage(volatile HeatWiresRangePackage *hea
                            &ParticleAttributes.directionOrientedPorts.simultaneous,
                            HeatWiresRangePackageBufferPointerSize,
                            STATE_TYPE_SENDING_PACKAGE_TO_EAST_AND_SOUTH);
-            ParticleAttributes.protocol.isSimultaneousTransmissionEnabled = true;
         }
         if (inferLocalCommand) {
             __inferEastActuatorCommand((Package *) heatWiresRangePackage);
@@ -383,7 +386,6 @@ FUNC_ATTRS void executeHeatWiresRangePackage(volatile HeatWiresRangePackage *hea
             __relayPackage((Package *) heatWiresRangePackage, &ParticleAttributes.directionOrientedPorts.east,
                            HeatWiresRangePackageBufferPointerSize,
                            STATE_TYPE_SENDING_PACKAGE_TO_EAST);
-            ParticleAttributes.protocol.isSimultaneousTransmissionEnabled = false;
         }
         if (inferLocalCommand) {
             __inferEastActuatorCommand((Package *) heatWiresRangePackage);
@@ -394,7 +396,6 @@ FUNC_ATTRS void executeHeatWiresRangePackage(volatile HeatWiresRangePackage *hea
                            &ParticleAttributes.directionOrientedPorts.south,
                            HeatWiresRangePackageBufferPointerSize,
                            STATE_TYPE_SENDING_PACKAGE_TO_SOUTH);
-            ParticleAttributes.protocol.isSimultaneousTransmissionEnabled = false;
         }
         if (inferLocalCommand) {
             __inferSouthActuatorCommand((Package *) heatWiresRangePackage);
@@ -427,14 +428,13 @@ FUNC_ATTRS void executeHeaderPackage(volatile HeaderPackage *package) {
 
         if (routeToEast && routeToSouth) {
             __relayPackage((Package *) package, &ParticleAttributes.directionOrientedPorts.simultaneous,
-                           SetNetworkGeometryPackageBufferPointerSize,
-                           STATE_TYPE_SENDING_PACKAGE_TO_EAST_AND_SOUTH);
+                           HeaderPackagePointerSize, STATE_TYPE_SENDING_PACKAGE_TO_EAST_AND_SOUTH);
         } else if (routeToEast) {
             __relayPackage((Package *) package, &ParticleAttributes.directionOrientedPorts.east,
-                           SetNetworkGeometryPackageBufferPointerSize, STATE_TYPE_SENDING_PACKAGE_TO_EAST);
+                           HeaderPackagePointerSize, STATE_TYPE_SENDING_PACKAGE_TO_EAST);
         } else if (routeToSouth) {
             __relayPackage((Package *) package, &ParticleAttributes.directionOrientedPorts.south,
-                           SetNetworkGeometryPackageBufferPointerSize, STATE_TYPE_SENDING_PACKAGE_TO_SOUTH);
+                           HeaderPackagePointerSize, STATE_TYPE_SENDING_PACKAGE_TO_SOUTH);
         }
     }
 
