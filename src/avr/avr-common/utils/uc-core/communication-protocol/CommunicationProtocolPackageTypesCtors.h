@@ -223,7 +223,7 @@ CTOR_ATTRS void constructHeaderPackage(volatile TxPort *txPort) {
     clearTransmissionPortBuffer(txPort);
     Package *package = (Package *) txPort->buffer.bytes;
     package->asHeader.startBit = 1;
-    package->asSetNetworkGeometryPackage.headerId = PACKAGE_HEADER_ID_HEADER;
+    package->asHeader.headerId = PACKAGE_HEADER_ID_HEADER;
     package->asHeader.enableBroadcast = false;
     setBufferDataEndPointer(txPort->dataEndPos, HeaderPackagePointerSize);
 }
