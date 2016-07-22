@@ -288,6 +288,8 @@ FUNC_ATTRS void __handleSynchronizeNeighbourDoneOrRuntest(StateType endState) {
 #  elif defined(SIMULATION_SEND_HEADER_TEST)
     if (ParticleAttributes.node.type == NODE_TYPE_ORIGIN) {
         HeaderPackage package;
+        package.startBit = 1;
+        package.headerId = PACKAGE_HEADER_ID_HEADER;
         package.enableBroadcast = true;
         DELAY_MS_1;
         sendHeaderPackage(&package);
