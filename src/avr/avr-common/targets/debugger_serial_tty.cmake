@@ -1,4 +1,4 @@
-# @author Raoul Rubien 2011
+# @author Raoul Rubien 2016
 
 # serial usart settings
 SET(DEBUGGER_PORT /dev/ttyUSBXX)

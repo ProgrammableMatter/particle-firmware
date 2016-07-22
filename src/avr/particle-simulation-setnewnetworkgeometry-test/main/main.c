@@ -1,5 +1,5 @@
 /**
- * @author Raoul Rubien 2015
+ * @author Raoul Rubien 2016
  */
 
 #define SIMULATION_SET_NEW_NETWORK_GEOMETRY_TEST

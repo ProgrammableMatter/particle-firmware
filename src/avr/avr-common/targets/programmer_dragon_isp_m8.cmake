@@ -1,4 +1,4 @@
-# @author: Raoul Rubien 2011
+# @author Raoul Rubien 2016
 
 SET(PROGRAMMER dragon_isp)
 #SET(PROGRAMMER dragon_pp)
