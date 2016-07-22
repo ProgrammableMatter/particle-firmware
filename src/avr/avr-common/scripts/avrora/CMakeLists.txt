@@ -1,4 +1,4 @@
-# @author: Raoul Rubien 2015
+# @author Raoul Rubien 2016
 
 set(SIMULATOR "${CMAKE_CURRENT_SOURCE_DIR}/avrora.sh")
 set(TRANSLATOR "${CMAKE_CURRENT_SOURCE_DIR}/elf-translator.sh")

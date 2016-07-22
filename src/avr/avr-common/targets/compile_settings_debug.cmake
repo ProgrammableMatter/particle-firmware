@@ -1,3 +1,3 @@
-# @author: Raoul Rubien 2016
+# @author Raoul Rubien 2016
 
 SET(CDEBUG "${CDEBUG} -gstabs")

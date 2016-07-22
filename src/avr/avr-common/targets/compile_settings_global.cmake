@@ -1,4 +1,4 @@
-# @author: Raoul Rubien 2016
+# @author Raoul Rubien 2016
 
 SET(CMAKE_VERBOSE_MAKEFILE True)
 SET(CMAKE_SYSTEM_NAME Generic)

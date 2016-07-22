@@ -1,3 +1,3 @@
-# @author: Raoul Rubien 2015
+# @author Raoul Rubien 2016
 
 SET(CMCU "-mmcu=attiny1634")

@@ -1,4 +1,4 @@
-# @author: Raoul Rubien 2011
+# @author Raoul Rubien 2016
 
 # show stats about binary
 add_custom_command(TARGET ${BINARY}

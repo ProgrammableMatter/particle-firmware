@@ -1,4 +1,4 @@
-# @author: Raoul Rubien 2011
+# @author Raoul Rubien 2016
 
 #if (${PROJECT_NAME} STREQUAL "Commons")
 #
