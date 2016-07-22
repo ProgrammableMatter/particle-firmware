@@ -1,19 +1,26 @@
 /**
  * @author Raoul Rubien 2016
+ *
+ * Manchester decoding related types definition.
  */
 
 #pragma once
 
 #include <stdint.h>
-
 #include "uc-core/configuration/Communication.h"
 
+/**
+ * Possible manchester decoder states.
+ */
 typedef enum ManchesterDecodingStateType {
     DECODER_STATE_TYPE_START, // initialization state before decoding
     DECODER_STATE_TYPE_DECODING, // state when decoding
     DECODER_STATE_TYPE_POST_TIMEOUT_PROCESS, // state after last decoding
 } ManchesterDecodingStateType;
 
+/**
+ * Manchester decoder state and phase state struct.
+ */
 typedef struct ManchesterDecoderStates {
     ManchesterDecodingStateType decodingState;
     /**
@@ -26,56 +33,55 @@ typedef struct ManchesterDecoderStates {
 
 /**
  * A snapshot consists of a 16 bit value and the flank direction information. The least significant snapshot
- * value bit is scarified for the flank direction information. Thus only the bits [1:15] of the snapshot are stored.
+ * bit is scarified for the flank direction information. Thus only the bits [15:1] of the snapshot are stored.
  */
 typedef struct Snapshot {
     uint16_t isRisingEdge : 1;
     /**
-     * the least significant snapshot value bit is ignored; this should be used as
+     * The least significant snapshot value bit is ignored; this should be used as:
      * foo = s.snapshot << 1
      */
     uint16_t timerValue : 15;
 } Snapshot;
 
-
 /**
- * The struct is used as buffer for storing timestamps of received pin change interrupts
- * and manchester decoding. The timestamps are then decoded to bits and stored to the RxBuffer struct.
+ * The struct is used as buffer for storing timestamps of received pin change interrupts.
+ * The timestamps are then decoded to bits and stored to a RxBuffer struct.
  */
 typedef struct RxSnapshotBuffer {
     /**
-     * decoding states
+     * Manchester decoder states
      */
     ManchesterDecoderStates decoderStates;
     /**
-     * each snapshot's lsb describes rising (1) or falling (0) flank occurred at the given snapshot
+     * snapshot buffer
      */
     Snapshot snapshots[RX_NUMBER_SNAPSHOTS];
     /**
-    * used to store the previous dequeue value
-    */
+     * field stores the previous dequeue value
+     */
     uint16_t temporarySnapshotTimerValue;
     /**
-     * describes the 1st buffered position
+     * field describes the 1st buffered position
      */
     uint8_t startIndex : 7;
     uint8_t __pad : 1;
     /**
-     * describes the 1st invalid position
+     * describes the 1st invalid buffer position
      */
     uint8_t endIndex : 7;
     uint8_t __pad1 : 1;
-
     /**
-     * the start register keeps the first snapshot of the last transmission
+     * field stores the 1st timer value of the last transmission
      */
     uint16_t temporaryTxStartSnapshotTimerValue;
-
+    /**
+     * field stores the last timer value of the last transmission
+     */
     uint16_t temporaryTxStopSnapshotTimerValue;
     /**
-     * the number of cycles/2 passed reflects
-     * the number clocks from the 1st snapshot until the last snapshot before timeout
+     * number of passed half cycles reflects the number of π's passed from 1st snapshot
+     * until the last snapshot before timeout
      */
     uint8_t numberHalfCyclesPassed;
-
 } RxSnapshotBuffer;

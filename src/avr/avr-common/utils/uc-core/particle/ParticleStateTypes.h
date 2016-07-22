@@ -1,5 +1,7 @@
 /*
- * @author Raoul Rubien 2015
+ * @author Raoul Rubien 2016
+ *
+ * Particle state definition.
  */
 
 #pragma once
@@ -121,7 +123,7 @@ typedef enum NodeType {
 } NodeType;
 
 /**
- * The dsicovery pulse counter stores the amount of discovery pulses and the connectivity state.
+ * The discovery pulse counter stores the amount of discovery pulses and the connectivity state.
  */
 typedef struct DiscoveryPulseCounter {
     // discovery pulse counter
@@ -152,7 +154,6 @@ typedef struct NodeAddress {
     uint8_t column;
 } NodeAddress;
 
-
 /**
  * Describes the node state type and address.
  */
@@ -164,7 +165,6 @@ typedef struct Node {
     NodeType type;
     NodeAddress address;
 } Node;
-
 
 /**
  * Counters/resources needed for non vital platform's periphery such as LEDs, test points and alike.
@@ -286,5 +286,3 @@ typedef struct Particle {
     uint8_t __structEndMarker;
 #endif
 } Particle;
-
-

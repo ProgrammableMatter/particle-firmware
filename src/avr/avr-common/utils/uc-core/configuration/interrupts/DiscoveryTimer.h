@@ -1,15 +1,13 @@
 /**
- * @author Raoul Rubien
- * 20.07.2016
+ * @author Raoul Rubien 20.07.2016
+ *
+ * Discovery timer interrupt related configuration.
  */
 
 #pragma once
 
 #include "TimerCounter1.h"
 
-/**
- * define discovery interrupt macros
- */
 #define __TIMER_NEIGHBOUR_SENSE_PRESCALER_ENABLE \
     __TIMER1_INTERRUPT_PRESCALER_ENABLE(__TIMER_COUNTER_PRESCALER_8)
 
@@ -34,4 +32,3 @@
 
 #define TIMER_NEIGHBOUR_SENSE_COUNTER_VALUE \
     TCNT1
-

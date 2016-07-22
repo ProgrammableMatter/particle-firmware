@@ -1,5 +1,7 @@
 /**
- * @author Raoul Rubien  12.07.16.
+ * @author Raoul Rubien  12.07.2016
+ *
+ * Actuation types constructor implementation.
  */
 
 #pragma once
@@ -9,6 +11,7 @@
 extern CTOR_ATTRS void constructActuators(volatile Actuators *o);
 /**
  * constructor function
+ * @param o reference to the object to construct
  */
 CTOR_ATTRS void constructActuators(volatile Actuators *o) {
     o->northLeft = false;
@@ -21,6 +24,7 @@ extern CTOR_ATTRS void constructHeatingMode(volatile HeatingMode *o);
 
 /**
  * constructor function
+ * @param o reference to the object to construct
  */
 CTOR_ATTRS void constructHeatingMode(volatile HeatingMode *o) {
     o->dutyCycleLevel = HEATING_LEVEL_TYPE_MEDIUM;
@@ -29,16 +33,18 @@ CTOR_ATTRS void constructHeatingMode(volatile HeatingMode *o) {
 extern FUNC_ATTRS void constructLocalTime(volatile LocalTime *o);
 /**
  * constructor function
+ * @param o reference to the object to construct
  */
 FUNC_ATTRS void constructLocalTime(volatile LocalTime *o) {
     o->periodTimeStamp = 0;
 };
 
-extern CTOR_ATTRS void constructActuationCommand(volatile struct ActuationCommand *o);
-
 /**
  * constructor function
+ * @param o reference to the object to construct
  */
+extern CTOR_ATTRS void constructActuationCommand(volatile struct ActuationCommand *o);
+
 CTOR_ATTRS void constructActuationCommand(volatile struct ActuationCommand *o) {
     constructActuators(&o->actuators);
     constructHeatingMode(&o->actuationPower);

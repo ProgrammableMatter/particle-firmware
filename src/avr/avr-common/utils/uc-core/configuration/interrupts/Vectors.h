@@ -1,14 +1,11 @@
 /**
- * @author Raoul Rubien
- * 20.07.2016
+ * @author Raoul Rubien 20.07.2016
+ *
+ * ISR vector names related configuration.
  */
 #pragma once
 
 #include <avr/interrupt.h>
-
-/**
- * Interrupt vectors renamed for convenience.
- */
 
 #define RESET_VECT _VECTOR(0)
 

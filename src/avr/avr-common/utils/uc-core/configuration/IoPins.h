@@ -1,5 +1,7 @@
 /**
- * @author Raoul Rubien 2015
+ * @author Raoul Rubien 2016
+ *
+ * Input and output pin related arguments.
  */
 
 #pragma once

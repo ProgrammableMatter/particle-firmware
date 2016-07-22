@@ -1,12 +1,15 @@
 /**
- * @author Raoul Rubien 2015
+ * @author Raoul Rubien 2016
+ *
+ * The main loop implementation.
  */
+
 #pragma once
 
 #include "ParticleCore.h"
 
 /**
- * The particle loop. It changes particle states and performs/execute tasks.
+ * The main particle loop. It repetitively calls the state driven particle core implementation.
  */
 extern inline void particleLoop(void);
 

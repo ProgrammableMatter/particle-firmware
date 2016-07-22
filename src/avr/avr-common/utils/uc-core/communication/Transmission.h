@@ -1,6 +1,7 @@
 /**
- * @author Raoul Rubien
- * 5/2016
+ * @author Raoul Rubien 05.2016
+ *
+ * Transmission related implementation.
  */
 
 #pragma once
@@ -8,19 +9,21 @@
 #include "uc-core/configuration/interrupts/TxRxTimer.h"
 #include "simulation/SimulationMacros.h"
 
-extern FUNC_ATTRS void scheduleNextTxInterrupt(void);
 /**
  * Schedules the next transmission interrupt.
  */
+extern FUNC_ATTRS void scheduleNextTxInterrupt(void);
+
 FUNC_ATTRS void scheduleNextTxInterrupt(void) {
     TIMER_TX_RX_COMPARE_VALUE += ParticleAttributes.communication.timerAdjustment.transmissionClockDelayHalf
                                  + ParticleAttributes.communication.timerAdjustment.transmissionClockShift;
 }
 
-extern FUNC_ATTRS void scheduleStartTxInterrupt(void);
 /**
- * Schedules the next transmission interrupt.
+ * Schedules the next transmission start interrupt.
  */
+extern FUNC_ATTRS void scheduleStartTxInterrupt(void);
+
 FUNC_ATTRS void scheduleStartTxInterrupt(void) {
     uint16_t counter = TIMER_TX_RX_COUNTER_VALUE;
     TIMER_TX_RX_COMPARE_VALUE = counter -
@@ -31,10 +34,13 @@ FUNC_ATTRS void scheduleStartTxInterrupt(void) {
     TIMER_TX_RX_ENABLE_COMPARE_INTERRUPT;
 }
 
-extern FUNC_ATTRS void enableTransmission(volatile TxPort *port);
 /**
- * Enables the next transmission.
+ * Activates the designated port to contribute to the next transmission until
+ * there is no more data to transmit.
+ * @param port the designated transmissoin port to read the buffer and transmit from
  */
+extern FUNC_ATTRS void enableTransmission(volatile TxPort *port);
+
 FUNC_ATTRS void enableTransmission(volatile TxPort *port) {
     port->isTxClockPhase = true;
     port->isTransmitting = true;

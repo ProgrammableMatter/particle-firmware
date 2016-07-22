@@ -1,17 +1,15 @@
 /**
- * @author Raoul Rubien
- * 20.07.2016
+ * @author Raoul Rubien 20.07.2016
+ *
+ * Reception pin interrupt configuration.
  */
+
 #pragma once
 
 #include <avr/interrupt.h>
 #include "common/PortInteraction.h"
 
-/**
- * reception pin interrupt macros
- */
-// for production MCU
-#ifdef __AVR_ATtiny1634__
+#ifdef __AVR_ATtiny1634__ // for production MCU
 
 #  define __RX_INTERRUPT_FLAG_NORTH PCIF2
 #  define __RX_INTERRUPT_FLAG_EAST PCIF1
@@ -65,8 +63,7 @@
     RX_INT_ENABLE
 
 #else
-// for simulator MCU
-#  if defined(__AVR_ATmega16__)
+#  if defined(__AVR_ATmega16__) // for simulator MCU
 
 #  define __RX_INTERRUPT_FLAG_NORTH \
     INTF2

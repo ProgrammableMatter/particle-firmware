@@ -1,13 +1,11 @@
 /**
- * @author Raoul Rubien
- * 20.07.2016
+ * @author Raoul Rubien 20.07.2016
+ *
+ * General timer counter related configuration.
  */
 
 #pragma once
 
-/**
- * define timer / counter prescaler
- */
 #if  defined(__AVR_ATtiny1634__) || defined(__AVR_ATmega16__)
 
 #  define __TIMER_COUNTER_PRESCALER_DISCONNECTED_FLAGS \

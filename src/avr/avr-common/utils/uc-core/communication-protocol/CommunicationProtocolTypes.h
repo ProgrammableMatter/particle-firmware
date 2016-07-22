@@ -9,7 +9,8 @@
 #include <stdint.h>
 
 /**
- * Describes communication states of the initiator.
+ * Describes communication states of the initiator. The initiator is the particle which
+ * started the communication.
  */
 typedef enum CommunicationInitiatorStateTypes {
     COMMUNICATION_INITIATOR_STATE_TYPE_IDLE,
@@ -21,7 +22,8 @@ typedef enum CommunicationInitiatorStateTypes {
 } CommunicationInitiatorStateTypes;
 
 /**
- * Describes communication states of the receptionist.
+ * Describes communication states of the receptionist. The receptionist is the particle
+ * which reacts on a received package.
  */
 typedef enum CommunicationReceptionistStateTypes {
     COMMUNICATION_RECEPTIONIST_STATE_TYPE_IDLE,
@@ -32,17 +34,20 @@ typedef enum CommunicationReceptionistStateTypes {
 } CommunicationReceptionistStateTypes;
 
 /**
- * describes the communication port state
+ * Describes the communication port state.
  */
 typedef struct CommunicationProtocolPortState {
     CommunicationInitiatorStateTypes initiatorState;
     CommunicationReceptionistStateTypes receptionistState;
     /**
-     * value of 0 indicates timeout
+     * value 0 indicates a timeout
      */
     uint8_t stateTimeoutCounter;
 } CommunicationProtocolPortState;
 
+/**
+ * Communication protocol ports bundle.
+ */
 typedef struct CommunicationProtocolPorts {
     CommunicationProtocolPortState north;
     CommunicationProtocolPortState east;
@@ -50,7 +55,7 @@ typedef struct CommunicationProtocolPorts {
 } CommunicationProtocolPorts;
 
 /**
- * describes the network geometry; valid row/col values are > 0
+ * Describes the network geometry; valid row/col values are (> 0) && (<= UINT8_MAX).
  */
 typedef struct NetworkGeometry {
     uint8_t rows;
@@ -58,7 +63,7 @@ typedef struct NetworkGeometry {
 } NetworkGeometry;
 
 /**
- * describes the communication ports
+ * The communication protocol structure.
  */
 typedef struct CommunicationProtocol {
     CommunicationProtocolPorts ports;

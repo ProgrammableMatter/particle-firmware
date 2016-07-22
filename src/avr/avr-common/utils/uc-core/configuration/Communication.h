@@ -1,5 +1,7 @@
 /**
  * @author Raoul Rubien 2016
+ *
+ * Communication related arguments.
  */
 
 #pragma once
@@ -17,6 +19,7 @@
  * 1024          53             57            104           104
  * 2048          52             54            102           102
  */
+
 /**
  * Clock speed vs. minimum error ratio table (transmitter handles isr synchronous)
  *
@@ -32,17 +35,20 @@
  * 2048          xxx             53            xxx           101          true
  *
  */
+
 /**
  * Initial value for clock delay for Manchester (de-)coding (reception and transmission).
  */
 #define DEFAULT_TX_RX_CLOCK_DELAY ((uint16_t) 1024)
 
 /**
- * Maximum short and long time lag. If max. long snapshot lag is exceeded the reception
- * experiences a timeout.
- *
+ * Maximum short reception time lag.
  */
 #define DEFAULT_MAX_SHORT_RECEPTION_OVERTIME_PERCENTAGE_RATIO ((uint8_t) 59)
+/**
+ * Maximum long reception time lag. If maximum long snapshot lag is exceeded the reception
+ * experiences a timeout.
+ */
 #define DEFAULT_MAX_LONG_RECEPTION_OVERTIME_PERCENTAGE_RATIO ((uint8_t) 112)
 
 /**
@@ -65,4 +71,3 @@
 #define RX_NUMBER_SNAPSHOTS 28
 // 12% snapshots buffer of 8 byte: still above min. lower bound
 //#define RX_NUMBER_SNAPSHOTS 15
-

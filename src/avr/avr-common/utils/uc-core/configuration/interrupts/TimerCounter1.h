@@ -1,6 +1,7 @@
 /**
- * @author Raoul Rubien
- * 20.07.2016
+ * @author Raoul Rubien 20.07.2016
+ *
+ * Timer / counter 1 related configuration.
  */
 
 #pragma once
@@ -8,10 +9,6 @@
 #include <avr/interrupt.h>
 #include "TimerCounter.h"
 
-
-/**
- * define timer / counter 1 interrupt macros
- */
 #if  defined(__AVR_ATtiny1634__) || defined(__AVR_ATmega16__)
 
 #  define __TIMER1_INTERRUPT_CLEAR_PENDING_COMPARE_A \
@@ -72,4 +69,3 @@
 #else
 #  error
 #endif
-

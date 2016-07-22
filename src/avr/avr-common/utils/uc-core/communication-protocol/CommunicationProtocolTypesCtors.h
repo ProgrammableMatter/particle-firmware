@@ -1,7 +1,7 @@
 /**
  * Created by Raoul Rubien on 11.05.2016
  *
- * Communication types constructor functions implementation.
+ * Communication protocol types constructor implementation.
  */
 
 #pragma once
@@ -12,6 +12,7 @@
 
 /**
  * constructor function
+ * @param o reference to the object to construct
  */
 extern CTOR_ATTRS void constructCommunicationProtocolPortState(volatile CommunicationProtocolPortState *o);
 
@@ -23,6 +24,7 @@ CTOR_ATTRS void constructCommunicationProtocolPortState(volatile CommunicationPr
 
 /**
  * constructor function
+ * @param o reference to the object to construct
  */
 extern CTOR_ATTRS void constructCommunicationProtocolPorts(volatile CommunicationProtocolPorts *o);
 
@@ -35,6 +37,7 @@ CTOR_ATTRS void constructCommunicationProtocolPorts(volatile CommunicationProtoc
 
 /**
  * constructor function
+ * @param o reference to the object to construct
  */
 extern CTOR_ATTRS void constructNetworkGeometry(volatile NetworkGeometry *o);
 
@@ -45,6 +48,7 @@ CTOR_ATTRS void constructNetworkGeometry(volatile NetworkGeometry *o) {
 
 /**
  * constructor function
+ * @param o reference to the object to construct
  */
 extern CTOR_ATTRS void constructCommunicationProtocol(volatile CommunicationProtocol *o);
 

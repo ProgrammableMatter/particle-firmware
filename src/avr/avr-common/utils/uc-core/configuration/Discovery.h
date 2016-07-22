@@ -1,9 +1,10 @@
 /**
  * @author Raoul Rubien 2016
+ *
+ * Discovery related arguments.
  */
 
 #pragma once
-
 
 /**
  * The maximum numbers of pulses generated for neighbour discovery.
@@ -14,14 +15,17 @@
  * Minimum signals to be detected per communication channel until this side is recognized as
  * connected to a neighbour.
  */
+
 #define MIN_RX_NEIGHBOUR_SIGNALS_SENSE ((uint8_t)(10))
 /**
  * Earliest particle loop when local node discovery may be finished.
  */
+
 #define MIN_NEIGHBOURS_DISCOVERY_LOOPS ((uint8_t)(50))
 /**
  * Latest particle loop when local node discovery is to be aborted.
  */
+
 #define MAX_NEIGHBOURS_DISCOVERY_LOOPS ((uint8_t)(100))
 /**
  * Latest particle loop when pulsing to neighbours is to be deactivated.

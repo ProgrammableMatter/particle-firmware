@@ -1,7 +1,8 @@
 /**
  * @author Raoul Rubien 2016
+ *
+ * Byte oriented communication related implementation.
  */
-
 
 #pragma once
 
@@ -9,17 +10,10 @@
 #include "CommunicationTypes.h"
 #include "ManchesterDecodingTypes.h"
 
-//extern FUNC_ATTRS bool isDataAvailable(volatile RxPort *o);
-///**
-// * returns true if data on the specified is available, false otherwise
-// */
-//FUNC_ATTRS bool isDataAvailable(volatile RxPort *o) {
-//    return o->isDataBuffered;
-//}
-
 extern FUNC_ATTRS void bufferBitPointerIncrement(volatile BufferBitPointer *o);
 /**
  * Increments the bit mask and the byte number accordingly.
+ * @param o the buffer bit pointer reference
  */
 FUNC_ATTRS void bufferBitPointerIncrement(volatile BufferBitPointer *o) {
     o->bitMask <<= 1;
@@ -32,30 +26,29 @@ FUNC_ATTRS void bufferBitPointerIncrement(volatile BufferBitPointer *o) {
 extern FUNC_ATTRS void bufferBitPointerStart(volatile BufferBitPointer *o);
 /**
  * points the reception buffer pointer to the start position (lowest bit)
+ * @param o the buffer bit pointer reference
  */
 FUNC_ATTRS void bufferBitPointerStart(volatile BufferBitPointer *o) {
     o->bitMask = 1;
     o->byteNumber = 0;
 }
 
-extern FUNC_ATTRS bool isDataEndPosition(volatile TxPort *o);
 /**
  * Returns true if the transmission buffer pointer points exactly at the data end marker.
  * The marker is set one bit beyond the last data bit.
+ * @param o the transmission port reference
  */
+extern FUNC_ATTRS bool isDataEndPosition(volatile TxPort *o);
+
 FUNC_ATTRS bool isDataEndPosition(volatile TxPort *o) {
     return o->dataEndPos.bitMask == o->buffer.pointer.bitMask &&
            o->dataEndPos.byteNumber == o->buffer.pointer.byteNumber;
 }
 
-//extern FUNC_ATTRS bool isBufferEndPosition(volatile BufferBitPointer *o);
 /**
- * Returns true if the pointer points at exactly one bit beyond the buffer's last bit.
+ * Evaluates to true if the buffer bit pointer points beyond the last buffer bit.
+ * @param bufferBitPointer the pointer to compare to
  */
-//FUNC_ATTRS bool isBufferEndPosition(volatile BufferBitPointer *o) {
-//    return (o->byteNumber == (sizeof(((PortBuffer *) (0))->bytes))) && (o->bitMask == 0x1);
-//}
-
 #define isBufferEndPosition(bufferBitPointer) \
     (((bufferBitPointer)->byteNumber == (sizeof(((PortBuffer *) (0))->bytes))) && \
     ((bufferBitPointer)->bitMask == 0x1))

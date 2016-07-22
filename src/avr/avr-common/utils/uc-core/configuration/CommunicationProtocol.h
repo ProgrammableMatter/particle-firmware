@@ -1,5 +1,7 @@
 /**
  * @author Raoul Rubien 2016
+ *
+ * Communication protocol related arguments.
  */
 
 #pragma once

@@ -1,5 +1,7 @@
 /**
- * @author Raoul Rubien  12.07.16.
+ * @author Raoul Rubien  12.07.2016
+ *
+ * Actuation related implementation.
  */
 
 #pragma once
@@ -14,7 +16,7 @@
 
 /**
  * Prepares affected wires and enables the actuation interrupt (PWM),
- * otherwise on maximum power output configures the corresponding wires.
+ * otherwise, on maximum power output, configures the corresponding wires.
  */
 extern FUNC_ATTRS void __startActuation(void);
 
@@ -79,7 +81,7 @@ FUNC_ATTRS void __startActuation(void) {
 
 
 /**
- * disables actuation interrupt
+ * disables the actuation interrupt
  */
 extern FUNC_ATTRS void __stopActuationPWM(void);
 
@@ -88,7 +90,7 @@ FUNC_ATTRS void __stopActuationPWM(void) {
 }
 
 /**
- * return wires of affected ports  to default reception and transmission states
+ * return wires of affected ports to their default working states (reception state)
  */
 extern FUNC_ATTRS void __setDefaultWiresStates(void);
 

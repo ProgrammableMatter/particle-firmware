@@ -1,6 +1,9 @@
 /*
- * @author Raoul Rubien 2015
+ * @author Raoul Rubien 2016
+ *
+ * Particle types constructor implementation.
  */
+
 #pragma once
 
 #include "ParticleStateTypes.h"
@@ -11,27 +14,33 @@
 #include "PointerImplementation.h"
 #include "uc-core/communication/PointerImplementation.h"
 
-extern void constructTimerCounterAdjustment(volatile TimerCounterAdjustment *o);
-
 /**
  * constructor function
+ * @param o the object to construct
  */
+extern void constructTimerCounterAdjustment(volatile TimerCounterAdjustment *o);
+
 void constructTimerCounterAdjustment(volatile TimerCounterAdjustment *o) {
     o->counterOffset = 0;
     o->isPositiveCounterOffset = true;
     o->isCounterOffsetValid = false;
 }
 
-extern CTOR_ATTRS void constructDiscoveryPulseCounter(volatile DiscoveryPulseCounter *o);
 /**
  * constructor function
+ * @param o the object to construct
  */
+extern CTOR_ATTRS void constructDiscoveryPulseCounter(volatile DiscoveryPulseCounter *o);
+
 CTOR_ATTRS void constructDiscoveryPulseCounter(volatile DiscoveryPulseCounter *o) {
     o->counter = 0;
     o->isConnected = false;
-//    *(uint8_t *) o = 0;
 }
 
+/**
+ * constructor function
+ * @param o the object to construct
+ */
 extern CTOR_ATTRS void constructDiscoveryPulseCounters(volatile DiscoveryPulseCounters *o);
 
 CTOR_ATTRS void constructDiscoveryPulseCounters(volatile DiscoveryPulseCounters *o) {
@@ -41,16 +50,20 @@ CTOR_ATTRS void constructDiscoveryPulseCounters(volatile DiscoveryPulseCounters 
     o->loopCount = 0;
 }
 
-extern CTOR_ATTRS void constructNodeAddress(volatile NodeAddress *o);
 /**
  * constructor function
+ * @param o the object to construct
  */
+extern CTOR_ATTRS void constructNodeAddress(volatile NodeAddress *o);
+
 CTOR_ATTRS void constructNodeAddress(volatile NodeAddress *o) {
-//    o->row = 1;
-//    o->column = 1;
     *((uint16_t *) o) = 0x0000;
 }
 
+/**
+ * constructor function
+ * @param o the object to construct
+ */
 extern CTOR_ATTRS void constructNode(volatile Node *o);
 
 CTOR_ATTRS void constructNode(volatile Node *o) {
@@ -59,14 +72,20 @@ CTOR_ATTRS void constructNode(volatile Node *o) {
     constructNodeAddress(&(o->address));
 }
 
-extern CTOR_ATTRS void constructPeriphery(volatile Periphery *o);
 /**
  * constructor function
+ * @param o the object to construct
  */
+extern CTOR_ATTRS void constructPeriphery(volatile Periphery *o);
+
 CTOR_ATTRS void constructPeriphery(volatile Periphery *o) {
     o->loopCount = 0;
 }
 
+/**
+ * constructor function
+ * @param o the object to construct
+ */
 extern CTOR_ATTRS void constructDirectionOrientedPort(volatile DirectionOrientedPort *o,
                                                       volatile DiscoveryPulseCounter *discoveryPulseCounter,
                                                       volatile TxPort *txPort,
@@ -76,9 +95,6 @@ extern CTOR_ATTRS void constructDirectionOrientedPort(volatile DirectionOriented
                                                       void (txLowPimpl)(void),
                                                       volatile CommunicationProtocolPortState *protocolState);
 
-/**
- * constructor function
- */
 void CTOR_ATTRS constructDirectionOrientedPort(volatile DirectionOrientedPort *o,
                                                volatile DiscoveryPulseCounter *discoveryPulseCounter,
                                                volatile TxPort *txPort,
@@ -96,11 +112,12 @@ void CTOR_ATTRS constructDirectionOrientedPort(volatile DirectionOrientedPort *o
     o->protocol = (CommunicationProtocolPortState *) protocolState;
 }
 
-extern void CTOR_ATTRS constructDirectionOrientedPorts(volatile DirectionOrientedPorts *o);
-
 /**
  * constructor function
+ * @param o the object to construct
  */
+extern void CTOR_ATTRS constructDirectionOrientedPorts(volatile DirectionOrientedPorts *o);
+
 void CTOR_ATTRS constructDirectionOrientedPorts(volatile DirectionOrientedPorts *o) {
     constructDirectionOrientedPort(&o->north,
                                    &ParticleAttributes.discoveryPulseCounters.north,
@@ -136,13 +153,14 @@ void CTOR_ATTRS constructDirectionOrientedPorts(volatile DirectionOrientedPorts 
                                    &ParticleAttributes.protocol.ports.east);
 }
 
-extern CTOR_ATTRS void constructParticle(volatile Particle *o);
 /**
  * constructor function
+ * @param o the object to construct
  */
+extern CTOR_ATTRS void constructParticle(volatile Particle *o);
+
 CTOR_ATTRS void constructParticle(volatile Particle *o) {
     constructNode(&(o->node));
-//    constructTimerCounterAdjustment(&o->timerCounterAdjustment);
     constructDiscoveryPulseCounters(&o->discoveryPulseCounters);
     constructCommunication(&o->communication);
     constructPeriphery(&o->periphery);

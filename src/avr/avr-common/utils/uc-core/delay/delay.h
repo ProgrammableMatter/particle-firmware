@@ -1,6 +1,8 @@
 /**
  * @author Raoul Rubien 2016
  *
+ * Delay macros to overcome call of static inline in non static inline functions.
+ * This macros are understood to be approximations but accurate enough for normal usage.
  */
 
 #pragma once

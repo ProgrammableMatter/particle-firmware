@@ -1,25 +1,30 @@
 /**
  * @author Raoul Rubien 2016
+ *
+ * Communication types constructor implementation.
  */
 #pragma once
 
 #include "CommunicationTypes.h"
 #include "ManchesterDecodingTypesCtors.h"
 
-
-extern CTOR_ATTRS void constructBufferBitPointer(volatile BufferBitPointer *o);
 /**
  * constructor function
+ * @param o reference to the object to construct
  */
+extern CTOR_ATTRS void constructBufferBitPointer(volatile BufferBitPointer *o);
+
 CTOR_ATTRS void constructBufferBitPointer(volatile BufferBitPointer *o) {
     o->byteNumber = 0;
     o->bitMask = 1;
 }
 
-extern CTOR_ATTRS void constructPortBuffer(volatile PortBuffer *o);
 /**
  * constructor function
+ * @param o reference to the object to construct
  */
+extern CTOR_ATTRS void constructPortBuffer(volatile PortBuffer *o);
+
 CTOR_ATTRS void constructPortBuffer(volatile PortBuffer *o) {
     for (uint8_t i = 0; i < sizeof(o->bytes); i++) {
         o->bytes[i] = 0;
@@ -28,10 +33,12 @@ CTOR_ATTRS void constructPortBuffer(volatile PortBuffer *o) {
     constructBufferBitPointer(&(o->pointer));
 }
 
-extern CTOR_ATTRS void constructTxPort(volatile TxPort *o);
 /**
  * constructor function
+ * @param o reference to the object to construct
  */
+extern CTOR_ATTRS void constructTxPort(volatile TxPort *o);
+
 CTOR_ATTRS void constructTxPort(volatile TxPort *o) {
     constructPortBuffer(&(o->buffer));
     constructBufferBitPointer(&o->dataEndPos);
@@ -42,20 +49,24 @@ CTOR_ATTRS void constructTxPort(volatile TxPort *o) {
     o->isTxClockPhase = false;
 }
 
-extern CTOR_ATTRS void constructTxPorts(volatile TxPorts *o);
 /**
  * constructor function
+ * @param o reference to the object to construct
  */
+extern CTOR_ATTRS void constructTxPorts(volatile TxPorts *o);
+
 CTOR_ATTRS void constructTxPorts(volatile TxPorts *o) {
     constructTxPort(&o->north);
     constructTxPort(&o->east);
     constructTxPort(&o->south);
 }
 
-extern CTOR_ATTRS void constructRxPort(volatile RxPort *o);
 /**
  * constructor function
+ * @param o reference to the object to construct
  */
+extern CTOR_ATTRS void constructRxPort(volatile RxPort *o);
+
 CTOR_ATTRS void constructRxPort(volatile RxPort *o) {
     constructRxSnapshotBuffer(&o->snapshotsBuffer);
     constructPortBuffer(&(o->buffer));
@@ -64,31 +75,35 @@ CTOR_ATTRS void constructRxPort(volatile RxPort *o) {
     o->isDataBuffered = false;
 }
 
-
-
-extern CTOR_ATTRS void constructRxPorts(volatile RxPorts *o);
 /**
  * constructor function
+ * @param o reference to the object to construct
  */
+extern CTOR_ATTRS void constructRxPorts(volatile RxPorts *o);
+
 CTOR_ATTRS void constructRxPorts(volatile RxPorts *o) {
     constructRxPort(&(o->north));
     constructRxPort(&(o->east));
     constructRxPort(&(o->south));
 }
 
-extern CTOR_ATTRS void constructCommunicationPorts(volatile CommunicationPorts *o);
 /**
  * constructor function
+ * @param o reference to the object to construct
  */
+extern CTOR_ATTRS void constructCommunicationPorts(volatile CommunicationPorts *o);
+
 CTOR_ATTRS void constructCommunicationPorts(volatile CommunicationPorts *o) {
     constructTxPorts(&(o->tx));
     constructRxPorts(&(o->rx));
 }
 
-extern CTOR_ATTRS void constructTransmissionTimerAdjustment(volatile TransmissionTimerAdjustment *o);
 /**
  * constructor function
+ * @param o reference to the object to construct
  */
+extern CTOR_ATTRS void constructTransmissionTimerAdjustment(volatile TransmissionTimerAdjustment *o);
+
 CTOR_ATTRS void constructTransmissionTimerAdjustment(volatile TransmissionTimerAdjustment *o) {
     o->maxShortIntervalDurationOvertimePercentageRatio = DEFAULT_MAX_SHORT_RECEPTION_OVERTIME_PERCENTAGE_RATIO;
     o->maxShortIntervalDuration =
@@ -107,10 +122,12 @@ CTOR_ATTRS void constructTransmissionTimerAdjustment(volatile TransmissionTimerA
     o->isTransmissionClockShiftUpdateable = false;
 }
 
-extern CTOR_ATTRS void constructCommunication(volatile Communication *o);
 /**
  * constructor function
+ * @param o reference to the object to construct
  */
+extern CTOR_ATTRS void constructCommunication(volatile Communication *o);
+
 CTOR_ATTRS void constructCommunication(volatile Communication *o) {
     constructTransmissionTimerAdjustment(&o->timerAdjustment);
     constructCommunicationPorts(&o->ports);

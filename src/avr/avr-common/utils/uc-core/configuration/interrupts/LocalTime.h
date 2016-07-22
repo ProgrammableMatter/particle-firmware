@@ -1,15 +1,12 @@
 /**
- * @author Raoul Rubien
- * 20.07.2016
+ * @author Raoul Rubien 20.07.2016
+ * Local time tracking related configuration.
  */
 
 #pragma once
 
 #include "TimerCounter1.h"
 
-/**
- *  define timer / counter 0/1 reception/transmission interrupt macros
- */
 #if  defined(__AVR_ATtiny1634__) || defined(__AVR_ATmega16__)
 
 #  define LOCAL_TIME_INTERRUPT_COMPARE_VALUE (OCR1B)

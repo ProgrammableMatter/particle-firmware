@@ -10,24 +10,11 @@
 #include "./CommunicationProtocolPackageTypes.h"
 #include "uc-core/particle/Globals.h"
 
-///**
-// * Constructor function: builds the protocol package at the given port's buffer.
-// */
-//extern CTOR_ATTRS void constructHeaderPackage(volatile TxPort *txPort, uint8_t headerId,
-//                                              bool enableBroadcast);
-//
-//CTOR_ATTRS void constructHeaderPackage(volatile TxPort *txPort, uint8_t headerId, bool enableBroadcast) {
-//    // TODO enhancement: calculate and set parity bit
-//    clearTransmissionPortBuffer(txPort);
-//    Package *package = (Package *) txPort->buffer.bytes;
-//    package->asHeader.startBit = 1;
-//    package->asHeader.headerId = headerId;
-//    package->asHeader.enableBroadcast = enableBroadcast;
-//    setBufferDataEndPointer(txPort->dataEndPos, HeaderPackagePointerSize);
-//}
-
 /**
  * Constructor function: builds the protocol package at the given port's buffer.
+ * @param txPort the port reference where to buffer the package at
+ * @param localAddressRow the local address row
+ * @param localAddressColumn the local address column
  */
 extern CTOR_ATTRS void constructEnumeratePackage(volatile TxPort *txPort,
                                                  uint8_t localAddressRow,
@@ -60,9 +47,9 @@ CTOR_ATTRS void constructEnumeratePackage(volatile TxPort *txPort, uint8_t local
     setBufferDataEndPointer(txPort->dataEndPos, EnumerationPackageBufferPointerSize);
 }
 
-
 /**
  * Constructor function: builds the protocol package at the given port's buffer.
+ * @param txPort the port reference where to buffer the package at
  */
 extern CTOR_ATTRS void constructEnumerationACKPackage(volatile TxPort *txPort);
 
@@ -78,7 +65,7 @@ CTOR_ATTRS void constructEnumerationACKPackage(volatile TxPort *txPort) {
 }
 
 /**
- * Constructor function: builds the protocol package at the given port's buffer.
+ * Constructor function: builds the protocol package at north port's buffer.
  */
 extern CTOR_ATTRS void constructEnumerationACKWithAddressToParentPackage(void);
 
@@ -96,6 +83,7 @@ CTOR_ATTRS void constructEnumerationACKWithAddressToParentPackage(void) {
 
 /**
  * Constructor function: builds the protocol package at the given port's buffer.
+ * @param txPort the port reference where to buffer the package at
  */
 extern CTOR_ATTRS void constructSyncTimePackage(volatile TxPort *txPort);
 
@@ -110,11 +98,13 @@ CTOR_ATTRS void constructSyncTimePackage(volatile TxPort *txPort) {
     package->asSyncTimePackage.packageTransmissionLatency = COMMUNICATION_PROTOCOL_TIME_SYNCHRONIZATION_PACKAGE_RECEPTION_DURATION;
     package->asSyncTimePackage.stuffing = 0x5555;
     setBufferDataEndPointer(txPort->dataEndPos, TimePackageBufferPointerSize);
-//    DEBUG_INT16_OUT(TIMER_TX_RX_COUNTER_VALUE);
+    // DEBUG_INT16_OUT(TIMER_TX_RX_COUNTER_VALUE);
 }
 
 /**
- * Constructor function: builds the protocol package at the given port's buffer.
+ * Constructor function: builds the protocol package at the north port's buffer.
+ * @param row the network geometry rows
+ * @param column the network geometry columns
  */
 extern CTOR_ATTRS void constructAnnounceNetworkGeometryPackage(uint8_t row, uint8_t column);
 
@@ -134,6 +124,9 @@ CTOR_ATTRS void constructAnnounceNetworkGeometryPackage(uint8_t row, uint8_t col
 
 /**
  * Constructor function: builds the protocol package at the given port's buffer.
+ * @param txPort the port reference where to buffer the package at
+ * @param rows the new network geometry rows
+ * @param columns the new network geometry columns
  */
 extern CTOR_ATTRS void constructSetNetworkGeometryPackage(volatile TxPort *txPort, uint8_t rows,
                                                           uint8_t columns);
@@ -152,6 +145,13 @@ CTOR_ATTRS void constructSetNetworkGeometryPackage(volatile TxPort *txPort, uint
 
 /**
  * Constructor function: builds the protocol package at the given port's buffer.
+ * Time stamp and duration units can be deduced from the local time tracking implementation.
+ * For more details see {@link LocalTimeTracking} struct.
+ * @param txPort the port reference where to buffer the package at
+ * @param address the destination node address
+ * @param wires wire flags, note: just north wires are considered
+ * @param startTimeStamp the time stamp when heating starts, see also {@link LocalTimeTracking}
+ * @param duration the heating period duration, see also {@link LocalTimeTracking}
  */
 extern FUNC_ATTRS void constructHeatWiresPackage(volatile TxPort *txPort,
                                                  NodeAddress *address,
@@ -181,6 +181,13 @@ FUNC_ATTRS void constructHeatWiresPackage(volatile TxPort *txPort, NodeAddress *
 
 /**
  * Constructor function: builds the protocol package at the given port's buffer.
+ * Time stamp and duration units can be deduced from the local time tracking implementation.
+ * For more details see {@link LocalTimeTracking} struct.
+ * @param txPort the port reference where to buffer the package at
+ * @param address the destination node address
+ * @param wires wire flags, note: just north wires are considered
+ * @param startTimeStamp the time stamp when heating starts, see also {@link LocalTimeTracking}
+ * @param duration the heating period duration, see also {@link LocalTimeTracking}
  */
 extern FUNC_ATTRS void constructHeatWiresRangePackage(volatile TxPort *txPort,
                                                       NodeAddress *nodeAddressTopLeft,
@@ -215,6 +222,7 @@ FUNC_ATTRS void constructHeatWiresRangePackage(volatile TxPort *txPort,
 
 /**
  * Constructor function: builds the protocol package at the given port's buffer.
+ * @param txPort the port reference where to buffer the package at
  */
 extern CTOR_ATTRS void constructHeaderPackage(volatile TxPort *txPort);
 
@@ -230,6 +238,8 @@ CTOR_ATTRS void constructHeaderPackage(volatile TxPort *txPort) {
 
 /**
  * Constructor function: builds the protocol package at the given port's buffer.
+ * @param txPort the port reference where to buffer the package at
+ * @param heatingPowerLevel the power level applied to the actuators when actuating
  */
 extern CTOR_ATTRS void constructHeatWiresModePackage(volatile TxPort *txPort,
                                                      HeatingLevelType heatingPowerLevel);

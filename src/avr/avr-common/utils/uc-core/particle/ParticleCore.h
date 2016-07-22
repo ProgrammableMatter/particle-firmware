@@ -1,5 +1,7 @@
 /**
- * @author Raoul Rubien 2015
+ * @author Raoul Rubien 2016
+ *
+ * Particle core implementation.
  */
 
 #pragma once
@@ -25,13 +27,18 @@
 #include "uc-core/actuation/Actuation.h"
 #include "Commands.h"
 
-
+/**
+ * Disables discovery sensing interrupts.
+ */
 extern FUNC_ATTRS void __disableDiscoverySensing(void);
 
 FUNC_ATTRS void __disableDiscoverySensing(void) {
     RX_INTERRUPTS_DISABLE;
 }
 
+/**
+ * Disables discovery pulsing.
+ */
 extern FUNC_ATTRS void __disableDiscoveryPulsing(void);
 
 FUNC_ATTRS void __disableDiscoveryPulsing(void) {
@@ -42,17 +49,22 @@ FUNC_ATTRS void __disableDiscoveryPulsing(void) {
     SOUTH_TX_LO;
 }
 
+/**
+ * Enables discovery sensing.
+ */
 extern FUNC_ATTRS void __enableDiscovery(void);
 
 FUNC_ATTRS void __enableDiscovery(void) {
+    // TODO: rename to __enableDiscoverySensing()
     TIMER_NEIGHBOUR_SENSE_ENABLE;
     TIMER_NEIGHBOUR_SENSE_RESUME;
 }
 
-extern FUNC_ATTRS void __initParticle(void);
 /**
- * Sets up ports and interrupts but does not enable the global interrupt (I-flag in SREG)
+ * Sets up ports and interrupts but does not enable the global interrupt (I-flag in SREG).
  */
+extern FUNC_ATTRS void __initParticle(void);
+
 FUNC_ATTRS void __initParticle(void) {
     RX_INTERRUPTS_SETUP; // configure input pins interrupts
     RX_INTERRUPTS_ENABLE; // enable input pin interrupts
@@ -63,6 +75,9 @@ FUNC_ATTRS void __initParticle(void) {
     set_sleep_mode(SLEEP_MODE_PWR_DOWN); // set sleep mode to power down
 }
 
+/**
+ * Disables all reception interrupts.
+ */
 extern FUNC_ATTRS void __disableReceptionPinChangeInterrupts(void);
 
 FUNC_ATTRS void __disableReceptionPinChangeInterrupts(void) {
@@ -71,6 +86,9 @@ FUNC_ATTRS void __disableReceptionPinChangeInterrupts(void) {
     RX_SOUTH_INTERRUPT_DISABLE;
 }
 
+/**
+ * Clears pending and enables reception interrupts for north port if connected.
+ */
 extern FUNC_ATTRS void __enableReceptionHardwareNorth(void);
 
 FUNC_ATTRS void __enableReceptionHardwareNorth(void) {
@@ -80,6 +98,9 @@ FUNC_ATTRS void __enableReceptionHardwareNorth(void) {
     }
 }
 
+/**
+ * Clears pending and enables reception interrupts for east port if connected.
+ */
 extern FUNC_ATTRS void __enableReceptionHardwareEast(void);
 
 FUNC_ATTRS void __enableReceptionHardwareEast(void) {
@@ -89,6 +110,9 @@ FUNC_ATTRS void __enableReceptionHardwareEast(void) {
     }
 }
 
+/**
+ * Clears pending and enables reception interrupts for south port if connected.
+ */
 extern FUNC_ATTRS void __enableReceptionHardwareSouth(void);
 
 FUNC_ATTRS void __enableReceptionHardwareSouth(void) {
@@ -98,6 +122,9 @@ FUNC_ATTRS void __enableReceptionHardwareSouth(void) {
     }
 }
 
+/**
+ * Sets up and enables the tx/rx timer.
+ */
 extern FUNC_ATTRS void __enableTxRxTimer(void);
 
 FUNC_ATTRS void __enableTxRxTimer(void) {
@@ -106,12 +133,18 @@ FUNC_ATTRS void __enableTxRxTimer(void) {
 //    TIMER_TX_RX_ENABLE_COMPARE_INTERRUPT;
 }
 
+/**
+ * Disables the signal generating transmission interrupt.
+ */
 extern FUNC_ATTRS void __disableTransmission(void);
 
 FUNC_ATTRS void __disableTransmission(void) {
     TIMER_TX_RX_DISABLE_COMPARE_INTERRUPT;
 }
 
+/**
+ * Sets up and enables reception for all connected ports.
+ */
 extern FUNC_ATTRS void __enableReceptionHardwareForConnectedPorts(void);
 
 FUNC_ATTRS void __enableReceptionHardwareForConnectedPorts(void) {
@@ -123,12 +156,18 @@ FUNC_ATTRS void __enableReceptionHardwareForConnectedPorts(void) {
 
 }
 
+/**
+ * Disables reception interrupts.
+ */
 extern FUNC_ATTRS void __disableReception(void);
 
 FUNC_ATTRS void __disableReception(void) {
     __disableReceptionPinChangeInterrupts();
 }
 
+/**
+ * Enables reception timer and interrupts.
+ */
 extern FUNC_ATTRS void __enableReception(void);
 
 FUNC_ATTRS void __enableReception(void) {
@@ -136,10 +175,11 @@ FUNC_ATTRS void __enableReception(void) {
     __enableReceptionHardwareForConnectedPorts();
 }
 
-extern FUNC_ATTRS void __heartBeatToggle(void);
 /**
- * toggle heartbeat LED
+ * Toggles the heartbeat LED.
  */
+extern FUNC_ATTRS void __heartBeatToggle(void);
+
 FUNC_ATTRS void __heartBeatToggle(void) {
     ParticleAttributes.periphery.loopCount++;
     if (ParticleAttributes.periphery.loopCount > HEARTBEAT_LOOP_COUNT_TOGGLE) {
@@ -148,6 +188,9 @@ FUNC_ATTRS void __heartBeatToggle(void) {
     }
 }
 
+/**
+ * Increments the discovery loop counter.
+ */
 extern FUNC_ATTRS void __discoveryLoopCount(void);
 
 FUNC_ATTRS void __discoveryLoopCount(void) {
@@ -156,6 +199,9 @@ FUNC_ATTRS void __discoveryLoopCount(void) {
     }
 }
 
+/**
+ * Sets the correct address if this node is the origin node.
+ */
 extern FUNC_ATTRS  void __updateOriginNodeAddress(void);
 
 FUNC_ATTRS void __updateOriginNodeAddress(void) {
@@ -165,10 +211,11 @@ FUNC_ATTRS void __updateOriginNodeAddress(void) {
     }
 }
 
-extern FUNC_ATTRS void __handleWaitForBeingEnumerated(void);
 /**
- * Handles the "ait for being enumerated" state.
+ * Handles (state driven) the wait for being enumerated node state.
  */
+extern FUNC_ATTRS void __handleWaitForBeingEnumerated(void);
+
 FUNC_ATTRS void __handleWaitForBeingEnumerated(void) {
     volatile CommunicationProtocolPortState *commPortState = &ParticleAttributes.protocol.ports.north;
     switch (commPortState->receptionistState) {
@@ -202,10 +249,12 @@ FUNC_ATTRS void __handleWaitForBeingEnumerated(void) {
     }
 }
 
-extern FUNC_ATTRS void __handleSynchronizeNeighbour(StateType endState);
 /**
- * Handles neighbour synchronization communication states.
+ * Handles (state driven) neighbour synchronization node states.
+ * @param endState the state when handler has finished
  */
+extern FUNC_ATTRS void __handleSynchronizeNeighbour(StateType endState);
+
 FUNC_ATTRS void __handleSynchronizeNeighbour(StateType endState) {
     volatile CommunicationProtocolPortState *commPortState = ParticleAttributes.directionOrientedPorts.simultaneous.protocol;
     volatile TxPort *txPort = ParticleAttributes.directionOrientedPorts.simultaneous.txPort;
@@ -236,15 +285,16 @@ FUNC_ATTRS void __handleSynchronizeNeighbour(StateType endState) {
     }
 }
 
-extern FUNC_ATTRS void __handleSynchronizeNeighbourDoneOrRuntest(StateType endState);
 /**
- * Handles the sync neighbour done state. In general it simply switches to the specified state,
+ * Handles the sync neighbour done state.
+ * In general it simply switches to the specified state,
  * but if simulation/test macros are defined it redirects to other states accordingly.
+ * @param endState the state after this call if no test macros defined
  */
+extern FUNC_ATTRS void __handleSynchronizeNeighbourDoneOrRuntest(StateType endState);
 
 FUNC_ATTRS void __handleSynchronizeNeighbourDoneOrRuntest(StateType endState) {
-#ifdef SIMULATION
-#  if defined(SIMULATION_SET_NEW_NETWORK_GEOMETRY_TEST)
+#if defined(SIMULATION_SET_NEW_NETWORK_GEOMETRY_TEST)
     if (ParticleAttributes.node.type == NODE_TYPE_ORIGIN) {
         ParticleAttributes.protocol.networkGeometry.rows = 2;
         ParticleAttributes.protocol.networkGeometry.columns = 1;
@@ -252,7 +302,7 @@ FUNC_ATTRS void __handleSynchronizeNeighbourDoneOrRuntest(StateType endState) {
         setNewNetworkGeometry();
         return;
     }
-#  elif defined(SIMULATION_HEAT_WIRES_TEST)
+#elif defined(SIMULATION_HEAT_WIRES_TEST)
     if (ParticleAttributes.node.type == NODE_TYPE_ORIGIN) {
         Actuators actuators;
         actuators.northLeft = true;
@@ -264,7 +314,7 @@ FUNC_ATTRS void __handleSynchronizeNeighbourDoneOrRuntest(StateType endState) {
         sendHeatWires(&nodeAddress, &actuators, 5, 2);
         return;
     }
-#  elif defined(SIMULATION_HEAT_WIRES_RANGE_TEST)
+#elif defined(SIMULATION_HEAT_WIRES_RANGE_TEST)
     if (ParticleAttributes.node.type == NODE_TYPE_ORIGIN) {
         Actuators actuators;
         actuators.northLeft = false;
@@ -279,33 +329,31 @@ FUNC_ATTRS void __handleSynchronizeNeighbourDoneOrRuntest(StateType endState) {
         sendHeatWiresRange(&fromAddress, &toAddress, &actuators, 50000, 10);
         return;
     }
-#  elif defined(SIMULATION_HEAT_WIRES_MODE_TEST)
+#elif defined(SIMULATION_HEAT_WIRES_MODE_TEST)
     if (ParticleAttributes.node.type == NODE_TYPE_ORIGIN) {
         DELAY_MS_1;
         sendHeatWiresModePackage(HEATING_LEVEL_TYPE_STRONG);
         return;
     }
-#  elif defined(SIMULATION_SEND_HEADER_TEST)
+#elif defined(SIMULATION_SEND_HEADER_TEST)
     if (ParticleAttributes.node.type == NODE_TYPE_ORIGIN) {
         HeaderPackage package;
-        package.startBit = 1;
         package.headerId = PACKAGE_HEADER_ID_HEADER;
         package.enableBroadcast = true;
         DELAY_MS_1;
         sendHeaderPackage(&package);
         return;
     }
-#  endif
-
 #endif
     ParticleAttributes.node.state = endState;
 }
 
+/**
+ * Handles (state driven) relaying network geometry communication states.
+ * @param endState the state when handler finished
+ */
 extern FUNC_ATTRS void __handleRelayAnnounceNetworkGeometry(StateType endState);
 
-/**
- * Handles relaying network geometry communication states.
- */
 FUNC_ATTRS void __handleRelayAnnounceNetworkGeometry(StateType endState) {
     volatile CommunicationProtocolPortState *commPortState = &ParticleAttributes.protocol.ports.north;
     switch (commPortState->initiatorState) {
@@ -334,10 +382,12 @@ FUNC_ATTRS void __handleRelayAnnounceNetworkGeometry(StateType endState) {
 }
 
 
-extern FUNC_ATTRS void __handleSendAnnounceNetworkGeometry(StateType endState);
 /**
- * Handles network geometry announcement states.
+ * Handles (event driven) network geometry announcement states.
+ * @param endState the state when handler finished
  */
+extern FUNC_ATTRS void __handleSendAnnounceNetworkGeometry(StateType endState);
+
 FUNC_ATTRS void __handleSendAnnounceNetworkGeometry(StateType endState) {
     volatile TxPort *txPort = &ParticleAttributes.communication.ports.tx.north;
     volatile CommunicationProtocolPortState *commPortState = &ParticleAttributes.protocol.ports.north;
@@ -369,11 +419,11 @@ FUNC_ATTRS void __handleSendAnnounceNetworkGeometry(StateType endState) {
     }
 }
 
-extern FUNC_ATTRS void __advanceCommunicationProtocolCounters(void);
-
 /**
  * Advance communication timeout counters.
  */
+extern FUNC_ATTRS void __advanceCommunicationProtocolCounters(void);
+
 extern FUNC_ATTRS void __advanceCommunicationProtocolCounters(void) {
     if (!ParticleAttributes.communication.ports.tx.north.isTransmitting &&
         ParticleAttributes.protocol.ports.north.stateTimeoutCounter > 0) {
@@ -389,10 +439,11 @@ extern FUNC_ATTRS void __advanceCommunicationProtocolCounters(void) {
     }
 }
 
-extern FUNC_ATTRS void __handleNeighboursDiscovery(void);
 /**
  * Handles discovery states, classifies the local node type and switches to next state.
  */
+extern FUNC_ATTRS void __handleNeighboursDiscovery(void);
+
 FUNC_ATTRS void __handleNeighboursDiscovery(void) {
     __discoveryLoopCount();
     if (ParticleAttributes.discoveryPulseCounters.loopCount >= MAX_NEIGHBOURS_DISCOVERY_LOOPS) {
@@ -413,12 +464,11 @@ FUNC_ATTRS void __handleNeighboursDiscovery(void) {
     }
 }
 
-
-extern FUNC_ATTRS void __handleDiscoveryPulsing(void);
-
 /**
  * Handles the post discovery extended pulsing period with subsequent switch to next state.
  */
+extern FUNC_ATTRS void __handleDiscoveryPulsing(void);
+
 FUNC_ATTRS void __handleDiscoveryPulsing(void) {
     if (ParticleAttributes.discoveryPulseCounters.loopCount >= MAX_NEIGHBOUR_PULSING_LOOPS) {
         __disableDiscoveryPulsing();
@@ -428,10 +478,11 @@ FUNC_ATTRS void __handleDiscoveryPulsing(void) {
     }
 }
 
-extern FUNC_ATTRS void __handleDiscoveryPulsingDone(void);
 /**
  * Handle the discovery to enumeration state switch.
  */
+extern FUNC_ATTRS void __handleDiscoveryPulsingDone(void);
+
 FUNC_ATTRS void __handleDiscoveryPulsingDone(void) {
     PARTICLE_DISCOVERY_PULSE_DONE_POST_DELAY;
 
@@ -446,10 +497,14 @@ FUNC_ATTRS void __handleDiscoveryPulsingDone(void) {
     clearReceptionBuffers();
 }
 
-extern FUNC_ATTRS void __handleSetNetworkGeometry(uint8_t rows, uint8_t cols, StateType endState);
 /**
- * set the set network geometry package and switches to the given state
+ * Sets the set network geometry package and switches to the given state.
+ * @param rows the new network geometry rows
+ * @param cols the new network geometry rows
+ * @param endState the state when handler finished
  */
+extern FUNC_ATTRS void __handleSetNetworkGeometry(uint8_t rows, uint8_t cols, StateType endState);
+
 FUNC_ATTRS void __handleSetNetworkGeometry(uint8_t rows, uint8_t cols, StateType endState) {
     volatile CommunicationProtocolPortState *commPortState = ParticleAttributes.directionOrientedPorts.simultaneous.protocol;
     volatile TxPort *txPort = ParticleAttributes.directionOrientedPorts.simultaneous.txPort;
@@ -479,10 +534,13 @@ FUNC_ATTRS void __handleSetNetworkGeometry(uint8_t rows, uint8_t cols, StateType
     }
 }
 
-extern FUNC_ATTRS void __handleSendPackage(volatile DirectionOrientedPort *port, StateType endState);
 /**
- * simple handling of sending package states without ack requests
+ * State driven handling of sending package states without ack requests.
+ * @param port the designated port
+ * @param endState the end state when handler finished
  */
+extern FUNC_ATTRS void __handleSendPackage(volatile DirectionOrientedPort *port, StateType endState);
+
 FUNC_ATTRS void __handleSendPackage(volatile DirectionOrientedPort *port, StateType endState) {
     volatile CommunicationProtocolPortState *commPortState = port->protocol;
     switch (commPortState->initiatorState) {
@@ -510,10 +568,11 @@ FUNC_ATTRS void __handleSendPackage(volatile DirectionOrientedPort *port, StateT
     }
 }
 
-extern FUNC_ATTRS void __onActuationDoneCallback(void);
 /**
- * callback when actuation command has finished
+ * Callback when actuation command has finished.
  */
+extern FUNC_ATTRS void __onActuationDoneCallback(void);
+
 FUNC_ATTRS void __onActuationDoneCallback(void) {
     ParticleAttributes.node.state = STATE_TYPE_IDLE;
 }
@@ -534,14 +593,14 @@ FUNC_ATTRS void __handleIsActuationCommandPeriod(void) {
     }
 }
 
+/**
+ * The core function is called cyclically in the particle loop. It implements the
+ * behaviour of the particle.
+ */
 extern inline void particleTick(void);
 
-/**
- * This function is called cyclically in the particle loop. It implements the
- * behaviour and state machine of the particle.
- */
 inline void particleTick(void) {
-//    DEBUG_CHAR_OUT('P');
+    // DEBUG_CHAR_OUT('P');
     __heartBeatToggle();
 
     // ---------------- init states ----------------
@@ -793,4 +852,3 @@ inline void particleTick(void) {
             break;
     }
 }
-

@@ -8,11 +8,18 @@
 
 #include <stdint.h>
 
+/**
+ * Convenience macro: evaluate to the number of bytes bit mask
+ */
 #define __pointerBytes(numBytes) ((uint16_t) numBytes)
+
+/**
+ * Convenience macro: evaluates to the number of bits bit mask
+ */
 #define __pointerBits(numBits) (((uint16_t) 0x0100) << numBits)
 
 /**
- * describes possible header IDs. Note the enum values must not exceed uint8_t max.
+ * Describes possible header IDs. Note the enum values must not exceed uint8_t max.
  */
 typedef enum PackageHeaderId {
     PACKAGE_HEADER_ID_TYPE_ENUMERATE = 0,
@@ -22,15 +29,15 @@ typedef enum PackageHeaderId {
     PACKAGE_HEADER_ID_HEADER = 4,
     PACKAGE_HEADER_ID_TYPE_SET_NETWORK_GEOMETRY = 5,
     PACKAGE_HEADER_ID_TYPE_NETWORK_GEOMETRY_RESPONSE = 6,
-    __UNUSED3 = 7,
-    __PACKAGE_HEADER_ID_TYPE_RESET = 8,
-    PACKAGE_HEADER_ID_TYPE_SYNC_TIME = 9,
-    __PACKAGE_HEADER_ID_TYPE_PING_REQUEST = 10,
-    __PACKAGE_HEADER_ID_TYPE_PING_RESPONSE = 11,
-    __PACKAGE_HEADER_ID_TYPE_HEATING_MODE = 12,
-    PACKAGE_HEADER_ID_TYPE_ACK = 13,
-    PACKAGE_HEADER_ID_TYPE_ACK_WITH_DATA = 14,
-    PACKAGE_HEADER_ID_TYPE_EXTENDED_HEADER = 15
+    PACKAGE_HEADER_ID_TYPE_SYNC_TIME = 7,
+    PACKAGE_HEADER_ID_TYPE_ACK = 8,
+    PACKAGE_HEADER_ID_TYPE_ACK_WITH_DATA = 9,
+    PACKAGE_HEADER_ID_TYPE_EXTENDED_HEADER = 10,
+    __PACKAGE_HEADER_ID_TYPE_RESET = 11,
+    __UNUSED1 = 12,
+    __UNUSED2 = 13,
+    __UNUSED3 = 14,
+    __UNUSED4 = 15
 } PackageHeaderId;
 
 /**
@@ -45,13 +52,13 @@ typedef struct HeaderPackage {
 } HeaderPackage;
 
 /**
- * HeaderPackage data length expressed as BufferPointer
+ * HeaderPackage data length expressed as (uint16_t) BufferPointer
  */
 #define HeaderPackagePointerSize (__pointerBytes(0) | __pointerBits(7))
 
 
 /**
- * describes a package header
+ * describes an acknowledge package
  */
 typedef struct AckPackage {
     uint8_t startBit : 1;
@@ -62,12 +69,12 @@ typedef struct AckPackage {
 } AckPackage;
 
 /**
- * AckPackage data length expressed as BufferPointer
+ * AckPackage data length expressed as (uint16_t) BufferPointer
  */
 #define AckPackagePointerSize (__pointerBytes(0) | __pointerBits(7))
 
 /**
- * describes a package header with subsequent address
+ * describes an acknowledge package with subsequent address
  */
 typedef struct AckWithAddressPackage {
     uint8_t startBit : 1;
@@ -80,12 +87,12 @@ typedef struct AckWithAddressPackage {
 } AckWithAddressPackage;
 
 /**
- * PackageHeaderAddress length expressed as BufferPointer
+ * PackageHeaderAddress length expressed as (uint16_t) BufferPointer
  */
 #define AckWithAddressPackageBufferPointerSize (__pointerBytes(3) | __pointerBits(0))
 
 /**
- * describes a header with subsequent network geometry
+ * describes an announce network geometry package
  */
 typedef struct AnnounceNetworkGeometryPackage {
     uint8_t startBit : 1;
@@ -98,12 +105,12 @@ typedef struct AnnounceNetworkGeometryPackage {
 } AnnounceNetworkGeometryPackage;
 
 /**
- * AnnounceNetworkGeometryPackage length expressed as BufferPointer
+ * AnnounceNetworkGeometryPackage length expressed as (uint16_t) BufferPointer
  */
 #define AnnounceNetworkGeometryPackageBufferPointerSize (__pointerBytes(3) | __pointerBits(0))
 
 /**
- * describes a header with subsequent network geometry
+ * describes a set network geometry package
  */
 typedef struct SetNetworkGeometryPackage {
     uint8_t startBit : 1;
@@ -116,12 +123,12 @@ typedef struct SetNetworkGeometryPackage {
 } SetNetworkGeometryPackage;
 
 /**
- * SetNetworkGeometryPackage length expressed as BufferPointer
+ * SetNetworkGeometryPackage length expressed as (uint16_t) BufferPointer
  */
 #define SetNetworkGeometryPackageBufferPointerSize (__pointerBytes(3) | __pointerBits(0))
 
 /**
- * describes a package header with subsequent enumeration address and bread crumb flag
+ * describes an enumeration package
  */
 typedef struct EnumerationPackage {
     uint8_t startBit : 1;
@@ -137,12 +144,12 @@ typedef struct EnumerationPackage {
 } EnumerationPackage;
 
 /**
- * PackageHeaderAddress length expressed as BufferPointer
+ * PackageHeaderAddress length expressed as (uint16_t) BufferPointer
  */
 #define EnumerationPackageBufferPointerSize (__pointerBytes(3) | __pointerBits(0))
 
 /**
- * describes a package header with uint16_t subsequent time field
+ * describes a synchronize time package
  */
 typedef struct TimePackage {
     uint8_t startBit : 1;
@@ -156,12 +163,12 @@ typedef struct TimePackage {
 } TimePackage;
 
 /**
- * PackageHeaderTime length expressed as BufferPointer
+ * PackageHeaderTime length expressed as (uint16_t) BufferPointer
  */
 #define TimePackageBufferPointerSize (__pointerBytes(7) | __pointerBits(0))
 
 /**
- * describes a package header with subsequent address, start time stamp, duration and wires flags
+ * describes a heat wires package
  */
 typedef struct HeatWiresPackage {
     uint8_t startBit : 1;
@@ -180,12 +187,12 @@ typedef struct HeatWiresPackage {
 } HeatWiresPackage;
 
 /**
- * HeatWiresPackage length expressed as BufferPointer
+ * HeatWiresPackage length expressed as (uint16_t) BufferPointer
  */
 #define HeatWiresPackageBufferPointerSize (__pointerBytes(6) | __pointerBits(4))
 
 /**
- * describes a package header with subsequent address range, start time stamp, duration and wires flags
+ * describes a heat wires range package
  */
 typedef struct HeatWiresRangePackage {
     uint8_t startBit : 1;
@@ -206,12 +213,12 @@ typedef struct HeatWiresRangePackage {
 } HeatWiresRangePackage;
 
 /**
- * HeatWiresRangePackage length expressed as BufferPointer
+ * HeatWiresRangePackage length expressed as (uint16_t) BufferPointer
  */
 #define HeatWiresRangePackageBufferPointerSize (__pointerBytes(8) | __pointerBits(4))
 
 /**
- * describes a package header with subsequent heat mode field
+ * describes a heat wires mode package
  */
 typedef struct HeatWiresModePackage {
     uint8_t startBit : 1;
@@ -224,23 +231,56 @@ typedef struct HeatWiresModePackage {
 } HeatWiresModePackage;
 
 /**
- * HeatWiresModePackage length expressed as BufferPointer
+ * HeatWiresModePackage length expressed as (uint16_t) BufferPointer
  */
 #define HeatWiresModePackageBufferPointerSize (__pointerBytes(1) | __pointerBits(2))
 
 /**
- * union for a convenient way to access buffered packages
+ * Union for a convenient way to access buffered packages.
  */
 typedef union Package {
+    /**
+     * package without payload
+     */
     HeaderPackage asHeader;
+    /**
+     * general acknowledge package
+     */
     AckPackage asACKPackage;
+    /**
+     * package transmitted when acknowledging the local address
+     */
     AckWithAddressPackage asACKWithLocalAddress;
+    /**
+     * package received when neighbour acknowledges his address
+     */
     AckWithAddressPackage asACKWithRemoteAddress;
+    /**
+     * package transmitted when enumerating neighbour
+     */
     EnumerationPackage asEnumerationPackage;
+    /**
+     * package transmitted when synchronizing time
+     */
     TimePackage asSyncTimePackage;
+    /**
+     * package transmitted by the topmost, rightmost node when announcing the network geometry
+     */
     AnnounceNetworkGeometryPackage asAnnounceNetworkGeometryPackage;
+    /**
+     * package transmitted by the origin node when setting a new network geometry
+     */
     SetNetworkGeometryPackage asSetNetworkGeometryPackage;
+    /**
+     * package transmitted for scheduling one heat north wires action
+     */
     HeatWiresPackage asHeatWiresPackage;
+    /**
+     * package transmitted for scheduling one heat north wires action in a range of nodes
+     */
     HeatWiresRangePackage asHeatWiresRangePackage;
+    /**
+     * package transmitted to set up the heat wires mode/power
+     */
     HeatWiresModePackage asHeatWiresModePackage;
 } Package;

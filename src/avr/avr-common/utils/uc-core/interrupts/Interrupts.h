@@ -1,6 +1,7 @@
 /**
  * @author Raoul Rubien 2015
  */
+
 #pragma once
 
 #include "uc-core/particle/Globals.h"
@@ -19,21 +20,23 @@
 
 #  include <avr/pgmspace.h>
 #  include "simulation/SimulationMacros.h"
+
 #endif
 
-#define TIMER_NEIGHBOUR_SENSE_COUNTER_ON_INTERRUPT_ROLLBACK 12
-
+/**
+ * Handles input pins interrupts according to the particle state.
+ * @param port the designated port
+ * @param isRxHigh the logic signal level
+ */
 extern FUNC_ATTRS void __handleInputInterrupt(volatile DirectionOrientedPort *port,
                                               const bool isRxHigh);
-/**
- * Handles interrupt in input pins according to the particle state.
- */
+
 FUNC_ATTRS void __handleInputInterrupt(volatile DirectionOrientedPort *port,
                                        const bool isRxHigh) {
     uint16_t timerCounterValue = TIMER_TX_RX_COUNTER_VALUE;
     switch (ParticleAttributes.node.state) {
-        // on discovery pulse
         case STATE_TYPE_NEIGHBOURS_DISCOVERY:
+            // on discovery pulse
             if (!isRxHigh) {
                 dispatchFallingDiscoveryEdge(port->discoveryPulseCounter);
             }
@@ -46,10 +49,11 @@ FUNC_ATTRS void __handleInputInterrupt(volatile DirectionOrientedPort *port,
     }
 }
 
-extern FUNC_ATTRS void scheduleNextTransmission(void);
 /**
- * schedules the next transmission interrupt on available data to be sent.
+ * Schedules the next transmission interrupt if transmission data is buffered.
  */
+extern FUNC_ATTRS void scheduleNextTransmission(void);
+
 FUNC_ATTRS void scheduleNextTransmission(void) {
     if (ParticleAttributes.communication.ports.tx.north.isTransmitting ||
         ParticleAttributes.communication.ports.tx.east.isTransmitting ||
@@ -60,13 +64,12 @@ FUNC_ATTRS void scheduleNextTransmission(void) {
     }
 }
 
-
 /**
- * interrupt routine on north RX pin change interrupt on logical pin change
+ * Interrupt routine on logical north pin change (reception).
  * simulator int. #19
  */
 ISR(NORTH_PIN_CHANGE_INTERRUPT_VECT) {
-//    DEBUG_INT16_OUT(TIMER_TX_RX_COUNTER_VALUE);
+    // DEBUG_INT16_OUT(TIMER_TX_RX_COUNTER_VALUE);
     if (ParticleAttributes.protocol.isBroadcastEnabled) {
         if (NORTH_RX_IS_HI) {
             simultaneousTxLoImpl();
@@ -80,7 +83,7 @@ ISR(NORTH_PIN_CHANGE_INTERRUPT_VECT) {
 }
 
 /**
- * interrupt routine on east RX pin change interrupt on logical pin change
+ * Interrupt routine on logical east pin change (reception).
  * simulator int. #3
  */
 ISR(EAST_PIN_CHANGE_INTERRUPT_VECT) {
@@ -90,7 +93,7 @@ ISR(EAST_PIN_CHANGE_INTERRUPT_VECT) {
 }
 
 /**
- * south RX pin change interrupt on logical pin change
+ * Interrupt routine on logical south pin change (reception).
  * simulator int. #2
  */
 ISR(SOUTH_PIN_CHANGE_INTERRUPT_VECT) {
@@ -100,7 +103,7 @@ ISR(SOUTH_PIN_CHANGE_INTERRUPT_VECT) {
 }
 
 /**
- * on transmission/discovery timer compare match interrupt
+ * On transmission/discovery timer compare match.
  * simulator int. #7
  */
 ISR(TX_TIMER_INTERRUPT_VECT) {
@@ -110,17 +113,17 @@ ISR(TX_TIMER_INTERRUPT_VECT) {
         case STATE_TYPE_ACTIVE:
             break;
 
-            // on generate discovery pulse
         case STATE_TYPE_NEIGHBOURS_DISCOVERY:
         case STATE_TYPE_NEIGHBOURS_DISCOVERED:
         case STATE_TYPE_DISCOVERY_PULSING:
+            // on generate discovery pulse
             NORTH_TX_TOGGLE;
             SOUTH_TX_TOGGLE;
             EAST_TX_TOGGLE;
             break;
 
-            // otherwise process transmission
         default:
+            // otherwise process transmission
             if (ParticleAttributes.protocol.isSimultaneousTransmissionEnabled) {
                 transmit(&ParticleAttributes.directionOrientedPorts.simultaneous);
             } else {
@@ -134,7 +137,7 @@ ISR(TX_TIMER_INTERRUPT_VECT) {
 }
 
 /**
- * on local time period passed interrupt
+ * On local time period passed interrupt.
  * simulator int. #8
  */
 ISR(LOCAL_TIME_INTERRUPT_VECT) {
@@ -142,30 +145,27 @@ ISR(LOCAL_TIME_INTERRUPT_VECT) {
     SCHEDULE_NEXT_LOCAL_TIME_INTERUPT;
 }
 
-EMPTY_INTERRUPT(__UNUSED_TIMER1_OVERFLOW_INTERRUPT_VECT)
 
 /**
- * actuator pwm interrupt routine: on actuator pwm compare match interrupt
+ * Actuator PWM interrupt routine: On compare match toggle wires.
  * simulator int. #20
  */
 ISR(ACTUATOR_PWM_INTERRUPT_VECT) {
     if (ParticleAttributes.actuationCommand.actuators.northLeft) {
-        // on actuate north tx wire
+        // on actuate north transmissoin wire
         // @pre deactivated: NORTH_TX_LO;
         NORTH_TX_TOGGLE;
     }
     if (ParticleAttributes.actuationCommand.actuators.northRight) {
-        // on actuate north rx wire
-        // @pre deactivated: == NORTH_RX_SWITCH_HI;
+        // on actuate north recepton wire
+        // @pre deactivated: NORTH_RX_SWITCH_HI;
         NORTH_RX_SWITCH_TOGGLE;
     }
 }
 
-/**
- * on timer 0 overflow
- * simulator int. #10
- */
 EMPTY_INTERRUPT(__UNUSED_TIMER0_OVERFLOW_INTERRUPT_VECT)
+
+EMPTY_INTERRUPT(__UNUSED_TIMER1_OVERFLOW_INTERRUPT_VECT)
 
 # ifdef SIMULATION
 const char isrVector0Msg[] PROGMEM = "BAD ISR";
@@ -178,6 +178,7 @@ ISR(RESET_VECT) {
 ISR(BADISR_vect) {
     IF_DEBUG_SWITCH_TO_ERRONEOUS_STATE;
 }
+
 #  else
 EMPTY_INTERRUPT(RESET_VECT)
 EMPTY_INTERRUPT(BADISR_vect)

@@ -1,5 +1,7 @@
 /**
- * @author Raoul Rubien  13.07.16.
+ * @author Raoul Rubien  13.07.2016
+ *
+ * Particle's higher level network commands ought to be used as network API.
  */
 
 #pragma once
@@ -11,8 +13,7 @@
  * Transmits a new network geometry to the network. Particles outside the new boundary
  * switch to sleep mode.
  *
- * @pre:
- * the ParticleAttributes.protocol.networkGeometry.rows/cols are set accordingly
+ * @pre the ParticleAttributes.protocol.networkGeometry.rows/cols are set accordingly
  */
 extern FUNC_ATTRS void setNewNetworkGeometry(void);
 
@@ -36,7 +37,11 @@ FUNC_ATTRS void setNewNetworkGeometry(void) {
 //}
 
 /**
- * Handles neighbour enumeration communication states.
+ * State driven neighbour enumeration handler.
+ * @param port the port at which to handle enumeration
+ * @param remoteAddressRow the neighbour's address row to assign
+ * @param remoteAddressColumn the neighbour's address column to assign
+ * @param endState state when transaction has finished
  */
 extern FUNC_ATTRS void handleEnumerateNeighbour(
         volatile DirectionOrientedPort *port,
@@ -48,6 +53,7 @@ FUNC_ATTRS void handleEnumerateNeighbour(volatile DirectionOrientedPort *port,
                                          uint8_t remoteAddressRow,
                                          uint8_t remoteAddressColumn,
                                          StateType endState) {
+    // TODO: move function to ParticleCore.h
     volatile CommunicationProtocolPortState *commPortState = port->protocol;
     if (commPortState->stateTimeoutCounter == 0 &&
         commPortState->initiatorState != COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT &&
@@ -115,13 +121,14 @@ FUNC_ATTRS void handleEnumerateNeighbour(volatile DirectionOrientedPort *port,
 
 /**
  * Sends a heat wires mode package to neighbours.
+ * The package is propagated through the entire network.
+ * @param heatingPowerLevel the new power level to set up
  */
 extern FUNC_ATTRS void sendHeatWiresModePackage(HeatingLevelType heatingPowerLevel);
 
 FUNC_ATTRS void sendHeatWiresModePackage(HeatingLevelType heatingPowerLevel) {
     TxPort temporaryPackagePort;
     constructHeatWiresModePackage(&temporaryPackagePort, heatingPowerLevel);
-
     // interpret the constructed package
     executeHeatWiresModePackage((HeatWiresModePackage *) temporaryPackagePort.buffer.bytes);
 }
@@ -132,6 +139,7 @@ FUNC_ATTRS void sendHeatWiresModePackage(HeatingLevelType heatingPowerLevel) {
  * i) the destination must be in same column but row is greater than current node's row or
  * ii) the destination resides in a different column but the current row equals 1.
  * Otherwise the request is skipped.
+ * For more details about duration see {@link constructHeatWiresRangePackage()} constructor.
  * @param nodeAddress the node address
  * @param wires affected actuator flags
  * @param timeStamp the time stamp when the actuation should start
@@ -147,14 +155,12 @@ FUNC_ATTRS void sendHeatWires(NodeAddress *nodeAddress, Actuators *wires, uint16
         // illegal address
         return;
     }
-
     TxPort temporaryPackagePort;
     constructHeatWiresPackage(&temporaryPackagePort, nodeAddress,
                               wires, timeStamp, duration);
     // interpret the constructed package
     executeHeatWiresPackage((HeatWiresPackage *) temporaryPackagePort.buffer.bytes);
 }
-
 
 /**
  * Constructs a heat wires range command and puts the particle into sending mode. The
@@ -163,6 +169,12 @@ FUNC_ATTRS void sendHeatWires(NodeAddress *nodeAddress, Actuators *wires, uint16
  * i) the top left address must be in same column but row is greater than current node's row or
  * ii) the top left address resides in a different column but the current row equals 1.
  * Otherwise the request is skipped.
+ * For more details about duration see {@link constructHeatWiresRangePackage()} constructor.
+ * @param nodeAddressTopLeft top left node address
+ * @param nodeAddressBottomRight bottom right node address
+ * @param wires affected actuator flags
+ * @param timeStamp the time stamp when the actuation should start
+ * @param duration 10bit actuation duration {@link #HeatWiresPackage}
  */
 extern FUNC_ATTRS void sendHeatWiresRange(NodeAddress *nodeAddressTopLeft,
                                           NodeAddress *nodeAddressBottomRight,
@@ -199,7 +211,6 @@ FUNC_ATTRS void sendHeatWiresRange(NodeAddress *nodeAddressTopLeft, NodeAddress 
 
     // @ pre: range spans at least 2 nodes
     // @ pre: top left is route-able from this node
-
     TxPort temporaryPackagePort;
     constructHeatWiresRangePackage(&temporaryPackagePort, nodeAddressTopLeft,
                                    nodeAddressBottomRight, wires, timeStamp, duration);
@@ -208,13 +219,14 @@ FUNC_ATTRS void sendHeatWiresRange(NodeAddress *nodeAddressTopLeft, NodeAddress 
             (HeatWiresRangePackage *) temporaryPackagePort.buffer.bytes);
 }
 
-
 /**
- * Sends a header package to neighbours.
+ * Sends a header package to adjacent neighbours.
+ * @param package the package to send
  */
 extern FUNC_ATTRS void sendHeaderPackage(HeaderPackage *package);
 
 FUNC_ATTRS void sendHeaderPackage(HeaderPackage *package) {
+    package->startBit = 1;
     // interpret the package
     executeHeaderPackage(package);
 }

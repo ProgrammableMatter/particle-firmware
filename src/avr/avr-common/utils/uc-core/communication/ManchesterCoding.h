@@ -1,15 +1,19 @@
 /**
  * @author Raoul Rubien 2016
+ *
+ * Manchester coding related implementation.
  */
 
 #pragma once
 
 #include "ManchesterDecodingTypes.h"
 
-extern FUNC_ATTRS void __rectifyTransmissionBit(volatile DirectionOrientedPort *port);
 /**
- * rectifies/modulates the transmission signal according to the upcoming bit
+ * rectifies the transmission signal according to the upcoming bit
+ * @param port the designated port to read buffered data and write signal to
  */
+extern FUNC_ATTRS void __rectifyTransmissionBit(volatile DirectionOrientedPort *port);
+
 FUNC_ATTRS void __rectifyTransmissionBit(volatile DirectionOrientedPort *port) {
 
     if (isDataEndPosition(port->txPort)) { // on tx pointer match end position
@@ -25,10 +29,12 @@ FUNC_ATTRS void __rectifyTransmissionBit(volatile DirectionOrientedPort *port) {
     }
 }
 
-extern FUNC_ATTRS void __modulateTransmissionBit(volatile DirectionOrientedPort *port);
 /**
  * modulates the transmission signal according to the current bit and increments the buffer pointer
+ * @param port the designated port to read buffered data from and write signal to
  */
+extern FUNC_ATTRS void __modulateTransmissionBit(volatile DirectionOrientedPort *port);
+
 FUNC_ATTRS void __modulateTransmissionBit(volatile DirectionOrientedPort *port) {
     if (port->txPort->buffer.pointer.bitMask &
         port->txPort->buffer.bytes[port->txPort->buffer.pointer.byteNumber]) {
@@ -39,10 +45,12 @@ FUNC_ATTRS void __modulateTransmissionBit(volatile DirectionOrientedPort *port) 
     bufferBitPointerIncrement(&port->txPort->buffer.pointer);
 }
 
-extern FUNC_ATTRS void transmit(volatile DirectionOrientedPort *port);
 /**
- * puts the the next signal on the pin
+ * writes the next signal on the port pin
+ * @param port the designated port to read buffered data from and write signal to
  */
+extern FUNC_ATTRS void transmit(volatile DirectionOrientedPort *port);
+
 FUNC_ATTRS void transmit(volatile DirectionOrientedPort *port) {
     if (!port->txPort->isDataBuffered || !port->txPort->isTransmitting) {
         return;

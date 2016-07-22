@@ -1,5 +1,7 @@
 /**
  * @author Raoul Rubien 2016
+ *
+ * Communication types related definitions.
  */
 
 #pragma once
@@ -22,12 +24,14 @@ typedef struct BufferBitPointer {
  * The struct is used for transmission. Received bits are stored in the buffer
  * after being decoded.
  */
-
 typedef struct PortBuffer {
     uint8_t bytes[TX_RX_NUMBER_BUFFER_BYTES]; // reception buffer
     BufferBitPointer pointer; // points to the next free position
 } PortBuffer;
 
+/**
+ * Transmission port structure.
+ */
 typedef struct TxPort {
     PortBuffer buffer;
     BufferBitPointer dataEndPos; // data in between buffer start and dataEndPos is to be transmitted
@@ -37,12 +41,18 @@ typedef struct TxPort {
     uint8_t __pad: 5;
 } TxPort;
 
+/**
+ * Transmission ports bundle.
+ */
 typedef struct TxPorts {
     TxPort north;
     TxPort east;
     TxPort south;
 } TxPorts;
 
+/**
+ * Reception port structure.
+ */
 typedef struct RxPort {
     // each pin interrupt stores snapshots and the flank direction into the buffer
     RxSnapshotBuffer snapshotsBuffer;
@@ -53,6 +63,9 @@ typedef struct RxPort {
     uint8_t __pad : 6;
 } RxPort;
 
+/**
+ * Transmission timing related fields that allows runtime changes.
+ */
 typedef struct TransmissionTimerAdjustment {
 
     /**
@@ -109,17 +122,26 @@ typedef struct TransmissionTimerAdjustment {
     uint8_t __pad : 6;
 } TransmissionTimerAdjustment;
 
+/**
+ * Reception ports bundle.
+ */
 typedef struct RxPorts {
     RxPort north;
     RxPort east;
     RxPort south;
 } RxPorts;
 
+/**
+ * Communication ports bundle.
+ */
 typedef struct CommunicationPorts {
     TxPorts tx;
     RxPorts rx;
 } CommunicationPorts;
 
+/**
+ * Communication structure.
+ */
 typedef struct Communication {
     TransmissionTimerAdjustment timerAdjustment;
     CommunicationPorts ports;

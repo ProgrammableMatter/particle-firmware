@@ -1,15 +1,13 @@
 /**
- * @author Raoul Rubien
- * 20.07.2016
+ * @author Raoul Rubien 20.07.2016
+ *
+ * Tx/rx related configuration.
  */
 
 #pragma once
 
 #include "TimerCounter1.h"
 
-/**
- *  define timer / counter 0/1 reception/transmission interrupt macros
- */
 #if  defined(__AVR_ATtiny1634__) || defined(__AVR_ATmega16__)
 
 #  define __TIMER_TX_RX_COUNTER_PRESCALER_ENABLE __TIMER1_INTERRUPT_PRESCALER_ENABLE(__PRESCALER_1)

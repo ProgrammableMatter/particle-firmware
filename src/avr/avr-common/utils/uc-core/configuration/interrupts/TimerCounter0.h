@@ -1,6 +1,7 @@
 /**
- * @author Raoul Rubien
- * 20.07.2016
+ * @author Raoul Rubien 20.07.2016
+ *
+ * Timer / counter 0 related configuration.
  */
 
 #pragma once
@@ -8,9 +9,6 @@
 #include <avr/interrupt.h>
 #include "TimerCounter.h"
 
-/**
- * define timer / counter 0 interrupt macros
- */
 #if  defined(__AVR_ATtiny1634__) || defined(__AVR_ATmega16__)
 #  if defined(__AVR_ATmega16__)
 #    define __TIMER0_INTERRUPT_WAVE_GENERATION_MODE_PWM_PHASE_CORRECT_SETUP \
