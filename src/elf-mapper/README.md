@@ -1,11 +1,16 @@
-## What it does
-Replaces addresses by known labels found with *readelf -a* dump is necessary 
+elf mappper
+===========
+Replaces address occurences matching **0x[0-9a-zA-Z]{4}**  by labels as shown by **readelf -a**.
 
 ## Usage
-* compile<br \>
-*mvn assembly:single*
-* run<br \>
-*readelf -a &gt; inElfDump* <br \>
-*java -jar elf-mapper-0.0.1-SNAPSHOT-jar-with-dependencies.jar inElfDump inFile* <br \><br \>
-All occurences of 0x[0-9a-zA-Z]{4} are compared against addresses found in the elf dump and replaced in the output file. The output file is stored in the same folder where *inFile* resides prefixed with "pretty-" as *pretty-inFile*
+    java -jar <mapper> <labelsFile> <fileToReplaceAddresses>
+Writes the translated file to **pretty-fileToReplaceAddresses**.
+    
+###Compile
 
+    mvn assembly:single*
+    
+### Run
+
+    readelf -a > elfDump.txt
+    java -jar ./target/elf-mapper-0.0.2-SNAPSHOT-jar-with-dependencies.jar elfDump.txt fileToReplaceAddresses.txt
