@@ -1,3 +1,6 @@
 [submodule "modules/elf-address-to-label"]
 	path = modules/elf-address-to-label
 	url = https://github.com/ProgrammableMatter/elf-address-to-label.git
+[submodule "modules/network-visualization"]
+	path = modules/network-visualization
+	url = https://github.com/ProgrammableMatter/network-visualization.git
