@@ -7,3 +7,9 @@
 [submodule "modules/cstruct-to-json"]
 	path = modules/cstruct-to-json
 	url = https://github.com/ProgrammableMatter/cstruct-to-json.git
+[submodule "modules/avr-cycles"]
+	path = modules/avr-cycles
+	url = https://github.com/rubienr/avr-cycles
+[submodule "modules/avrora-particle-platform"]
+	path = modules/avrora-particle-platform
+	url = https://github.com/ProgrammableMatter/avrora-particle-platform.git
