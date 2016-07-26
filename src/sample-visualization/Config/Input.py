@@ -1,1 +1,0 @@
-logFile="/tmp/particle-state.log"
