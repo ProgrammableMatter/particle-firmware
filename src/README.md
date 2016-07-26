@@ -1,24 +1,25 @@
 Particle firmware project
 =========================
 This project implements a particle that, if connected to a
-particle network, act as a programmable entity. The network as a whole acts
+particle network, acts as a programmable entity. The network as a whole acts
 as programmable matter (see <http://arxiv.org/abs/1402.2507>).
 
 Folder structure
 ----------------
 ### avr-common 
-This folder contains:
-    * utils: mcu independent implementations
-    * scripts: bash scripts (i.e. avr erase, avr flash, avr read and write fuses and much more)
-    * targets: cmake settings (i.e. programmer, mcu, debugger)
-This content is mainly meant to be symlinked from other sub project folder.
+This content is mainly meant to be symlinked from other sub project folders.
+The folder contains:
+
+* utils: mcu independent implementations
+* scripts: bash scripts (i.e. avr erase, avr flash, avr read and write fuses and much more)
+* targets: cmake settings (i.e. programmer, mcu, debugger)
 
 ### Other folder
 Other sub projects may use symlinked folders i.e.:
-	* ln -s ../avr-common/targets targets
-	* ln -s ../avr-common/scripts scripts 
-	* ln -s ../avr-common/utils/common common
-	
+
+* ln -s ../avr-common/targets targets
+* ln -s ../avr-common/scripts scripts 
+* ln -s ../avr-common/utils/common common
 
 ### Build from source
 #### Console
@@ -60,5 +61,5 @@ Binaries
 Testing the firmware
 --------------------
 
-More about JUnit tests and simulation can be found [here https://github.com/ProgrammableMatter/avrora-particle-platform/...](https://github.com/ProgrammableMatter/avrora-particle-platform/tree/master/particleplatform).
+More about JUnit tests and the platform simulation can be found [here](https://github.com/ProgrammableMatter/avrora-particle-platform).
 
