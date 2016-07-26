@@ -1,0 +1,3 @@
+[submodule "modules/elf-address-to-label"]
+	path = modules/elf-address-to-label
+	url = https://github.com/ProgrammableMatter/elf-address-to-label.git
