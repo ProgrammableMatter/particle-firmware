@@ -6,22 +6,36 @@ set(HEX_FILE "${CMAKE_CURRENT_BINARY_DIR}/../${BINARY}")
 set(ELF_DUMP "${CMAKE_CURRENT_BINARY_DIR}/elf.dump")
 set(CFG_DOT "${CMAKE_CURRENT_BINARY_DIR}/cfg.dot")
 set(PRETTY_CFG_DOT "${CMAKE_CURRENT_BINARY_DIR}/pretty-cfg.dot")
+set(AVR_CYCLES "${CMAKE_CURRENT_SOURCE_DIR}/avr-cycles.sh")
 
 
 add_custom_command(OUTPUT avrora_analyze_stack
         COMMAND ${SIMULATOR} -action=analyze-stack ${HEX_FILE}
+        DEPENDS ${BINARY}
         )
-add_custom_target(${PROJECT_NAME}_avrora-analyze-stack DEPENDS avrora_analyze_stack ${BINARY})
+add_custom_target(${PROJECT_NAME}_avrora-analyze-stack DEPENDS avrora_analyze_stack)
 
 
 add_custom_command(OUTPUT create_elf_dump
         COMMAND readelf -as ${CMAKE_CURRENT_BINARY_DIR}/../${BINARY} > ${ELF_DUMP}
+        DEPENDS ${BINARY}
         )
 add_custom_command(OUTPUT avrora_control_flow_graph
         COMMAND ${SIMULATOR} -action=cfg -output=dot -file=${CFG_DOT} ${HEX_FILE} && ${TRANSLATOR} ${ELF_DUMP} ${CFG_DOT} && xdot ${PRETTY_CFG_DOT}
         )
-add_custom_target(${PROJECT_NAME}_avrora-cfg DEPENDS create_elf_dump avrora_control_flow_graph ${BINARY})
+add_custom_target(${PROJECT_NAME}_avrora-cfg DEPENDS ${BINARY} create_elf_dump avrora_control_flow_graph)
 
+add_custom_command(OUTPUT show_elf_dump
+        COMMAND cat ${ELF_DUMP}
+        DEPENDS create_elf_dump
+        )
+add_custom_target(${PROJECT_NAME}_elf_dump DEPENDS show_elf_dump)
+
+add_custom_command(OUTPUT show_avr_cycles
+        COMMAND ${AVR_CYCLES} ${CMCU} ${HEX_FILE}
+        DEPENDS ${BINARY}
+        )
+add_custom_target(${PROJECT_NAME}_avr_cycles DEPENDS show_avr_cycles)
 
 add_custom_command(OUTPUT avrora_elf_dump
         COMMAND ${SIMULATOR} -action=elf-dump ${CMAKE_CURRENT_BINARY_DIR}/../${BINARY}

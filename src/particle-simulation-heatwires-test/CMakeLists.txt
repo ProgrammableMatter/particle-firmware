@@ -6,5 +6,6 @@ Project(ParticleSimulationHeatWiresCommandTest)
 SET(BINARY "${PROJECT_NAME}.elf")
 
 add_subdirectory(libs)
+include(crosscompile.cmake)
 add_subdirectory(main/avrora)
 add_subdirectory(main)

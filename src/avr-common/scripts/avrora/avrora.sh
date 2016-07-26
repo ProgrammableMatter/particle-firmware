@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #
-# @author Raoul Rubien 2015
+# @author Raoul Rubien 2016
 #
 
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
