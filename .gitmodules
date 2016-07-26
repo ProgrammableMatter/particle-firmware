@@ -4,3 +4,6 @@
 [submodule "modules/network-visualization"]
 	path = modules/network-visualization
 	url = https://github.com/ProgrammableMatter/network-visualization.git
+[submodule "modules/cstruct-to-json"]
+	path = modules/cstruct-to-json
+	url = https://github.com/ProgrammableMatter/cstruct-to-json.git
