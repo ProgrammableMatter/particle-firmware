@@ -36,7 +36,7 @@ FUNC_ATTRS void executeSynchronizeLocalTimePackage(volatile TimePackage *package
     // DEBUG_INT16_OUT(TIMER_TX_RX_COUNTER_VALUE);
     // DEBUG_INT16_OUT(package->time);
     // DEBUG_INT16_OUT(package->packageTransmissionLatency);
-    ParticleAttributes.protocol.isBroadcastEnabled = package->enableBroadcast;
+    ParticleAttributes.protocol.isBroadcastEnabled = package->header.enableBroadcast;
     // __TIMER1_OVERFLOW_INTERRUPT_ENABLE;
     // snapshotBuffer->temporaryTxStopSnapshotTimerValue = snapshotBuffer->temporaryTxStopSnapshotTimerValue - snapshotBuffer->temporaryTxStartSnapshotTimerValue;
 
@@ -55,8 +55,8 @@ FUNC_ATTRS void executeSynchronizeLocalTimePackage(volatile TimePackage *package
 extern FUNC_ATTRS void executeSetLocalAddress(volatile EnumerationPackage *package);
 
 FUNC_ATTRS void executeSetLocalAddress(volatile EnumerationPackage *package) {
-    ParticleAttributes.node.address.row = package->addressRow0;
-    ParticleAttributes.node.address.column = package->addressColumn0;
+    ParticleAttributes.node.address.row = package->addressRow;
+    ParticleAttributes.node.address.column = package->addressColumn;
     ParticleAttributes.protocol.hasNetworkGeometryDiscoveryBreadCrumb = package->hasNetworkGeometryDiscoveryBreadCrumb;
 }
 
@@ -82,7 +82,7 @@ FUNC_ATTRS void executeAnnounceNetworkGeometryPackage(volatile AnnounceNetworkGe
         constructAnnounceNetworkGeometryPackage(package->rows, package->columns);
         setInitiatorStateStart(&ParticleAttributes.protocol.ports.north);
         ParticleAttributes.node.state = STATE_TYPE_ANNOUNCE_NETWORK_GEOMETRY_RELAY;
-        ParticleAttributes.protocol.isBroadcastEnabled = package->enableBroadcast;
+        ParticleAttributes.protocol.isBroadcastEnabled = package->header.enableBroadcast;
     }
 }
 
@@ -176,7 +176,7 @@ FUNC_ATTRS void executeSetNetworkGeometryPackage(volatile SetNetworkGeometryPack
         }
     }
 
-    ParticleAttributes.protocol.isBroadcastEnabled = package->enableBroadcast;
+    ParticleAttributes.protocol.isBroadcastEnabled = package->header.enableBroadcast;
 
     // update node type accordingly
     if (ParticleAttributes.node.address.row == package->rows) {
@@ -198,7 +198,7 @@ extern FUNC_ATTRS void __inferEastActuatorCommand(volatile Package *package);
 
 FUNC_ATTRS void __inferEastActuatorCommand(volatile Package *package) {
     if (ParticleAttributes.actuationCommand.executionState == ACTUATION_STATE_TYPE_IDLE &&
-        package->asHeader.headerId == PACKAGE_HEADER_ID_TYPE_HEAT_WIRES) {
+        package->asHeader.id == PACKAGE_HEADER_ID_TYPE_HEAT_WIRES) {
         if (package->asHeader.isRangeCommand) {
             volatile HeatWiresRangePackage *heatWiresRangePackage = &package->asHeatWiresRangePackage;
             if (heatWiresRangePackage->northRight) ParticleAttributes.actuationCommand.actuators.eastLeft = true;
@@ -229,7 +229,7 @@ FUNC_ATTRS void __inferEastActuatorCommand(volatile Package *package) {
 extern FUNC_ATTRS void __inferSouthActuatorCommand(volatile Package *package);
 
 FUNC_ATTRS void __inferSouthActuatorCommand(volatile Package *package) {
-    if (package->asHeader.headerId == PACKAGE_HEADER_ID_TYPE_HEAT_WIRES &&
+    if (package->asHeader.id == PACKAGE_HEADER_ID_TYPE_HEAT_WIRES &&
         ParticleAttributes.actuationCommand.executionState == ACTUATION_STATE_TYPE_IDLE) {
         if (package->asHeader.isRangeCommand) {
             volatile HeatWiresRangePackage *heatWiresRangePackage = &package->asHeatWiresRangePackage;
@@ -258,7 +258,7 @@ FUNC_ATTRS void __inferSouthActuatorCommand(volatile Package *package) {
 extern FUNC_ATTRS void __scheduleHeatWiresCommand(volatile Package *package);
 
 FUNC_ATTRS void __scheduleHeatWiresCommand(volatile Package *package) {
-    if (package->asHeader.headerId == PACKAGE_HEADER_ID_TYPE_HEAT_WIRES) {
+    if (package->asHeader.id == PACKAGE_HEADER_ID_TYPE_HEAT_WIRES) {
         if (package->asHeader.isRangeCommand) {
             volatile HeatWiresRangePackage *heatWiresRangePackage = &package->asHeatWiresRangePackage;
             ParticleAttributes.actuationCommand.actuators.northLeft = heatWiresRangePackage->northLeft;
@@ -268,7 +268,7 @@ FUNC_ATTRS void __scheduleHeatWiresCommand(volatile Package *package) {
                     heatWiresRangePackage->startTimeStamp +
                     ((((uint16_t) heatWiresRangePackage->durationMsb) << 8) |
                      heatWiresRangePackage->duration);
-            ParticleAttributes.protocol.isBroadcastEnabled = heatWiresRangePackage->enableBroadcast;
+            ParticleAttributes.protocol.isBroadcastEnabled = heatWiresRangePackage->header.enableBroadcast;
             ParticleAttributes.actuationCommand.isScheduled = true;
         } else {
             volatile HeatWiresPackage *heatWiresPackage = &package->asHeatWiresPackage;
@@ -278,7 +278,7 @@ FUNC_ATTRS void __scheduleHeatWiresCommand(volatile Package *package) {
             ParticleAttributes.actuationCommand.actuationEnd.periodTimeStamp =
                     heatWiresPackage->startTimeStamp +
                     ((((uint16_t) heatWiresPackage->durationMsb) << 8) | heatWiresPackage->duration);
-            ParticleAttributes.protocol.isBroadcastEnabled = heatWiresPackage->enableBroadcast;
+            ParticleAttributes.protocol.isBroadcastEnabled = heatWiresPackage->header.enableBroadcast;
             ParticleAttributes.actuationCommand.isScheduled = true;
         }
     }
@@ -293,8 +293,8 @@ FUNC_ATTRS void __scheduleHeatWiresCommand(volatile Package *package) {
 extern FUNC_ATTRS void executeHeatWiresPackage(volatile HeatWiresPackage *package);
 
 FUNC_ATTRS void executeHeatWiresPackage(volatile HeatWiresPackage *package) {
-    if (ParticleAttributes.node.address.row == package->addressRow0 &&
-        ParticleAttributes.node.address.column == package->addressColumn0 &&
+    if (ParticleAttributes.node.address.row == package->addressRow &&
+        ParticleAttributes.node.address.column == package->addressColumn &&
         ParticleAttributes.actuationCommand.executionState == ACTUATION_STATE_TYPE_IDLE) {
         // on package reached destination: consume package
         __scheduleHeatWiresCommand((Package *) package);
@@ -304,16 +304,16 @@ FUNC_ATTRS void executeHeatWiresPackage(volatile HeatWiresPackage *package) {
     // on package forwarding
     bool routeToEast = false, routeToSouth = false, inferLocalCommand = false;
 
-    if (ParticleAttributes.node.address.column < package->addressColumn0) {
+    if (ParticleAttributes.node.address.column < package->addressColumn) {
         routeToEast = true;
-    } else if (ParticleAttributes.node.address.column == package->addressColumn0) {
+    } else if (ParticleAttributes.node.address.column == package->addressColumn) {
         routeToSouth = true;
     }
 
-    if ((ParticleAttributes.node.address.row + 1 == package->addressRow0 &&
-         ParticleAttributes.node.address.column == package->addressColumn0) ||
-        (ParticleAttributes.node.address.row == package->addressRow0 &&
-         ParticleAttributes.node.address.column + 1 == package->addressColumn0)) {
+    if ((ParticleAttributes.node.address.row + 1 == package->addressRow &&
+         ParticleAttributes.node.address.column == package->addressColumn) ||
+        (ParticleAttributes.node.address.row == package->addressRow &&
+         ParticleAttributes.node.address.column + 1 == package->addressColumn)) {
         inferLocalCommand = true;
     }
 
@@ -497,6 +497,6 @@ FUNC_ATTRS void executeHeatWiresModePackage(volatile HeatWiresModePackage *packa
         }
     }
 
-    ParticleAttributes.protocol.isBroadcastEnabled = package->enableBroadcast;
+    ParticleAttributes.protocol.isBroadcastEnabled = package->header.enableBroadcast;
     ParticleAttributes.actuationCommand.actuationPower.dutyCycleLevel = package->heatMode;
 }

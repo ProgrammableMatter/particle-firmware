@@ -27,7 +27,7 @@ FUNC_ATTRS void __interpretWaitForBeingEnumeratedReception(volatile RxPort *rxPo
         // on received address information
         case COMMUNICATION_RECEPTIONIST_STATE_TYPE_RECEIVE:
             // on address package
-            if (package->asHeader.headerId == PACKAGE_HEADER_ID_TYPE_ENUMERATE &&
+            if (package->asHeader.id == PACKAGE_HEADER_ID_TYPE_ENUMERATE &&
                 equalsPackageSize(rxPort->buffer.pointer, EnumerationPackageBufferPointerSize)) {
                 executeSetLocalAddress(&package->asEnumerationPackage);
                 // send ack with local address back
@@ -40,7 +40,7 @@ FUNC_ATTRS void __interpretWaitForBeingEnumeratedReception(volatile RxPort *rxPo
             // on received ack
         case COMMUNICATION_RECEPTIONIST_STATE_TYPE_WAIT_FOR_RESPONSE:
             if (equalsPackageSize(rxPort->buffer.pointer, AckPackagePointerSize) &&
-                package->asACKPackage.headerId == PACKAGE_HEADER_ID_TYPE_ACK) {
+                package->asACKPackage.id == PACKAGE_HEADER_ID_TYPE_ACK) {
                 // DEBUG_CHAR_OUT('d');
                 ParticleAttributes.protocol.isBroadcastEnabled = package->asACKPackage.enableBroadcast;
                 ParticleAttributes.node.state = STATE_TYPE_LOCALLY_ENUMERATED;
@@ -67,7 +67,7 @@ FUNC_ATTRS void __interpretReceivedPackage(volatile DirectionOrientedPort *port)
     // TODO enhancement: check equalsPackageSize() == expected size
     // TODO enhancement: check parity bit == expected parity bit
     Package *package = (Package *) port->rxPort->buffer.bytes;
-    switch (package->asHeader.headerId) {
+    switch (package->asHeader.id) {
 
         case PACKAGE_HEADER_ID_TYPE_SYNC_TIME:
             executeSynchronizeLocalTimePackage(&package->asSyncTimePackage);
@@ -130,11 +130,11 @@ FUNC_ATTRS void __interpretEnumerateNeighbourAckReception(volatile RxPort *rxPor
         // on ack wih remote address
         case COMMUNICATION_INITIATOR_STATE_TYPE_WAIT_FOR_RESPONSE:
             // on ack with data
-            if (package->asHeader.headerId == PACKAGE_HEADER_ID_TYPE_ACK_WITH_DATA &&
+            if (package->asHeader.id == PACKAGE_HEADER_ID_TYPE_ACK_WITH_DATA &&
                 equalsPackageSize(rxPort->buffer.pointer, AckWithAddressPackageBufferPointerSize)) {
                 // on correct address
-                if (expectedRemoteAddressRow == package->asACKWithRemoteAddress.addressRow0 &&
-                    expectedRemoteAddressColumn == package->asACKWithRemoteAddress.addressColumn0) {
+                if (expectedRemoteAddressRow == package->asACKWithRemoteAddress.addressRow &&
+                    expectedRemoteAddressColumn == package->asACKWithRemoteAddress.addressColumn) {
                     // DEBUG_CHAR_OUT('D');
                     commPortState->initiatorState = COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT_ACK;
                 } else { // on wrong address, restart transmission
