@@ -24,20 +24,20 @@
 typedef enum PackageHeaderId {
     PACKAGE_HEADER_ID_TYPE_ENUMERATE = 0,
     PACKAGE_HEADER_ID_TYPE_HEAT_WIRES = 1,
-    PACKAGE_HEADER_ID_TYPE_HEAT_WIRES_RANGE = 2,
-    PACKAGE_HEADER_ID_TYPE_HEAT_WIRES_MODE = 3,
-    PACKAGE_HEADER_ID_HEADER = 4,
-    PACKAGE_HEADER_ID_TYPE_SET_NETWORK_GEOMETRY = 5,
-    PACKAGE_HEADER_ID_TYPE_NETWORK_GEOMETRY_RESPONSE = 6,
-    PACKAGE_HEADER_ID_TYPE_SYNC_TIME = 7,
-    PACKAGE_HEADER_ID_TYPE_ACK = 8,
-    PACKAGE_HEADER_ID_TYPE_ACK_WITH_DATA = 9,
-    PACKAGE_HEADER_ID_TYPE_EXTENDED_HEADER = 10,
-    __PACKAGE_HEADER_ID_TYPE_RESET = 11,
-    __UNUSED1 = 12,
-    __UNUSED2 = 13,
-    __UNUSED3 = 14,
-    __UNUSED4 = 15
+    PACKAGE_HEADER_ID_TYPE_HEAT_WIRES_MODE = 2,
+    PACKAGE_HEADER_ID_HEADER = 3,
+    PACKAGE_HEADER_ID_TYPE_SET_NETWORK_GEOMETRY = 4,
+    PACKAGE_HEADER_ID_TYPE_NETWORK_GEOMETRY_RESPONSE = 5,
+    PACKAGE_HEADER_ID_TYPE_SYNC_TIME = 6,
+    PACKAGE_HEADER_ID_TYPE_ACK = 7,
+    PACKAGE_HEADER_ID_TYPE_ACK_WITH_DATA = 8,
+    __PACKAGE_HEADER_ID_TYPE_RESET = 9,
+    __UNUSED1 = 10,
+    __UNUSED2 = 11,
+    __UNUSED3 = 12,
+    __UNUSED4 = 13,
+    __UNUSED5 = 14,
+    PACKAGE_HEADER_ID_TYPE_EXTENDED_HEADER = 15,
 } PackageHeaderId;
 
 /**
@@ -46,9 +46,9 @@ typedef enum PackageHeaderId {
 typedef struct HeaderPackage {
     uint8_t startBit : 1;
     uint8_t headerId : 4;
+    uint8_t isRangeCommand: 1;
     uint8_t parityBit: 1;
     uint8_t enableBroadcast : 1;
-    uint8_t __pad: 1;
 } HeaderPackage;
 
 /**
@@ -63,9 +63,9 @@ typedef struct HeaderPackage {
 typedef struct AckPackage {
     uint8_t startBit : 1;
     uint8_t headerId : 4;
+    uint8_t isRangeCommand : 1;
     uint8_t parityBit: 1;
     uint8_t enableBroadcast : 1;
-    uint8_t __pad : 1;
 } AckPackage;
 
 /**
@@ -79,9 +79,9 @@ typedef struct AckPackage {
 typedef struct AckWithAddressPackage {
     uint8_t startBit : 1;
     uint8_t headerId : 4;
+    uint8_t isRangeCommand : 1;
     uint8_t parityBit : 1;
     uint8_t enableBroadcast : 1;
-    uint8_t __unused : 1;
     uint8_t addressRow0 : 8;
     uint8_t addressColumn0 : 8;
 } AckWithAddressPackage;
@@ -97,9 +97,9 @@ typedef struct AckWithAddressPackage {
 typedef struct AnnounceNetworkGeometryPackage {
     uint8_t startBit : 1;
     uint8_t headerId : 4;
+    uint8_t isRangeCommand : 1;
     uint8_t parityBit : 1;
     uint8_t enableBroadcast : 1;
-    uint8_t __unused : 1;
     uint8_t rows : 8;
     uint8_t columns : 8;
 } AnnounceNetworkGeometryPackage;
@@ -115,9 +115,9 @@ typedef struct AnnounceNetworkGeometryPackage {
 typedef struct SetNetworkGeometryPackage {
     uint8_t startBit : 1;
     uint8_t headerId : 4;
+    uint8_t isRangeCommand : 1;
     uint8_t parityBit: 1;
     uint8_t enableBroadcast : 1;
-    uint8_t __unused : 1;
     uint8_t rows : 8;
     uint8_t columns : 8;
 } SetNetworkGeometryPackage;
@@ -133,6 +133,7 @@ typedef struct SetNetworkGeometryPackage {
 typedef struct EnumerationPackage {
     uint8_t startBit : 1;
     uint8_t headerId : 4;
+    uint8_t isRangeCommand : 1;
     uint8_t parityBit : 1;
     uint8_t enableBroadcast : 1;
     /**
@@ -154,9 +155,9 @@ typedef struct EnumerationPackage {
 typedef struct TimePackage {
     uint8_t startBit : 1;
     uint8_t headerId : 4;
+    uint8_t isRangeCommand : 1;
     uint8_t parityBit : 1;
     uint8_t enableBroadcast : 1;
-    uint8_t __unused : 1;
     uint16_t time;
     uint16_t packageTransmissionLatency;
     uint16_t stuffing;
@@ -173,9 +174,9 @@ typedef struct TimePackage {
 typedef struct HeatWiresPackage {
     uint8_t startBit : 1;
     uint8_t headerId : 4;
+    uint8_t isRangeCommand : 1;
     uint8_t parityBit : 1;
     uint8_t enableBroadcast : 1;
-    uint8_t __unused : 1;
     uint8_t addressRow0 : 8;
     uint8_t addressColumn0 : 8;
     uint16_t startTimeStamp : 16;
@@ -197,9 +198,9 @@ typedef struct HeatWiresPackage {
 typedef struct HeatWiresRangePackage {
     uint8_t startBit : 1;
     uint8_t headerId : 4;
+    uint8_t isRangeCommand : 1;
     uint8_t parityBit : 1;
     uint8_t enableBroadcast : 1;
-    uint8_t __unused : 1;
     uint8_t addressRow0 : 8;
     uint8_t addressColumn0 : 8;
     uint8_t addressRow1 : 8;
@@ -223,9 +224,9 @@ typedef struct HeatWiresRangePackage {
 typedef struct HeatWiresModePackage {
     uint8_t startBit : 1;
     uint8_t headerId : 4;
+    uint8_t isRangeCommand : 1;
     uint8_t parityBit : 1;
     uint8_t enableBroadcast : 1;
-    uint8_t __unused : 1;
     uint8_t heatMode : 2;
     uint8_t __pad: 6;
 } HeatWiresModePackage;

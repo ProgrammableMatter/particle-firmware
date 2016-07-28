@@ -197,23 +197,24 @@ FUNC_ATTRS void executeSetNetworkGeometryPackage(volatile SetNetworkGeometryPack
 extern FUNC_ATTRS void __inferEastActuatorCommand(volatile Package *package);
 
 FUNC_ATTRS void __inferEastActuatorCommand(volatile Package *package) {
-
-    if (ParticleAttributes.actuationCommand.executionState == ACTUATION_STATE_TYPE_IDLE) {
-        if (package->asHeader.headerId == PACKAGE_HEADER_ID_TYPE_HEAT_WIRES) {
-            volatile HeatWiresPackage *heatWiresPackage = &package->asHeatWiresPackage;
-            if (heatWiresPackage->northRight) ParticleAttributes.actuationCommand.actuators.eastLeft = true;
-            if (heatWiresPackage->northLeft) ParticleAttributes.actuationCommand.actuators.eastRight = true;
-            ParticleAttributes.actuationCommand.actuationStart.periodTimeStamp = heatWiresPackage->startTimeStamp;
-            ParticleAttributes.actuationCommand.actuationEnd.periodTimeStamp =
-                    heatWiresPackage->startTimeStamp + heatWiresPackage->duration;
-            ParticleAttributes.actuationCommand.isScheduled = true;
-        } else if (package->asHeader.headerId == PACKAGE_HEADER_ID_TYPE_HEAT_WIRES_RANGE) {
+    if (ParticleAttributes.actuationCommand.executionState == ACTUATION_STATE_TYPE_IDLE &&
+        package->asHeader.headerId == PACKAGE_HEADER_ID_TYPE_HEAT_WIRES) {
+        if (package->asHeader.isRangeCommand) {
             volatile HeatWiresRangePackage *heatWiresRangePackage = &package->asHeatWiresRangePackage;
             if (heatWiresRangePackage->northRight) ParticleAttributes.actuationCommand.actuators.eastLeft = true;
             if (heatWiresRangePackage->northLeft) ParticleAttributes.actuationCommand.actuators.eastRight = true;
             ParticleAttributes.actuationCommand.actuationStart.periodTimeStamp = heatWiresRangePackage->startTimeStamp;
             ParticleAttributes.actuationCommand.actuationEnd.periodTimeStamp =
                     heatWiresRangePackage->startTimeStamp + heatWiresRangePackage->duration;
+            ParticleAttributes.actuationCommand.isScheduled = true;
+        }
+        else {
+            volatile HeatWiresPackage *heatWiresPackage = &package->asHeatWiresPackage;
+            if (heatWiresPackage->northRight) ParticleAttributes.actuationCommand.actuators.eastLeft = true;
+            if (heatWiresPackage->northLeft) ParticleAttributes.actuationCommand.actuators.eastRight = true;
+            ParticleAttributes.actuationCommand.actuationStart.periodTimeStamp = heatWiresPackage->startTimeStamp;
+            ParticleAttributes.actuationCommand.actuationEnd.periodTimeStamp =
+                    heatWiresPackage->startTimeStamp + heatWiresPackage->duration;
             ParticleAttributes.actuationCommand.isScheduled = true;
         }
     }
@@ -228,22 +229,23 @@ FUNC_ATTRS void __inferEastActuatorCommand(volatile Package *package) {
 extern FUNC_ATTRS void __inferSouthActuatorCommand(volatile Package *package);
 
 FUNC_ATTRS void __inferSouthActuatorCommand(volatile Package *package) {
-    if (ParticleAttributes.actuationCommand.executionState == ACTUATION_STATE_TYPE_IDLE) {
-        if (package->asHeader.headerId == PACKAGE_HEADER_ID_TYPE_HEAT_WIRES) {
-            volatile HeatWiresPackage *heatWiresPackage = &package->asHeatWiresPackage;
-            if (heatWiresPackage->northRight) ParticleAttributes.actuationCommand.actuators.southLeft = true;
-            if (heatWiresPackage->northLeft) ParticleAttributes.actuationCommand.actuators.southRight = true;
-            ParticleAttributes.actuationCommand.actuationStart.periodTimeStamp = heatWiresPackage->startTimeStamp;
-            ParticleAttributes.actuationCommand.actuationEnd.periodTimeStamp =
-                    heatWiresPackage->startTimeStamp + heatWiresPackage->duration;
-            ParticleAttributes.actuationCommand.isScheduled = true;
-        } else if (package->asHeader.headerId == PACKAGE_HEADER_ID_TYPE_HEAT_WIRES_RANGE) {
+    if (package->asHeader.headerId == PACKAGE_HEADER_ID_TYPE_HEAT_WIRES &&
+        ParticleAttributes.actuationCommand.executionState == ACTUATION_STATE_TYPE_IDLE) {
+        if (package->asHeader.isRangeCommand) {
             volatile HeatWiresRangePackage *heatWiresRangePackage = &package->asHeatWiresRangePackage;
             if (heatWiresRangePackage->northRight) ParticleAttributes.actuationCommand.actuators.southLeft = true;
             if (heatWiresRangePackage->northLeft) ParticleAttributes.actuationCommand.actuators.southRight = true;
             ParticleAttributes.actuationCommand.actuationStart.periodTimeStamp = heatWiresRangePackage->startTimeStamp;
             ParticleAttributes.actuationCommand.actuationEnd.periodTimeStamp =
                     heatWiresRangePackage->startTimeStamp + heatWiresRangePackage->duration;
+            ParticleAttributes.actuationCommand.isScheduled = true;
+        } else {
+            volatile HeatWiresPackage *heatWiresPackage = &package->asHeatWiresPackage;
+            if (heatWiresPackage->northRight) ParticleAttributes.actuationCommand.actuators.southLeft = true;
+            if (heatWiresPackage->northLeft) ParticleAttributes.actuationCommand.actuators.southRight = true;
+            ParticleAttributes.actuationCommand.actuationStart.periodTimeStamp = heatWiresPackage->startTimeStamp;
+            ParticleAttributes.actuationCommand.actuationEnd.periodTimeStamp =
+                    heatWiresPackage->startTimeStamp + heatWiresPackage->duration;
             ParticleAttributes.actuationCommand.isScheduled = true;
         }
     }
@@ -257,25 +259,28 @@ extern FUNC_ATTRS void __scheduleHeatWiresCommand(volatile Package *package);
 
 FUNC_ATTRS void __scheduleHeatWiresCommand(volatile Package *package) {
     if (package->asHeader.headerId == PACKAGE_HEADER_ID_TYPE_HEAT_WIRES) {
-        volatile HeatWiresPackage *heatWiresPackage = &package->asHeatWiresPackage;
-        ParticleAttributes.actuationCommand.actuators.northLeft = heatWiresPackage->northLeft;
-        ParticleAttributes.actuationCommand.actuators.northRight = heatWiresPackage->northRight;
-        ParticleAttributes.actuationCommand.actuationStart.periodTimeStamp = heatWiresPackage->startTimeStamp;
-        ParticleAttributes.actuationCommand.actuationEnd.periodTimeStamp =
-                heatWiresPackage->startTimeStamp +
-                ((((uint16_t) heatWiresPackage->durationMsb) << 8) | heatWiresPackage->duration);
-        ParticleAttributes.protocol.isBroadcastEnabled = heatWiresPackage->enableBroadcast;
-        ParticleAttributes.actuationCommand.isScheduled = true;
-    } else if (package->asHeader.headerId == PACKAGE_HEADER_ID_TYPE_HEAT_WIRES_RANGE) {
-        volatile HeatWiresRangePackage *heatWiresRangePackage = &package->asHeatWiresRangePackage;
-        ParticleAttributes.actuationCommand.actuators.northLeft = heatWiresRangePackage->northLeft;
-        ParticleAttributes.actuationCommand.actuators.northRight = heatWiresRangePackage->northRight;
-        ParticleAttributes.actuationCommand.actuationStart.periodTimeStamp = heatWiresRangePackage->startTimeStamp;
-        ParticleAttributes.actuationCommand.actuationEnd.periodTimeStamp =
-                heatWiresRangePackage->startTimeStamp +
-                ((((uint16_t) heatWiresRangePackage->durationMsb) << 8) | heatWiresRangePackage->duration);
-        ParticleAttributes.protocol.isBroadcastEnabled = heatWiresRangePackage->enableBroadcast;
-        ParticleAttributes.actuationCommand.isScheduled = true;
+        if (package->asHeader.isRangeCommand) {
+            volatile HeatWiresRangePackage *heatWiresRangePackage = &package->asHeatWiresRangePackage;
+            ParticleAttributes.actuationCommand.actuators.northLeft = heatWiresRangePackage->northLeft;
+            ParticleAttributes.actuationCommand.actuators.northRight = heatWiresRangePackage->northRight;
+            ParticleAttributes.actuationCommand.actuationStart.periodTimeStamp = heatWiresRangePackage->startTimeStamp;
+            ParticleAttributes.actuationCommand.actuationEnd.periodTimeStamp =
+                    heatWiresRangePackage->startTimeStamp +
+                    ((((uint16_t) heatWiresRangePackage->durationMsb) << 8) |
+                     heatWiresRangePackage->duration);
+            ParticleAttributes.protocol.isBroadcastEnabled = heatWiresRangePackage->enableBroadcast;
+            ParticleAttributes.actuationCommand.isScheduled = true;
+        } else {
+            volatile HeatWiresPackage *heatWiresPackage = &package->asHeatWiresPackage;
+            ParticleAttributes.actuationCommand.actuators.northLeft = heatWiresPackage->northLeft;
+            ParticleAttributes.actuationCommand.actuators.northRight = heatWiresPackage->northRight;
+            ParticleAttributes.actuationCommand.actuationStart.periodTimeStamp = heatWiresPackage->startTimeStamp;
+            ParticleAttributes.actuationCommand.actuationEnd.periodTimeStamp =
+                    heatWiresPackage->startTimeStamp +
+                    ((((uint16_t) heatWiresPackage->durationMsb) << 8) | heatWiresPackage->duration);
+            ParticleAttributes.protocol.isBroadcastEnabled = heatWiresPackage->enableBroadcast;
+            ParticleAttributes.actuationCommand.isScheduled = true;
+        }
     }
 }
 
@@ -483,10 +488,12 @@ FUNC_ATTRS void executeHeatWiresModePackage(volatile HeatWiresModePackage *packa
                            STATE_TYPE_SENDING_PACKAGE_TO_EAST_AND_SOUTH);
         } else if (routeToEast) {
             __relayPackage((Package *) package, &ParticleAttributes.directionOrientedPorts.east,
-                           SetNetworkGeometryPackageBufferPointerSize, STATE_TYPE_SENDING_PACKAGE_TO_EAST);
+                           SetNetworkGeometryPackageBufferPointerSize,
+                           STATE_TYPE_SENDING_PACKAGE_TO_EAST);
         } else if (routeToSouth) {
             __relayPackage((Package *) package, &ParticleAttributes.directionOrientedPorts.south,
-                           SetNetworkGeometryPackageBufferPointerSize, STATE_TYPE_SENDING_PACKAGE_TO_SOUTH);
+                           SetNetworkGeometryPackageBufferPointerSize,
+                           STATE_TYPE_SENDING_PACKAGE_TO_SOUTH);
         }
     }
 

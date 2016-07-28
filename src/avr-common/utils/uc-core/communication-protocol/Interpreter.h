@@ -82,11 +82,11 @@ FUNC_ATTRS void __interpretReceivedPackage(volatile DirectionOrientedPort *port)
             break;
 
         case PACKAGE_HEADER_ID_TYPE_HEAT_WIRES:
-            executeHeatWiresPackage(&package->asHeatWiresPackage);
-            break;
-
-        case PACKAGE_HEADER_ID_TYPE_HEAT_WIRES_RANGE:
-            executeHeatWiresRangePackage(&package->asHeatWiresRangePackage);
+            if (package->asHeader.isRangeCommand) {
+                executeHeatWiresRangePackage(&package->asHeatWiresRangePackage);
+            } else {
+                executeHeatWiresPackage(&package->asHeatWiresPackage);
+            }
             break;
 
         case PACKAGE_HEADER_ID_HEADER:
