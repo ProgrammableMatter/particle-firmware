@@ -5,6 +5,12 @@
 #include <common/common.h>
 #include <common/PortADefinition.h>
 
+FUSES = {
+        .low = LFUSE_DEFAULT,
+        .high = HFUSE_DEFAULT,
+        .extended = EFUSE_DEFAULT,
+};
+
 /**
  * free function declarations
  */
