@@ -32,7 +32,7 @@ typedef enum PackageHeaderId {
     PACKAGE_HEADER_ID_TYPE_ACK = 7,
     PACKAGE_HEADER_ID_TYPE_ACK_WITH_DATA = 8,
     __PACKAGE_HEADER_ID_TYPE_RESET = 9,
-    __UNUSED1 = 10,
+    __PACKAGE_HEAEDER_ID_BROADCAST = 10,
     __UNUSED2 = 11,
     __UNUSED3 = 12,
     __UNUSED4 = 13,
@@ -61,6 +61,18 @@ typedef struct HeaderPackage {
  * describes an acknowledge package
  */
 typedef HeaderPackage AckPackage;
+
+/**
+ * describes a package that is automatically relayed on the east and south port
+ * TODO: implement handling in communication-protocol/Commands.h
+ */
+typedef HeaderPackage RelayHeaderPackage;
+
+/**
+ * describes a package that triggers a node reset
+ * TODO: implement handling in communication-protocol/Commands.h
+ */
+typedef HeaderPackage ResetPackage;
 
 
 /**
