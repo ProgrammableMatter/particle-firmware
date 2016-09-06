@@ -57,7 +57,8 @@ typedef struct RxPort {
     // each pin interrupt stores snapshots and the flank direction into the buffer
     RxSnapshotBuffer snapshotsBuffer;
     PortBuffer buffer;
-    uint16_t receptionOffset; // synchronization offset of fist received bit relative to compare counter
+    // todo unused field receptionistOffset
+    // uint16_t receptionOffset; // synchronization offset of fist received bit relative to compare counter
     uint8_t isOverflowed : 1;
     uint8_t isDataBuffered : 1;
     uint8_t __pad : 6;

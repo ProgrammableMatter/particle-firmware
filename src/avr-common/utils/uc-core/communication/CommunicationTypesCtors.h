@@ -70,7 +70,7 @@ extern CTOR_ATTRS void constructRxPort(volatile RxPort *o);
 CTOR_ATTRS void constructRxPort(volatile RxPort *o) {
     constructRxSnapshotBuffer(&o->snapshotsBuffer);
     constructPortBuffer(&(o->buffer));
-    o->receptionOffset = 0;
+    // o->receptionOffset = 0;
     o->isOverflowed = false;
     o->isDataBuffered = false;
 }

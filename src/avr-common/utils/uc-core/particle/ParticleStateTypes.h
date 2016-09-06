@@ -55,7 +55,7 @@ typedef enum StateType {
             STATE_TYPE_ANNOUNCE_NETWORK_GEOMETRY,
     // state when relaying the network address announcement to origin
             STATE_TYPE_ANNOUNCE_NETWORK_GEOMETRY_RELAY,
-    // state when relaying relay is finished
+    // state when relaying is finished
             STATE_TYPE_ANNOUNCE_NETWORK_GEOMETRY_RELAY_DONE,
     // state when announcing network geometry is finished
             STATE_TYPE_ANNOUNCE_NETWORK_GEOMETRY_DONE,
@@ -174,17 +174,19 @@ typedef struct Periphery {
     uint8_t loopCount;
 } Periphery;
 
-/**
- * keeps adjustment attributes for the internal 16bit timer/counter
- */
-typedef struct TimerCounterAdjustment {
-    uint16_t localTime;
-    uint16_t remoteTime;
-    uint16_t counterOffset;
-    int8_t isPositiveCounterOffset : 1;
-    int8_t isCounterOffsetValid : 1;
-    int8_t __pad : 6;
-} TimerCounterAdjustment;
+///**
+// * keeps adjustment attributes for the internal 16bit timer/counter
+// */
+//typedef struct TimerCounterAdjustment {
+//    // todo: unused field localTime
+//    // uint16_t localTime;
+//    // todo: unused field remoteTime
+//    // uint16_t remoteTime;
+//    uint16_t counterOffset;
+//    int8_t isPositiveCounterOffset : 1;
+//    int8_t isCounterOffsetValid : 1;
+//    int8_t __pad : 6;
+//} TimerCounterAdjustment;
 
 /**
  * facade to bundle port resources

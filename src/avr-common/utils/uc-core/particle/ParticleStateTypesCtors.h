@@ -13,18 +13,18 @@
 #include "uc-core/time/TimeTypesCtors.h"
 #include "PointerImplementation.h"
 #include "uc-core/communication/PointerImplementation.h"
-
-/**
- * constructor function
- * @param o the object to construct
- */
-extern void constructTimerCounterAdjustment(volatile TimerCounterAdjustment *o);
-
-void constructTimerCounterAdjustment(volatile TimerCounterAdjustment *o) {
-    o->counterOffset = 0;
-    o->isPositiveCounterOffset = true;
-    o->isCounterOffsetValid = false;
-}
+//
+///**
+// * constructor function
+// * @param o the object to construct
+// */
+//extern void constructTimerCounterAdjustment(volatile TimerCounterAdjustment *o);
+//
+//void constructTimerCounterAdjustment(volatile TimerCounterAdjustment *o) {
+//    o->counterOffset = 0;
+//    o->isPositiveCounterOffset = true;
+//    o->isCounterOffsetValid = false;
+//}
 
 /**
  * constructor function
