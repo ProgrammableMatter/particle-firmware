@@ -11,14 +11,14 @@
 /**
  * The main particle loop. It repetitively calls the state driven particle core implementation.
  */
-extern inline void particleLoop(void);
+extern inline void processLoop(void);
 
-inline void particleLoop(void) {
+inline void processLoop(void) {
     IO_PORTS_SETUP; // configure input/output pins
     constructParticle(&ParticleAttributes);
     ParticleAttributes.node.state = STATE_TYPE_START;
     forever {
-        particleTick();
+        process();
     }
 }
 

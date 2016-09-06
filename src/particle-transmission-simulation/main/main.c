@@ -9,11 +9,11 @@
 /**
  * A mocked up particle loop. It puts the particle in an initialized reception state.
  */
-extern FUNC_ATTRS void particleLoop(void);
+extern FUNC_ATTRS void processLoop(void);
 
-FUNC_ATTRS void particleLoop(void) {
+FUNC_ATTRS void processLoop(void) {
     forever {
-        particleTick();
+        process();
     }
 }
 
@@ -62,7 +62,7 @@ int main(void) {
 
     SREG setBit bit(SREG_I);
 
-//    particleLoop();
+//    processLoop();
 //    while (ParticleAttributes.node.state != STATE_TYPE_TX_DONE);
 //    TIMER_TX_RX_DISABLE_COMPARE_INTERRUPT;
 //    ParticleAttributes.node.state = STATE_TYPE_STALE;

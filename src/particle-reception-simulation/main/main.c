@@ -9,11 +9,11 @@
 /**
  * A mocked up particle loop. It puts the particle in an initialized reception state.
  */
-extern inline void particleLoop(void);
+extern inline void processLoop(void);
 
-inline void particleLoop(void) {
+inline void processLoop(void) {
     forever {
-        particleTick();
+        process();
     }
 }
 
@@ -41,7 +41,7 @@ int main(void) {
     __enableReception();
 
     SEI;
-    particleLoop();
+    processLoop();
     return 0;
 }
 

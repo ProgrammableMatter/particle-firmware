@@ -5,6 +5,6 @@
 #include <uc-core/particle/ParticleLoop.h>
 
 int main(void) {
-    particleLoop();
+    processLoop();
     return 0;
 }
