@@ -18,8 +18,6 @@ SET(PROGRAMMER_PORT usb)
 #SET(PROGRAMMER_BAUD 230400)
 SET(PROGRAMMER_BAUD 460800)
 
-SET(PROGRAMMER_TARGET m8)
-
 # -y count erase cycles
 # -v verbose
 # -F override invalid signature check

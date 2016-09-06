@@ -10,8 +10,6 @@ SET(PROGRAMMER_PORT /dev/ttyUSB0)
 
 SET(PROGRAMMER_BAUD 115200)
 
-SET(PROGRAMMER_TARGET t1634)
-
 # -y count erase cycles
 # -v verbose
 # -F override invalid signature check

@@ -16,8 +16,6 @@ SET(PROGRAMMER_BAUD 1200)
 #SET(PROGRAMMER_BAUD 230400)
 #SET(PROGRAMMER BAUD 460800)
 
-SET(PROGRAMMER_TARGET t20)
-
 # -y count erase cycles - not supported
 # -v verbose
 # -F override invalid signature check
