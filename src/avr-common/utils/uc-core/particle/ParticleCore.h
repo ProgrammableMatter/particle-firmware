@@ -498,7 +498,7 @@ FUNC_ATTRS void __handleDiscoveryPulsingDone(void) {
 }
 
 /**
- * Sets the set network geometry package and switches to the given state.
+ * Sends the set network geometry package and switches to the given state.
  * @param rows the new network geometry rows
  * @param cols the new network geometry rows
  * @param endState the state when handler finished
@@ -597,9 +597,9 @@ FUNC_ATTRS void __handleIsActuationCommandPeriod(void) {
  * The core function is called cyclically in the particle loop. It implements the
  * behaviour of the particle.
  */
-extern inline void particleTick(void);
+extern inline void process(void);
 
-inline void particleTick(void) {
+inline void process(void) {
     // DEBUG_CHAR_OUT('P');
     __heartBeatToggle();
 
@@ -753,7 +753,7 @@ inline void particleTick(void) {
             break;
 
             // ---------------- working states: set network geometry----------------
-
+            // todo unused state
         case STATE_TYPE_SEND_SET_NETWORK_GEOMETRY:
             __handleSetNetworkGeometry(ParticleAttributes.protocol.networkGeometry.rows,
                                        ParticleAttributes.protocol.networkGeometry.columns,
