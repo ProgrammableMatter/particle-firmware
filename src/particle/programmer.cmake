@@ -1,1 +1,1 @@
-targets/programmer_ft232rl.cmake
+targets/programmer_stk500.cmake

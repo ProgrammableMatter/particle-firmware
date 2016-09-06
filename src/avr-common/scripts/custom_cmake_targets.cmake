@@ -1,8 +1,8 @@
 # @author Raoul Rubien 2016
 
-SET(WRITE_FLASH /bin/bash ${PROJECTS_SOURCE_ROOT}/avr-common/scripts/write_flash.sh ${PROGRAMMER} ${PROGRAMMER_TARGET} ${PROGRAMMER_BAUD} ${PROGRAMMER_PORT} ${PROGRAMMER_EXTRA_FLAGS} ${CMAKE_BINARY_DIR}/${BINARY} ${POST_PROGRAMMING_COMMAND})
-SET(WRITE_FUSE /bin/bash ${PROJECTS_SOURCE_ROOT}/avr-common/scripts/write_fuse.sh ${PROGRAMMER} ${PROGRAMMER_TARGET} ${PROGRAMMER_BAUD} ${PROGRAMMER_PORT} ${PROGRAMMER_EXTRA_FLAGS} ${CMAKE_BINARY_DIR}/${BINARY} ${POST_PROGRAMMING_COMMAND})
-SET(VERIFY_FLASH /bin/bash ${PROJECTS_SOURCE_ROOT}/avr-common/scripts/verify_flash.sh ${PROGRAMMER} ${PROGRAMMER_TARGET} ${PROGRAMMER_BAUD} ${PROGRAMMER_PORT} ${PROGRAMMER_EXTRA_FLAGS} ${CMAKE_BINARY_DIR}/${BINARY}.flash ${POST_PROGRAMMING_COMMAND})
+SET(WRITE_FLASH /bin/bash ${PROJECTS_SOURCE_ROOT}/avr-common/scripts/write_flash.sh ${PROGRAMMER} ${PROGRAMMER_TARGET} ${PROGRAMMER_BAUD} ${PROGRAMMER_PORT} ${PROGRAMMER_EXTRA_FLAGS} ${CMAKE_CURRENT_BINARY_DIR}/${BINARY} ${POST_PROGRAMMING_COMMAND})
+SET(WRITE_FUSE /bin/bash ${PROJECTS_SOURCE_ROOT}/avr-common/scripts/write_fuse.sh ${PROGRAMMER} ${PROGRAMMER_TARGET} ${PROGRAMMER_BAUD} ${PROGRAMMER_PORT} ${PROGRAMMER_EXTRA_FLAGS} ${CMAKE_CURRENT_BINARY_DIR}/${BINARY} ${POST_PROGRAMMING_COMMAND})
+SET(VERIFY_FLASH /bin/bash ${PROJECTS_SOURCE_ROOT}/avr-common/scripts/verify_flash.sh ${PROGRAMMER} ${PROGRAMMER_TARGET} ${PROGRAMMER_BAUD} ${PROGRAMMER_PORT} ${PROGRAMMER_EXTRA_FLAGS} ${CMAKE_CURRENT_BINARY_DIR}/${BINARY}.flash ${POST_PROGRAMMING_COMMAND})
 SET(ERASE_FLASH /bin/bash ${PROJECTS_SOURCE_ROOT}/avr-common/scripts/erase_flash.sh ${PROGRAMMER} ${PROGRAMMER_TARGET} ${PROGRAMMER_BAUD} ${PROGRAMMER_PORT} ${PROGRAMMER_EXTRA_FLAGS} ${POST_PROGRAMMING_COMMAND})
 
 add_custom_command(OUTPUT cat_uart
@@ -44,30 +44,30 @@ add_custom_command(OUTPUT erase_flash
 add_custom_target(${PROJECT_NAME}_erase DEPENDS erase_flash)
 
 #create symlinks to script files
-execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink
-        ${CMAKE_CURRENT_SOURCE_DIR}/write_flash.sh
-        ${CMAKE_CURRENT_BINARY_DIR}/write_flash.sh
-        )
-
-execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink
-        ${CMAKE_CURRENT_SOURCE_DIR}/erase_flash.sh
-        ${CMAKE_CURRENT_BINARY_DIR}/erase_flash.sh
-        )
-
-execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink
-        ${CMAKE_CURRENT_SOURCE_DIR}/write_fuse.sh
-        ${CMAKE_CURRENT_BINARY_DIR}/write_fuse.sh
-        )
-
-execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink
-        ${CMAKE_CURRENT_SOURCE_DIR}/verify_flash.sh
-        ${CMAKE_CURRENT_BINARY_DIR}/verify_flash.sh
-        )
-
-execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink
-        ${CMAKE_CURRENT_SOURCE_DIR}/utils.sh
-        ${CMAKE_CURRENT_BINARY_DIR}/utils.sh
-        )
+#execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink
+#        ${CMAKE_CURRENT_SOURCE_DIR}/write_flash.sh
+#        ${CMAKE_CURRENT_BINARY_DIR}/write_flash.sh
+#        )
+#
+#execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink
+#        ${CMAKE_CURRENT_SOURCE_DIR}/erase_flash.sh
+#        ${CMAKE_CURRENT_BINARY_DIR}/erase_flash.sh
+#        )
+#
+#execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink
+#        ${CMAKE_CURRENT_SOURCE_DIR}/write_fuse.sh
+#        ${CMAKE_CURRENT_BINARY_DIR}/write_fuse.sh
+#        )
+#
+#execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink
+#        ${CMAKE_CURRENT_SOURCE_DIR}/verify_flash.sh
+#        ${CMAKE_CURRENT_BINARY_DIR}/verify_flash.sh
+#        )
+#
+#execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink
+#        ${CMAKE_CURRENT_SOURCE_DIR}/utils.sh
+#        ${CMAKE_CURRENT_BINARY_DIR}/utils.sh
+#        )
 
 add_custom_command(OUTPUT read_fuses
         COMMAND

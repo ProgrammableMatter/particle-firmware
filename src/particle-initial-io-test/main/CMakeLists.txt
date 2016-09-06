@@ -18,3 +18,4 @@ target_link_libraries(${BINARY}
         )
 
 include(${PROJECTS_SOURCE_ROOT}/avr-common/scripts/post_binary_build.cmake)
+include(${PROJECTS_SOURCE_ROOT}/avr-common/scripts/custom_cmake_targets.cmake)
