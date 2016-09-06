@@ -82,6 +82,8 @@ typedef struct RxSnapshotBuffer {
     /**
      * number of passed half cycles reflects the number of π's passed from 1st snapshot
      * until the last snapshot before timeout
+     * -------<=========>------
+     * -------^---------^------
      */
     uint8_t numberHalfCyclesPassed;
 } RxSnapshotBuffer;
