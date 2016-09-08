@@ -17,6 +17,6 @@
  */
 #define ACTUATION_COMPARE_VALUE_POWER_MEDIUM (UINT8_MAX / 2)
 /**
- * ~25% actiation duty cycle
+ * ~25% actuation duty cycle
  */
 #define ACTUATION_COMPARE_VALUE_POWER_WEAK (UINT8_MAX / 4)
