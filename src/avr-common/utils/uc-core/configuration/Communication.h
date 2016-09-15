@@ -60,14 +60,12 @@
 /**
  * Size of reception snapshot buffer per port.
  */
-// 88% snapshots buffer of 8 byte
-//#define RX_NUMBER_SNAPSHOTS 114
-// 65% snapshots buffer of 8 byte
-//#define RX_NUMBER_SNAPSHOTS 90
-//#define RX_NUMBER_SNAPSHOTS 85
-// 44% snapshots buffer of 8 byte
-//#define RX_NUMBER_SNAPSHOTS 57
-// 22% snapshots buffer of 8 byte
-#define RX_NUMBER_SNAPSHOTS 28
-// 12% snapshots buffer of 8 byte: still above min. lower bound
-//#define RX_NUMBER_SNAPSHOTS 15
+// 88% snapshots buffer of 9 byte PDU max. events
+//#define RX_NUMBER_SNAPSHOTS 127
+// 44% snapshots buffer of max. 9 byte PDU max. events
+//#define RX_NUMBER_SNAPSHOTS 64
+// 22% snapshots buffer of 9 byte PDU max. events
+//#define RX_NUMBER_SNAPSHOTS 32
+// 20% snapshots buffer of 9 byte PDU max. events
+#define RX_NUMBER_SNAPSHOTS 29
+
