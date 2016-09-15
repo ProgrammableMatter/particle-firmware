@@ -167,6 +167,15 @@ DECODING_FUNC_ATTRS void captureSnapshot(uint16_t *timerCounterValue, const bool
     volatile Snapshot *snapshot = &(snapshotBuffer->snapshots[snapshotBuffer->endIndex]);
     __rxSnapshotBufferIncrementEndIndex(snapshotBuffer);
     (*((volatile uint16_t *) (snapshot))) = (*timerCounterValue & 0xFFFE) | isRisingEdge;
+
+    // for evaluation purpose
+    if (snapshotBuffer->endIndex > snapshotBuffer->startIndex) {
+        DEBUG_INT16_OUT(snapshotBuffer->endIndex - snapshotBuffer->startIndex);
+    } else {
+        if (snapshotBuffer->startIndex < RX_NUMBER_SNAPSHOTS) {
+            DEBUG_INT16_OUT(snapshotBuffer->endIndex + (RX_NUMBER_SNAPSHOTS - snapshotBuffer->endIndex));
+        }
+    }
 }
 
 /**

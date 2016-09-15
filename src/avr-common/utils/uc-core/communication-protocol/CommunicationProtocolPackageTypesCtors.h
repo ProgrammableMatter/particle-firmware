@@ -101,6 +101,10 @@ CTOR_ATTRS void constructSyncTimePackage(volatile TxPort *txPort) {
     package->asSyncTimePackage.time = TIMER_TX_RX_COUNTER_VALUE;
     package->asSyncTimePackage.packageTransmissionLatency = COMMUNICATION_PROTOCOL_TIME_SYNCHRONIZATION_PACKAGE_RECEPTION_DURATION;
     package->asSyncTimePackage.stuffing = 0x5555;
+    // for evaluation purpose
+//    package->asSyncTimePackage.time = 0;
+//    package->asSyncTimePackage.packageTransmissionLatency = 0;
+//    package->asSyncTimePackage.stuffing = 0;
     setBufferDataEndPointer(txPort->dataEndPos, TimePackageBufferPointerSize);
     // DEBUG_INT16_OUT(TIMER_TX_RX_COUNTER_VALUE);
 }
