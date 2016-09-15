@@ -21,23 +21,26 @@
 /**
  * Describes possible header IDs. Note the enum values must not exceed uint8_t max.
  */
+
 typedef enum PackageHeaderId {
-    PACKAGE_HEADER_ID_TYPE_ENUMERATE = 0,
-    PACKAGE_HEADER_ID_TYPE_HEAT_WIRES = 1,
-    PACKAGE_HEADER_ID_TYPE_HEAT_WIRES_MODE = 2,
-    PACKAGE_HEADER_ID_HEADER = 3,
-    PACKAGE_HEADER_ID_TYPE_SET_NETWORK_GEOMETRY = 4,
-    PACKAGE_HEADER_ID_TYPE_NETWORK_GEOMETRY_RESPONSE = 5,
-    PACKAGE_HEADER_ID_TYPE_SYNC_TIME = 6,
-    PACKAGE_HEADER_ID_TYPE_ACK = 7,
-    PACKAGE_HEADER_ID_TYPE_ACK_WITH_DATA = 8,
-    __PACKAGE_HEADER_ID_TYPE_RESET = 9,
-    __UNUSED1 = 10,
-    __UNUSED2 = 11,
-    __UNUSED3 = 12,
-    __UNUSED4 = 13,
-    __UNUSED5 = 14,
+    PACKAGE_HEADER_ID_HEADER = 1,
+    __PACKAGE_HEADER_ID_TYPE_SYNC_NETWORK_TIME = 2,
+    __PACKAGE_HEADER_ID_TYPE_RELAY_HEADER = 2,
+    __PACKAGE_HEADER_ID_TYPE_RESET = 3,
+    PACKAGE_HEADER_ID_TYPE_ACK = 4,
+    PACKAGE_HEADER_ID_TYPE_ACK_WITH_DATA = 5,
+    PACKAGE_HEADER_ID_TYPE_NETWORK_GEOMETRY_RESPONSE = 6,
+    PACKAGE_HEADER_ID_TYPE_SET_NETWORK_GEOMETRY = 7,
+    PACKAGE_HEADER_ID_TYPE_ENUMERATE = 8,
+    PACKAGE_HEADER_ID_TYPE_SYNC_TIME = 9,
+    PACKAGE_HEADER_ID_TYPE_HEAT_WIRES = 10,
+    PACKAGE_HEADER_ID_TYPE_HEAT_WIRES_MODE = 11,
+    __UNUSED11 = 11,
+    __UNUSED12 = 12,
+    __UNUSED13 = 13,
+    __UNUSED14 = 14,
     PACKAGE_HEADER_ID_TYPE_EXTENDED_HEADER = 15,
+    __UNUSED00 = 0,
 } PackageHeaderId;
 
 /**
@@ -67,6 +70,12 @@ typedef HeaderPackage AckPackage;
  * TODO: implement handling in communication-protocol/Commands.h
  */
 typedef HeaderPackage RelayHeaderPackage;
+
+/**
+ * describes a package for master device to origin node comm.: re-synchronize network time
+ * TODO: implement handling in communication-protocol/Commands.h
+ */
+typedef HeaderPackage SyncNetworkTimeHeaderPackage;
 
 /**
  * describes a package that triggers a node reset
