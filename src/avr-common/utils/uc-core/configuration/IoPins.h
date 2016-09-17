@@ -43,19 +43,21 @@
 #  define __SOUTH_RX_DIR ADir
 #  define __SOUTH_RX_OUT AOut
 #  define __SOUTH_RX_IN AIn
+#  define SOUTH_RX_PULL_UP PUEA pullUp __SOUTH_RX_PIN
+#  define SOUTH_RX_PULL_UP_DISABLE PUEA setLo __SOUTH_RX_PIN
 #else
 #  if defined(__AVR_ATmega16__)
 #    define __SOUTH_RX_PIN Pin2
 #    define __SOUTH_RX_DIR DDir
 #    define __SOUTH_RX_OUT DOut
 #    define __SOUTH_RX_IN DIn
+#    define SOUTH_RX_PULL_UP __SOUTH_RX_OUT pullUp __SOUTH_RX_PIN
+#    define SOUTH_RX_PULL_UP_DISABLE __SOUTH_RX_OUT setLo __SOUTH_RX_PIN
 #  else
 #    error
 #  endif
 #endif
 
-#define SOUTH_RX_PULL_UP __SOUTH_RX_OUT setHi __SOUTH_RX_PIN
-#define SOUTH_RX_PULL_DOWN __SOUTH_RX_OUT setLo __SOUTH_RX_PIN
 #define __SOUTH_RX ((unsigned char)((false == (__SOUTH_RX_IN getBit __SOUTH_RX_PIN)) ? false : true))
 #define SOUTH_RX_IS_HI (__SOUTH_RX)
 #define SOUTH_RX_IS_LO (false == (__SOUTH_RX))
@@ -101,19 +103,21 @@
 #  define __NORTH_RX_DIR CDir
 #  define __NORTH_RX_OUT COut
 #  define __NORTH_RX_IN CIn
+#  define NORTH_RX_PULL_UP PUEC pullUp __NORTH_RX_PIN
+#  define NORTH_RX_PULL_UP_DISABLE PUEC setLo __NORTH_RX_PIN
 #else
 #  if defined(__AVR_ATmega16__)
 #    define __NORTH_RX_PIN Pin2
 #    define __NORTH_RX_DIR BDir
 #    define __NORTH_RX_OUT BOut
 #    define __NORTH_RX_IN BIn
+#    define NORTH_RX_PULL_UP __NORTH_RX_OUT pullUp __NORTH_RX_PIN
+#    define NORTH_RX_PULL_UP_DISABLE __NORTH_RX_OUT setLo __NORTH_RX_PIN
 #  else
 #    error
 #  endif
 #endif
 
-#define NORTH_RX_PULL_UP __NORTH_RX_OUT setHi __NORTH_RX_PIN
-#define NORTH_RX_PULL_DOWN __NORTH_RX_OUT setLo __NORTH_RX_PIN
 #define __NORTH_RX ((unsigned char)((false == (__NORTH_RX_IN getBit __NORTH_RX_PIN)) ? false : true))
 #define NORTH_RX_IS_HI (__NORTH_RX)
 #define NORTH_RX_IS_LO (false == (__NORTH_RX))
@@ -150,7 +154,7 @@
 #define EAST_TX_IS_LO (false == (__EAST_TX))
 #define EAST_TX_TOGGLE __EAST_TX_OUT toggleBit __EAST_TX_PIN
 
-#define EAST_TX_SETUP __EAST_TX_DIR setOut __EAST_TX_PIN; EAST_TX_HI
+#define EAST_TX_SETUP __EAST_TX_DIR setOut __EAST_TX_PIN; EAST_TX_LO
 
 // rx east
 #ifdef __AVR_ATtiny1634__
@@ -158,18 +162,21 @@
 #  define __EAST_RX_DIR BDir
 #  define __EAST_RX_OUT BOut
 #  define __EAST_RX_IN BIn
+#  define EAST_RX_PULL_UP PUEB pullUp __EAST_RX_PIN
+#  define EAST_RX_PULL_UP_DISABLE PUEB setLo __EAST_RX_PIN
 #else
 #  if defined(__AVR_ATmega16__)
 #    define __EAST_RX_PIN Pin3
 #    define __EAST_RX_DIR DDir
 #    define __EAST_RX_OUT DOut
 #    define __EAST_RX_IN DIn
+#  define EAST_RX_PULL_UP __EAST_RX_OUT pullUp __EAST_RX_PIN
+#  define EAST_RX_PULL_UP_DISABLE __EAST_RX_OUT setLo __EAST_RX_PIN
 #  else
 #    error
 #  endif
 #endif
 
-#define EAST_RX_PULL_UP __EAST_RX_OUT setHi __EAST_RX_PIN
 #define EAST_RX_PULL_DOWN __EAST_RX_OUT setLo __EAST_RX_PIN
 #define __EAST_RX ((unsigned char)((false == (__EAST_RX_IN getBit __EAST_RX_PIN)) ? false : true))
 #define EAST_RX_IS_HI (__EAST_RX)

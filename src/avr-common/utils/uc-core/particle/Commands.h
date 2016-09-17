@@ -55,13 +55,23 @@ FUNC_ATTRS void handleEnumerateNeighbour(volatile DirectionOrientedPort *port,
                                          StateType endState) {
     // TODO: move function to ParticleCore.h
     volatile CommunicationProtocolPortState *commPortState = port->protocol;
+
+
     if (commPortState->stateTimeoutCounter == 0 &&
         commPortState->initiatorState != COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT &&
         commPortState->initiatorState != COMMUNICATION_INITIATOR_STATE_TYPE_IDLE) {
-        // on timeout fall back to start state
+        // on timeout: fall back to start state
         commPortState->initiatorState = COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT;
         commPortState->stateTimeoutCounter = COMMUNICATION_PROTOCOL_TIMEOUT_COUNTER_MAX;
+        if (commPortState->reTransmissions > 0) {
+            commPortState->reTransmissions--;
+        }
         DEBUG_CHAR_OUT('b');
+    }
+
+    if (commPortState->reTransmissions == 0) {
+        // on retransmissions consumed: sort cut the state machine to end state
+        commPortState->initiatorState = COMMUNICATION_INITIATOR_STATE_TYPE_IDLE;
     }
 
     volatile TxPort *txPort = port->txPort;

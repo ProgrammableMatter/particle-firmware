@@ -5,6 +5,8 @@
 #pragma once
 
 #include "uc-core/configuration/Discovery.h"
+#include "uc-core/configuration/IoPins.h"
+#include "uc-core/particle/Globals.h"
 
 /**
  * Increments the port discovery counter, but Overflows at RX_DISCOVERY_PULSE_COUNTER_MAX.
@@ -15,8 +17,15 @@ extern FUNC_ATTRS void dispatchFallingDiscoveryEdge(volatile DiscoveryPulseCount
 FUNC_ATTRS void dispatchFallingDiscoveryEdge(volatile DiscoveryPulseCounter *portCounter) {
     if (portCounter->counter < RX_DISCOVERY_PULSE_COUNTER_MAX) {
         portCounter->counter++;
+
+        if (portCounter == ParticleAttributes.directionOrientedPorts.north.discoveryPulseCounter) {
+            LED_STATUS1_TOGGLE;
+        }
     } else {
         portCounter->isConnected = true;
+//        if (portCounter == ParticleAttributes.directionOrientedPorts.north.discoveryPulseCounter) {
+//            LED_STATUS1_TOGGLE;
+//        }
     }
 }
 

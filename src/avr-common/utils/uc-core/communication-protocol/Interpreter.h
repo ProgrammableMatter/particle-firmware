@@ -27,12 +27,13 @@ FUNC_ATTRS void __interpretWaitForBeingEnumeratedReception(volatile RxPort *rxPo
         // on received address information
         case COMMUNICATION_RECEPTIONIST_STATE_TYPE_RECEIVE:
             // on address package
-            if (package->asHeader.id == PACKAGE_HEADER_ID_TYPE_ENUMERATE &&
-                equalsPackageSize(rxPort->buffer.pointer, EnumerationPackageBufferPointerSize)) {
+            if (equalsPackageSize(rxPort->buffer.pointer, EnumerationPackageBufferPointerSize) &&
+                package->asHeader.id == PACKAGE_HEADER_ID_TYPE_ENUMERATE) {
                 executeSetLocalAddress(&package->asEnumerationPackage);
                 // send ack with local address back
                 // DEBUG_CHAR_OUT('a');
                 commPortState->receptionistState = COMMUNICATION_RECEPTIONIST_STATE_TYPE_TRANSMIT_ACK;
+                LED_ERROR_TOGGLE;
             }
             clearReceptionPortBuffer(rxPort);
             break;
@@ -130,8 +131,8 @@ FUNC_ATTRS void __interpretEnumerateNeighbourAckReception(volatile RxPort *rxPor
         // on ack wih remote address
         case COMMUNICATION_INITIATOR_STATE_TYPE_WAIT_FOR_RESPONSE:
             // on ack with data
-            if (package->asHeader.id == PACKAGE_HEADER_ID_TYPE_ACK_WITH_DATA &&
-                equalsPackageSize(rxPort->buffer.pointer, AckWithAddressPackageBufferPointerSize)) {
+            if (equalsPackageSize(rxPort->buffer.pointer, AckWithAddressPackageBufferPointerSize) &&
+                package->asHeader.id == PACKAGE_HEADER_ID_TYPE_ACK_WITH_DATA) {
                 // on correct address
                 if (expectedRemoteAddressRow == package->asACKWithRemoteAddress.addressRow &&
                     expectedRemoteAddressColumn == package->asACKWithRemoteAddress.addressColumn) {
@@ -167,6 +168,7 @@ FUNC_ATTRS void interpretRxBuffer(volatile DirectionOrientedPort *port) {
     DEBUG_CHAR_OUT('I');
     switch (ParticleAttributes.node.state) {
         case STATE_TYPE_WAIT_FOR_BEING_ENUMERATED:
+//            LED_ERROR_TOGGLE;
             __interpretWaitForBeingEnumeratedReception(port->rxPort,
                                                        port->protocol);
             break;

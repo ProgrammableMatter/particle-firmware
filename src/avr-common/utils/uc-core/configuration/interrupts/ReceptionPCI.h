@@ -1,7 +1,7 @@
 /**
  * @author Raoul Rubien 20.07.2016
  *
- * Reception pin interrupt configuration.
+ * Reception pin change interrupt configuration.
  */
 
 #pragma once
@@ -65,12 +65,9 @@
 #else
 #  if defined(__AVR_ATmega16__) // for simulator MCU
 
-#  define __RX_INTERRUPT_FLAG_NORTH \
-    INTF2
-#  define __RX_INTERRUPT_FLAG_EAST \
-    INTF1
-#  define __RX_INTERRUPT_FLAG_SOUTH \
-    INTF0
+#  define __RX_INTERRUPT_FLAG_NORTH INTF2
+#  define __RX_INTERRUPT_FLAG_EAST INTF1
+#  define __RX_INTERRUPT_FLAG_SOUTH INTF0
 
 #  define RX_NORTH_INTERRUPT_CLEAR_PENDING \
     (((GIFR & bit(__RX_INTERRUPT_FLAG_NORTH)) != 0) ? GIFR = bit(__RX_INTERRUPT_FLAG_NORTH):0)

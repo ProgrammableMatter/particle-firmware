@@ -127,11 +127,11 @@ typedef enum NodeType {
  */
 typedef struct DiscoveryPulseCounter {
     // discovery pulse counter
-    uint8_t counter : 4;
+    uint8_t counter : 5;
     // connectivity flag
     uint8_t isConnected : 1;
-    uint8_t __pad : 3;
-} DiscoveryPulseCounter;
+    uint8_t __pad : 2;
+} volatile DiscoveryPulseCounter;
 
 /**
  * Stores the amount of incoming pulses for each communication channel. The isConnected flags are set
@@ -142,8 +142,8 @@ typedef struct DiscoveryPulseCounters {
     DiscoveryPulseCounter east;
     DiscoveryPulseCounter south;
     // discovery loop counter
-    uint8_t loopCount;
-} DiscoveryPulseCounters;
+    uint8_t volatile loopCount;
+} volatile DiscoveryPulseCounters;
 
 /**
  * The node address in the network. The origin node is addressed as row=1, column=1.
@@ -152,7 +152,7 @@ typedef struct DiscoveryPulseCounters {
 typedef struct NodeAddress {
     uint8_t row;
     uint8_t column;
-} NodeAddress;
+} volatile NodeAddress;
 
 /**
  * Describes the node state type and address.
@@ -164,7 +164,7 @@ typedef struct Node {
     StateType state;
     NodeType type;
     NodeAddress address;
-} Node;
+} volatile Node;
 
 /**
  * Counters/resources needed for non vital platform's periphery such as LEDs, test points and alike.
@@ -172,7 +172,8 @@ typedef struct Node {
 typedef struct Periphery {
     // particle main loop counter
     uint8_t loopCount;
-} Periphery;
+    uint8_t addressBlinkCounter;
+} volatile Periphery;
 
 ///**
 // * keeps adjustment attributes for the internal 16bit timer/counter
@@ -186,7 +187,7 @@ typedef struct Periphery {
 //    int8_t isPositiveCounterOffset : 1;
 //    int8_t isCounterOffsetValid : 1;
 //    int8_t __pad : 6;
-//} TimerCounterAdjustment;
+//} volatile TimerCounterAdjustment;
 
 /**
  * facade to bundle port resources
@@ -199,11 +200,11 @@ typedef struct DirectionOrientedPort {
     /**
      * communication related
      */
-    TxPort *txPort;
+    TxPort *volatile txPort;
     /**
      * communication related
      */
-    RxPort *rxPort;
+    RxPort *volatile rxPort;
 
     /**
      * pointer implementation: decode and interpret reception
@@ -217,8 +218,8 @@ typedef struct DirectionOrientedPort {
     /**
      * comm. protocol related
      */
-    CommunicationProtocolPortState *protocol;
-} DirectionOrientedPort;
+    CommunicationProtocolPortState *volatile protocol;
+} volatile DirectionOrientedPort;
 
 /**
  * facade to bundle port resources in a direction oriented way
@@ -257,7 +258,7 @@ typedef struct Particle {
     /**
      * Node connectivity settings and states.
      */
-    DiscoveryPulseCounters discoveryPulseCounters;
+    volatile DiscoveryPulseCounters discoveryPulseCounters;
     /**
      * Communication (physical layer) related states and buffers.
      */
@@ -287,4 +288,4 @@ typedef struct Particle {
     // a marker used to assure the correct interpretation of the particle structure when simulating
     uint8_t __structEndMarker;
 #endif
-} Particle;
+} volatile Particle;

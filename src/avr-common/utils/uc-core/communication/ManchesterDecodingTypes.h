@@ -29,7 +29,7 @@ typedef struct ManchesterDecoderStates {
      */
     uint8_t phaseState: 1;
     uint8_t __pad : 7;
-} ManchesterDecoderStates;
+} volatile ManchesterDecoderStates;
 
 /**
  * A snapshot consists of a 16 bit value and the flank direction information. The least significant snapshot
@@ -42,7 +42,7 @@ typedef struct Snapshot {
      * foo = s.snapshot << 1
      */
     uint16_t timerValue : 15;
-} Snapshot;
+} volatile Snapshot;
 
 /**
  * The struct is used as buffer for storing timestamps of received pin change interrupts.
@@ -86,4 +86,4 @@ typedef struct RxSnapshotBuffer {
      * -------^---------^------
      */
     uint8_t numberHalfCyclesPassed;
-} RxSnapshotBuffer;
+} volatile RxSnapshotBuffer;

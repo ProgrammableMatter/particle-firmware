@@ -8,6 +8,8 @@
 
 #include "TimerCounter1.h"
 
+// TODO: rename misleading "sense" to discovery pulse
+
 #define __TIMER_NEIGHBOUR_SENSE_PRESCALER_VALUE \
     __TIMER_COUNTER_PRESCALER_8
 

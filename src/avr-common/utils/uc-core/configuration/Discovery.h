@@ -11,7 +11,7 @@
  * When number of incoming pulses >= RX_DISCOVERY_PULSE_COUNTER_MAX
  * the affected port is marked as connected.
  */
-#define RX_DISCOVERY_PULSE_COUNTER_MAX 10
+#define RX_DISCOVERY_PULSE_COUNTER_MAX 30
 
 /**
  * Earliest particle loop when local node discovery may be finished.
@@ -21,7 +21,7 @@
 /**
  * Latest particle loop after local node discovery is to be aborted.
  */
-#define MAX_NEIGHBOURS_DISCOVERY_LOOPS ((uint8_t)(100))
+#define MAX_NEIGHBOURS_DISCOVERY_LOOPS ((uint8_t)(180))
 
 /**
  * Latest particle loop when post discovery pulsing to neighbours is to be deactivated.
@@ -32,4 +32,5 @@
  * Neighbour discovery counter 1 compare A value defines the pulse frequencs.
  * The lower the value, the higher the frequency.
  */
-#define DEFAULT_NEIGHBOUR_SENSING_COUNTER_COMPARE_VALUE ((uint16_t)0x80)
+//#define DEFAULT_NEIGHBOUR_SENSING_COUNTER_COMPARE_VALUE ((uint16_t)0x80)
+#define DEFAULT_NEIGHBOUR_SENSING_COUNTER_COMPARE_VALUE ((uint16_t)50)

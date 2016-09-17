@@ -78,6 +78,7 @@ FUNC_ATTRS void setReceptionistStateStart(volatile CommunicationProtocolPortStat
     DEBUG_CHAR_OUT('r');
     commPortState->receptionistState = COMMUNICATION_RECEPTIONIST_STATE_TYPE_RECEIVE;
     commPortState->stateTimeoutCounter = COMMUNICATION_PROTOCOL_TIMEOUT_COUNTER_MAX;
+    commPortState->reTransmissions = COMMUNICATION_PROTOCOL_RETRANSMISSION_COUNTER_MAX;
 }
 
 /**
@@ -90,4 +91,5 @@ FUNC_ATTRS void setInitiatorStateStart(volatile CommunicationProtocolPortState *
     DEBUG_CHAR_OUT('T');
     commPortState->initiatorState = COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT;
     commPortState->stateTimeoutCounter = COMMUNICATION_PROTOCOL_TIMEOUT_COUNTER_MAX;
+    commPortState->reTransmissions = COMMUNICATION_PROTOCOL_RETRANSMISSION_COUNTER_MAX;
 }

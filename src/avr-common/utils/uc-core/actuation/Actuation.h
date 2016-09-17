@@ -9,7 +9,7 @@
 #include "ActuationTypes.h"
 #include "uc-core/particle/Globals.h"
 #include "uc-core/configuration/IoPins.h"
-#include "uc-core/configuration/interrupts/Reception.h"
+#include "uc-core/configuration/interrupts/ReceptionPCI.h"
 #include "uc-core/configuration/interrupts/ActuationTimer.h"
 #include "uc-core/delay/delay.h"
 #include "uc-core/communication/ManchesterDecodingTypesCtors.h"

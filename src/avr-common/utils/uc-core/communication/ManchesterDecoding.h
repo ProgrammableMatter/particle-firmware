@@ -9,6 +9,8 @@
 #include "uc-core/configuration/interrupts/TxRxTimer.h"
 #include "simulation/SimulationMacros.h"
 #include "uc-core/configuration/Particle.h"
+#include "uc-core/configuration/IoPins.h"
+#include "uc-core/delay/delay.h"
 
 /**
  * Resets the decoder phase state do default.
@@ -231,6 +233,8 @@ FUNC_ATTRS void manchesterDecodeBuffer(volatile DirectionOrientedPort *port,
     if (rxPort->isDataBuffered == true) {
         return;
     }
+//    TEST_POINT2_TOGGLE;
+
 
     switch (rxPort->snapshotsBuffer.decoderStates.decodingState) {
 
@@ -253,6 +257,7 @@ FUNC_ATTRS void manchesterDecodeBuffer(volatile DirectionOrientedPort *port,
                     }
 
                     DEBUG_CHAR_OUT('+');
+                    TEST_POINT2_HI;
                     rxPort->snapshotsBuffer.decoderStates.decodingState = DECODER_STATE_TYPE_DECODING;
                     __rxSnapshotBufferDequeue(&rxPort->snapshotsBuffer);
                     goto __DECODER_STATE_TYPE_DECODING;
@@ -292,6 +297,7 @@ FUNC_ATTRS void manchesterDecodeBuffer(volatile DirectionOrientedPort *port,
 
                     if (__isDataPhase(rxPort->snapshotsBuffer.decoderStates.phaseState)) {
                         __storeDataBit(rxPort, snapshot->isRisingEdge);
+                        LED_STATUS1_TOGGLE;
                     }
                     rxPort->snapshotsBuffer.temporarySnapshotTimerValue = __getTimerValue(snapshot);
                     rxPort->snapshotsBuffer.temporaryTxStopSnapshotTimerValue = rxPort->snapshotsBuffer.temporarySnapshotTimerValue;
@@ -326,6 +332,7 @@ FUNC_ATTRS void manchesterDecodeBuffer(volatile DirectionOrientedPort *port,
         __DECODER_STATE_TYPE_POST_TIMEOUT_PROCESS:
         case DECODER_STATE_TYPE_POST_TIMEOUT_PROCESS:
             DEBUG_CHAR_OUT('|');
+            TEST_POINT2_LO;
             __approximateNewClockSpeed(rxPort);
             rxPort->isDataBuffered = true;
             ParticleAttributes.communication.timerAdjustment.isTransmissionClockDelayUpdateable = true;

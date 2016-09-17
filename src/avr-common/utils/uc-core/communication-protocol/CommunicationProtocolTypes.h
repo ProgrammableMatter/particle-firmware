@@ -19,7 +19,7 @@ typedef enum CommunicationInitiatorStateTypes {
     COMMUNICATION_INITIATOR_STATE_TYPE_WAIT_FOR_RESPONSE,
     COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT_ACK,
     COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT_ACK_WAIT_FOR_TX_FINISHED
-} CommunicationInitiatorStateTypes;
+} volatile CommunicationInitiatorStateTypes;
 
 /**
  * Describes communication states of the receptionist. The receptionist is the particle
@@ -31,7 +31,7 @@ typedef enum CommunicationReceptionistStateTypes {
     COMMUNICATION_RECEPTIONIST_STATE_TYPE_TRANSMIT_ACK,
     COMMUNICATION_RECEPTIONIST_STATE_TYPE_TRANSMIT_ACK_WAIT_TX_FINISHED,
     COMMUNICATION_RECEPTIONIST_STATE_TYPE_WAIT_FOR_RESPONSE
-} CommunicationReceptionistStateTypes;
+} volatile CommunicationReceptionistStateTypes;
 
 /**
  * Describes the communication port state.
@@ -43,7 +43,12 @@ typedef struct CommunicationProtocolPortState {
      * value 0 indicates a timeout
      */
     uint8_t stateTimeoutCounter;
-} CommunicationProtocolPortState;
+    /**
+    * retransmissions: value 0 indicates all retransmissions consumed
+    */
+    uint8_t reTransmissions : 4;
+    uint8_t __pad : 4;
+} volatile CommunicationProtocolPortState;
 
 /**
  * Communication protocol ports bundle.
@@ -52,7 +57,7 @@ typedef struct CommunicationProtocolPorts {
     CommunicationProtocolPortState north;
     CommunicationProtocolPortState east;
     CommunicationProtocolPortState south;
-} CommunicationProtocolPorts;
+} volatile CommunicationProtocolPorts;
 
 /**
  * Describes the network geometry; valid row/col values are (> 0) && (<= UINT8_MAX).
@@ -60,7 +65,7 @@ typedef struct CommunicationProtocolPorts {
 typedef struct NetworkGeometry {
     uint8_t rows;
     uint8_t columns;
-} NetworkGeometry;
+} volatile NetworkGeometry;
 
 /**
  * The communication protocol structure.
@@ -72,4 +77,4 @@ typedef struct CommunicationProtocol {
     uint8_t isBroadcastEnabled : 1;
     uint8_t isSimultaneousTransmissionEnabled : 1;
     uint8_t __pad : 5;
-} CommunicationProtocol;
+} volatile CommunicationProtocol;

@@ -59,7 +59,7 @@ typedef struct Actuators {
     uint8_t southRight :1;
 
     uint8_t __pad : 2;
-} Actuators;
+} volatile Actuators;
 
 /**
  * Describes the heating mode/output power.
@@ -67,14 +67,14 @@ typedef struct Actuators {
 typedef struct HeatingMode {
     uint8_t dutyCycleLevel : 2;
     uint8_t __pad : 6;
-} HeatingMode;
+} volatile HeatingMode;
 
 /**
  * describes a local time stamp
  */
 typedef struct LocalTime {
     uint16_t periodTimeStamp;
-} LocalTime;
+} volatile LocalTime;
 
 /**
  * Describes an actuation command.
@@ -106,4 +106,4 @@ typedef struct ActuationCommand {
      */
     uint8_t isScheduled : 1;
     uint8_t __pad : 7;
-} ActuationCommand;
+} volatile ActuationCommand;

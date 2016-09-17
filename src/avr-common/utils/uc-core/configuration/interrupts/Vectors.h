@@ -11,13 +11,13 @@
 
 #if defined(__AVR_ATtiny1634__)
 #  define NORTH_PIN_CHANGE_INTERRUPT_VECT \
-    PCINT1_vect
+    PCINT2_vect
 
 #  define EAST_PIN_CHANGE_INTERRUPT_VECT \
-    PCINT0_vect
+    PCINT1_vect
 
 #  define SOUTH_PIN_CHANGE_INTERRUPT_VECT \
-    PCINT2_vect
+    PCINT0_vect
 
 #  define ACTUATOR_PWM_INTERRUPT_VECT \
     TIM0_COMPA_vect

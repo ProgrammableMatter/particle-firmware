@@ -13,6 +13,8 @@
  */
 #define COMMUNICATION_PROTOCOL_TIMEOUT_COUNTER_MAX ((uint8_t)128)
 
+#define COMMUNICATION_PROTOCOL_RETRANSMISSION_COUNTER_MAX ((uint8_t)3)
+
 /**
  * When a time synchronization package is broadcasted, each mcu introduces a lag of
  * approximate 6.5µS. Thus for 8MHz osc: 0.0065*8 = ~0.052clocks.

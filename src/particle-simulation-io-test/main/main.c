@@ -111,14 +111,14 @@ int main(void) {
     writes++;
     NORTH_RX_SETUP;
     for (int i = 0; i < writes; ++i) {
-        NORTH_RX_PULL_DOWN;
+        NORTH_RX_PULL_UP_DISABLE;
         NORTH_RX_PULL_UP;
     }
 
     writes++;
     SOUTH_RX_SETUP;
     for (int i = 0; i < writes; ++i) {
-        SOUTH_RX_PULL_DOWN;
+        SOUTH_RX_PULL_UP_DISABLE;
         SOUTH_RX_PULL_UP;
     }
 

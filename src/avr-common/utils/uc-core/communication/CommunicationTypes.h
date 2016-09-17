@@ -17,7 +17,7 @@ typedef struct BufferBitPointer {
     uint8_t byteNumber : 4; // the referenced byte index
     uint8_t __pad: 4;
     uint8_t bitMask; // the referenced bit in the byte
-} BufferBitPointer;
+} volatile BufferBitPointer;
 
 /**
  * Provides a linear 4 byte buffer and a bit pointer per communication channel.
@@ -27,7 +27,7 @@ typedef struct BufferBitPointer {
 typedef struct PortBuffer {
     uint8_t bytes[TX_RX_NUMBER_BUFFER_BYTES]; // reception buffer
     BufferBitPointer pointer; // points to the next free position
-} PortBuffer;
+} volatile PortBuffer;
 
 /**
  * Transmission port structure.
@@ -39,7 +39,7 @@ typedef struct TxPort {
     uint8_t isTxClockPhase : 1; // true if clock phase, else on data phase
     uint8_t isDataBuffered : 1; // true if the buffer contains data to be transmitted
     uint8_t __pad: 5;
-} TxPort;
+} volatile TxPort;
 
 /**
  * Transmission ports bundle.
@@ -48,7 +48,7 @@ typedef struct TxPorts {
     TxPort north;
     TxPort east;
     TxPort south;
-} TxPorts;
+} volatile TxPorts;
 
 /**
  * Reception port structure.
@@ -62,7 +62,7 @@ typedef struct RxPort {
     uint8_t isOverflowed : 1;
     uint8_t isDataBuffered : 1;
     uint8_t __pad : 6;
-} RxPort;
+} volatile RxPort;
 
 /**
  * Transmission timing related fields that allows runtime changes.
@@ -121,7 +121,7 @@ typedef struct TransmissionTimerAdjustment {
     uint8_t isTransmissionClockShiftUpdateable : 1;
 
     uint8_t __pad : 6;
-} TransmissionTimerAdjustment;
+} volatile TransmissionTimerAdjustment;
 
 /**
  * Reception ports bundle.
@@ -130,7 +130,7 @@ typedef struct RxPorts {
     RxPort north;
     RxPort east;
     RxPort south;
-} RxPorts;
+} volatile RxPorts;
 
 /**
  * Communication ports bundle.
@@ -138,7 +138,7 @@ typedef struct RxPorts {
 typedef struct CommunicationPorts {
     TxPorts tx;
     RxPorts rx;
-} CommunicationPorts;
+} volatile CommunicationPorts;
 
 /**
  * Communication structure.
@@ -146,4 +146,4 @@ typedef struct CommunicationPorts {
 typedef struct Communication {
     TransmissionTimerAdjustment timerAdjustment;
     CommunicationPorts ports;
-} Communication;
+} volatile Communication;

@@ -80,6 +80,7 @@ extern CTOR_ATTRS void constructPeriphery(volatile Periphery *o);
 
 CTOR_ATTRS void constructPeriphery(volatile Periphery *o) {
     o->loopCount = 0;
+    o->addressBlinkCounter = 0;
 }
 
 /**
@@ -103,13 +104,13 @@ void CTOR_ATTRS constructDirectionOrientedPort(volatile DirectionOrientedPort *o
                                                void (txHighPimpl)(void),
                                                void (txLowPimpl)(void),
                                                volatile CommunicationProtocolPortState *protocolState) {
-    o->discoveryPulseCounter = (DiscoveryPulseCounter *) discoveryPulseCounter;
-    o->rxPort = (RxPort *) rxPort;
-    o->txPort = (TxPort *) txPort;
+    o->discoveryPulseCounter = discoveryPulseCounter;
+    o->rxPort = rxPort;
+    o->txPort = txPort;
     o->receivePimpl = receivePimpl;
     o->txHighPimpl = txHighPimpl;
     o->txLowPimpl = txLowPimpl;
-    o->protocol = (CommunicationProtocolPortState *) protocolState;
+    o->protocol = protocolState;
 }
 
 /**

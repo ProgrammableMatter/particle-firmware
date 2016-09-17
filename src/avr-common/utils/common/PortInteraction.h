@@ -23,6 +23,7 @@
 #define setOut |=
 #define setHi  |=
 #define pullUp |=
+#define pullDown &= ~
 #define setLo  &= ~
 
 /**

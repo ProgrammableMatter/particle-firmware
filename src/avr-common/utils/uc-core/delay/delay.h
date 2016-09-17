@@ -34,6 +34,9 @@ inline void __delay_loop_2(uint16_t __count) {
 #define DELAY_US_150 \
     __delay_loop_2(300)
 
+#define DELAY_US_250 \
+    __delay_loop_2(500)
+
 #define DELAY_US_500 \
     __delay_loop_2(1000)
 
@@ -53,3 +56,10 @@ inline void __delay_loop_2(uint16_t __count) {
     for (int ctr = 0; ctr < 6; ++ctr) { \
         __delay_loop_2(UINT16_MAX);\
     }
+
+#define DELAY_MS_500 \
+    DELAY_MS_196; \
+    DELAY_MS_196; \
+    DELAY_MS_196; \
+    DELAY_MS_196; \
+    DELAY_MS_196

@@ -5,7 +5,7 @@
 #include <uc-core/particle/ParticleLoop.h>
 
 FUSES = {
-        .low = LFUSE_DEFAULT,
+        .low =  (FUSE_SUT_CKSEL0 & FUSE_SUT_CKSEL2 & FUSE_SUT_CKSEL3 & FUSE_SUT_CKSEL4),
         .high = HFUSE_DEFAULT,
         .extended = EFUSE_DEFAULT,
 };

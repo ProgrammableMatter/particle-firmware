@@ -32,7 +32,7 @@ FUNC_ATTRS void northTxLoImpl(void) {
 extern FUNC_ATTRS void eastTxHiImpl(void);
 
 FUNC_ATTRS void eastTxHiImpl(void) {
-    EAST_TX_HI;
+    EAST_TX_LO; // must be inverted due to missing MOSFET
 }
 
 /**
@@ -41,7 +41,7 @@ FUNC_ATTRS void eastTxHiImpl(void) {
 extern FUNC_ATTRS void eastTxLoImpl(void);
 
 FUNC_ATTRS void eastTxLoImpl(void) {
-    EAST_TX_LO;
+    EAST_TX_HI; // must be inverted due to missing MOSFET
 }
 
 /**
@@ -68,7 +68,7 @@ FUNC_ATTRS void southTxLoImpl(void) {
 extern FUNC_ATTRS void simultaneousTxHiImpl(void);
 
 FUNC_ATTRS void simultaneousTxHiImpl(void) {
-    EAST_TX_HI;
+    EAST_TX_LO; // must be inverted due to missing MOSFET
     SOUTH_TX_HI;
 }
 
@@ -78,6 +78,6 @@ FUNC_ATTRS void simultaneousTxHiImpl(void) {
 extern FUNC_ATTRS void simultaneousTxLoImpl(void);
 
 FUNC_ATTRS void simultaneousTxLoImpl(void) {
-    EAST_TX_LO;
+    EAST_TX_HI; // must be inverted due to missing MOSFET
     SOUTH_TX_LO;
 }

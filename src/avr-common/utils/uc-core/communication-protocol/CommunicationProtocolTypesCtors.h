@@ -20,6 +20,7 @@ CTOR_ATTRS void constructCommunicationProtocolPortState(volatile CommunicationPr
     o->initiatorState = COMMUNICATION_INITIATOR_STATE_TYPE_IDLE;
     o->receptionistState = COMMUNICATION_RECEPTIONIST_STATE_TYPE_IDLE;
     o->stateTimeoutCounter = COMMUNICATION_PROTOCOL_TIMEOUT_COUNTER_MAX;
+    o->reTransmissions = COMMUNICATION_PROTOCOL_RETRANSMISSION_COUNTER_MAX;
 }
 
 /**

@@ -17,6 +17,7 @@ inline void processLoop(void) {
     IO_PORTS_SETUP; // configure input/output pins
     constructParticle(&ParticleAttributes);
     ParticleAttributes.node.state = STATE_TYPE_START;
+
     forever {
         process();
     }
