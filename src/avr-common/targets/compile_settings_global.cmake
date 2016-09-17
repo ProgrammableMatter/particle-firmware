@@ -12,7 +12,9 @@ SET(CXXSTANDARD "-std=gnu99")
 SET(CWARN "-Wall -Werror -Wvolatile-register-var -Wunused-variable -Wunused-function -Wunused-label -Wunused-value -Wextra -Wshadow -Wstrict-prototypes -Waddress -Wredundant-decls")
 SET(CXXWARN "-Wall -Werror -Wvolatile-register-var -Wunused-variable -Wunused-function -Wunused-label -Wunused-value -Wextra -Wshadow -Wstrict-prototypes -Waddress -Wredundant-decls")
 
-SET(CTUNING "-funsigned-char -funsigned-bitfields -fpack-struct -fdce -fdata-sections -ffunction-sections -Wl,--gc-sections ${CTUNING}")
+
+# -fpack-struct -funsigned-bitfields -fdce -fdata-sections -ffunction-sections -Wl,--gc-sections
+SET(CTUNING "-funsigned-char ${CTUNING}")
 
 
 #SET(CDEFS "-DFUNC_ATTRS='inline' ${CDEFS}")
@@ -22,13 +24,8 @@ SET(CDEFS "-DCTOR_ATTRS='' ${CDEFS}")
 #SET(CDEFS "-DDECODING_FUNC_ATTRS='' ${CDEFS}")
 SET(CDEFS "-DDECODING_FUNC_ATTRS='inline' ${CDEFS}")
 
-SET(COPT "-Os -fno-inline-small-functions -fno-inline") # for simulation purpose
-#SET(COPT "-O3 -fwhole-program") # for real MCU
-
-#SET(COPT "-O1")  # for simulation purpose
-
+SET(COPT "${COPT}")
 SET(CDEBUG "${CDEBUG}")
-
 
 SET(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "")
 SET(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS "")
