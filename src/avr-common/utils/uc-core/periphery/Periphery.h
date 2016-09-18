@@ -9,41 +9,62 @@
 #include "common/common.h"
 #include "uc-core/delay/delay.h"
 
+extern FUNC_ATTRS void blinkAddress(void);
 /**
- * Blinks the current address on status led 1.
- * Blinks row number times, column number times followed by a flashing signal signalizing the information end.
- * A long break is inserted before the blinking starts again.
- * The function never returns.
+ * Blinks row times, column times followed by a quitting flash signal.
+ */
+FUNC_ATTRS void blinkAddress(void) {
+    LED_STATUS1_OFF;
+    DELAY_MS_500;
+    for (int8_t row = 0; row < ParticleAttributes.node.address.row; row++) {
+        LED_STATUS1_TOGGLE;
+        DELAY_MS_196;
+        LED_STATUS1_TOGGLE;
+        DELAY_MS_196;
+    }
+    DELAY_MS_196;
+    DELAY_MS_196;
+    for (int8_t column = 0; column < ParticleAttributes.node.address.column; column++) {
+        LED_STATUS1_TOGGLE;
+        DELAY_MS_196;
+        LED_STATUS1_TOGGLE;
+        DELAY_MS_196;
+    }
+    DELAY_MS_196;
+
+    LED_STATUS1_TOGGLE;
+    DELAY_MS_30;
+    DELAY_MS_30;
+    LED_STATUS1_TOGGLE;
+    DELAY_MS_30;
+    DELAY_MS_30;
+    LED_STATUS1_TOGGLE;
+    DELAY_MS_30;
+    DELAY_MS_30;
+    LED_STATUS1_TOGGLE;
+}
+
+/**
+ * Blinks the current address on status led endlessly.
  */
 extern FUNC_ATTRS void blinkAddressForever(void);
 
 FUNC_ATTRS void blinkAddressForever(void) {
-    LED_STATUS1_OFF;
     forever {
-        for (int8_t row = 0; row < ParticleAttributes.node.address.row; row++) {
-            LED_STATUS1_TOGGLE;
-            DELAY_MS_196;
-            LED_STATUS1_TOGGLE;
-            DELAY_MS_196;
-        }
-        DELAY_MS_500;
-        for (int8_t column = 0; column < ParticleAttributes.node.address.column; column++) {
-            LED_STATUS1_TOGGLE;
-            DELAY_MS_196;
-            LED_STATUS1_TOGGLE;
-            DELAY_MS_196;
-        }
-        DELAY_MS_500;
-
-        LED_STATUS1_TOGGLE;
-        DELAY_MS_30;
-        LED_STATUS1_TOGGLE;
-        DELAY_MS_30;
-        LED_STATUS1_TOGGLE;
-        DELAY_MS_30;
-        LED_STATUS1_TOGGLE;
-
-        DELAY_MS_500;
+        blinkAddress();
         DELAY_MS_500;
     }
 }
+
+
+/**
+ * Decrements the count down until zero.
+ */
+extern FUNC_ATTRS void advanceDedEndCountDown(void);
+
+FUNC_ATTRS void advanceDedEndCountDown(void) {
+    if (ParticleAttributes.periphery.countdownUntilDeadEndMode != 0) {
+        ParticleAttributes.periphery.countdownUntilDeadEndMode--;
+    }
+}
+

@@ -11,6 +11,7 @@
 #include "uc-core/communication-protocol/CommunicationProtocolTypes.h"
 #include "uc-core/actuation/ActuationTypes.h"
 #include "uc-core/time/TimeTypes.h"
+#include "uc-core/periphery/PeripheryTypes.h"
 
 /**
  * Possible particle's state machine states are listed in this enum.
@@ -165,15 +166,6 @@ typedef struct Node {
     NodeType type;
     NodeAddress address;
 } volatile Node;
-
-/**
- * Counters/resources needed for non vital platform's periphery such as LEDs, test points and alike.
- */
-typedef struct Periphery {
-    // particle main loop counter
-    uint8_t loopCount;
-    uint8_t addressBlinkCounter;
-} volatile Periphery;
 
 ///**
 // * keeps adjustment attributes for the internal 16bit timer/counter

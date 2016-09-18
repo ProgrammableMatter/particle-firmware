@@ -13,6 +13,8 @@
 #include "uc-core/time/TimeTypesCtors.h"
 #include "PointerImplementation.h"
 #include "uc-core/communication/PointerImplementation.h"
+#include "uc-core/periphery/PeripheryTypesCtors.h"
+
 //
 ///**
 // * constructor function
@@ -70,17 +72,6 @@ CTOR_ATTRS void constructNode(volatile Node *o) {
     o->state = STATE_TYPE_UNDEFINED;
     o->type = NODE_TYPE_INVALID;
     constructNodeAddress(&(o->address));
-}
-
-/**
- * constructor function
- * @param o the object to construct
- */
-extern CTOR_ATTRS void constructPeriphery(volatile Periphery *o);
-
-CTOR_ATTRS void constructPeriphery(volatile Periphery *o) {
-    o->loopCount = 0;
-    o->addressBlinkCounter = 0;
 }
 
 /**
