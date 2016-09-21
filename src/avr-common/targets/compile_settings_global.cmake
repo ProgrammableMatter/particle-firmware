@@ -12,17 +12,15 @@ SET(CXXSTANDARD "-std=gnu99")
 SET(CWARN "-Wall -Werror -Wvolatile-register-var -Wunused-variable -Wunused-function -Wunused-label -Wunused-value -Wextra -Wshadow -Wstrict-prototypes -Waddress -Wredundant-decls")
 SET(CXXWARN "-Wall -Werror -Wvolatile-register-var -Wunused-variable -Wunused-function -Wunused-label -Wunused-value -Wextra -Wshadow -Wstrict-prototypes -Waddress -Wredundant-decls")
 
-
-# -fpack-struct -funsigned-bitfields -fdce -fdata-sections -ffunction-sections -Wl,--gc-sections
-SET(CTUNING "-funsigned-char ${CTUNING}")
-
+# Do not use "-Wl,--gc-sections"!
+SET(CTUNING " -fpack-struct -funsigned-bitfields -funsigned-char -fdce -fdata-sections -ffunction-sections ${CTUNING}")
 
 #SET(CDEFS "-DFUNC_ATTRS='inline' ${CDEFS}")
 SET(CDEFS "-DFUNC_ATTRS='' ${CDEFS}")
 #SET(CDEFS "-DCTOR_ATTRS='inline' ${CDEFS}")
 SET(CDEFS "-DCTOR_ATTRS='' ${CDEFS}")
-#SET(CDEFS "-DDECODING_FUNC_ATTRS='' ${CDEFS}")
-SET(CDEFS "-DDECODING_FUNC_ATTRS='inline' ${CDEFS}")
+SET(CDEFS "-DDECODING_FUNC_ATTRS='' ${CDEFS}")
+#SET(CDEFS "-DDECODING_FUNC_ATTRS='inlne' ${CDEFS}")
 
 SET(COPT "${COPT}")
 SET(CDEBUG "${CDEBUG}")

@@ -8,5 +8,6 @@ include(${PROJECTS_SOURCE_ROOT}/avr-common/targets/compile_settings_release.cmak
 #SET(COPT "-Os -fno-inline-small-functions -fno-inline")
 #SET(COPT "-O1")  # for simulation purpose
 # for real MCU
-SET(COPT "-O3 -fwhole-program")
+#SET(COPT "-O3 -fwhole-program")
+SET(COPT "-O2 -fwhole-program")
 include(${PROJECTS_SOURCE_ROOT}/avr-common/targets/compile_settings_global.cmake)
