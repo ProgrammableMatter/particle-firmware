@@ -69,7 +69,7 @@ FUNC_ATTRS void scheduleNextTransmission(void) {
  * simulator int. #19
  */
 ISR(NORTH_PIN_CHANGE_INTERRUPT_VECT) {
-//    LED_STATUS0_TOGGLE;
+    TEST_POINT1_TOGGLE;
     // DEBUG_INT16_OUT(TIMER_TX_RX_COUNTER_VALUE);
     if (ParticleAttributes.protocol.isBroadcastEnabled) {
         if (NORTH_RX_IS_HI) {
@@ -80,9 +80,6 @@ ISR(NORTH_PIN_CHANGE_INTERRUPT_VECT) {
     }
     __handleInputInterrupt(&ParticleAttributes.directionOrientedPorts.north,
                            NORTH_RX_IS_HI);
-//    RX_NORTH_INTERRUPT_CLEAR_PENDING;
-
-//    LED_STATUS0_TOGGLE;
 }
 
 /**
@@ -90,11 +87,11 @@ ISR(NORTH_PIN_CHANGE_INTERRUPT_VECT) {
  * simulator int. #3
  */
 ISR(EAST_PIN_CHANGE_INTERRUPT_VECT) {
-//    LED_STATUS0_TOGGLE;
+    TEST_POINT1_TOGGLE;
+//    if (!EAST_RX_IS_HI)
+//        TEST_POINT1_TOGGLE;
     __handleInputInterrupt(&ParticleAttributes.directionOrientedPorts.east,
                            EAST_RX_IS_HI);
-//    RX_EAST_INTERRUPT_CLEAR_PENDING;
-//    LED_STATUS0_TOGGLE;
 }
 
 /**
@@ -102,11 +99,9 @@ ISR(EAST_PIN_CHANGE_INTERRUPT_VECT) {
  * simulator int. #2
  */
 ISR(SOUTH_PIN_CHANGE_INTERRUPT_VECT) {
-//    LED_STATUS0_TOGGLE;
+    TEST_POINT1_TOGGLE;
     __handleInputInterrupt(&ParticleAttributes.directionOrientedPorts.south,
                            SOUTH_RX_IS_HI);
-//    RX_SOUTH_INTERRUPT_CLEAR_PENDING;
-//    LED_STATUS0_TOGGLE;
 }
 
 /**
@@ -114,7 +109,6 @@ ISR(SOUTH_PIN_CHANGE_INTERRUPT_VECT) {
  * simulator int. #7
  */
 ISR(TX_TIMER_INTERRUPT_VECT) {
-//    LED_STATUS0_TOGGLE;
     switch (ParticleAttributes.node.state) {
         case STATE_TYPE_START:
         case STATE_TYPE_ACTIVE:
@@ -141,7 +135,6 @@ ISR(TX_TIMER_INTERRUPT_VECT) {
             scheduleNextTransmission();
             break;
     }
-//    LED_STATUS0_TOGGLE;
 }
 
 /**
@@ -149,30 +142,26 @@ ISR(TX_TIMER_INTERRUPT_VECT) {
  * simulator int. #8
  */
 ISR(LOCAL_TIME_INTERRUPT_VECT) {
-//    LED_STATUS0_TOGGLE;
-    ADVANCE_LOCAL_TIME;
-    SCHEDULE_NEXT_LOCAL_TIME_INTERUPT;
-//    LED_STATUS0_TOGGLE;
+    TEST_POINT1_TOGGLE;
+    ParticleAttributes.localTime.numTimePeriodsPassed++;
+    SCHEDULE_NEXT_LOCAL_TIME_INTERRUPT;
 }
-
 
 /**
  * Actuator PWM interrupt routine: On compare match toggle wires.
  * simulator int. #20
  */
 ISR(ACTUATOR_PWM_INTERRUPT_VECT) {
-//    LED_STATUS0_TOGGLE;
     if (ParticleAttributes.actuationCommand.actuators.northLeft) {
-        // on actuate north transmissoin wire
+        // on actuate north transmission wire
         // @pre deactivated: NORTH_TX_LO;
         NORTH_TX_TOGGLE;
     }
     if (ParticleAttributes.actuationCommand.actuators.northRight) {
-        // on actuate north recepton wire
+        // on actuate north reception wire
         // @pre deactivated: NORTH_RX_SWITCH_HI;
         NORTH_RX_SWITCH_TOGGLE;
     }
-//        LED_STATUS0_TOGGLE;
 }
 
 EMPTY_INTERRUPT(__UNUSED_TIMER0_OVERFLOW_INTERRUPT_VECT)
@@ -183,20 +172,19 @@ EMPTY_INTERRUPT(__UNUSED_TIMER1_OVERFLOW_INTERRUPT_VECT)
 const char isrVector0Msg[] PROGMEM = "BAD ISR";
 
 ISR(RESET_VECT) {
-//    LED_STATUS0_TOGGLE;
     writeToUart((PGM_P) pgm_read_word(&(isrVector0Msg)));
     IF_DEBUG_SWITCH_TO_ERRONEOUS_STATE;
-//    LED_STATUS0_TOGGLE;
 }
 
 ISR(BADISR_vect) {
-//    LED_STATUS0_TOGGLE;
     IF_DEBUG_SWITCH_TO_ERRONEOUS_STATE;
-//    LED_STATUS0_TOGGLE;
 }
 
 #  else
+
 EMPTY_INTERRUPT(RESET_VECT)
+
 EMPTY_INTERRUPT(BADISR_vect)
+
 #  endif
 
