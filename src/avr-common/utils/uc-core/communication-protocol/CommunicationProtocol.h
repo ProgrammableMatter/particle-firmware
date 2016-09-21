@@ -9,6 +9,8 @@
 #include "CommunicationProtocolTypes.h"
 #include "simulation/SimulationMacros.h"
 #include "uc-core/configuration/CommunicationProtocol.h"
+#include "uc-core/configuration/IoPins.h"
+#include "uc-core/delay/delay.h"
 
 /**
  * Sets the data end pointer to the specified position.
@@ -26,8 +28,13 @@
  * @param bufferDataEndPointer the pointer field
  * @param uint16tExpectedDataEndPointer the expected pointer field value
  */
-#define equalsPackageSize(bufferDataEndPointer, uint16tExpectedDataEndPointer) \
-    (*((uint16_t *) &bufferDataEndPointer) == uint16tExpectedDataEndPointer)
+extern FUNC_ATTRS bool equalsPackageSize(BufferBitPointer *bufferDataEndPointer,
+                                         uint16_t uint16tExpectedDataEndPointer);
+
+FUNC_ATTRS bool equalsPackageSize(BufferBitPointer *bufferDataEndPointer,
+                                  uint16_t uint16tExpectedDataEndPointer) {
+    return ((*((uint16_t *) (bufferDataEndPointer))) == uint16tExpectedDataEndPointer);
+}
 
 /**
  * invalidates all reception buffers
