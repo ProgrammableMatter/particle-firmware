@@ -23,8 +23,12 @@
 /**
  * Schedules the next time interrupt.
  */
-#define SCHEDULE_NEXT_LOCAL_TIME_INTERUPT \
-    (LOCAL_TIME_INTERRUPT_COMPARE_VALUE += ParticleAttributes.localTime.timePeriodInterruptDelay)
+#define SCHEDULE_NEXT_LOCAL_TIME_INTERRUPT \
+    if (ParticleAttributes.localTime.isTimePeriodInterruptDelayUpdateable) { \
+        ParticleAttributes.localTime.timePeriodInterruptDelay = ParticleAttributes.localTime.newTimePeriodInterruptDelay; \
+        ParticleAttributes.localTime.isTimePeriodInterruptDelayUpdateable = false; \
+    } \
+        LOCAL_TIME_INTERRUPT_COMPARE_VALUE += ParticleAttributes.localTime.timePeriodInterruptDelay
 
 
 /**

@@ -10,4 +10,4 @@
  * The default start value for time compare match interrupt.
  * Defines the duration of time periods which can be adjusted at run time.
  */
-#define LOCAL_TIME_DEFAULT_INTERRUPT_DELAY 65000
+#define LOCAL_TIME_DEFAULT_INTERRUPT_DELAY ((uint16_t) 65000)
