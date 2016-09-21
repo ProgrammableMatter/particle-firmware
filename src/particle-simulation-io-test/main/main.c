@@ -5,9 +5,11 @@
 #include <avr/pgmspace.h>
 #include "../libs/common/common.h"
 #include <uc-core/configuration/IoPins.h>
+
+#define SIMULATION
 #include <simulation/SimulationMacros.h>
 
-const char testMessage[] PROGMEM = "test";
+//const char testMessage[] PROGMEM = "test";
 
 /**
  * Generates a certain amount of transitions/writes per output wires/registers. The expected amount of
@@ -17,13 +19,6 @@ int main(void) {
     int extraTransitions = 2;
 
     extraTransitions++;
-    LED_STATUS0_SETUP;
-    for (int i = 0; i < extraTransitions; ++i) {
-        LED_STATUS0_OFF;
-        LED_STATUS0_ON;
-    }
-
-    extraTransitions++;
     LED_STATUS1_SETUP;
     for (int i = 0; i < extraTransitions; ++i) {
         LED_STATUS1_OFF;
@@ -31,17 +26,38 @@ int main(void) {
     }
 
     extraTransitions++;
-    LED_HEARTBEAT_SETUP;
+    LED_STATUS2_SETUP;
     for (int i = 0; i < extraTransitions; ++i) {
-        LED_HEARTBEAT_OFF;
-        LED_HEARTBEAT_ON;
+        LED_STATUS2_OFF;
+        LED_STATUS2_ON;
     }
 
     extraTransitions++;
-    LED_ERROR_SETUP;
+    LED_STATUS3_SETUP;
     for (int i = 0; i < extraTransitions; ++i) {
-        LED_ERROR_OFF;
-        LED_ERROR_ON;
+        LED_STATUS3_OFF;
+        LED_STATUS3_ON;
+    }
+
+    extraTransitions++;
+    LED_STATUS4_SETUP;
+    for (int i = 0; i < extraTransitions; ++i) {
+        LED_STATUS4_OFF;
+        LED_STATUS4_ON;
+    }
+
+    extraTransitions++;
+    LED_STATUS5_SETUP;
+    for (int i = 0; i < extraTransitions; ++i) {
+        LED_STATUS5_OFF;
+        LED_STATUS5_ON;
+    }
+
+    extraTransitions++;
+    LED_STATUS6_SETUP;
+    for (int i = 0; i < extraTransitions; ++i) {
+        LED_STATUS6_OFF;
+        LED_STATUS6_ON;
     }
 
     extraTransitions++;
@@ -56,13 +72,6 @@ int main(void) {
     for (int i = 0; i < extraTransitions; ++i) {
         TEST_POINT2_LO;
         TEST_POINT2_HI;
-    }
-
-    extraTransitions++;
-    TEST_POINT3_SETUP;
-    for (int i = 0; i < extraTransitions; ++i) {
-        TEST_POINT3_LO;
-        TEST_POINT3_HI;
     }
 
     extraTransitions++;
@@ -96,15 +105,8 @@ int main(void) {
     extraTransitions++;
     EAST_TX_SETUP;
     for (int i = 0; i < extraTransitions; ++i) {
-        EAST_TX_LO;
         EAST_TX_HI;
-    }
-
-    extraTransitions++;
-    EAST_RX_SWITCH_SETUP;
-    for (int i = 0; i < extraTransitions; ++i) {
-        EAST_RX_SWITCH_LO;
-        EAST_RX_SWITCH_HI;
+        EAST_TX_LO;
     }
 
     int writes = extraTransitions;
@@ -125,10 +127,11 @@ int main(void) {
     writes++;
     EAST_RX_SETUP;
     for (int i = 0; i < writes; ++i) {
-        EAST_RX_PULL_DOWN;
+        EAST_RX_PULL_UP_DISABLE;
         EAST_RX_PULL_UP;
     }
 
-    writeToUart((PGM_P) pgm_read_word(&(testMessage)));
+//    writeToUart((PGM_P) pgm_read_word(&(testMessage)));
+    writeToUart("test");
     forever { };
 }
