@@ -21,7 +21,7 @@
 /**
  * Latest particle loop after local node discovery is to be aborted.
  */
-#define MAX_NEIGHBOURS_DISCOVERY_LOOPS ((uint8_t)(180))
+#define MAX_NEIGHBOURS_DISCOVERY_LOOPS ((uint8_t)(250))
 
 /**
  * Latest particle loop when post discovery pulsing to neighbours is to be deactivated.
@@ -29,8 +29,8 @@
 #define MAX_NEIGHBOUR_PULSING_LOOPS ((uint8_t)(254))
 
 /**
- * Neighbour discovery counter 1 compare A value defines the pulse frequencs.
+ * Neighbour discovery counter 1 compare A value defines the pulse frequency
  * The lower the value, the higher the frequency.
  */
 //#define DEFAULT_NEIGHBOUR_SENSING_COUNTER_COMPARE_VALUE ((uint16_t)0x80)
-#define DEFAULT_NEIGHBOUR_SENSING_COUNTER_COMPARE_VALUE ((uint16_t)50)
+#define DEFAULT_NEIGHBOUR_SENSING_COUNTER_COMPARE_VALUE ((uint16_t)0x70)
