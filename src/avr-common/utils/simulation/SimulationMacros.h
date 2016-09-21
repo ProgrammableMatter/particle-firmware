@@ -22,15 +22,18 @@
  */
 inline void writeToUart(const char *string) {
     if (string != 0) {
-        while (*string != 0) {
 #    ifdef UDR
+        while (*string != 0) {
             UDR = *string;
+            string++;
         }
         UDR = '\n';
 #    else
-        UDR0 = *string;
-    }
-    UDR0 = '\n';
+        while (*string != 0) {
+            UDR0 = *string;
+            string++;
+        }
+        UDR0 = '\n';
 #    endif
     }
 }
