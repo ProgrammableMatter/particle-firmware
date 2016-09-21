@@ -97,10 +97,12 @@ CTOR_ATTRS void constructSyncTimePackage(volatile TxPort *txPort) {
     package->asSyncTimePackage.header.startBit = 1;
     package->asSyncTimePackage.header.id = PACKAGE_HEADER_ID_TYPE_SYNC_TIME;
     package->asSyncTimePackage.header.isRangeCommand = false;
-    package->asSyncTimePackage.header.enableBroadcast = false;
+//    package->asSyncTimePackage.header.enableBroadcast = false;
+    package->asSyncTimePackage.header.enableBroadcast = true;
     package->asSyncTimePackage.time = TIMER_TX_RX_COUNTER_VALUE;
     package->asSyncTimePackage.packageTransmissionLatency = COMMUNICATION_PROTOCOL_TIME_SYNCHRONIZATION_PACKAGE_RECEPTION_DURATION;
-    package->asSyncTimePackage.stuffing = 0x5555;
+    package->asSyncTimePackage.stuffing1 = 0x5555;
+    package->asSyncTimePackage.stuffing2 = 0x55;
     // for evaluation purpose
 //    package->asSyncTimePackage.time = 0;
 //    package->asSyncTimePackage.packageTransmissionLatency = 0;

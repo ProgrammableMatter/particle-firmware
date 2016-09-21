@@ -156,13 +156,14 @@ typedef struct TimePackage {
     HeaderPackage header;
     uint16_t time;
     uint16_t packageTransmissionLatency;
-    uint16_t stuffing;
+    uint16_t stuffing1;
+    uint8_t stuffing2;
 } TimePackage;
 
 /**
  * PackageHeaderTime length expressed as (uint16_t) BufferPointer
  */
-#define TimePackageBufferPointerSize (__pointerBytes(7) | __pointerBits(0))
+#define TimePackageBufferPointerSize (__pointerBytes(8) | __pointerBits(0))
 
 /**
  * describes a heat wires package
