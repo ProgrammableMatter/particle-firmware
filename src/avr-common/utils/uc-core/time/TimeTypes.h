@@ -5,12 +5,7 @@
 #pragma once
 /**
  * Structure to Keep track of number of intervals passed since time tracking was activated.
- * A time interval can be adjusted at runtime and lasts depending on
- * <br/>TIMER_TX_RX_COUNTER_ENABLE and
- * <br/>LOCAL_TIME_DEFAULT_INTERRUPT_DELAY or
- * <br/>{@link LocalTimeTracking.timePeriodInterruptDelay}
- * <br/>approximately
- * (timer_counter_prescaler/F_CPU * LocalTimeTracking.timePeriodInterruptDelay), thus ~8.125ms.
+ * A time interval can be adjusted at runtime.
  */
 typedef struct LocalTimeTracking {
     uint16_t numTimePeriodsPassed;
@@ -18,4 +13,13 @@ typedef struct LocalTimeTracking {
      * adjustable delay for fine tuning
      */
     uint16_t timePeriodInterruptDelay;
+    /**
+     * new value for local time tracking period int. delay
+     */
+    uint16_t newTimePeriodInterruptDelay;
+    /**
+     * flag indicating new time tracking period int. delay available
+     */
+    uint8_t isTimePeriodInterruptDelayUpdateable : 1;
+    uint8_t __pad : 7;
 } LocalTimeTracking;
