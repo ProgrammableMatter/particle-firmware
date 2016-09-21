@@ -70,15 +70,7 @@ typedef struct RxSnapshotBuffer {
      * describes the 1st invalid buffer position
      */
     uint8_t endIndex : 7;
-    uint8_t __pad1 : 1;
-    /**
-     * field stores the 1st timer value of the last transmission
-     */
-    uint16_t temporaryTxStartSnapshotTimerValue;
-    /**
-     * field stores the last timer value of the last transmission
-     */
-    uint16_t temporaryTxStopSnapshotTimerValue;
+    uint8_t isOverflowed : 1;
     /**
      * number of passed half cycles reflects the number of π's passed from 1st snapshot
      * until the last snapshot before timeout

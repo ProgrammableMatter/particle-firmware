@@ -38,7 +38,7 @@ FUNC_ATTRS void __startActuation(void) {
     // passive actuation - east right
     if (ParticleAttributes.actuationCommand.actuators.eastRight) {
         RX_EAST_INTERRUPT_DISABLE;
-        EAST_RX_SWITCH_LO; // drive MOSFET
+//        EAST_RX_SWITCH_LO; // drive MOSFET
     }
     // passive actuation - south left
     if (ParticleAttributes.actuationCommand.actuators.southLeft) {
@@ -105,9 +105,9 @@ FUNC_ATTRS void __setDefaultWiresStates(void) {
     if (ParticleAttributes.actuationCommand.actuators.eastLeft) {
         EAST_TX_LO;
     }
-    if (ParticleAttributes.actuationCommand.actuators.eastRight) {
-        EAST_RX_SWITCH_HI;
-    }
+//    if (ParticleAttributes.actuationCommand.actuators.eastRight) {
+//        EAST_RX_SWITCH_HI;
+//    }
     if (ParticleAttributes.actuationCommand.actuators.southLeft) {
         SOUTH_TX_LO;
     }

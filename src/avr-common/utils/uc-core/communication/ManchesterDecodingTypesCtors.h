@@ -42,7 +42,6 @@ CTOR_ATTRS void constructRxSnapshotBuffer(volatile RxSnapshotBuffer *o) {
     o->startIndex = 0;
     o->endIndex = 0;
     o->temporarySnapshotTimerValue = 0;
-    o->temporaryTxStartSnapshotTimerValue = 0;
-    o->temporaryTxStopSnapshotTimerValue = 0;
+    o->isOverflowed = false;
     o->numberHalfCyclesPassed = 0;
 }

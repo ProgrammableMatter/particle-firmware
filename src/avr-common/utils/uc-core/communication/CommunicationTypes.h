@@ -29,8 +29,14 @@ typedef struct PortBuffer {
     BufferBitPointer pointer; // points to the next free position
     uint8_t parityBit : 1;
     uint8_t __pad : 7;
-    uint16_t receptionStartTimestamp; // start time stamp of the current buffer
-    uint16_t receptionEndTimestamp; // end time stamp of the current buffer
+    /**
+     * field stores the 1st edge event's timer value of the last transmission
+     */
+    uint16_t receptionStartTimestamp;
+    /**
+     * field stores the last edge event's timer value of the last transmission
+     */
+    uint16_t receptionEndTimestamp;
 } volatile PortBuffer;
 
 /**
