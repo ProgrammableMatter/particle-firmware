@@ -207,7 +207,7 @@ FUNC_ATTRS void blinkAddressNonblocking(void) {
             }
 
             ParticleAttributes.periphery.blinkAddress.blinkAddressBlinkDelay =
-                    2 * BLINK_ADDRESS_LED_SEPARATION_BREAK_COUNTER_MAX;
+                    BLINK_ADDRESS_LED_SEPARATION_LONG_BREAK_COUNTER_MAX;
             ParticleAttributes.periphery.blinkAddress.blinkAddressState = LED_BLINK_STATES_END;
             break;
 
