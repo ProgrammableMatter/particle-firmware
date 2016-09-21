@@ -77,6 +77,21 @@ FUNC_ATTRS void __enableDiscoveryPulsing(void) {
 extern FUNC_ATTRS void __initParticle(void);
 
 FUNC_ATTRS void __initParticle(void) {
+    LED_STATUS1_OFF;
+    LED_STATUS2_OFF;
+    LED_STATUS3_OFF;
+    LED_STATUS4_OFF;
+    LED_STATUS5_OFF;
+    LED_STATUS6_OFF;
+
+    TEST_POINT1_LO;
+    TEST_POINT2_LO;
+
+    DELAY_MS_1;
+    LED_STATUS1_ON;
+    DELAY_MS_1;
+    LED_STATUS1_OFF;
+
 //    RX_INTERRUPTS_SETUP; // configure input pins interrupts
 //    RX_INTERRUPTS_ENABLE; // enable input pin interrupts
     DISCOVERY_INTERRUPTS_SETUP; // configure pin change interrupt
@@ -86,18 +101,8 @@ FUNC_ATTRS void __initParticle(void) {
     sleep_disable();
     set_sleep_mode(SLEEP_MODE_PWR_DOWN); // set sleep mode to power down
 
-    LED_STATUS0_OFF;
-    LED_STATUS1_OFF;
-    LED_ERROR_OFF;
-    LED_HEARTBEAT_OFF;
-
-    TEST_POINT1_LO;
-    TEST_POINT2_LO;
-
-    DELAY_MS_1;
-    LED_STATUS1_ON;
-    DELAY_MS_1;
-    LED_STATUS1_OFF;
+    // TODO: evaluation source
+    __TIMER1_OVERFLOW_INTERRUPT_ENABLE;
 }
 
 /**
@@ -173,8 +178,8 @@ FUNC_ATTRS void __disableTransmission(void) {
 extern FUNC_ATTRS void __enableReceptionHardwareForConnectedPorts(void);
 
 FUNC_ATTRS void __enableReceptionHardwareForConnectedPorts(void) {
-    RX_INTERRUPTS_SETUP;
-    RX_INTERRUPTS_ENABLE;
+//    RX_INTERRUPTS_SETUP;
+//    RX_INTERRUPTS_ENABLE;
     __enableReceptionHardwareNorth();
     __enableReceptionHardwareEast();
     __enableReceptionHardwareSouth();
@@ -207,8 +212,8 @@ extern FUNC_ATTRS void __heartBeatToggle(void);
 FUNC_ATTRS void __heartBeatToggle(void) {
     ParticleAttributes.periphery.loopCount++;
     if (ParticleAttributes.periphery.loopCount > HEARTBEAT_LOOP_COUNT_TOGGLE) {
-        LED_HEARTBEAT_TOGGLE;
         ParticleAttributes.periphery.loopCount = 0;
+        LED_STATUS6_TOGGLE;
     }
 }
 
@@ -511,10 +516,9 @@ FUNC_ATTRS void __handleNeighboursDiscovery(void) {
             __disableDiscoverySensing();
             ParticleAttributes.node.state = STATE_TYPE_NEIGHBOURS_DISCOVERED;
         }
-        // TODO:  delay
-//        else {
-//            PARTICLE_DISCOVERY_LOOP_DELAY;
-//        }
+        else {
+            PARTICLE_DISCOVERY_LOOP_DELAY;
+        }
         __updateOriginNodeAddress();
     }
 }
@@ -655,12 +659,8 @@ FUNC_ATTRS void __handleIsActuationCommandPeriod(void) {
 extern inline void process(void);
 
 inline void process(void) {
-//    DELAY_US_30;
-    DELAY_US_30;
-    TEST_POINT1_HI;
     // DEBUG_CHAR_OUT('P');
-    __heartBeatToggle();
-
+    // __heartBeatToggle();
     // ---------------- init states ----------------
 
     switch (ParticleAttributes.node.state) {
@@ -690,14 +690,12 @@ inline void process(void) {
             // ---------------- boot states: discovery ----------------
         __STATE_TYPE_NEIGHBOURS_DISCOVERY:
         case STATE_TYPE_NEIGHBOURS_DISCOVERY:
-//            LED_STATUS1_ON;
             __handleNeighboursDiscovery();
             break;
 
         case STATE_TYPE_NEIGHBOURS_DISCOVERED:
-            __discoveryLoopCount();
+//            __discoveryLoopCount();
             ParticleAttributes.node.state = STATE_TYPE_DISCOVERY_PULSING;
-//            LED_STATUS1_TOGGLE;
             goto __STATE_TYPE_DISCOVERY_PULSING;
             break;
 
@@ -708,13 +706,6 @@ inline void process(void) {
             break;
 
         case STATE_TYPE_DISCOVERY_PULSING_DONE:
-
-            if ((ParticleAttributes.node.type == NODE_TYPE_ORIGIN) ||
-                (ParticleAttributes.node.type == NODE_TYPE_TAIL
-                )) {
-                LED_STATUS1_TOGGLE;
-            }
-
             __handleDiscoveryPulsingDone();
             break;
 
@@ -744,11 +735,6 @@ inline void process(void) {
 
         __STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR:
         case STATE_TYPE_ENUMERATING_EAST_NEIGHBOUR:
-
-            if (ParticleAttributes.directionOrientedPorts.east.discoveryPulseCounter->isConnected) {
-                LED_STATUS1_TOGGLE;
-            }
-
             handleEnumerateNeighbour(&ParticleAttributes.directionOrientedPorts.east,
                                      ParticleAttributes.node.address.row,
                                      ParticleAttributes.node.address.column + 1,
@@ -760,7 +746,6 @@ inline void process(void) {
             setInitiatorStateStart(&ParticleAttributes.protocol.ports.south);
             DEBUG_CHAR_OUT('e');
             ParticleAttributes.node.state = STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR;
-            LED_STATUS1_TOGGLE;
             goto __STATE_TYPE_ENUMERATING_SOUTH_NEIGHBOUR;
             break;
 
@@ -892,8 +877,7 @@ inline void process(void) {
             ParticleAttributes.directionOrientedPorts.east.receivePimpl();
             ParticleAttributes.directionOrientedPorts.south.receivePimpl();
             __handleIsActuationCommandPeriod();
-
-            blinkAddressForever();
+            blinkAddressNonblocking();
             break;
 
             // ---------------- standby states: sleep mode related states ----------------
@@ -921,15 +905,7 @@ inline void process(void) {
         case STATE_TYPE_ERRONEOUS:
         case STATE_TYPE_STALE:
 //        __STATE_TYPE_STALE:
-            forever {
-                LED_ERROR_ON;
-                LED_STATUS1_ON;
-                DELAY_MS_196;
-                LED_ERROR_OFF;
-                LED_STATUS1_OFF;
-                DELAY_MS_196;
-            }
+            blinkErrorForever();
             break;
     }
-    TEST_POINT1_LO;
 }
