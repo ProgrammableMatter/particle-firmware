@@ -19,12 +19,15 @@
  * @param package the package to interpret and execute
  */
 extern FUNC_ATTRS void executeSynchronizeLocalTimePackage(
-        volatile TimePackage *package);//, volatile RxSnapshotBuffer *snapshotBuffer);
+        volatile TimePackage *package, volatile PortBuffer *portBuffer);
 
-FUNC_ATTRS void executeSynchronizeLocalTimePackage(volatile TimePackage *package) {
+FUNC_ATTRS void executeSynchronizeLocalTimePackage(volatile TimePackage *package,
+                                                   volatile PortBuffer *portBuffer) {
     //, volatile RxSnapshotBuffer *snapshotBuffer) {
     // DEBUG_INT16_OUT(snapshotBuffer->temporaryTxStopSnapshotTimerValue - snapshotBuffer->temporaryTxStartSnapshotTimerValue);
     // DEBUG_INT16_OUT(TIMER_TX_RX_COUNTER_VALUE);
+
+    LED_STATUS3_TOGGLE;
     TIMER_TX_RX_COUNTER_VALUE =
             package->time +
             COMMUNICATION_PROTOCOL_TIME_SYNCHRONIZATION_PER_NODE_INTERRUPT_LAG *
@@ -32,16 +35,33 @@ FUNC_ATTRS void executeSynchronizeLocalTimePackage(volatile TimePackage *package
              ParticleAttributes.node.address.column - 1) +
             package->packageTransmissionLatency +
             COMMUNICATION_PROTOCOL_TIME_SYNCHRONIZATION_PACKAGE_EXECUTION_LAG +
-            COMMUNICATION_PROTOCOL_TIME_SYNCHRONIZATION_MANUAL_ADJUSTMENT;
+            COMMUNICATION_PROTOCOL_TIME_SYNCHRONIZATION_MANUAL_POSITIVE_ADJUSTMENT -
+            COMMUNICATION_PROTOCOL_TIME_SYNCHRONIZATION_MANUAL_NEGATIVE_ADJUSTMENT;
+    TEST_POINT1_TOGGLE;
+
+
+    double accelerationFactor = 1.0;
+    // on package reception longer than expected -> accelerate the clock
+    if (portBuffer->receptionEndTimestamp >= portBuffer->receptionStartTimestamp) {
+        accelerationFactor = (portBuffer->receptionEndTimestamp - portBuffer->receptionStartTimestamp) /
+                             ParticleAttributes.localTime.timePeriodInterruptDelay;
+        ParticleAttributes.localTime.newTimePeriodInterruptDelay =
+                (1.0 + accelerationFactor) * ParticleAttributes.localTime.timePeriodInterruptDelay;
+        ParticleAttributes.localTime.isTimePeriodInterruptDelayUpdateable = true;
+    } else {
+        // on package reception shorter than expected -> decelerate the clock
+        accelerationFactor = (portBuffer->receptionStartTimestamp - portBuffer->receptionEndTimestamp) /
+                             ParticleAttributes.localTime.timePeriodInterruptDelay;
+        ParticleAttributes.localTime.newTimePeriodInterruptDelay =
+                (1.0 - accelerationFactor) * ParticleAttributes.localTime.timePeriodInterruptDelay;
+        ParticleAttributes.localTime.isTimePeriodInterruptDelayUpdateable = true;
+    }
+
+
     // DEBUG_INT16_OUT(TIMER_TX_RX_COUNTER_VALUE);
     // DEBUG_INT16_OUT(package->time);
     // DEBUG_INT16_OUT(package->packageTransmissionLatency);
     ParticleAttributes.protocol.isBroadcastEnabled = package->header.enableBroadcast;
-    // __TIMER1_OVERFLOW_INTERRUPT_ENABLE;
-    // snapshotBuffer->temporaryTxStopSnapshotTimerValue = snapshotBuffer->temporaryTxStopSnapshotTimerValue - snapshotBuffer->temporaryTxStartSnapshotTimerValue;
-
-    // TODO: calculate and update local time interrupt adjustment Particle.localTime.interruptDelay
-    // implementation of local time interrupt delay update is missing
 
     // TODO: calculate and update communication clock delay ParticleAttributes.communication.timerAdjustment.*
     // implementation of communication speed adjustment is missing
@@ -77,7 +97,6 @@ FUNC_ATTRS void executeAnnounceNetworkGeometryPackage(volatile AnnounceNetworkGe
         ParticleAttributes.protocol.isSimultaneousTransmissionEnabled = true;
         ParticleAttributes.node.state = STATE_TYPE_SYNC_NEIGHBOUR;
         setInitiatorStateStart(ParticleAttributes.directionOrientedPorts.simultaneous.protocol);
-
     } else {
         constructAnnounceNetworkGeometryPackage(package->rows, package->columns);
         setInitiatorStateStart(&ParticleAttributes.protocol.ports.north);

@@ -27,6 +27,10 @@ typedef struct BufferBitPointer {
 typedef struct PortBuffer {
     uint8_t bytes[TX_RX_NUMBER_BUFFER_BYTES]; // reception buffer
     BufferBitPointer pointer; // points to the next free position
+    uint8_t parityBit : 1;
+    uint8_t __pad : 7;
+    uint16_t receptionStartTimestamp; // start time stamp of the current buffer
+    uint16_t receptionEndTimestamp; // end time stamp of the current buffer
 } volatile PortBuffer;
 
 /**
@@ -38,7 +42,7 @@ typedef struct TxPort {
     uint8_t isTransmitting : 1; // true during transmission, else false
     uint8_t isTxClockPhase : 1; // true if clock phase, else on data phase
     uint8_t isDataBuffered : 1; // true if the buffer contains data to be transmitted
-    uint8_t __pad: 5;
+    uint8_t __pad : 5;
 } volatile TxPort;
 
 /**
@@ -57,8 +61,6 @@ typedef struct RxPort {
     // each pin interrupt stores snapshots and the flank direction into the buffer
     RxSnapshotBuffer snapshotsBuffer;
     PortBuffer buffer;
-    // todo unused field receptionistOffset
-    // uint16_t receptionOffset; // synchronization offset of fist received bit relative to compare counter
     uint8_t isOverflowed : 1;
     uint8_t isDataBuffered : 1;
     uint8_t __pad : 6;

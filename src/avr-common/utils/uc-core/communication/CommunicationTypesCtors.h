@@ -16,6 +16,7 @@ extern CTOR_ATTRS void constructBufferBitPointer(volatile BufferBitPointer *o);
 
 CTOR_ATTRS void constructBufferBitPointer(volatile BufferBitPointer *o) {
     o->byteNumber = 0;
+    o->__pad = 0;
     o->bitMask = 1;
 }
 
@@ -31,6 +32,9 @@ CTOR_ATTRS void constructPortBuffer(volatile PortBuffer *o) {
     }
     o->bytes[0] = 0x1; // set start bit
     constructBufferBitPointer(&(o->pointer));
+    o->parityBit = 0;
+    o->receptionStartTimestamp = 0;
+    o->receptionEndTimestamp = 0;
 }
 
 /**

@@ -40,18 +40,21 @@
  * Initial value for clock delay for Manchester (de-)coding (reception and transmission).
  */
 #define DEFAULT_TX_RX_CLOCK_DELAY ((uint16_t) 1024)
+//#define DEFAULT_TX_RX_CLOCK_DELAY ((uint16_t) 2048)
 
 /**
  * Maximum short reception time lag.
  */
 //#define DEFAULT_MAX_SHORT_RECEPTION_OVERTIME_PERCENTAGE_RATIO ((uint8_t) 59)
-#define DEFAULT_MAX_SHORT_RECEPTION_OVERTIME_PERCENTAGE_RATIO ((uint8_t) 65)
+// TODO: find lower level
+#define DEFAULT_MAX_SHORT_RECEPTION_OVERTIME_PERCENTAGE_RATIO ((uint8_t) 60)
 /**
  * Maximum long reception time lag. If maximum long snapshot lag is exceeded the reception
  * experiences a timeout.
  */
 //#define DEFAULT_MAX_LONG_RECEPTION_OVERTIME_PERCENTAGE_RATIO ((uint8_t) 112)
-#define DEFAULT_MAX_LONG_RECEPTION_OVERTIME_PERCENTAGE_RATIO ((uint8_t) 124)
+// TODO: find lower level
+#define DEFAULT_MAX_LONG_RECEPTION_OVERTIME_PERCENTAGE_RATIO ((uint8_t) 125)
 
 /**
  * Number of buffer bytes for reception and transmission. Received snapshots are decoded to

@@ -27,20 +27,19 @@ FUNC_ATTRS void __interpretWaitForBeingEnumeratedReception(volatile RxPort *rxPo
         // on received address information
         case COMMUNICATION_RECEPTIONIST_STATE_TYPE_RECEIVE:
             // on address package
-            if (equalsPackageSize(rxPort->buffer.pointer, EnumerationPackageBufferPointerSize) &&
+            if (equalsPackageSize(&rxPort->buffer.pointer, EnumerationPackageBufferPointerSize) &&
                 package->asHeader.id == PACKAGE_HEADER_ID_TYPE_ENUMERATE) {
                 executeSetLocalAddress(&package->asEnumerationPackage);
                 // send ack with local address back
                 // DEBUG_CHAR_OUT('a');
                 commPortState->receptionistState = COMMUNICATION_RECEPTIONIST_STATE_TYPE_TRANSMIT_ACK;
-                LED_ERROR_TOGGLE;
             }
             clearReceptionPortBuffer(rxPort);
             break;
 
             // on received ack
         case COMMUNICATION_RECEPTIONIST_STATE_TYPE_WAIT_FOR_RESPONSE:
-            if (equalsPackageSize(rxPort->buffer.pointer, AckPackagePointerSize) &&
+            if (equalsPackageSize(&rxPort->buffer.pointer, AckPackagePointerSize) &&
                 package->asACKPackage.id == PACKAGE_HEADER_ID_TYPE_ACK) {
                 // DEBUG_CHAR_OUT('d');
                 ParticleAttributes.protocol.isBroadcastEnabled = package->asACKPackage.enableBroadcast;
@@ -68,10 +67,11 @@ FUNC_ATTRS void __interpretReceivedPackage(volatile DirectionOrientedPort *port)
     // TODO enhancement: check equalsPackageSize() == expected size
     // TODO enhancement: check parity bit == expected parity bit
     Package *package = (Package *) port->rxPort->buffer.bytes;
+
     switch (package->asHeader.id) {
 
         case PACKAGE_HEADER_ID_TYPE_SYNC_TIME:
-            executeSynchronizeLocalTimePackage(&package->asSyncTimePackage);
+            executeSynchronizeLocalTimePackage(&package->asSyncTimePackage, &port->rxPort->buffer);
             break;
 
         case PACKAGE_HEADER_ID_TYPE_NETWORK_GEOMETRY_RESPONSE:
@@ -131,7 +131,7 @@ FUNC_ATTRS void __interpretEnumerateNeighbourAckReception(volatile RxPort *rxPor
         // on ack wih remote address
         case COMMUNICATION_INITIATOR_STATE_TYPE_WAIT_FOR_RESPONSE:
             // on ack with data
-            if (equalsPackageSize(rxPort->buffer.pointer, AckWithAddressPackageBufferPointerSize) &&
+            if (equalsPackageSize(&rxPort->buffer.pointer, AckWithAddressPackageBufferPointerSize) &&
                 package->asHeader.id == PACKAGE_HEADER_ID_TYPE_ACK_WITH_DATA) {
                 // on correct address
                 if (expectedRemoteAddressRow == package->asACKWithRemoteAddress.addressRow &&
@@ -168,7 +168,6 @@ FUNC_ATTRS void interpretRxBuffer(volatile DirectionOrientedPort *port) {
     DEBUG_CHAR_OUT('I');
     switch (ParticleAttributes.node.state) {
         case STATE_TYPE_WAIT_FOR_BEING_ENUMERATED:
-//            LED_ERROR_TOGGLE;
             __interpretWaitForBeingEnumeratedReception(port->rxPort,
                                                        port->protocol);
             break;
