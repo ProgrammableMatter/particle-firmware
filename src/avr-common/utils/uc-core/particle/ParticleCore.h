@@ -204,18 +204,18 @@ FUNC_ATTRS void __enableReception(void) {
     __enableReceptionHardwareForConnectedPorts();
 }
 
-/**
- * Toggles the heartbeat LED.
- */
-extern FUNC_ATTRS void __heartBeatToggle(void);
-
-FUNC_ATTRS void __heartBeatToggle(void) {
-    ParticleAttributes.periphery.loopCount++;
-    if (ParticleAttributes.periphery.loopCount > HEARTBEAT_LOOP_COUNT_TOGGLE) {
-        ParticleAttributes.periphery.loopCount = 0;
-        LED_STATUS6_TOGGLE;
-    }
-}
+///**
+// * Toggles the heartbeat LED.
+// */
+//extern FUNC_ATTRS void __heartBeatToggle(void);
+//
+//FUNC_ATTRS void __heartBeatToggle(void) {
+//    ParticleAttributes.periphery.loopCount++;
+//    if (ParticleAttributes.periphery.loopCount > HEARTBEAT_LOOP_COUNT_TOGGLE) {
+//        ParticleAttributes.periphery.loopCount = 0;
+//        LED_STATUS6_TOGGLE;
+//    }
+//}
 
 /**
  * Increments the discovery loop counter.
@@ -226,9 +226,6 @@ FUNC_ATTRS void __discoveryLoopCount(void) {
     if (ParticleAttributes.discoveryPulseCounters.loopCount < (UINT8_MAX)) {
         ParticleAttributes.discoveryPulseCounters.loopCount++;
     }
-//    if (UINT8_MAX == ParticleAttributes.discoveryPulseCounters.loopCount) {
-//        LED_STATUS1_TOGGLE;
-//    }
 }
 
 /**
@@ -877,7 +874,11 @@ inline void process(void) {
             ParticleAttributes.directionOrientedPorts.east.receivePimpl();
             ParticleAttributes.directionOrientedPorts.south.receivePimpl();
             __handleIsActuationCommandPeriod();
-            blinkAddressNonblocking();
+
+            if (ParticleAttributes.localTime.numTimePeriodsPassed > 10) {
+                blinkAddressNonblocking();
+                blinkTimeIntervalNonblocking();
+            }
             break;
 
             // ---------------- standby states: sleep mode related states ----------------
@@ -905,7 +906,7 @@ inline void process(void) {
         case STATE_TYPE_ERRONEOUS:
         case STATE_TYPE_STALE:
 //        __STATE_TYPE_STALE:
-            blinkErrorForever();
+            blinkGenericErrorForever();
             break;
     }
 }

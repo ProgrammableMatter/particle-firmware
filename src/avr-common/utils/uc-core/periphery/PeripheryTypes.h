@@ -8,34 +8,46 @@
 
 #include <stdint.h>
 
-typedef enum LedBlinkStates {
-    LED_BLINK_STATES_START,
-    LED_BLINK_STATES_BLINK_ROW,
-    LED_BLINK_STATES_ROW_ON,
-    LED_BLINK_STATES_ROW_OFF,
-    LED_BLINK_STATES_PAUSE,
-    LED_BLINK_STATES_BLINK_COLUMN,
-    LED_BLINK_STATES_COLUMN_ON,
-    LED_BLINK_STATES_COLUMN_OFF,
-    LED_BLINK_STATES_PAUSE2,
-    LED_BLINK_STATES_QUIT_SIGNAL,
-    LED_BLINK_STATES_END,
-} LedBlinkStates;
+typedef enum AddressBlinkStates {
+    ADDRESS_BLINK_STATES_START,
+    ADDRESS_BLINK_STATES_BLINK_ROW,
+    ADDRESS_BLINK_STATES_ROW_ON,
+    ADDRESS_BLINK_STATES_ROW_OFF,
+    ADDRESS_BLINK_STATES_PAUSE,
+    ADDRESS_BLINK_STATES_BLINK_COLUMN,
+    ADDRESS_BLINK_STATES_COLUMN_ON,
+    ADDRESS_BLINK_STATES_COLUMN_OFF,
+    ADDRESS_BLINK_STATES_PAUSE2,
+    ADDRESS_BLINK_STATES_QUIT_SIGNAL,
+    ADDRESS_BLINK_STATES_END,
+} AddressBlinkStates;
 
 typedef struct BlinkAddress {
-    uint16_t blinkRowCounter;
-    uint16_t blinkColumnCounter;
-    uint16_t blinkAddressBlinkDelay;
+    uint8_t blinkRowCounter;
+    uint8_t blinkColumnCounter;
+    uint8_t blinkAddressBlinkDelay;
     uint16_t lastExecutionTime;
-    LedBlinkStates blinkAddressState;
+    AddressBlinkStates blinkAddressState;
 } BlinkAddress;
+
+typedef enum TimeIntervalBlinkStates {
+    TIME_INTERVAL_BLINK_STATES_LED_ON,
+    TIME_INTERVAL_BLINK_STATES_LED_OFF,
+} TimeIntervalBlinkStates;
+
+typedef struct BlinkTimeInterval {
+    uint8_t localTimeMultiplier;
+    uint16_t lastExecutionTime;
+    TimeIntervalBlinkStates blinkState;
+} BlinkTimeInterval;
+
 /**
  * Counters/resources needed for non vital platform's periphery such as LEDs, test points and alike.
  */
 typedef struct Periphery {
     // particle main loop counter
-    uint8_t loopCount;
-    uint16_t countdownUntilDeadEndMode;
+    uint16_t loopCount;
     BlinkAddress blinkAddress;
+    BlinkTimeInterval blinkTimeInterval;
 } volatile Periphery;
 

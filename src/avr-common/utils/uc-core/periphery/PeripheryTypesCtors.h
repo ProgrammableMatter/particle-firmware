@@ -10,15 +10,28 @@
 
 
 extern CTOR_ATTRS void constructBlinkAddress(volatile BlinkAddress *o);
-
+/**
+* constructor function
+* @param o the object to construct
+**/
 CTOR_ATTRS void constructBlinkAddress(volatile BlinkAddress *o) {
     o->blinkColumnCounter = 0;
     o->blinkRowCounter = 0;
     o->blinkAddressBlinkDelay = 0;
     o->lastExecutionTime = 0;
-    o->blinkAddressState = LED_BLINK_STATES_START;
+    o->blinkAddressState = ADDRESS_BLINK_STATES_START;
 }
 
+extern CTOR_ATTRS void constructBlinkTimeInterval(volatile BlinkTimeInterval *o);
+/**
+* constructor function
+* @param o the object to construct
+**/
+CTOR_ATTRS void constructBlinkTimeInterval(volatile BlinkTimeInterval *o) {
+    o->lastExecutionTime = 0;
+    o->localTimeMultiplier = TIME_INTERVAL_BLINK_STATES_PERIOD_MULTIPLIER;
+    o->blinkState = TIME_INTERVAL_BLINK_STATES_LED_OFF;
+}
 
 /**
 * constructor function
@@ -28,7 +41,7 @@ extern CTOR_ATTRS void constructPeriphery(volatile Periphery *o);
 
 CTOR_ATTRS void constructPeriphery(volatile Periphery *o) {
     o->loopCount = 0;
-    o->countdownUntilDeadEndMode = 500;
     constructBlinkAddress(&o->blinkAddress);
+    constructBlinkTimeInterval(&o->blinkTimeInterval);
 }
 
