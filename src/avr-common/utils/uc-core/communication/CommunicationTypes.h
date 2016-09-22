@@ -27,8 +27,6 @@ typedef struct BufferBitPointer {
 typedef struct PortBuffer {
     uint8_t bytes[TX_RX_NUMBER_BUFFER_BYTES]; // reception buffer
     BufferBitPointer pointer; // points to the next free position
-    uint8_t parityBit : 1;
-    uint8_t __pad : 7;
     /**
      * field stores the 1st edge event's timer value of the last transmission
      */
@@ -69,7 +67,8 @@ typedef struct RxPort {
     PortBuffer buffer;
     uint8_t isOverflowed : 1;
     uint8_t isDataBuffered : 1;
-    uint8_t __pad : 6;
+    uint8_t parityBitCounter : 1; // 1-bit counter to track odd number of 1-bits
+    uint8_t __pad : 5;
 } volatile RxPort;
 
 /**

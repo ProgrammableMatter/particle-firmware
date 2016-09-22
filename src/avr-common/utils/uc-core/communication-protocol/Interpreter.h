@@ -8,6 +8,7 @@
 
 #include "CommunicationProtocolTypes.h"
 #include "Commands.h"
+#include "uc-core/parity/Parity.h"
 
 /**
  * Interprets reception in wait for being enumerate states.
@@ -19,15 +20,14 @@ extern FUNC_ATTRS void __interpretWaitForBeingEnumeratedReception(volatile RxPor
 
 FUNC_ATTRS void __interpretWaitForBeingEnumeratedReception(volatile RxPort *rxPort,
                                                            volatile CommunicationProtocolPortState *commPortState) {
-    // TODO enhancement: check parity bit == expected parity bit
-
     volatile Package *package = (Package *) rxPort->buffer.bytes;
     // interpret according to local reception protocol state
     switch (commPortState->receptionistState) {
         // on received address information
         case COMMUNICATION_RECEPTIONIST_STATE_TYPE_RECEIVE:
             // on address package
-            if (equalsPackageSize(&rxPort->buffer.pointer, EnumerationPackageBufferPointerSize) &&
+            if (isParityBitValid(rxPort) &&
+                equalsPackageSize(&rxPort->buffer.pointer, EnumerationPackageBufferPointerSize) &&
                 package->asHeader.id == PACKAGE_HEADER_ID_TYPE_ENUMERATE) {
                 executeSetLocalAddress(&package->asEnumerationPackage);
                 // send ack with local address back
@@ -39,7 +39,8 @@ FUNC_ATTRS void __interpretWaitForBeingEnumeratedReception(volatile RxPort *rxPo
 
             // on received ack
         case COMMUNICATION_RECEPTIONIST_STATE_TYPE_WAIT_FOR_RESPONSE:
-            if (equalsPackageSize(&rxPort->buffer.pointer, AckPackagePointerSize) &&
+            if (isParityBitValid(rxPort) &&
+                equalsPackageSize(&rxPort->buffer.pointer, AckPackagePointerSize) &&
                 package->asACKPackage.id == PACKAGE_HEADER_ID_TYPE_ACK) {
                 // DEBUG_CHAR_OUT('d');
                 ParticleAttributes.protocol.isBroadcastEnabled = package->asACKPackage.enableBroadcast;
@@ -64,38 +65,60 @@ FUNC_ATTRS void __interpretWaitForBeingEnumeratedReception(volatile RxPort *rxPo
 extern FUNC_ATTRS void __interpretReceivedPackage(volatile DirectionOrientedPort *port);
 
 FUNC_ATTRS void __interpretReceivedPackage(volatile DirectionOrientedPort *port) {
-    // TODO enhancement: check equalsPackageSize() == expected size
-    // TODO enhancement: check parity bit == expected parity bit
     Package *package = (Package *) port->rxPort->buffer.bytes;
 
     switch (package->asHeader.id) {
 
         case PACKAGE_HEADER_ID_TYPE_SYNC_TIME:
-            executeSynchronizeLocalTimePackage(&package->asSyncTimePackage, &port->rxPort->buffer);
+            if (isParityBitValid(port->rxPort) &&
+                equalsPackageSize(&port->rxPort->buffer.pointer, TimePackageBufferPointerSize)) {
+                executeSynchronizeLocalTimePackage(&package->asSyncTimePackage, &port->rxPort->buffer);
+            }
             break;
 
         case PACKAGE_HEADER_ID_TYPE_NETWORK_GEOMETRY_RESPONSE:
-            executeAnnounceNetworkGeometryPackage(&package->asAnnounceNetworkGeometryPackage);
+            if (isParityBitValid(port->rxPort) &&
+                equalsPackageSize(&port->rxPort->buffer.pointer,
+                                  AnnounceNetworkGeometryPackageBufferPointerSize)) {
+                executeAnnounceNetworkGeometryPackage(&package->asAnnounceNetworkGeometryPackage);
+            }
             break;
 
         case PACKAGE_HEADER_ID_TYPE_SET_NETWORK_GEOMETRY:
-            executeSetNetworkGeometryPackage(&package->asSetNetworkGeometryPackage);
+            if (isParityBitValid(port->rxPort) &&
+                equalsPackageSize(&port->rxPort->buffer.pointer,
+                                  SetNetworkGeometryPackageBufferPointerSize)) {
+                executeSetNetworkGeometryPackage(&package->asSetNetworkGeometryPackage);
+            }
             break;
 
         case PACKAGE_HEADER_ID_TYPE_HEAT_WIRES:
-            if (package->asHeader.isRangeCommand) {
-                executeHeatWiresRangePackage(&package->asHeatWiresRangePackage);
-            } else {
-                executeHeatWiresPackage(&package->asHeatWiresPackage);
+            if (isParityBitValid(port->rxPort)) {
+                if (package->asHeader.isRangeCommand) {
+                    if (equalsPackageSize(&port->rxPort->buffer.pointer,
+                                          HeatWiresRangePackageBufferPointerSize)) {
+                        executeHeatWiresRangePackage(&package->asHeatWiresRangePackage);
+                    }
+                } else {
+                    if (equalsPackageSize(&port->rxPort->buffer.pointer, HeatWiresPackageBufferPointerSize)) {
+                        executeHeatWiresPackage(&package->asHeatWiresPackage);
+                    }
+                }
             }
             break;
 
         case PACKAGE_HEADER_ID_HEADER:
-            executeHeaderPackage(&package->asHeader);
+            if (isParityBitValid(port->rxPort) &&
+                equalsPackageSize(&port->rxPort->buffer.pointer, HeaderPackagePointerSize)) {
+                executeHeaderPackage(&package->asHeader);
+            }
             break;
 
         case PACKAGE_HEADER_ID_TYPE_HEAT_WIRES_MODE:
-            executeHeatWiresModePackage(&package->asHeatWiresModePackage);
+            if (isParityBitValid(port->rxPort) &&
+                equalsPackageSize(&port->rxPort->buffer.pointer, HeatWiresModePackageBufferPointerSize)) {
+                executeHeatWiresModePackage(&package->asHeatWiresModePackage);
+            }
             break;
 
         default:
@@ -121,7 +144,6 @@ FUNC_ATTRS void __interpretEnumerateNeighbourAckReception(volatile RxPort *rxPor
                                                           volatile CommunicationProtocolPortState *commPortState,
                                                           uint8_t expectedRemoteAddressRow,
                                                           uint8_t expectedRemoteAddressColumn) {
-    // TODO enhancement: check parity bit == expected parity bit
     // DEBUG_INT16_OUT(expectedRemoteAddressRow);
     // DEBUG_INT16_OUT(ParticleAttributes.node.address.row);
     // DEBUG_INT16_OUT(expectedRemoteAddressColumn);
@@ -131,7 +153,8 @@ FUNC_ATTRS void __interpretEnumerateNeighbourAckReception(volatile RxPort *rxPor
         // on ack wih remote address
         case COMMUNICATION_INITIATOR_STATE_TYPE_WAIT_FOR_RESPONSE:
             // on ack with data
-            if (equalsPackageSize(&rxPort->buffer.pointer, AckWithAddressPackageBufferPointerSize) &&
+            if (isParityBitValid(rxPort) &&
+                equalsPackageSize(&rxPort->buffer.pointer, AckWithAddressPackageBufferPointerSize) &&
                 package->asHeader.id == PACKAGE_HEADER_ID_TYPE_ACK_WITH_DATA) {
                 // on correct address
                 if (expectedRemoteAddressRow == package->asACKWithRemoteAddress.addressRow &&
@@ -163,8 +186,6 @@ FUNC_ATTRS void __interpretEnumerateNeighbourAckReception(volatile RxPort *rxPor
 extern FUNC_ATTRS void interpretRxBuffer(volatile DirectionOrientedPort *port);
 
 FUNC_ATTRS void interpretRxBuffer(volatile DirectionOrientedPort *port) {
-    // TODO enhancement: check equalsPackageSize() == expected size
-    // TODO enhancement: check parity bit == expected parity bit
     DEBUG_CHAR_OUT('I');
     switch (ParticleAttributes.node.state) {
         case STATE_TYPE_WAIT_FOR_BEING_ENUMERATED:

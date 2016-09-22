@@ -78,6 +78,7 @@ DECODING_FUNC_ATTRS void __storeDataBit(volatile RxPort *rxPort, const volatile 
             // DEBUG_CHAR_OUT('1');
             LED_STATUS2_TOGGLE;
             rxPort->buffer.bytes[rxPort->buffer.pointer.byteNumber] setBit rxPort->buffer.pointer.bitMask;
+            rxPort->parityBitCounter++;
         } else {
             // DEBUG_CHAR_OUT('0');
             LED_STATUS3_TOGGLE;
@@ -203,7 +204,7 @@ DECODING_FUNC_ATTRS void captureSnapshot(uint16_t *timerCounterValue, const bool
 
     if (nextEndIdx == snapshotBuffer->startIndex) {
         snapshotBuffer->isOverflowed = true;
-        blinkErrorForever();
+        blinkReceptionBufferOverflowErrorForever();
     }
 
     volatile Snapshot *snapshot = &(snapshotBuffer->snapshots[snapshotBuffer->endIndex]);
@@ -287,6 +288,7 @@ FUNC_ATTRS void manchesterDecodeBuffer(volatile DirectionOrientedPort *port,
                     }
 
                     DEBUG_CHAR_OUT('+');
+                    rxPort->parityBitCounter = 0;
                     rxPort->buffer.receptionStartTimestamp = rxPort->snapshotsBuffer.temporarySnapshotTimerValue;
                     rxPort->snapshotsBuffer.decoderStates.decodingState = DECODER_STATE_TYPE_DECODING;
                     __rxSnapshotBufferDequeue(&rxPort->snapshotsBuffer);

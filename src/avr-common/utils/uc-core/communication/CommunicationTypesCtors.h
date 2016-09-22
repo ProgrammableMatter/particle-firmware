@@ -32,7 +32,6 @@ CTOR_ATTRS void constructPortBuffer(volatile PortBuffer *o) {
     }
     o->bytes[0] = 0x1; // set start bit
     constructBufferBitPointer(&(o->pointer));
-    o->parityBit = 0;
     o->receptionStartTimestamp = 0;
     o->receptionEndTimestamp = 0;
 }
@@ -77,6 +76,7 @@ CTOR_ATTRS void constructRxPort(volatile RxPort *o) {
     // o->receptionOffset = 0;
     o->isOverflowed = false;
     o->isDataBuffered = false;
+    o->parityBitCounter = 0;
 }
 
 /**
