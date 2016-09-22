@@ -26,7 +26,7 @@ FUNC_ATTRS void __interpretWaitForBeingEnumeratedReception(volatile RxPort *rxPo
         // on received address information
         case COMMUNICATION_RECEPTIONIST_STATE_TYPE_RECEIVE:
             // on address package
-            if (isParityBitValid(rxPort) &&
+            if (isEvenParity(rxPort) &&
                 equalsPackageSize(&rxPort->buffer.pointer, EnumerationPackageBufferPointerSize) &&
                 package->asHeader.id == PACKAGE_HEADER_ID_TYPE_ENUMERATE) {
                 executeSetLocalAddress(&package->asEnumerationPackage);
@@ -39,7 +39,7 @@ FUNC_ATTRS void __interpretWaitForBeingEnumeratedReception(volatile RxPort *rxPo
 
             // on received ack
         case COMMUNICATION_RECEPTIONIST_STATE_TYPE_WAIT_FOR_RESPONSE:
-            if (isParityBitValid(rxPort) &&
+            if (isEvenParity(rxPort) &&
                 equalsPackageSize(&rxPort->buffer.pointer, AckPackagePointerSize) &&
                 package->asACKPackage.id == PACKAGE_HEADER_ID_TYPE_ACK) {
                 // DEBUG_CHAR_OUT('d');
@@ -70,14 +70,14 @@ FUNC_ATTRS void __interpretReceivedPackage(volatile DirectionOrientedPort *port)
     switch (package->asHeader.id) {
 
         case PACKAGE_HEADER_ID_TYPE_SYNC_TIME:
-            if (isParityBitValid(port->rxPort) &&
+            if (isEvenParity(port->rxPort) &&
                 equalsPackageSize(&port->rxPort->buffer.pointer, TimePackageBufferPointerSize)) {
                 executeSynchronizeLocalTimePackage(&package->asSyncTimePackage, &port->rxPort->buffer);
             }
             break;
 
         case PACKAGE_HEADER_ID_TYPE_NETWORK_GEOMETRY_RESPONSE:
-            if (isParityBitValid(port->rxPort) &&
+            if (isEvenParity(port->rxPort) &&
                 equalsPackageSize(&port->rxPort->buffer.pointer,
                                   AnnounceNetworkGeometryPackageBufferPointerSize)) {
                 executeAnnounceNetworkGeometryPackage(&package->asAnnounceNetworkGeometryPackage);
@@ -85,7 +85,7 @@ FUNC_ATTRS void __interpretReceivedPackage(volatile DirectionOrientedPort *port)
             break;
 
         case PACKAGE_HEADER_ID_TYPE_SET_NETWORK_GEOMETRY:
-            if (isParityBitValid(port->rxPort) &&
+            if (isEvenParity(port->rxPort) &&
                 equalsPackageSize(&port->rxPort->buffer.pointer,
                                   SetNetworkGeometryPackageBufferPointerSize)) {
                 executeSetNetworkGeometryPackage(&package->asSetNetworkGeometryPackage);
@@ -93,7 +93,7 @@ FUNC_ATTRS void __interpretReceivedPackage(volatile DirectionOrientedPort *port)
             break;
 
         case PACKAGE_HEADER_ID_TYPE_HEAT_WIRES:
-            if (isParityBitValid(port->rxPort)) {
+            if (isEvenParity(port->rxPort)) {
                 if (package->asHeader.isRangeCommand) {
                     if (equalsPackageSize(&port->rxPort->buffer.pointer,
                                           HeatWiresRangePackageBufferPointerSize)) {
@@ -108,14 +108,14 @@ FUNC_ATTRS void __interpretReceivedPackage(volatile DirectionOrientedPort *port)
             break;
 
         case PACKAGE_HEADER_ID_HEADER:
-            if (isParityBitValid(port->rxPort) &&
+            if (isEvenParity(port->rxPort) &&
                 equalsPackageSize(&port->rxPort->buffer.pointer, HeaderPackagePointerSize)) {
                 executeHeaderPackage(&package->asHeader);
             }
             break;
 
         case PACKAGE_HEADER_ID_TYPE_HEAT_WIRES_MODE:
-            if (isParityBitValid(port->rxPort) &&
+            if (isEvenParity(port->rxPort) &&
                 equalsPackageSize(&port->rxPort->buffer.pointer, HeatWiresModePackageBufferPointerSize)) {
                 executeHeatWiresModePackage(&package->asHeatWiresModePackage);
             }
@@ -153,7 +153,7 @@ FUNC_ATTRS void __interpretEnumerateNeighbourAckReception(volatile RxPort *rxPor
         // on ack wih remote address
         case COMMUNICATION_INITIATOR_STATE_TYPE_WAIT_FOR_RESPONSE:
             // on ack with data
-            if (isParityBitValid(rxPort) &&
+            if (isEvenParity(rxPort) &&
                 equalsPackageSize(&rxPort->buffer.pointer, AckWithAddressPackageBufferPointerSize) &&
                 package->asHeader.id == PACKAGE_HEADER_ID_TYPE_ACK_WITH_DATA) {
                 // on correct address

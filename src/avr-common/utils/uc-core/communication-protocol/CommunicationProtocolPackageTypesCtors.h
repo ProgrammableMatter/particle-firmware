@@ -46,7 +46,7 @@ PROTOCOL_PACKAGE_CTOR_ATTRS void constructEnumeratePackage(volatile TxPort *txPo
     package->asEnumerationPackage.addressRow = localAddressRow;
     package->asEnumerationPackage.addressColumn = localAddressColumn;
     setBufferDataEndPointer(txPort->dataEndPos, EnumerationPackageBufferPointerSize);
-    setParityBit(txPort);
+    setEvenParityBit(txPort);
 }
 
 /**
@@ -64,7 +64,7 @@ PROTOCOL_PACKAGE_CTOR_ATTRS void constructEnumerationACKPackage(volatile TxPort 
     package->asACKPackage.isRangeCommand = false;
 
     setBufferDataEndPointer(txPort->dataEndPos, AckPackagePointerSize);
-    setParityBit(txPort);
+    setEvenParityBit(txPort);
 
 }
 
@@ -84,7 +84,7 @@ PROTOCOL_PACKAGE_CTOR_ATTRS void constructEnumerationACKWithAddressToParentPacka
 
     setBufferDataEndPointer(ParticleAttributes.communication.ports.tx.north.dataEndPos,
                             AckWithAddressPackageBufferPointerSize);
-    setParityBit(&ParticleAttributes.communication.ports.tx.north);
+    setEvenParityBit(&ParticleAttributes.communication.ports.tx.north);
 }
 
 /**
@@ -111,7 +111,7 @@ PROTOCOL_PACKAGE_CTOR_ATTRS void constructSyncTimePackage(volatile TxPort *txPor
 //    package->asSyncTimePackage.stuffing = 0;
 
     setBufferDataEndPointer(txPort->dataEndPos, TimePackageBufferPointerSize);
-    setParityBit(txPort);
+    setEvenParityBit(txPort);
     // DEBUG_INT16_OUT(TIMER_TX_RX_COUNTER_VALUE);
 }
 
@@ -134,7 +134,7 @@ PROTOCOL_PACKAGE_CTOR_ATTRS void constructAnnounceNetworkGeometryPackage(uint8_t
 
     setBufferDataEndPointer(ParticleAttributes.communication.ports.tx.north.dataEndPos,
                             AnnounceNetworkGeometryPackageBufferPointerSize);
-    setParityBit(&ParticleAttributes.communication.ports.tx.north);
+    setEvenParityBit(&ParticleAttributes.communication.ports.tx.north);
 }
 
 
@@ -160,7 +160,7 @@ PROTOCOL_PACKAGE_CTOR_ATTRS void constructSetNetworkGeometryPackage(volatile TxP
     package->asSetNetworkGeometryPackage.columns = columns;
 
     setBufferDataEndPointer(txPort->dataEndPos, SetNetworkGeometryPackageBufferPointerSize);
-    setParityBit(txPort);
+    setEvenParityBit(txPort);
 }
 
 /**
@@ -198,7 +198,7 @@ PROTOCOL_PACKAGE_CTOR_ATTRS void constructHeatWiresPackage(volatile TxPort *txPo
     package->asHeatWiresPackage.northRight = wires->northRight;
 
     setBufferDataEndPointer(txPort->dataEndPos, HeatWiresPackageBufferPointerSize);
-    setParityBit(txPort);
+    setEvenParityBit(txPort);
 }
 
 /**
@@ -241,7 +241,7 @@ PROTOCOL_PACKAGE_CTOR_ATTRS void constructHeatWiresRangePackage(volatile TxPort 
     package->asHeatWiresRangePackage.northRight = wires->northRight;
 
     setBufferDataEndPointer(txPort->dataEndPos, HeatWiresRangePackageBufferPointerSize);
-    setParityBit(txPort);
+    setEvenParityBit(txPort);
 }
 
 /**
@@ -260,7 +260,7 @@ PROTOCOL_PACKAGE_CTOR_ATTRS void constructHeaderPackage(volatile TxPort *txPort)
     package->asHeader.enableBroadcast = false;
 
     setBufferDataEndPointer(txPort->dataEndPos, HeaderPackagePointerSize);
-    setParityBit(txPort);
+    setEvenParityBit(txPort);
 }
 
 /**
@@ -281,5 +281,5 @@ PROTOCOL_PACKAGE_CTOR_ATTRS void constructHeatWiresModePackage(volatile TxPort *
     package->asHeatWiresModePackage.heatMode = heatingPowerLevel;
 
     setBufferDataEndPointer(txPort->dataEndPos, HeatWiresModePackageBufferPointerSize);
-    setParityBit(txPort);
+    setEvenParityBit(txPort);
 }
