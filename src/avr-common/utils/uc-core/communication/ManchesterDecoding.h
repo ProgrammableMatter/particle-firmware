@@ -69,9 +69,9 @@
  * @param rxPort the port where to buffer the bit
  * @param isRisingEdge the signal edge
  */
-extern DECODING_FUNC_ATTRS void __storeDataBit(volatile RxPort *rxPort, const volatile uint8_t isRisingEdge);
+//extern DECODING_FUNC_ATTRS void __storeDataBit(volatile RxPort *rxPort, const volatile uint8_t isRisingEdge);
 
-DECODING_FUNC_ATTRS void __storeDataBit(volatile RxPort *rxPort, const volatile uint8_t isRisingEdge) {
+static DECODING_FUNC_ATTRS void __storeDataBit(volatile RxPort *rxPort, const volatile uint8_t isRisingEdge) {
     // save bit to buffer
     if (!isBufferEndPosition(&rxPort->buffer.pointer)) {
         if (isRisingEdge) {
@@ -116,9 +116,9 @@ inline void __printSnapshotBufferSizeToSimulationRegister(volatile RxSnapshotBuf
  * Increments the snapshots circular buffer start index.
  * @param o the snapshot buffer reference
  */
-extern DECODING_FUNC_ATTRS void __rxSnapshotBufferIncrementStartIndex(volatile RxSnapshotBuffer *o);
+//extern DECODING_FUNC_ATTRS void __rxSnapshotBufferIncrementStartIndex(volatile RxSnapshotBuffer *o);
 
-DECODING_FUNC_ATTRS void __rxSnapshotBufferIncrementStartIndex(volatile RxSnapshotBuffer *o) {
+static DECODING_FUNC_ATTRS void __rxSnapshotBufferIncrementStartIndex(volatile RxSnapshotBuffer *o) {
     if (o->startIndex >= (RX_NUMBER_SNAPSHOTS - 1)) {
         o->startIndex = 0;
         return;
@@ -132,9 +132,9 @@ DECODING_FUNC_ATTRS void __rxSnapshotBufferIncrementStartIndex(volatile RxSnapsh
  * Increments the snapshots circular buffer end index.
  * @param o the snapshot buffer reference
  */
-extern DECODING_FUNC_ATTRS void __rxSnapshotBufferIncrementEndIndex(volatile RxSnapshotBuffer *o);
+//extern DECODING_FUNC_ATTRS void __rxSnapshotBufferIncrementEndIndex(volatile RxSnapshotBuffer *o);
 
-DECODING_FUNC_ATTRS void __rxSnapshotBufferIncrementEndIndex(volatile RxSnapshotBuffer *o) {
+static DECODING_FUNC_ATTRS void __rxSnapshotBufferIncrementEndIndex(volatile RxSnapshotBuffer *o) {
 
     if (o->endIndex >= (RX_NUMBER_SNAPSHOTS - 1)) {
         o->endIndex = 0;
@@ -168,12 +168,12 @@ DECODING_FUNC_ATTRS void __rxSnapshotBufferIncrementEndIndex(volatile RxSnapshot
  * @param b subtrahend
  * @param result the positive difference in between the minuend and subtrahend
  */
-extern DECODING_FUNC_ATTRS void __calculateTimestampLag(volatile uint16_t *a, volatile uint16_t *b,
-                                                        volatile uint16_t *result);
+//extern DECODING_FUNC_ATTRS void __calculateTimestampLag(volatile uint16_t *a, volatile uint16_t *b,
+//                                                        volatile uint16_t *result);
 
-DECODING_FUNC_ATTRS void __calculateTimestampLag(volatile uint16_t *previousSnapshotValue,
-                                                 volatile uint16_t *currentSnapshotValue,
-                                                 volatile uint16_t *result) {
+static DECODING_FUNC_ATTRS void __calculateTimestampLag(volatile uint16_t *previousSnapshotValue,
+                                                        volatile uint16_t *currentSnapshotValue,
+                                                        volatile uint16_t *result) {
     if ((*currentSnapshotValue) >= (*previousSnapshotValue)) {
         *result = *currentSnapshotValue - *previousSnapshotValue;
     } else { // if capture timer counter has overflowed
@@ -219,9 +219,9 @@ DECODING_FUNC_ATTRS void captureSnapshot(uint16_t *timerCounterValue, const bool
  * to the ParticleAttributes.communication.timerAdjustment fields.
  * @param rxPort the reception port to approximate timings from
  */
-extern DECODING_FUNC_ATTRS void __approximateNewTxClockSpeed(volatile RxPort *rxPort);
+//extern DECODING_FUNC_ATTRS void __approximateNewTxClockSpeed(volatile RxPort *rxPort);
 
-DECODING_FUNC_ATTRS void __approximateNewTxClockSpeed(volatile RxPort *rxPort) {
+static DECODING_FUNC_ATTRS void __approximateNewTxClockSpeed(volatile RxPort *rxPort) {
 
     ParticleAttributes.communication.timerAdjustment.isTransmissionClockDelayUpdateable = false;
     __calculateTimestampLag(&rxPort->buffer.receptionStartTimestamp,
@@ -240,9 +240,9 @@ DECODING_FUNC_ATTRS void __approximateNewTxClockSpeed(volatile RxPort *rxPort) {
  * Calculates the a new transmission clock shift/window according to the specified timings.
  * @param snapshotValue the first snapshot of a transmission
  */
-extern DECODING_FUNC_ATTRS void __approximateNewTxClockShift(volatile uint16_t *snapshotValue);
+//extern DECODING_FUNC_ATTRS void __approximateNewTxClockShift(volatile uint16_t *snapshotValue);
 
-DECODING_FUNC_ATTRS void __approximateNewTxClockShift(volatile uint16_t *snapshotValue) {
+static DECODING_FUNC_ATTRS void __approximateNewTxClockShift(volatile uint16_t *snapshotValue) {
     ParticleAttributes.communication.timerAdjustment.isTransmissionClockShiftUpdateable = false;
     ParticleAttributes.communication.timerAdjustment.newTransmissionClockShift =
             (*snapshotValue % ParticleAttributes.communication.timerAdjustment.transmissionClockDelay) / 2;

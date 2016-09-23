@@ -18,9 +18,9 @@
  * Prepares affected wires and enables the actuation interrupt (PWM),
  * otherwise, on maximum power output, configures the corresponding wires.
  */
-extern FUNC_ATTRS void __startActuation(void);
+//extern FUNC_ATTRS void __startActuation(void);
 
-FUNC_ATTRS void __startActuation(void) {
+static FUNC_ATTRS void __startActuation(void) {
 
     // active actuation - north left
     if (ParticleAttributes.actuationCommand.actuators.northLeft) {
@@ -83,18 +83,18 @@ FUNC_ATTRS void __startActuation(void) {
 /**
  * disables the actuation interrupt
  */
-extern FUNC_ATTRS void __stopActuationPWM(void);
+//extern FUNC_ATTRS void __stopActuationPWM(void);
 
-FUNC_ATTRS void __stopActuationPWM(void) {
+static FUNC_ATTRS void __stopActuationPWM(void) {
     ACTUATOR_INTERRUPT_DISABLE;
 }
 
 /**
  * return wires of affected ports to their default working states (reception state)
  */
-extern FUNC_ATTRS void __setDefaultWiresStates(void);
+//extern FUNC_ATTRS void __setDefaultWiresStates(void);
 
-FUNC_ATTRS void __setDefaultWiresStates(void) {
+static FUNC_ATTRS void __setDefaultWiresStates(void) {
 
     if (ParticleAttributes.actuationCommand.actuators.northLeft) {
         NORTH_TX_LO;
@@ -119,9 +119,9 @@ FUNC_ATTRS void __setDefaultWiresStates(void) {
 /**
  * truncates snapshot buffers of affected ports
  */
-extern FUNC_ATTRS void __truncateReceptionBuffers(void);
+//extern FUNC_ATTRS void __truncateReceptionBuffers(void);
 
-FUNC_ATTRS void __truncateReceptionBuffers(void) {
+static FUNC_ATTRS void __truncateReceptionBuffers(void) {
 
     if (ParticleAttributes.actuationCommand.actuators.northRight) {
         constructRxSnapshotBuffer(&ParticleAttributes.directionOrientedPorts.north.rxPort->snapshotsBuffer);
@@ -137,9 +137,9 @@ FUNC_ATTRS void __truncateReceptionBuffers(void) {
 /**
  * clears pending interrupts and enables reception interrupts of affected ports
  */
-extern FUNC_ATTRS void __enableReceptionInterrupts(void);
+//extern FUNC_ATTRS void __enableReceptionInterrupts(void);
 
-FUNC_ATTRS void __enableReceptionInterrupts(void) {
+static FUNC_ATTRS void __enableReceptionInterrupts(void) {
 
     if (ParticleAttributes.actuationCommand.actuators.northRight) {
         RX_NORTH_INTERRUPT_CLEAR_PENDING;
@@ -158,9 +158,9 @@ FUNC_ATTRS void __enableReceptionInterrupts(void) {
 /**
  * handles actuation command states
  */
-extern FUNC_ATTRS void handleExecuteActuation(void (actuationDoneCallback)(void));
+//extern FUNC_ATTRS void handleExecuteActuation(void (actuationDoneCallback)(void));
 
-FUNC_ATTRS void handleExecuteActuation(void (actuationDoneCallback)(void)) {
+static FUNC_ATTRS void handleExecuteActuation(void (actuationDoneCallback)(void)) {
     volatile ActuationCommand *actuationCommand = &ParticleAttributes.actuationCommand;
     switch (actuationCommand->executionState) {
         case ACTUATION_STATE_TYPE_IDLE:

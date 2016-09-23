@@ -240,3 +240,11 @@ FUNC_ATTRS void sendHeaderPackage(HeaderPackage *package) {
     // interpret the package
     executeHeaderPackage(package);
 }
+
+
+extern FUNC_ATTRS void sendSyncPackage(void);
+
+FUNC_ATTRS void sendSyncPackage(void) {
+    ParticleAttributes.node.state = STATE_TYPE_SYNC_NEIGHBOUR;
+    setInitiatorStateStart(ParticleAttributes.directionOrientedPorts.simultaneous.protocol);
+}

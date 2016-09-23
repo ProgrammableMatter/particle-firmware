@@ -11,19 +11,19 @@
 #include "uc-core/configuration/Periphery.h"
 #include "uc-core/configuration/interrupts/ReceptionPCI.h"
 
-extern FUNC_ATTRS void __disableInterruptsForBlockingBlinking(void);
+//extern FUNC_ATTRS void __disableInterruptsForBlockingBlinking(void);
 
-FUNC_ATTRS void __disableInterruptsForBlockingBlinking(void) {
+static FUNC_ATTRS void __disableInterruptsForBlockingBlinking(void) {
     RX_NORTH_INTERRUPT_DISABLE;
     RX_EAST_INTERRUPT_DISABLE;
     RX_SOUTH_INTERRUPT_DISABLE;
 }
 
-extern FUNC_ATTRS void __blinkAddressBlocking(void);
+//extern FUNC_ATTRS void __blinkAddressBlocking(void);
 /**
  * Blinks row times, column times followed by a quitting flash signal.
  */
-FUNC_ATTRS void __blinkAddressBlocking(void) {
+static FUNC_ATTRS void __blinkAddressBlocking(void) {
     LED_STATUS1_OFF;
     DELAY_MS_500;
     for (int8_t row = 0; row < ParticleAttributes.node.address.row; row++) {

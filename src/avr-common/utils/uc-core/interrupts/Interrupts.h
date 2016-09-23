@@ -15,6 +15,7 @@
 #include "uc-core/communication/ManchesterCoding.h"
 #include "uc-core/communication/ManchesterDecoding.h"
 #include "uc-core/time/Time.h"
+#include "uc-core/particle/Commands.h"
 
 #ifdef SIMULATION
 
@@ -28,11 +29,11 @@
  * @param port the designated port
  * @param isRxHigh the logic signal level
  */
-extern FUNC_ATTRS void __handleInputInterrupt(volatile DirectionOrientedPort *port,
-                                              const bool isRxHigh);
+//static extern FUNC_ATTRS void __handleInputInterrupt(volatile DirectionOrientedPort *port,
+//                                             const bool isRxHigh);
 
-FUNC_ATTRS void __handleInputInterrupt(volatile DirectionOrientedPort *port,
-                                       const bool isRxHigh) {
+FUNC_ATTRS static void __handleInputInterrupt(volatile DirectionOrientedPort *port,
+                                              const bool isRxHigh) {
     uint16_t timerCounterValue = TIMER_TX_RX_COUNTER_VALUE;
     switch (ParticleAttributes.node.state) {
         case STATE_TYPE_NEIGHBOURS_DISCOVERY:
@@ -52,9 +53,9 @@ FUNC_ATTRS void __handleInputInterrupt(volatile DirectionOrientedPort *port,
 /**
  * Schedules the next transmission interrupt if transmission data is buffered.
  */
-extern FUNC_ATTRS void scheduleNextTransmission(void);
+// extern FUNC_ATTRS void __scheduleNextTransmission(void);
 
-FUNC_ATTRS void scheduleNextTransmission(void) {
+static FUNC_ATTRS void __scheduleNextTransmission(void) {
     if (ParticleAttributes.communication.ports.tx.north.isTransmitting ||
         ParticleAttributes.communication.ports.tx.east.isTransmitting ||
         ParticleAttributes.communication.ports.tx.south.isTransmitting) {
@@ -69,7 +70,8 @@ FUNC_ATTRS void scheduleNextTransmission(void) {
  * simulator int. #19
  */
 ISR(NORTH_PIN_CHANGE_INTERRUPT_VECT) {
-    TEST_POINT1_TOGGLE;
+//    TEST_POINT1_TOGGLE;
+//    LED_STATUS1_TOGGLE;
     // DEBUG_INT16_OUT(TIMER_TX_RX_COUNTER_VALUE);
     if (ParticleAttributes.protocol.isBroadcastEnabled) {
         if (NORTH_RX_IS_HI) {
@@ -87,7 +89,8 @@ ISR(NORTH_PIN_CHANGE_INTERRUPT_VECT) {
  * simulator int. #3
  */
 ISR(EAST_PIN_CHANGE_INTERRUPT_VECT) {
-    TEST_POINT1_TOGGLE;
+//    TEST_POINT1_TOGGLE;
+//    LED_STATUS2_TOGGLE;
 //    if (!EAST_RX_IS_HI)
 //        TEST_POINT1_TOGGLE;
     __handleInputInterrupt(&ParticleAttributes.directionOrientedPorts.east,
@@ -99,7 +102,8 @@ ISR(EAST_PIN_CHANGE_INTERRUPT_VECT) {
  * simulator int. #2
  */
 ISR(SOUTH_PIN_CHANGE_INTERRUPT_VECT) {
-    TEST_POINT1_TOGGLE;
+//    TEST_POINT1_TOGGLE;
+//    LED_STATUS3_TOGGLE;
     __handleInputInterrupt(&ParticleAttributes.directionOrientedPorts.south,
                            SOUTH_RX_IS_HI);
 }
@@ -132,7 +136,7 @@ ISR(TX_TIMER_INTERRUPT_VECT) {
                 transmit(&ParticleAttributes.directionOrientedPorts.east);
                 transmit(&ParticleAttributes.directionOrientedPorts.south);
             }
-            scheduleNextTransmission();
+            __scheduleNextTransmission();
             break;
     }
 }
@@ -145,6 +149,16 @@ ISR(LOCAL_TIME_INTERRUPT_VECT) {
     TEST_POINT1_TOGGLE;
     ParticleAttributes.localTime.numTimePeriodsPassed++;
     SCHEDULE_NEXT_LOCAL_TIME_INTERRUPT;
+
+// evaluation code: sync network in broadcast mode: seems unstable
+// after some hops, receiver reports parity bit error
+//    if ((ParticleAttributes.localTime.numTimePeriodsPassed != 0) &&
+//        (ParticleAttributes.localTime.numTimePeriodsPassed % 2048) == 0) {
+//        if (ParticleAttributes.node.type == NODE_TYPE_ORIGIN) {
+//            sendSyncPackage();
+//            LED_STATUS1_TOGGLE;
+//        }
+//    }
 }
 
 /**
