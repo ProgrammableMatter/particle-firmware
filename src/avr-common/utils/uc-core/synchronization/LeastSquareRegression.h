@@ -12,7 +12,7 @@ typedef uint16_t MeasurementValueType;
 typedef float CalculationType;
 typedef float DeviationType;
 
-typedef struct Measurement {
+typedef struct {
     MeasurementValueType xValues[10];
     MeasurementValueType durations[10];
     uint8_t numValues;

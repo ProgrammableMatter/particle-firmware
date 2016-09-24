@@ -23,7 +23,7 @@ typedef float DeviationType;
  * Simple first-in first-out buffer for 1-dimensional samples (y-values).
  * X-values the samples' index.
  */
-typedef struct SamplesFifoBuffer {
+typedef struct {
     /**
      * samples buffer
      */
@@ -59,6 +59,6 @@ typedef struct SamplesFifoBuffer {
 } SamplesFifoBuffer;
 
 
-typedef struct TimeSynchronization {
+typedef struct {
     SamplesFifoBuffer timeIntervalSamples;
 } TimeSynchronization;

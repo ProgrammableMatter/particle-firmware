@@ -8,7 +8,7 @@
 
 #include <stdint.h>
 
-typedef enum AddressBlinkStates {
+typedef enum {
     ADDRESS_BLINK_STATES_START,
     ADDRESS_BLINK_STATES_BLINK_ROW,
     ADDRESS_BLINK_STATES_ROW_ON,
@@ -22,7 +22,7 @@ typedef enum AddressBlinkStates {
     ADDRESS_BLINK_STATES_END,
 } AddressBlinkStates;
 
-typedef struct BlinkAddress {
+typedef struct {
     uint8_t blinkRowCounter;
     uint8_t blinkColumnCounter;
     uint8_t blinkAddressBlinkDelay;
@@ -30,12 +30,12 @@ typedef struct BlinkAddress {
     AddressBlinkStates blinkAddressState;
 } BlinkAddress;
 
-typedef enum TimeIntervalBlinkStates {
+typedef enum {
     TIME_INTERVAL_BLINK_STATES_LED_ON,
     TIME_INTERVAL_BLINK_STATES_LED_OFF,
 } TimeIntervalBlinkStates;
 
-typedef struct BlinkTimeInterval {
+typedef struct {
     uint8_t localTimeMultiplier;
     uint16_t lastExecutionTime;
     TimeIntervalBlinkStates blinkState;
@@ -44,7 +44,7 @@ typedef struct BlinkTimeInterval {
 /**
  * Counters/resources needed for non vital platform's periphery such as LEDs, test points and alike.
  */
-typedef struct Periphery {
+typedef struct {
     // particle main loop counter
     uint16_t loopCount;
     BlinkAddress blinkAddress;

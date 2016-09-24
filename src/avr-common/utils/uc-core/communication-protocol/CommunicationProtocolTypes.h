@@ -12,7 +12,7 @@
  * Describes communication states of the initiator. The initiator is the particle which
  * started the communication.
  */
-typedef enum CommunicationInitiatorStateTypes {
+typedef enum {
     COMMUNICATION_INITIATOR_STATE_TYPE_IDLE,
     COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT,
     COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT_WAIT_FOR_TX_FINISHED,
@@ -25,7 +25,7 @@ typedef enum CommunicationInitiatorStateTypes {
  * Describes communication states of the receptionist. The receptionist is the particle
  * which reacts on a received package.
  */
-typedef enum CommunicationReceptionistStateTypes {
+typedef enum {
     COMMUNICATION_RECEPTIONIST_STATE_TYPE_IDLE,
     COMMUNICATION_RECEPTIONIST_STATE_TYPE_RECEIVE,
     COMMUNICATION_RECEPTIONIST_STATE_TYPE_TRANSMIT_ACK,
@@ -36,7 +36,7 @@ typedef enum CommunicationReceptionistStateTypes {
 /**
  * Describes the communication port state.
  */
-typedef struct CommunicationProtocolPortState {
+typedef struct {
     CommunicationInitiatorStateTypes initiatorState;
     CommunicationReceptionistStateTypes receptionistState;
     /**
@@ -53,7 +53,7 @@ typedef struct CommunicationProtocolPortState {
 /**
  * Communication protocol ports bundle.
  */
-typedef struct CommunicationProtocolPorts {
+typedef struct {
     CommunicationProtocolPortState north;
     CommunicationProtocolPortState east;
     CommunicationProtocolPortState south;
@@ -62,7 +62,7 @@ typedef struct CommunicationProtocolPorts {
 /**
  * Describes the network geometry; valid row/col values are (> 0) && (<= UINT8_MAX).
  */
-typedef struct NetworkGeometry {
+typedef struct {
     uint8_t rows;
     uint8_t columns;
 } NetworkGeometry;
@@ -70,7 +70,7 @@ typedef struct NetworkGeometry {
 /**
  * The communication protocol structure.
  */
-typedef struct CommunicationProtocol {
+typedef struct {
     CommunicationProtocolPorts ports;
     NetworkGeometry networkGeometry;
     uint8_t hasNetworkGeometryDiscoveryBreadCrumb : 1;

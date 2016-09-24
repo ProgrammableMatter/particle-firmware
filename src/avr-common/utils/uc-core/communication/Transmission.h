@@ -39,7 +39,7 @@ FUNC_ATTRS void scheduleStartTxInterrupt(void) {
 /**
  * Activates the designated port to contribute to the next transmission until
  * there is no more data to transmit.
- * @param port the designated transmissoin port to read the buffer and transmit from
+ * @param port the designated transmission port to read the buffer and transmit from
  */
 extern FUNC_ATTRS void enableTransmission(TxPort *port);
 

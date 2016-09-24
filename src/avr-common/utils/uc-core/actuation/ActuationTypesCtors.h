@@ -43,9 +43,9 @@ FUNC_ATTRS void constructLocalTime(LocalTime *o) {
  * constructor function
  * @param o reference to the object to construct
  */
-extern CTOR_ATTRS void constructActuationCommand(struct ActuationCommand *o);
+extern CTOR_ATTRS void constructActuationCommand(ActuationCommand *o);
 
-CTOR_ATTRS void constructActuationCommand(struct ActuationCommand *o) {
+CTOR_ATTRS void constructActuationCommand(ActuationCommand *o) {
     constructActuators(&o->actuators);
     constructHeatingMode(&o->actuationPower);
     constructLocalTime(&o->actuationStart);

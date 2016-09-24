@@ -13,7 +13,7 @@
 /**
  * Describes a bit within a 4 byte buffer.
  */
-typedef struct BufferBitPointer {
+typedef struct {
     uint8_t byteNumber : 4; // the referenced byte index
     uint8_t __pad: 4;
     uint8_t bitMask; // the referenced bit in the byte
@@ -24,7 +24,7 @@ typedef struct BufferBitPointer {
  * The struct is used for transmission. Received bits are stored in the buffer
  * after being decoded.
  */
-typedef struct PortBuffer {
+typedef struct {
     uint8_t bytes[TX_RX_NUMBER_BUFFER_BYTES]; // reception buffer
     BufferBitPointer pointer; // points to the next free position
     /**
@@ -40,7 +40,7 @@ typedef struct PortBuffer {
 /**
  * Transmission port structure.
  */
-typedef struct TxPort {
+typedef struct {
     volatile PortBuffer buffer;
     volatile BufferBitPointer dataEndPos; // data in between buffer start and dataEndPos is to be transmitted
     volatile uint8_t isTransmitting : 1; // true during transmission, else false
@@ -52,7 +52,7 @@ typedef struct TxPort {
 /**
  * Transmission ports bundle.
  */
-typedef struct TxPorts {
+typedef struct {
     TxPort north;
     TxPort east;
     TxPort south;
@@ -61,7 +61,7 @@ typedef struct TxPorts {
 /**
  * Reception port structure.
  */
-typedef struct RxPort {
+typedef struct {
     // each pin interrupt stores snapshots and the flank direction into the buffer
     RxSnapshotBuffer snapshotsBuffer;
     PortBuffer buffer;
@@ -74,7 +74,7 @@ typedef struct RxPort {
 /**
  * Transmission timing related fields that allows runtime changes.
  */
-typedef struct TransmissionTimerAdjustment {
+typedef struct {
 
     /**
      * snapshot differences below this threshold are treated as short interval occurrences
@@ -133,7 +133,7 @@ typedef struct TransmissionTimerAdjustment {
 /**
  * Reception ports bundle.
  */
-typedef struct RxPorts {
+typedef struct {
     RxPort north;
     RxPort east;
     RxPort south;
@@ -142,7 +142,7 @@ typedef struct RxPorts {
 /**
  * Communication ports bundle.
  */
-typedef struct CommunicationPorts {
+typedef struct {
     TxPorts tx;
     RxPorts rx;
 } CommunicationPorts;
@@ -150,7 +150,7 @@ typedef struct CommunicationPorts {
 /**
  * Communication structure.
  */
-typedef struct Communication {
+typedef struct {
     TransmissionTimerAdjustment timerAdjustment;
     CommunicationPorts ports;
 } Communication;

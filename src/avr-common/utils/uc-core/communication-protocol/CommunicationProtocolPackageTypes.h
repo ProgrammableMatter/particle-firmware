@@ -22,7 +22,7 @@
  * Describes possible header IDs. Note the enum values must not exceed uint8_t max.
  */
 
-typedef enum PackageHeaderId {
+typedef enum {
     PACKAGE_HEADER_ID_HEADER = 1,
     __PACKAGE_HEADER_ID_TYPE_SYNC_NETWORK_TIME = 2,
     __PACKAGE_HEADER_ID_TYPE_RELAY_HEADER = 2,
@@ -46,7 +46,7 @@ typedef enum PackageHeaderId {
 /**
  * describes a package header
  */
-typedef struct HeaderPackage {
+typedef struct {
     uint8_t startBit : 1;
     uint8_t id : 4;
     uint8_t isRangeCommand: 1;
@@ -92,7 +92,7 @@ typedef HeaderPackage ResetPackage;
 /**
  * describes an acknowledge package with subsequent address
  */
-typedef struct AckWithAddressPackage {
+typedef struct {
     HeaderPackage header;
     uint8_t addressRow : 8;
     uint8_t addressColumn : 8;
@@ -106,7 +106,7 @@ typedef struct AckWithAddressPackage {
 /**
  * describes an announce network geometry package
  */
-typedef struct AnnounceNetworkGeometryPackage {
+typedef struct {
     HeaderPackage header;
     uint8_t rows : 8;
     uint8_t columns : 8;
@@ -120,7 +120,7 @@ typedef struct AnnounceNetworkGeometryPackage {
 /**
  * describes a set network geometry package
  */
-typedef struct SetNetworkGeometryPackage {
+typedef struct {
     HeaderPackage header;
     uint8_t rows : 8;
     uint8_t columns : 8;
@@ -134,7 +134,7 @@ typedef struct SetNetworkGeometryPackage {
 /**
  * describes an enumeration package
  */
-typedef struct EnumerationPackage {
+typedef struct {
     HeaderPackage header;
     uint8_t addressRow : 8;
     uint8_t addressColumn : 8;
@@ -152,7 +152,7 @@ typedef struct EnumerationPackage {
 /**
  * describes a synchronize time package
  */
-typedef struct TimePackage {
+typedef struct {
     HeaderPackage header;
     uint16_t time;
     uint16_t packageTransmissionLatency;
@@ -168,7 +168,7 @@ typedef struct TimePackage {
 /**
  * describes a heat wires package
  */
-typedef struct HeatWiresPackage {
+typedef struct {
     HeaderPackage header;
     uint8_t addressRow : 8;
     uint8_t addressColumn: 8;
@@ -188,7 +188,7 @@ typedef struct HeatWiresPackage {
 /**
  * describes a heat wires range package
  */
-typedef struct HeatWiresRangePackage {
+typedef struct {
     HeaderPackage header;
     uint8_t addressRow0 : 8;
     uint8_t addressColumn0 : 8;
@@ -210,7 +210,7 @@ typedef struct HeatWiresRangePackage {
 /**
  * describes a heat wires mode package
  */
-typedef struct HeatWiresModePackage {
+typedef struct {
     HeaderPackage header;
     uint8_t heatMode : 2;
     uint8_t __pad: 6;
@@ -224,7 +224,7 @@ typedef struct HeatWiresModePackage {
 /**
  * Union for a convenient way to access buffered packages.
  */
-typedef union Package {
+typedef union {
     /**
      * package without payload
      */

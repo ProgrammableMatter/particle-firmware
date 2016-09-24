@@ -1,7 +1,7 @@
 /**
  * @author Raoul Rubien 16.09.2016
  *
- * Dicovery pin change interrupt configuration.
+ * Discovery pin change interrupt configuration.
  */
 
 #pragma once

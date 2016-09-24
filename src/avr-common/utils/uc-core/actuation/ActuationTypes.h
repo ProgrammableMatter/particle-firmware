@@ -9,7 +9,7 @@
 /**
  * Describes all possible output modes.
  */
-typedef enum HeatingLevelType {
+typedef enum {
     HEATING_LEVEL_TYPE_MAXIMUM = 0x0,
     HEATING_LEVEL_TYPE_STRONG = 0x1,
     HEATING_LEVEL_TYPE_MEDIUM = 0x2,
@@ -19,7 +19,7 @@ typedef enum HeatingLevelType {
 /**
  * Describes the actuation command execution state.
  */
-typedef enum ActuationStateType {
+typedef enum {
     ACTUATION_STATE_TYPE_IDLE,
     ACTUATION_STATE_TYPE_START,
     ACTUATION_STATE_TYPE_WORKING,
@@ -33,7 +33,7 @@ typedef enum ActuationStateType {
  * according to the power configuration.
  * Only north wires are driven by IDR, thus volatile.
  */
-typedef struct Actuators {
+typedef struct {
     /**
      * north left wire
      */
@@ -65,7 +65,7 @@ typedef struct Actuators {
 /**
  * Describes the heating mode/output power.
  */
-typedef struct HeatingMode {
+typedef struct {
     uint8_t dutyCycleLevel : 2;
     uint8_t __pad : 6;
 } HeatingMode;
@@ -73,14 +73,14 @@ typedef struct HeatingMode {
 /**
  * describes a local time stamp
  */
-typedef struct LocalTime {
+typedef struct {
     uint16_t periodTimeStamp;
 } LocalTime;
 
 /**
  * Describes an actuation command.
  */
-typedef struct ActuationCommand {
+typedef struct {
     /**
      * actuator flags
      */
