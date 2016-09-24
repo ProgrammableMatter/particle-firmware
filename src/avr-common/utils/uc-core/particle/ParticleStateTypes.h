@@ -171,7 +171,7 @@ typedef struct {
 ///**
 // * keeps adjustment attributes for the internal 16bit timer/counter
 // */
-//typedef struct TimerCounterAdjustment {
+//typedef struct {
 //    // todo: unused field localTime
 //    // uint16_t localTime;
 //    // todo: unused field remoteTime
@@ -270,7 +270,7 @@ typedef struct {
     ActuationCommand actuationCommand;
 
     /**
-     * clock sekw adjustment
+     * clock skew adjustment
      */
     TimeSynchronization timeSynchronization;
     /**

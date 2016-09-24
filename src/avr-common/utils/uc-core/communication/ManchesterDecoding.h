@@ -53,7 +53,7 @@
 
 /**
  * Updated the cycle counter by a short interval.
- * @param numberHalfCyclesPassed the cyle field to update
+ * @param numberHalfCyclesPassed the cycle field to update
  */
 #define __cycleCounterAdvanceShortInterval(numberHalfCyclesPassed) \
     (numberHalfCyclesPassed += 1)
