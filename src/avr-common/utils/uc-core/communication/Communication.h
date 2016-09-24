@@ -14,7 +14,7 @@
  * Increments the bit mask and the byte number accordingly.
  * @param o the buffer bit pointer reference
  */
-FUNC_ATTRS void bufferBitPointerIncrement(volatile BufferBitPointer *const o) {
+void bufferBitPointerIncrement(volatile BufferBitPointer *const o) {
     o->bitMask <<= 1;
     if ((o->bitMask == 0) && (o->byteNumber < (sizeof(((PortBuffer *) 0)->bytes)))) {
         o->bitMask = 1;

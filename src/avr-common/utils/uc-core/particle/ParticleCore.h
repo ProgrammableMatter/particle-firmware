@@ -32,14 +32,14 @@
 /**
  * Disables discovery sensing interrupts.
  */
-static FUNC_ATTRS void __disableDiscoverySensing(void) {
+static void __disableDiscoverySensing(void) {
     DISCOVERY_INTERRUPTS_DISABLE;
 }
 
 /**
  * Enables discovery sensing interrupts.
  */
-static FUNC_ATTRS void __enableDiscoverySensing(void) {
+static void __enableDiscoverySensing(void) {
 //    DISCOVERY_INTERRUPTS_SETUP;
 //    MEMORY_BARRIER;
     DISCOVERY_INTERRUPTS_ENABLE;
@@ -50,7 +50,7 @@ static FUNC_ATTRS void __enableDiscoverySensing(void) {
  */
 //extern FUNC_ATTRS void __disableDiscoveryPulsing(void);
 
-static FUNC_ATTRS void __disableDiscoveryPulsing(void) {
+static void __disableDiscoveryPulsing(void) {
     TIMER_NEIGHBOUR_SENSE_PAUSE;
     TIMER_NEIGHBOUR_SENSE_DISABLE;
     NORTH_TX_LO;
@@ -61,7 +61,7 @@ static FUNC_ATTRS void __disableDiscoveryPulsing(void) {
 /**
  * Enables discovery sensing.
  */
-static FUNC_ATTRS void __enableDiscoveryPulsing(void) {
+static void __enableDiscoveryPulsing(void) {
     TIMER_NEIGHBOUR_SENSE_ENABLE;
     MEMORY_BARRIER;
     TIMER_NEIGHBOUR_SENSE_RESUME;
@@ -70,7 +70,7 @@ static FUNC_ATTRS void __enableDiscoveryPulsing(void) {
 /**
  * Sets up ports and interrupts but does not enable the global interrupt (I-flag in SREG).
  */
-static FUNC_ATTRS void __initParticle(void) {
+static void __initParticle(void) {
     LED_STATUS1_OFF;
     LED_STATUS2_OFF;
     LED_STATUS3_OFF;
@@ -103,7 +103,7 @@ static FUNC_ATTRS void __initParticle(void) {
 /**
  * Disables all reception interrupts.
  */
-static FUNC_ATTRS void __disableReceptionPinChangeInterrupts(void) {
+static void __disableReceptionPinChangeInterrupts(void) {
     DEBUG_CHAR_OUT('O');
     RX_NORTH_INTERRUPT_DISABLE;
     DEBUG_CHAR_OUT('Q');
@@ -115,7 +115,7 @@ static FUNC_ATTRS void __disableReceptionPinChangeInterrupts(void) {
 /**
  * Clears pending and enables reception interrupts for north port if connected.
  */
-static FUNC_ATTRS void __enableReceptionHardwareNorth(void) {
+static void __enableReceptionHardwareNorth(void) {
     if (ParticleAttributes.discoveryPulseCounters.north.isConnected) {
         DEBUG_CHAR_OUT('o');
         RX_NORTH_INTERRUPT_CLEAR_PENDING;
@@ -127,7 +127,7 @@ static FUNC_ATTRS void __enableReceptionHardwareNorth(void) {
 /**
  * Clears pending and enables reception interrupts for east port if connected.
  */
-static FUNC_ATTRS void __enableReceptionHardwareEast(void) {
+static void __enableReceptionHardwareEast(void) {
     if (ParticleAttributes.discoveryPulseCounters.east.isConnected) {
         DEBUG_CHAR_OUT('q');
         RX_EAST_INTERRUPT_CLEAR_PENDING;
@@ -139,7 +139,7 @@ static FUNC_ATTRS void __enableReceptionHardwareEast(void) {
 /**
  * Clears pending and enables reception interrupts for south port if connected.
  */
-static FUNC_ATTRS void __enableReceptionHardwareSouth(void) {
+static void __enableReceptionHardwareSouth(void) {
     if (ParticleAttributes.discoveryPulseCounters.south.isConnected) {
         DEBUG_CHAR_OUT('m');
         RX_SOUTH_INTERRUPT_CLEAR_PENDING;
@@ -151,7 +151,7 @@ static FUNC_ATTRS void __enableReceptionHardwareSouth(void) {
 /**
  * Sets up and enables the tx/rx timer.
  */
-static FUNC_ATTRS void __enableTxRxTimer(void) {
+static void __enableTxRxTimer(void) {
     TIMER_TX_RX_COUNTER_SETUP;
     MEMORY_BARRIER;
     TIMER_TX_RX_COUNTER_ENABLE;
@@ -160,14 +160,14 @@ static FUNC_ATTRS void __enableTxRxTimer(void) {
 /**
  * Disables the signal generating transmission interrupt.
  */
-//static FUNC_ATTRS void __disableTransmission(void) {
+//static  void __disableTransmission(void) {
 //    TIMER_TX_RX_DISABLE_COMPARE_INTERRUPT;
 //}
 
 /**
  * Sets up and enables reception for all connected ports.
  */
-static FUNC_ATTRS void __enableReceptionHardwareForConnectedPorts(void) {
+static void __enableReceptionHardwareForConnectedPorts(void) {
 //    RX_INTERRUPTS_SETUP;
 //    MEMORY_BARRIER;
 //    RX_INTERRUPTS_ENABLE;
@@ -180,7 +180,7 @@ static FUNC_ATTRS void __enableReceptionHardwareForConnectedPorts(void) {
  * Disables reception interrupts.
  */
 
-FUNC_ATTRS void __disableReception(void) {
+void __disableReception(void) {
     __disableReceptionPinChangeInterrupts();
 }
 
@@ -188,7 +188,7 @@ FUNC_ATTRS void __disableReception(void) {
  * Enables reception timer and interrupts.
  */
 
-FUNC_ATTRS void __enableReception(void) {
+void __enableReception(void) {
     __enableTxRxTimer();
     __enableReceptionHardwareForConnectedPorts();
 }
@@ -210,7 +210,7 @@ FUNC_ATTRS void __enableReception(void) {
  * Increments the discovery loop counter.
  */
 
-static FUNC_ATTRS void __discoveryLoopCount(void) {
+static void __discoveryLoopCount(void) {
     if (ParticleAttributes.discoveryPulseCounters.loopCount < (UINT8_MAX)) {
         ParticleAttributes.discoveryPulseCounters.loopCount++;
     }
@@ -219,7 +219,7 @@ static FUNC_ATTRS void __discoveryLoopCount(void) {
 /**
  * Sets the correct address if this node is the origin node.
  */
-static FUNC_ATTRS void __updateOriginNodeAddress(void) {
+static void __updateOriginNodeAddress(void) {
     if (ParticleAttributes.node.type == NODE_TYPE_ORIGIN) {
         ParticleAttributes.node.address.row = 1;
         ParticleAttributes.node.address.column = 1;
@@ -229,7 +229,7 @@ static FUNC_ATTRS void __updateOriginNodeAddress(void) {
 /**
  * Handles (state driven) the wait for being enumerated node state.
  */
-static FUNC_ATTRS void __handleWaitForBeingEnumerated(void) {
+static void __handleWaitForBeingEnumerated(void) {
     CommunicationProtocolPortState *commPortState = &ParticleAttributes.protocol.ports.north;
     if (commPortState->stateTimeoutCounter == 0 &&
         commPortState->receptionistState != COMMUNICATION_RECEPTIONIST_STATE_TYPE_TRANSMIT_ACK &&
@@ -286,7 +286,7 @@ static FUNC_ATTRS void __handleWaitForBeingEnumerated(void) {
  * Handles (state driven) neighbour synchronization node states.
  * @param endState the state when handler has finished
  */
-static FUNC_ATTRS void __handleSynchronizeNeighbour(const StateType endState) {
+static void __handleSynchronizeNeighbour(const StateType endState) {
     CommunicationProtocolPortState *commPortState = ParticleAttributes.directionOrientedPorts.simultaneous.protocol;
     TxPort *txPort = ParticleAttributes.directionOrientedPorts.simultaneous.txPort;
     switch (commPortState->initiatorState) {
@@ -322,7 +322,7 @@ static FUNC_ATTRS void __handleSynchronizeNeighbour(const StateType endState) {
  * but if simulation/test macros are defined it redirects to other states accordingly.
  * @param endState the state after this call if no test macros defined
  */
-static FUNC_ATTRS void __handleSynchronizeNeighbourDoneOrRunTest(const StateType endState) {
+static void __handleSynchronizeNeighbourDoneOrRunTest(const StateType endState) {
 #if defined(SIMULATION_SET_NEW_NETWORK_GEOMETRY_TEST)
     if (ParticleAttributes.node.type == NODE_TYPE_ORIGIN) {
         ParticleAttributes.protocol.networkGeometry.rows = 2;
@@ -381,7 +381,7 @@ static FUNC_ATTRS void __handleSynchronizeNeighbourDoneOrRunTest(const StateType
  * Handles (state driven) relaying network geometry communication states.
  * @param endState the state when handler finished
  */
-static FUNC_ATTRS void __handleRelayAnnounceNetworkGeometry(const StateType endState) {
+static void __handleRelayAnnounceNetworkGeometry(const StateType endState) {
     CommunicationProtocolPortState *commPortState = &ParticleAttributes.protocol.ports.north;
     switch (commPortState->initiatorState) {
         case COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT:
@@ -413,7 +413,7 @@ static FUNC_ATTRS void __handleRelayAnnounceNetworkGeometry(const StateType endS
  * Handles (event driven) network geometry announcement states.
  * @param endState the state when handler finished
  */
-static FUNC_ATTRS void __handleSendAnnounceNetworkGeometry(const StateType endState) {
+static void __handleSendAnnounceNetworkGeometry(const StateType endState) {
     TxPort *txPort = &ParticleAttributes.communication.ports.tx.north;
     CommunicationProtocolPortState *commPortState = &ParticleAttributes.protocol.ports.north;
 
@@ -447,7 +447,7 @@ static FUNC_ATTRS void __handleSendAnnounceNetworkGeometry(const StateType endSt
 /**
  * Advance communication timeout counters.
  */
-static FUNC_ATTRS void __advanceCommunicationProtocolCounters(void) {
+static void __advanceCommunicationProtocolCounters(void) {
     if (!ParticleAttributes.communication.ports.tx.north.isTransmitting &&
         ParticleAttributes.protocol.ports.north.stateTimeoutCounter > 0) {
         ParticleAttributes.protocol.ports.north.stateTimeoutCounter--;
@@ -465,7 +465,7 @@ static FUNC_ATTRS void __advanceCommunicationProtocolCounters(void) {
 /**
  * Handles discovery states, classifies the local node type and switches to next state.
  */
-static FUNC_ATTRS void __handleNeighboursDiscovery(void) {
+static void __handleNeighboursDiscovery(void) {
     __discoveryLoopCount();
 
 
@@ -496,7 +496,7 @@ static FUNC_ATTRS void __handleNeighboursDiscovery(void) {
 /**
  * Handles the post discovery extended pulsing period with subsequent switch to next state.
  */
-static FUNC_ATTRS void __handleDiscoveryPulsing(void) {
+static void __handleDiscoveryPulsing(void) {
     if (ParticleAttributes.discoveryPulseCounters.loopCount >= MAX_NEIGHBOUR_PULSING_LOOPS) {
         __disableDiscoveryPulsing();
         ParticleAttributes.node.state = STATE_TYPE_DISCOVERY_PULSING_DONE;
@@ -508,7 +508,7 @@ static FUNC_ATTRS void __handleDiscoveryPulsing(void) {
 /**
  * Handle the discovery to enumeration state switch.
  */
-static FUNC_ATTRS void __handleDiscoveryPulsingDone(void) {
+static void __handleDiscoveryPulsingDone(void) {
 
     if (ParticleAttributes.node.type == NODE_TYPE_ORIGIN) {
         ParticleAttributes.node.state = STATE_TYPE_ENUMERATING_NEIGHBOURS;
@@ -528,8 +528,8 @@ static FUNC_ATTRS void __handleDiscoveryPulsingDone(void) {
  * @param cols the new network geometry rows
  * @param endState the state when handler finished
  */
-static FUNC_ATTRS void __handleSetNetworkGeometry(const uint8_t rows, const uint8_t cols,
-                                                  const StateType endState) {
+static void __handleSetNetworkGeometry(const uint8_t rows, const uint8_t cols,
+                                       const StateType endState) {
     CommunicationProtocolPortState *commPortState = ParticleAttributes.directionOrientedPorts.simultaneous.protocol;
     TxPort *txPort = ParticleAttributes.directionOrientedPorts.simultaneous.txPort;
     switch (commPortState->initiatorState) {
@@ -563,7 +563,7 @@ static FUNC_ATTRS void __handleSetNetworkGeometry(const uint8_t rows, const uint
  * @param port the designated port
  * @param endState the end state when handler finished
  */
-static FUNC_ATTRS void __handleSendPackage(DirectionOrientedPort *const port, const StateType endState) {
+static void __handleSendPackage(DirectionOrientedPort *const port, const StateType endState) {
     CommunicationProtocolPortState *commPortState = port->protocol;
     switch (commPortState->initiatorState) {
         case COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT:
@@ -593,7 +593,7 @@ static FUNC_ATTRS void __handleSendPackage(DirectionOrientedPort *const port, co
 /**
  * Callback when actuation command has finished.
  */
-static FUNC_ATTRS void __onActuationDoneCallback(void) {
+static void __onActuationDoneCallback(void) {
     ParticleAttributes.node.state = STATE_TYPE_IDLE;
 }
 
@@ -601,7 +601,7 @@ static FUNC_ATTRS void __onActuationDoneCallback(void) {
  * Checks whether an actuation is to be executed. Switches state if an actuation
  * command is scheduled and the current local time indicates an actuation start.
  */
-static FUNC_ATTRS void __handleIsActuationCommandPeriod(void) {
+static void __handleIsActuationCommandPeriod(void) {
     if (ParticleAttributes.actuationCommand.isScheduled &&
         ParticleAttributes.actuationCommand.executionState == ACTUATION_STATE_TYPE_IDLE) {
         if (ParticleAttributes.actuationCommand.actuationStart.periodTimeStamp <=

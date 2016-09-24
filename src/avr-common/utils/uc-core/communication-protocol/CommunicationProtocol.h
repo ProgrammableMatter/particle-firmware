@@ -28,20 +28,15 @@
  * @param bufferDataEndPointer the pointer field
  * @param uint16tExpectedDataEndPointer the expected pointer field value
  */
-extern FUNC_ATTRS bool equalsPackageSize(const BufferBitPointer *const bufferDataEndPointer,
-                                         const uint16_t uint16tExpectedDataEndPointer);
-
-FUNC_ATTRS bool equalsPackageSize(const BufferBitPointer *const bufferDataEndPointer,
-                                  const uint16_t uint16tExpectedDataEndPointer) {
+bool equalsPackageSize(const BufferBitPointer *const bufferDataEndPointer,
+                       const uint16_t uint16tExpectedDataEndPointer) {
     return ((*((uint16_t *) (bufferDataEndPointer))) == uint16tExpectedDataEndPointer);
 }
 
 /**
  * invalidates all reception buffers
  */
-extern FUNC_ATTRS void clearReceptionBuffers(void);
-
-FUNC_ATTRS void clearReceptionBuffers(void) {
+void clearReceptionBuffers(void) {
     DEBUG_CHAR_OUT('c');
     ParticleAttributes.communication.ports.rx.north.isDataBuffered = false;
     ParticleAttributes.communication.ports.rx.north.isOverflowed = false;
@@ -55,9 +50,7 @@ FUNC_ATTRS void clearReceptionBuffers(void) {
  * Invalidates the given port's reception buffer.
  * @param o the port to invalidate the reception buffer
  */
-extern FUNC_ATTRS void clearReceptionPortBuffer(RxPort *const o);
-
-FUNC_ATTRS void clearReceptionPortBuffer(RxPort *const o) {
+void clearReceptionPortBuffer(RxPort *const o) {
     o->isDataBuffered = false;
     o->isOverflowed = false;
     DEBUG_CHAR_OUT('c');
@@ -67,9 +60,7 @@ FUNC_ATTRS void clearReceptionPortBuffer(RxPort *const o) {
  * Prepares the given transmission port for buffering and later transmission.
  * @param o the port to prepare
  */
-extern FUNC_ATTRS void clearTransmissionPortBuffer(TxPort *const o);
-
-FUNC_ATTRS void clearTransmissionPortBuffer(TxPort *const o) {
+void clearTransmissionPortBuffer(TxPort *const o) {
     o->isTransmitting = false;
     bufferBitPointerStart(&o->buffer.pointer);
 }
@@ -78,9 +69,7 @@ FUNC_ATTRS void clearTransmissionPortBuffer(TxPort *const o) {
  * Puts the receptionist in start state and sets the timeout counter.
  * @param commPortState a reference to the designated port state
  */
-extern FUNC_ATTRS void setReceptionistStateStart(CommunicationProtocolPortState *const commPortState);
-
-FUNC_ATTRS void setReceptionistStateStart(CommunicationProtocolPortState *const commPortState) {
+void setReceptionistStateStart(CommunicationProtocolPortState *const commPortState) {
     // ParticleAttributes.communicationProtocol.stateTimeoutCounter = COMMUNICATION_STATE_TIMEOUT_COUNTER;
     DEBUG_CHAR_OUT('r');
     commPortState->receptionistState = COMMUNICATION_RECEPTIONIST_STATE_TYPE_RECEIVE;
@@ -92,9 +81,7 @@ FUNC_ATTRS void setReceptionistStateStart(CommunicationProtocolPortState *const 
  * Puts the initiator in start state and set the timeout counter.
  * @param commPortState a reference to the designated port state
  */
-extern FUNC_ATTRS void setInitiatorStateStart(CommunicationProtocolPortState *const commPortState);
-
-FUNC_ATTRS void setInitiatorStateStart(CommunicationProtocolPortState *const commPortState) {
+void setInitiatorStateStart(CommunicationProtocolPortState *const commPortState) {
     DEBUG_CHAR_OUT('T');
     commPortState->initiatorState = COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT;
     commPortState->stateTimeoutCounter = COMMUNICATION_PROTOCOL_TIMEOUT_COUNTER_MAX;

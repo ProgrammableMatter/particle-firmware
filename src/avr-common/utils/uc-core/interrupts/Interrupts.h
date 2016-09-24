@@ -30,8 +30,8 @@
  * @param isRxHigh the logic signal level
  */
 
-static FUNC_ATTRS void __handleInputInterrupt(DirectionOrientedPort *const port,
-                                              const bool isRxHigh) {
+static void __handleInputInterrupt(DirectionOrientedPort *const port,
+                                   const bool isRxHigh) {
     uint16_t timerCounterValue = TIMER_TX_RX_COUNTER_VALUE;
     switch (ParticleAttributes.node.state) {
         case STATE_TYPE_NEIGHBOURS_DISCOVERY:
@@ -52,7 +52,7 @@ static FUNC_ATTRS void __handleInputInterrupt(DirectionOrientedPort *const port,
  * Schedules the next transmission interrupt if transmission data is buffered.
  */
 
-static FUNC_ATTRS void __scheduleNextTransmission(void) {
+static void __scheduleNextTransmission(void) {
     if (ParticleAttributes.communication.ports.tx.north.isTransmitting ||
         ParticleAttributes.communication.ports.tx.east.isTransmitting ||
         ParticleAttributes.communication.ports.tx.south.isTransmitting) {

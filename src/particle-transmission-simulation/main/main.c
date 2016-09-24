@@ -9,9 +9,7 @@
 /**
  * A mocked up particle loop. It puts the particle in an initialized reception state.
  */
-extern FUNC_ATTRS void processLoop(void);
-
-FUNC_ATTRS void processLoop(void) {
+void processLoop(void) {
     forever {
         process();
     }

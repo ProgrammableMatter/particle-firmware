@@ -8,13 +8,11 @@
 
 #include "Periphery.h"
 
-
-extern CTOR_ATTRS void constructBlinkAddress(BlinkAddress *const o);
 /**
 * constructor function
 * @param o the object to construct
 **/
-CTOR_ATTRS void constructBlinkAddress(BlinkAddress *const o) {
+void constructBlinkAddress(BlinkAddress *const o) {
     o->blinkColumnCounter = 0;
     o->blinkRowCounter = 0;
     o->blinkAddressBlinkDelay = 0;
@@ -22,12 +20,11 @@ CTOR_ATTRS void constructBlinkAddress(BlinkAddress *const o) {
     o->blinkAddressState = ADDRESS_BLINK_STATES_START;
 }
 
-extern CTOR_ATTRS void constructBlinkTimeInterval(BlinkTimeInterval *const o);
 /**
 * constructor function
 * @param o the object to construct
 **/
-CTOR_ATTRS void constructBlinkTimeInterval(BlinkTimeInterval *const o) {
+void constructBlinkTimeInterval(BlinkTimeInterval *const o) {
     o->lastExecutionTime = 0;
     o->localTimeMultiplier = TIME_INTERVAL_BLINK_STATES_PERIOD_MULTIPLIER;
     o->blinkState = TIME_INTERVAL_BLINK_STATES_LED_OFF;
@@ -37,9 +34,8 @@ CTOR_ATTRS void constructBlinkTimeInterval(BlinkTimeInterval *const o) {
 * constructor function
 * @param o the object to construct
 **/
-extern CTOR_ATTRS void constructPeriphery(Periphery *const o);
 
-CTOR_ATTRS void constructPeriphery(Periphery *const o) {
+void constructPeriphery(Periphery *const o) {
     o->loopCount = 0;
     constructBlinkAddress(&o->blinkAddress);
     constructBlinkTimeInterval(&o->blinkTimeInterval);

@@ -70,9 +70,7 @@
  * @param rxPort the port where to buffer the bit
  * @param isRisingEdge the signal edge
  */
-//extern DECODING_FUNC_ATTRS void __storeDataBit(RxPort *rxPort, const uint8_t isRisingEdge);
-
-static DECODING_FUNC_ATTRS void __storeDataBit(RxPort *const rxPort, const bool isRisingEdge) {
+static void __storeDataBit(RxPort *const rxPort, const bool isRisingEdge) {
     // save bit to buffer
     if (!isBufferEndPosition(&rxPort->buffer.pointer)) {
         if (isRisingEdge) {
@@ -96,12 +94,10 @@ static DECODING_FUNC_ATTRS void __storeDataBit(RxPort *const rxPort, const bool 
 #define __ifSimulationPrintSnapshotBufferSize(rxSnapshotBufferPtr) \
     __printSnapshotBufferSizeToSimulationRegister(rxSnapshotBufferPtr)
 
-extern inline void __printSnapshotBufferSizeToSimulationRegister(RxSnapshotBuffer *o);
-
 /**
  * for evaluation purpose
  */
-inline void __printSnapshotBufferSizeToSimulationRegister(RxSnapshotBuffer *o) {
+static void __printSnapshotBufferSizeToSimulationRegister(RxSnapshotBuffer *o) {
     if (o->endIndex >= o->startIndex) {
         DEBUG_INT16_OUT(o->endIndex - o->startIndex);
     } else {
@@ -117,9 +113,7 @@ inline void __printSnapshotBufferSizeToSimulationRegister(RxSnapshotBuffer *o) {
  * Increments the snapshots circular buffer start index.
  * @param o the snapshot buffer reference
  */
-//extern DECODING_FUNC_ATTRS void __rxSnapshotBufferIncrementStartIndex(RxSnapshotBuffer *o);
-
-static DECODING_FUNC_ATTRS void __rxSnapshotBufferIncrementStartIndex(RxSnapshotBuffer *const o) {
+static void __rxSnapshotBufferIncrementStartIndex(RxSnapshotBuffer *const o) {
     if (o->startIndex >= (RX_NUMBER_SNAPSHOTS - 1)) {
         o->startIndex = 0;
         return;
@@ -133,9 +127,7 @@ static DECODING_FUNC_ATTRS void __rxSnapshotBufferIncrementStartIndex(RxSnapshot
  * Increments the snapshots circular buffer end index.
  * @param o the snapshot buffer reference
  */
-//extern DECODING_FUNC_ATTRS void __rxSnapshotBufferIncrementEndIndex(RxSnapshotBuffer *o);
-
-static DECODING_FUNC_ATTRS void __rxSnapshotBufferIncrementEndIndex(RxSnapshotBuffer *const o) {
+static void __rxSnapshotBufferIncrementEndIndex(RxSnapshotBuffer *const o) {
 
     if (o->endIndex >= (RX_NUMBER_SNAPSHOTS - 1)) {
         o->endIndex = 0;
@@ -169,12 +161,9 @@ static DECODING_FUNC_ATTRS void __rxSnapshotBufferIncrementEndIndex(RxSnapshotBu
  * @param b subtrahend
  * @param result the positive difference in between the minuend and subtrahend
  */
-//extern DECODING_FUNC_ATTRS void __calculateTimestampLag(uint16_t *a, uint16_t *b,
-//                                                        uint16_t *result);
-
-static DECODING_FUNC_ATTRS void __calculateTimestampLag(const uint16_t *const previousSnapshotValue,
-                                                        const uint16_t *const currentSnapshotValue,
-                                                        uint16_t *const result) {
+static void __calculateTimestampLag(const uint16_t *const previousSnapshotValue,
+                                    const uint16_t *const currentSnapshotValue,
+                                    uint16_t *const result) {
     if ((*currentSnapshotValue) >= (*previousSnapshotValue)) {
         *result = *currentSnapshotValue - *previousSnapshotValue;
     } else { // if capture timer counter has overflowed
@@ -190,11 +179,8 @@ static DECODING_FUNC_ATTRS void __calculateTimestampLag(const uint16_t *const pr
  * @param snapshotsBuffer a reference to the buffer to store to
  *
  */
-extern DECODING_FUNC_ATTRS void captureSnapshot(uint16_t *const timerCounterValue, const bool isRisingEdge,
-                                                RxSnapshotBuffer *const snapshotBuffer);
-
-DECODING_FUNC_ATTRS void captureSnapshot(uint16_t *const timerCounterValue, const bool isRisingEdge,
-                                         RxSnapshotBuffer *const snapshotBuffer) {
+void captureSnapshot(uint16_t *const timerCounterValue, const bool isRisingEdge,
+                     RxSnapshotBuffer *const snapshotBuffer) {
 
     uint8_t nextEndIdx = 0;
     if (snapshotBuffer->endIndex >= (RX_NUMBER_SNAPSHOTS - 1)) {
@@ -243,9 +229,7 @@ DECODING_FUNC_ATTRS void captureSnapshot(uint16_t *const timerCounterValue, cons
 // * Calculates the a new transmission clock shift/window according to the specified timings.
 // * @param snapshotValue the first snapshot of a transmission
 // */
-////extern DECODING_FUNC_ATTRS void __approximateNewTxClockShift(uint16_t *snapshotValue);
-
-static DECODING_FUNC_ATTRS void __approximateNewTxClockShift(const uint16_t snapshotValue) {
+static void __approximateNewTxClockShift(const uint16_t snapshotValue) {
     ParticleAttributes.communication.timerAdjustment.isTransmissionClockShiftUpdateable = false;
     MEMORY_BARRIER;
     ParticleAttributes.communication.timerAdjustment.newTransmissionClockShift =
@@ -263,11 +247,8 @@ static DECODING_FUNC_ATTRS void __approximateNewTxClockShift(const uint16_t snap
  * @param port the port to decode from and buffer to
  * @param interpreterImpl a interpreter implementation reference
  */
-extern FUNC_ATTRS void manchesterDecodeBuffer(DirectionOrientedPort *const port,
-                                              void (*const interpreterImpl)(DirectionOrientedPort *));
-
-FUNC_ATTRS void manchesterDecodeBuffer(DirectionOrientedPort *const port,
-                                       void (*const interpreterImpl)(DirectionOrientedPort *)) {
+void manchesterDecodeBuffer(DirectionOrientedPort *const port,
+                            void (*const interpreterImpl)(DirectionOrientedPort *)) {
     RxPort *rxPort = port->rxPort;
     if (rxPort->isDataBuffered == true) {
         return;

@@ -12,9 +12,7 @@
  * Increments the port discovery counter, but Overflows at RX_DISCOVERY_PULSE_COUNTER_MAX.
  * @param portCounter reference to the designated port counter
  */
-extern FUNC_ATTRS void dispatchFallingDiscoveryEdge(DiscoveryPulseCounter *const portCounter);
-
-FUNC_ATTRS void dispatchFallingDiscoveryEdge(DiscoveryPulseCounter *const portCounter) {
+void dispatchFallingDiscoveryEdge(DiscoveryPulseCounter *const portCounter) {
     if (portCounter->counter < RX_DISCOVERY_PULSE_COUNTER_MAX) {
         portCounter->counter++;
 
@@ -53,9 +51,7 @@ FUNC_ATTRS void dispatchFallingDiscoveryEdge(DiscoveryPulseCounter *const portCo
  * The type {@link NodeType} is stored to the {@link ParticleAttributes.type} field.
  * @return true if the node is fully connected, false otherwise
  */
-extern FUNC_ATTRS bool updateAndDetermineNodeType(void);
-
-FUNC_ATTRS bool updateAndDetermineNodeType(void) {
+bool updateAndDetermineNodeType(void) {
     if (ParticleAttributes.discoveryPulseCounters.north.isConnected) { // N
         if (ParticleAttributes.discoveryPulseCounters.south.isConnected) { // N, S
             if (ParticleAttributes.discoveryPulseCounters.east.isConnected) { // N, S, E

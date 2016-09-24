@@ -36,9 +36,7 @@
  * enables the local time interrupt using current adjustment argument
  * {@link ParticleAttributes.localTime.timePeriodInterruptDelay}.
  */
-extern FUNC_ATTRS void enableLocalTimeInterrupt(void);
-
-FUNC_ATTRS void enableLocalTimeInterrupt(void) {
+void enableLocalTimeInterrupt(void) {
     LOCAL_TIME_INTERRUPT_COMPARE_VALUE = ParticleAttributes.localTime.timePeriodInterruptDelay;
     MEMORY_BARRIER;
     LOCAL_TIME_INTERRUPT_COMPARE_ENABLE;

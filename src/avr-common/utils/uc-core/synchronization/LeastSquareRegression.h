@@ -41,7 +41,6 @@ Measurement measurements =//__attribute__ ((section (".noinit"))) =
 typedef uint16_t CumulationType;
 
 
-
 /**
  * calculating Linear least squares fitting function for measured values
  * https://en.wikipedia.org/wiki/Linear_least_squares_(mathematics)#Orthogonal_decomposition_methods

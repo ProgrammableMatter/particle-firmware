@@ -12,9 +12,7 @@
 /**
  * North port reception implementation.
  */
-extern FUNC_ATTRS void receiveNorth(void);
-
-FUNC_ATTRS void receiveNorth(void) {
+void receiveNorth(void) {
     if (ParticleAttributes.discoveryPulseCounters.north.isConnected) {
         manchesterDecodeBuffer(&ParticleAttributes.directionOrientedPorts.north,
                                interpretRxBuffer);
@@ -24,9 +22,7 @@ FUNC_ATTRS void receiveNorth(void) {
 /**
  * East port reception implementation.
  */
-extern FUNC_ATTRS void receiveEast(void);
-
-FUNC_ATTRS void receiveEast(void) {
+void receiveEast(void) {
     if (ParticleAttributes.discoveryPulseCounters.east.isConnected) {
         manchesterDecodeBuffer(&ParticleAttributes.directionOrientedPorts.east,
                                interpretRxBuffer);
@@ -36,9 +32,7 @@ FUNC_ATTRS void receiveEast(void) {
 /**
  * South port reception implementation.
  */
-extern FUNC_ATTRS void receiveSouth(void);
-
-FUNC_ATTRS void receiveSouth(void) {
+void receiveSouth(void) {
     if (ParticleAttributes.discoveryPulseCounters.south.isConnected) {
         manchesterDecodeBuffer(&ParticleAttributes.directionOrientedPorts.south,
                                interpretRxBuffer);

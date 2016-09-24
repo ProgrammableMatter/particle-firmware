@@ -19,11 +19,8 @@
  * Reads the delivered time adds a correction offset and updates the local time.
  * @param package the package to interpret and execute
  */
-extern FUNC_ATTRS void executeSynchronizeLocalTimePackage(
-        const TimePackage *const package, const PortBuffer *const portBuffer);
-
-FUNC_ATTRS void executeSynchronizeLocalTimePackage(const TimePackage *const package,
-                                                   const PortBuffer *const portBuffer) {
+void executeSynchronizeLocalTimePackage(const TimePackage *const package,
+                                        const PortBuffer *const portBuffer) {
     //,  RxSnapshotBuffer *snapshotBuffer) {
     // DEBUG_INT16_OUT(snapshotBuffer->temporaryTxStopSnapshotTimerValue - snapshotBuffer->temporaryTxStartSnapshotTimerValue);
     // DEBUG_INT16_OUT(TIMER_TX_RX_COUNTER_VALUE);
@@ -86,9 +83,7 @@ FUNC_ATTRS void executeSynchronizeLocalTimePackage(const TimePackage *const pack
  * Executes a set local address package.
  * @param package the package to interpret and execute
  */
-extern FUNC_ATTRS void executeSetLocalAddress(const EnumerationPackage *const package);
-
-FUNC_ATTRS void executeSetLocalAddress(const EnumerationPackage *const package) {
+void executeSetLocalAddress(const EnumerationPackage *const package) {
     ParticleAttributes.node.address.row = package->addressRow;
     ParticleAttributes.node.address.column = package->addressColumn;
     ParticleAttributes.protocol.hasNetworkGeometryDiscoveryBreadCrumb = package->hasNetworkGeometryDiscoveryBreadCrumb;
@@ -100,10 +95,7 @@ FUNC_ATTRS void executeSetLocalAddress(const EnumerationPackage *const package) 
  * This node relays the package if it is not the origin (top left), otherwise consumes it.
  * @param package the package to interpret and execute
  */
-extern FUNC_ATTRS void executeAnnounceNetworkGeometryPackage(
-        const AnnounceNetworkGeometryPackage *const package);
-
-FUNC_ATTRS void executeAnnounceNetworkGeometryPackage(const AnnounceNetworkGeometryPackage *const package) {
+void executeAnnounceNetworkGeometryPackage(const AnnounceNetworkGeometryPackage *const package) {
 
     if (ParticleAttributes.node.type == NODE_TYPE_ORIGIN) {
         ParticleAttributes.protocol.networkGeometry.rows = package->rows;
@@ -124,10 +116,8 @@ FUNC_ATTRS void executeAnnounceNetworkGeometryPackage(const AnnounceNetworkGeome
  * @param source where to read the bytes from
  * @param destination where to store the bytes to
  */
-//extern FUNC_ATTRS void __volatileSram9ByteMemcopy( void *source,  void *destination);
-
-static FUNC_ATTRS void __volatileSram9ByteMemcopy(const void *const source,
-                                                  volatile void *const destination) {
+static void __volatileSram9ByteMemcopy(const void *const source,
+                                       volatile void *const destination) {
     ((uint16_t *) destination)[0] = ((uint16_t *) source)[0];
     ((uint16_t *) destination)[1] = ((uint16_t *) source)[1];
     ((uint16_t *) destination)[2] = ((uint16_t *) source)[2];
@@ -143,13 +133,10 @@ static FUNC_ATTRS void __volatileSram9ByteMemcopy(const void *const source,
  * @param dataEndPointer the pointer marking the data end on buffer
  * @param endState the node state to switch to
  */
-//extern FUNC_ATTRS void __relayPackage( Package *source,  DirectionOrientedPort *destination,
-//                                      uint16_t dataEndPointer, StateType endState);
-
-static FUNC_ATTRS void __relayPackage(const Package *const source,
-                                      const DirectionOrientedPort *const destination,
-                                      uint16_t dataEndPointer,
-                                      StateType endState) {
+static void __relayPackage(const Package *const source,
+                           const DirectionOrientedPort *const destination,
+                           uint16_t dataEndPointer,
+                           StateType endState) {
     clearTransmissionPortBuffer(destination->txPort);
     setInitiatorStateStart(destination->protocol);
     __volatileSram9ByteMemcopy(source, destination->txPort->buffer.bytes);
@@ -175,9 +162,7 @@ static FUNC_ATTRS void __relayPackage(const Package *const source,
  * Performs simultaneous transmission on splitting points.
  * @param package the package to interpret and execute
  */
-extern FUNC_ATTRS void executeSetNetworkGeometryPackage(const SetNetworkGeometryPackage *const package);
-
-FUNC_ATTRS void executeSetNetworkGeometryPackage(const SetNetworkGeometryPackage *const package) {
+void executeSetNetworkGeometryPackage(const SetNetworkGeometryPackage *const package) {
 
     bool deactivateParticle = false;
     if (ParticleAttributes.node.address.row > package->rows ||
@@ -229,9 +214,7 @@ FUNC_ATTRS void executeSetNetworkGeometryPackage(const SetNetworkGeometryPackage
  * This ensures the adjacent node is closing the current loop at the respective actuator.
  * @param package the package to infer actuator actions from
  */
-//extern FUNC_ATTRS void __inferEastActuatorCommand( Package *package);
-
-static FUNC_ATTRS void __inferEastActuatorCommand(const Package *const package) {
+static void __inferEastActuatorCommand(const Package *const package) {
     if (ParticleAttributes.actuationCommand.executionState == ACTUATION_STATE_TYPE_IDLE &&
         package->asHeader.id == PACKAGE_HEADER_ID_TYPE_HEAT_WIRES) {
         if (package->asHeader.isRangeCommand) {
@@ -261,9 +244,7 @@ static FUNC_ATTRS void __inferEastActuatorCommand(const Package *const package) 
  * the respective actuator.
  * @param package the package to infer actuator actions from
  */
-//extern FUNC_ATTRS void __inferSouthActuatorCommand( Package *package);
-
-static FUNC_ATTRS void __inferSouthActuatorCommand(const Package *const package) {
+static void __inferSouthActuatorCommand(const Package *const package) {
     if (package->asHeader.id == PACKAGE_HEADER_ID_TYPE_HEAT_WIRES &&
         ParticleAttributes.actuationCommand.executionState == ACTUATION_STATE_TYPE_IDLE) {
         if (package->asHeader.isRangeCommand) {
@@ -290,9 +271,7 @@ static FUNC_ATTRS void __inferSouthActuatorCommand(const Package *const package)
  * Interpret a heat wires or heat wires range package and schedule the command.
  * @param package the package to interpret and execute
  */
-//extern FUNC_ATTRS void __scheduleHeatWiresCommand( Package *package);
-
-static FUNC_ATTRS void __scheduleHeatWiresCommand(const Package *const package) {
+static void __scheduleHeatWiresCommand(const Package *const package) {
     if (package->asHeader.id == PACKAGE_HEADER_ID_TYPE_HEAT_WIRES) {
         if (package->asHeader.isRangeCommand) {
             const HeatWiresRangePackage *const heatWiresRangePackage = &package->asHeatWiresRangePackage;
@@ -325,9 +304,7 @@ static FUNC_ATTRS void __scheduleHeatWiresCommand(const Package *const package) 
  * Performs simultaneous transmission on splitting points.
  * @param package the package to interpret and execute
  */
-extern FUNC_ATTRS void executeHeatWiresPackage(const HeatWiresPackage *const package);
-
-FUNC_ATTRS void executeHeatWiresPackage(const HeatWiresPackage *const package) {
+void executeHeatWiresPackage(const HeatWiresPackage *const package) {
     if (ParticleAttributes.node.address.row == package->addressRow &&
         ParticleAttributes.node.address.column == package->addressColumn &&
         ParticleAttributes.actuationCommand.executionState == ACTUATION_STATE_TYPE_IDLE) {
@@ -383,9 +360,7 @@ FUNC_ATTRS void executeHeatWiresPackage(const HeatWiresPackage *const package) {
  * Performs simultaneous transmission on splitting points.
  * @param package the package to interpret and execute
  */
-extern FUNC_ATTRS void executeHeatWiresRangePackage(const HeatWiresRangePackage *const package);
-
-FUNC_ATTRS void executeHeatWiresRangePackage(const HeatWiresRangePackage *const package) {
+void executeHeatWiresRangePackage(const HeatWiresRangePackage *const package) {
     NodeAddress nodeAddressTopLeft;
     NodeAddress nodeAddressBottomRight;
     nodeAddressTopLeft.row = package->addressRow0;
@@ -478,9 +453,7 @@ FUNC_ATTRS void executeHeatWiresRangePackage(const HeatWiresRangePackage *const 
  * Performs simultaneous transmission on splitting points.
  * @param package the package to interpret and execute
  */
-extern FUNC_ATTRS void executeHeaderPackage(const HeaderPackage *const package);
-
-FUNC_ATTRS void executeHeaderPackage(const HeaderPackage *const package) {
+void executeHeaderPackage(const HeaderPackage *const package) {
 
     if (!ParticleAttributes.protocol.isBroadcastEnabled) {
         // on disabled broadcast: relay package
@@ -508,9 +481,7 @@ FUNC_ATTRS void executeHeaderPackage(const HeaderPackage *const package) {
  * Performs simultaneous transmission on splitting points.
  * @param package the package to interpret and execute
  */
-extern FUNC_ATTRS void executeHeatWiresModePackage(const HeatWiresModePackage *const package);
-
-FUNC_ATTRS void executeHeatWiresModePackage(const HeatWiresModePackage *const package) {
+void executeHeatWiresModePackage(const HeatWiresModePackage *const package) {
 
     if (!ParticleAttributes.protocol.isBroadcastEnabled) {
         // on disabled broadcast: relay package

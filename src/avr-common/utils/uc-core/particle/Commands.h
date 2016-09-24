@@ -15,9 +15,7 @@
  *
  * @pre the ParticleAttributes.protocol.networkGeometry.rows/cols are set accordingly
  */
-extern FUNC_ATTRS void setNewNetworkGeometry(void);
-
-FUNC_ATTRS void setNewNetworkGeometry(void) {
+void setNewNetworkGeometry(void) {
     TxPort temporaryPackagePort;
     constructSetNetworkGeometryPackage(&temporaryPackagePort,
                                        ParticleAttributes.protocol.networkGeometry.rows,
@@ -26,7 +24,6 @@ FUNC_ATTRS void setNewNetworkGeometry(void) {
     executeSetNetworkGeometryPackage((SetNetworkGeometryPackage *) temporaryPackagePort.buffer.bytes);
 }
 
-//extern FUNC_ATTRS void scheduleActuationCommand(uint16_t startPeriodTimeStamp, uint16_t endPeriodTimeStamp);
 ///**
 // * Schedules an actuation command starting and ending at the specified time stamps.
 // */
@@ -43,16 +40,10 @@ FUNC_ATTRS void setNewNetworkGeometry(void) {
  * @param remoteAddressColumn the neighbour's address column to assign
  * @param endState state when transaction has finished
  */
-extern FUNC_ATTRS void handleEnumerateNeighbour(
-        DirectionOrientedPort *port,
-        uint8_t remoteAddressRow,
-        uint8_t remoteAddressColumn,
-        StateType endState);
-
-FUNC_ATTRS void handleEnumerateNeighbour(DirectionOrientedPort *const port,
-                                         const uint8_t remoteAddressRow,
-                                         const uint8_t remoteAddressColumn,
-                                         const StateType endState) {
+void handleEnumerateNeighbour(DirectionOrientedPort *const port,
+                              const uint8_t remoteAddressRow,
+                              const uint8_t remoteAddressColumn,
+                              const StateType endState) {
     // TODO: move function to ParticleCore.h
     CommunicationProtocolPortState *commPortState = port->protocol;
 
@@ -135,9 +126,7 @@ FUNC_ATTRS void handleEnumerateNeighbour(DirectionOrientedPort *const port,
  * The package is propagated through the entire network.
  * @param heatingPowerLevel the new power level to set up
  */
-extern FUNC_ATTRS void sendHeatWiresModePackage(const HeatingLevelType heatingPowerLevel);
-
-FUNC_ATTRS void sendHeatWiresModePackage(HeatingLevelType heatingPowerLevel) {
+void sendHeatWiresModePackage(HeatingLevelType heatingPowerLevel) {
     TxPort temporaryPackagePort;
     constructHeatWiresModePackage(&temporaryPackagePort, heatingPowerLevel);
     // interpret the constructed package
@@ -156,13 +145,9 @@ FUNC_ATTRS void sendHeatWiresModePackage(HeatingLevelType heatingPowerLevel) {
  * @param timeStamp the time stamp when the actuation should start
  * @param duration 10bit actuation duration {@link #HeatWiresPackage}
  */
-extern FUNC_ATTRS void sendHeatWires(const NodeAddress *const nodeAddress, const Actuators *const wires,
-                                     const uint16_t timeStamp,
-                                     const uint16_t duration);
-
-FUNC_ATTRS void sendHeatWires(const NodeAddress *const nodeAddress, const Actuators *const wires,
-                              const uint16_t timeStamp,
-                              uint16_t duration) {
+void sendHeatWires(const NodeAddress *const nodeAddress, const Actuators *const wires,
+                   const uint16_t timeStamp,
+                   uint16_t duration) {
     if (ParticleAttributes.node.address.row > nodeAddress->row &&
         ParticleAttributes.node.address.column > nodeAddress->column) {
         // illegal address
@@ -189,15 +174,10 @@ FUNC_ATTRS void sendHeatWires(const NodeAddress *const nodeAddress, const Actuat
  * @param timeStamp the time stamp when the actuation should start
  * @param duration 10bit actuation duration {@link #HeatWiresPackage}
  */
-extern FUNC_ATTRS void sendHeatWiresRange(const NodeAddress *const nodeAddressTopLeft,
-                                          const NodeAddress *const nodeAddressBottomRight,
-                                          const Actuators *const wires, const uint16_t timeStamp,
-                                          const uint16_t duration);
-
-FUNC_ATTRS void sendHeatWiresRange(const NodeAddress *const nodeAddressTopLeft,
-                                   const NodeAddress *const nodeAddressBottomRight,
-                                   const Actuators *const wires, const uint16_t timeStamp,
-                                   const uint16_t duration) {
+void sendHeatWiresRange(const NodeAddress *const nodeAddressTopLeft,
+                        const NodeAddress *const nodeAddressBottomRight,
+                        const Actuators *const wires, const uint16_t timeStamp,
+                        const uint16_t duration) {
 
     if (nodeAddressBottomRight->row < nodeAddressTopLeft->row ||
         nodeAddressBottomRight->column < nodeAddressTopLeft->column) {
@@ -237,18 +217,13 @@ FUNC_ATTRS void sendHeatWiresRange(const NodeAddress *const nodeAddressTopLeft,
  * Sends a header package to adjacent neighbours.
  * @param package the package to send
  */
-extern FUNC_ATTRS void sendHeaderPackage(HeaderPackage *const package);
-
-FUNC_ATTRS void sendHeaderPackage(HeaderPackage *const package) {
+void sendHeaderPackage(HeaderPackage *const package) {
     package->startBit = 1;
     // interpret the package
     executeHeaderPackage(package);
 }
 
-
-extern FUNC_ATTRS void sendSyncPackage(void);
-
-FUNC_ATTRS void sendSyncPackage(void) {
+void sendSyncPackage(void) {
     ParticleAttributes.node.state = STATE_TYPE_SYNC_NEIGHBOUR;
     setInitiatorStateStart(ParticleAttributes.directionOrientedPorts.simultaneous.protocol);
 }

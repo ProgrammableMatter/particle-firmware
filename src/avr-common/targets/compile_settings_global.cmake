@@ -15,22 +15,6 @@ SET(CXXWARN "-Wall -Werror -Wvolatile-register-var -Wunused-variable -Wunused-fu
 # Do not use "-Wl,--gc-sections"!
 SET(CTUNING " -fpack-struct -funsigned-bitfields -funsigned-char -fdce -fdata-sections -ffunction-sections ${CTUNING}")
 
-#SET(CDEFS "-DFUNC_ATTRS='inline' ${CDEFS}")
-SET(CDEFS "-DFUNC_ATTRS='' ${CDEFS}")
-
-#SET(CDEFS "-DCTOR_ATTRS='inline' ${CDEFS}")
-SET(CDEFS "-DCTOR_ATTRS='' ${CDEFS}")
-
-#SET(CDEFS "-DPROTOCOL_PACKAGE_CTOR_ATTRS='inline' ${CDEFS}")
-SET(CDEFS "-DPROTOCOL_PACKAGE_CTOR_ATTRS='' ${CDEFS}")
-
-#SET(CDEFS "-DPROTOCOL_FUNC_ATTRS='inline' ${CDEFS}")
-SET(CDEFS "-DPROTOCOL_FUNC_ATTRS='' ${CDEFS}")
-
-
-SET(CDEFS "-DDECODING_FUNC_ATTRS='' ${CDEFS}")
-#SET(CDEFS "-DDECODING_FUNC_ATTRS='inlne' ${CDEFS}")
-
 SET(COPT "${COPT}")
 SET(CDEBUG "${CDEBUG}")
 

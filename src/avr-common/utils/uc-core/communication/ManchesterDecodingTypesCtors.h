@@ -13,9 +13,7 @@
  * constructor function
  * @param o reference to the object to construct
  */
-extern CTOR_ATTRS void constructSnapshot(Snapshot *const o);
-
-CTOR_ATTRS void constructSnapshot(Snapshot *const o) {
+void constructSnapshot(Snapshot *const o) {
     o->isRisingEdge = false;
     o->timerValue = 0;
 }
@@ -24,9 +22,7 @@ CTOR_ATTRS void constructSnapshot(Snapshot *const o) {
  * constructor function
  * @param o reference to the object to construct
  */
-extern CTOR_ATTRS void constructManchesterDecoderState(ManchesterDecoderStates *const o);
-
-CTOR_ATTRS void constructManchesterDecoderState(ManchesterDecoderStates *const o) {
+void constructManchesterDecoderState(ManchesterDecoderStates *const o) {
     o->decodingState = DECODER_STATE_TYPE_START;
     o->phaseState = 0;
 }
@@ -35,9 +31,7 @@ CTOR_ATTRS void constructManchesterDecoderState(ManchesterDecoderStates *const o
  * constructor function
  * @param o reference to the object to construct
  */
-extern CTOR_ATTRS void constructRxSnapshotBuffer(RxSnapshotBuffer *const o);
-
-CTOR_ATTRS void constructRxSnapshotBuffer(RxSnapshotBuffer *const o) {
+void constructRxSnapshotBuffer(RxSnapshotBuffer *const o) {
     constructManchesterDecoderState(&o->decoderStates);
     o->startIndex = 0;
     o->endIndex = 0;

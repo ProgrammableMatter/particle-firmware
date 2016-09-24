@@ -11,9 +11,7 @@
 #include "uc-core/configuration/Periphery.h"
 #include "uc-core/configuration/interrupts/ReceptionPCI.h"
 
-//extern FUNC_ATTRS void __disableInterruptsForBlockingBlinking(void);
-
-static FUNC_ATTRS void __disableInterruptsForBlockingBlinking(void) {
+static void __disableInterruptsForBlockingBlinking(void) {
     RX_NORTH_INTERRUPT_DISABLE;
     RX_EAST_INTERRUPT_DISABLE;
     RX_SOUTH_INTERRUPT_DISABLE;
@@ -23,7 +21,7 @@ static FUNC_ATTRS void __disableInterruptsForBlockingBlinking(void) {
 /**
  * Blinks row times, column times followed by a quitting flash signal.
  */
-static FUNC_ATTRS void __blinkAddressBlocking(void) {
+static void __blinkAddressBlocking(void) {
     LED_STATUS1_OFF;
     DELAY_MS_500;
     for (int8_t row = 0; row < ParticleAttributes.node.address.row; row++) {
@@ -57,9 +55,7 @@ static FUNC_ATTRS void __blinkAddressBlocking(void) {
 /**
  * Blinks the current address on status led endlessly.
  */
-extern FUNC_ATTRS void blinkAddressForever(void);
-
-FUNC_ATTRS void blinkAddressForever(void) {
+void blinkAddressForever(void) {
     __disableInterruptsForBlockingBlinking();
     LED_STATUS1_ON;
     DELAY_MS_500;
@@ -69,13 +65,11 @@ FUNC_ATTRS void blinkAddressForever(void) {
     }
 }
 
-
-extern FUNC_ATTRS void blinkReceptionBufferOverflowErrorForever(void);
 /**
  * Blinks LEDs to indicate the error state.
  * This function never returns.
  */
-FUNC_ATTRS void blinkReceptionBufferOverflowErrorForever(void) {
+void blinkReceptionBufferOverflowErrorForever(void) {
     __disableInterruptsForBlockingBlinking();
     forever {
         LED_STATUS1_OFF;
@@ -89,13 +83,11 @@ FUNC_ATTRS void blinkReceptionBufferOverflowErrorForever(void) {
     }
 }
 
-
-extern FUNC_ATTRS void blinkGenericErrorForever(void);
 /**
  * Blinks LEDs to indicate the error state.
  * This function never returns.
  */
-FUNC_ATTRS void blinkGenericErrorForever(void) {
+void blinkGenericErrorForever(void) {
     __disableInterruptsForBlockingBlinking();
     forever {
         LED_STATUS1_OFF;
@@ -109,15 +101,13 @@ FUNC_ATTRS void blinkGenericErrorForever(void) {
     }
 }
 
-
-extern FUNC_ATTRS void blinkParityErrorForever(bool parityBit);
 /**
  * Blink LEDs to indicate a parity error state.
  * Sequence on parityBit == true: led 1, led2, led3
  * otherwise: led 3, led 2, led 1.
  * This function never returns.
  */
-FUNC_ATTRS void blinkParityErrorForever(bool parityBit) {
+void blinkParityErrorForever(bool parityBit) {
     __disableInterruptsForBlockingBlinking();
     LED_STATUS1_OFF;
     LED_STATUS2_OFF;
@@ -150,9 +140,7 @@ FUNC_ATTRS void blinkParityErrorForever(bool parityBit) {
     }
 }
 
-extern FUNC_ATTRS void ledsOnForever(void);
-
-FUNC_ATTRS void ledsOnForever(void) {
+void ledsOnForever(void) {
     __disableInterruptsForBlockingBlinking();
     LED_STATUS1_ON;
     LED_STATUS2_ON;
@@ -163,9 +151,8 @@ FUNC_ATTRS void ledsOnForever(void) {
     forever;
 }
 
-extern FUNC_ATTRS void blinkTimeIntervalNonblocking(void);
 
-FUNC_ATTRS void blinkTimeIntervalNonblocking(void) {
+void blinkTimeIntervalNonblocking(void) {
     if (ParticleAttributes.periphery.blinkTimeInterval.lastExecutionTime ==
         ParticleAttributes.localTime.numTimePeriodsPassed) {
         return;
@@ -198,10 +185,7 @@ FUNC_ATTRS void blinkTimeIntervalNonblocking(void) {
 
 }
 
-
-extern FUNC_ATTRS void blinkAddressNonblocking(void);
-
-FUNC_ATTRS void blinkAddressNonblocking(void) {
+void blinkAddressNonblocking(void) {
 
     if (ParticleAttributes.periphery.blinkAddress.lastExecutionTime ==
         ParticleAttributes.localTime.numTimePeriodsPassed) {

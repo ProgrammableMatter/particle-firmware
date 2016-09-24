@@ -13,9 +13,7 @@
 /**
  * Schedules the next transmission interrupt.
  */
-extern FUNC_ATTRS void scheduleNextTxInterrupt(void);
-
-FUNC_ATTRS void scheduleNextTxInterrupt(void) {
+void scheduleNextTxInterrupt(void) {
     TIMER_TX_RX_COMPARE_VALUE += ParticleAttributes.communication.timerAdjustment.transmissionClockDelayHalf
                                  + ParticleAttributes.communication.timerAdjustment.transmissionClockShift;
 }
@@ -23,9 +21,7 @@ FUNC_ATTRS void scheduleNextTxInterrupt(void) {
 /**
  * Schedules the next transmission start interrupt.
  */
-extern FUNC_ATTRS void scheduleStartTxInterrupt(void);
-
-FUNC_ATTRS void scheduleStartTxInterrupt(void) {
+void scheduleStartTxInterrupt(void) {
     uint16_t counter = TIMER_TX_RX_COUNTER_VALUE;
     TIMER_TX_RX_COMPARE_VALUE = counter -
                                 (counter %
@@ -41,9 +37,7 @@ FUNC_ATTRS void scheduleStartTxInterrupt(void) {
  * there is no more data to transmit.
  * @param port the designated transmission port to read the buffer and transmit from
  */
-extern FUNC_ATTRS void enableTransmission(TxPort *const port);
-
-FUNC_ATTRS void enableTransmission(TxPort *const port) {
+void enableTransmission(TxPort *const port) {
     port->isTxClockPhase = true;
     port->isTransmitting = true;
     MEMORY_BARRIER;

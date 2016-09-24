@@ -17,13 +17,9 @@
  * @param localAddressRow the local address row
  * @param localAddressColumn the local address column
  */
-extern PROTOCOL_PACKAGE_CTOR_ATTRS void constructEnumeratePackage(TxPort *const txPort,
-                                                                  const uint8_t localAddressRow,
-                                                                  const uint8_t localAddressColumn);
-
-PROTOCOL_PACKAGE_CTOR_ATTRS void constructEnumeratePackage(TxPort *const txPort,
-                                                           const uint8_t localAddressRow,
-                                                           const uint8_t localAddressColumn) {
+void constructEnumeratePackage(TxPort *const txPort,
+                               const uint8_t localAddressRow,
+                               const uint8_t localAddressColumn) {
     clearTransmissionPortBuffer(txPort);
     Package *package = (Package *) txPort->buffer.bytes;
 
@@ -54,9 +50,7 @@ PROTOCOL_PACKAGE_CTOR_ATTRS void constructEnumeratePackage(TxPort *const txPort,
  * Constructor function: builds the protocol package at the given port's buffer.
  * @param txPort the port reference where to buffer the package at
  */
-extern PROTOCOL_PACKAGE_CTOR_ATTRS void constructEnumerationACKPackage(TxPort *const txPort);
-
-PROTOCOL_PACKAGE_CTOR_ATTRS void constructEnumerationACKPackage(TxPort *const txPort) {
+void constructEnumerationACKPackage(TxPort *const txPort) {
     clearTransmissionPortBuffer(txPort);
     Package *package = (Package *) txPort->buffer.bytes;
     package->asACKPackage.startBit = 1;
@@ -73,9 +67,7 @@ PROTOCOL_PACKAGE_CTOR_ATTRS void constructEnumerationACKPackage(TxPort *const tx
 /**
  * Constructor function: builds the protocol package at north port's buffer.
  */
-extern PROTOCOL_PACKAGE_CTOR_ATTRS void constructEnumerationACKWithAddressToParentPackage(void);
-
-PROTOCOL_PACKAGE_CTOR_ATTRS void constructEnumerationACKWithAddressToParentPackage(void) {
+void constructEnumerationACKWithAddressToParentPackage(void) {
     clearTransmissionPortBuffer(ParticleAttributes.directionOrientedPorts.north.txPort);
     Package *package = (Package *) ParticleAttributes.directionOrientedPorts.north.txPort->buffer.bytes;
     package->asACKWithLocalAddress.header.startBit = 1;
@@ -93,9 +85,7 @@ PROTOCOL_PACKAGE_CTOR_ATTRS void constructEnumerationACKWithAddressToParentPacka
  * Constructor function: builds the protocol package at the given port's buffer.
  * @param txPort the port reference where to buffer the package at
  */
-extern PROTOCOL_PACKAGE_CTOR_ATTRS void constructSyncTimePackage(TxPort *const txPort);
-
-PROTOCOL_PACKAGE_CTOR_ATTRS void constructSyncTimePackage(TxPort *const txPort) {
+void constructSyncTimePackage(TxPort *const txPort) {
     clearTransmissionPortBuffer(txPort);
     Package *package = (Package *) txPort->buffer.bytes;
     package->asSyncTimePackage.header.startBit = 1;
@@ -122,10 +112,7 @@ PROTOCOL_PACKAGE_CTOR_ATTRS void constructSyncTimePackage(TxPort *const txPort) 
  * @param row the network geometry rows
  * @param column the network geometry columns
  */
-extern PROTOCOL_PACKAGE_CTOR_ATTRS void constructAnnounceNetworkGeometryPackage(const uint8_t row,
-                                                                                const uint8_t column);
-
-PROTOCOL_PACKAGE_CTOR_ATTRS void constructAnnounceNetworkGeometryPackage(uint8_t row, uint8_t column) {
+void constructAnnounceNetworkGeometryPackage(uint8_t row, uint8_t column) {
     clearTransmissionPortBuffer(ParticleAttributes.directionOrientedPorts.north.txPort);
     Package *package = (Package *) ParticleAttributes.directionOrientedPorts.north.txPort->buffer.bytes;
     package->asAnnounceNetworkGeometryPackage.header.startBit = 1;
@@ -148,12 +135,8 @@ PROTOCOL_PACKAGE_CTOR_ATTRS void constructAnnounceNetworkGeometryPackage(uint8_t
  * @param rows the new network geometry rows
  * @param columns the new network geometry columns
  */
-extern PROTOCOL_PACKAGE_CTOR_ATTRS void constructSetNetworkGeometryPackage(TxPort *const txPort,
-                                                                           const uint8_t rows,
-                                                                           const uint8_t columns);
-
-PROTOCOL_PACKAGE_CTOR_ATTRS void constructSetNetworkGeometryPackage(TxPort *const txPort, const uint8_t rows,
-                                                                    const uint8_t columns) {
+void constructSetNetworkGeometryPackage(TxPort *const txPort, const uint8_t rows,
+                                        const uint8_t columns) {
     clearTransmissionPortBuffer(txPort);
     Package *package = (Package *) txPort->buffer.bytes;
     package->asSetNetworkGeometryPackage.header.startBit = 1;
@@ -177,17 +160,11 @@ PROTOCOL_PACKAGE_CTOR_ATTRS void constructSetNetworkGeometryPackage(TxPort *cons
  * @param startTimeStamp the time stamp when heating starts, see also {@link LocalTimeTracking}
  * @param duration the heating period duration, see also {@link LocalTimeTracking}
  */
-extern PROTOCOL_PACKAGE_CTOR_ATTRS void constructHeatWiresPackage(TxPort *const txPort,
-                                                                  const NodeAddress *const address,
-                                                                  const Actuators *const wires,
-                                                                  const uint16_t startTimeStamp,
-                                                                  const uint16_t duration);
-
-PROTOCOL_PACKAGE_CTOR_ATTRS void constructHeatWiresPackage(TxPort *const txPort,
-                                                           const NodeAddress *const address,
-                                                           const Actuators *const wires,
-                                                           const uint16_t startTimeStamp,
-                                                           const uint16_t duration) {
+void constructHeatWiresPackage(TxPort *const txPort,
+                               const NodeAddress *const address,
+                               const Actuators *const wires,
+                               const uint16_t startTimeStamp,
+                               const uint16_t duration) {
     clearTransmissionPortBuffer(txPort);
     Package *package = (Package *) txPort->buffer.bytes;
     package->asHeatWiresPackage.header.startBit = 1;
@@ -216,19 +193,12 @@ PROTOCOL_PACKAGE_CTOR_ATTRS void constructHeatWiresPackage(TxPort *const txPort,
  * @param startTimeStamp the time stamp when heating starts, see also {@link LocalTimeTracking}
  * @param duration the heating period duration, see also {@link LocalTimeTracking}
  */
-extern PROTOCOL_PACKAGE_CTOR_ATTRS void constructHeatWiresRangePackage(TxPort *const txPort,
-                                                                       const NodeAddress *const nodeAddressTopLeft,
-                                                                       const NodeAddress *const nodeAddressBottomRight,
-                                                                       const Actuators *const wires,
-                                                                       const uint16_t startTimeStamp,
-                                                                       const uint16_t duration);
-
-PROTOCOL_PACKAGE_CTOR_ATTRS void constructHeatWiresRangePackage(TxPort *const txPort,
-                                                                const NodeAddress *const nodeAddressTopLeft,
-                                                                const NodeAddress *const nodeAddressBottomRight,
-                                                                const Actuators *const wires,
-                                                                const uint16_t startTimeStamp,
-                                                                const uint16_t duration) {
+void constructHeatWiresRangePackage(TxPort *const txPort,
+                                    const NodeAddress *const nodeAddressTopLeft,
+                                    const NodeAddress *const nodeAddressBottomRight,
+                                    const Actuators *const wires,
+                                    const uint16_t startTimeStamp,
+                                    const uint16_t duration) {
     clearTransmissionPortBuffer(txPort);
     Package *package = (Package *) txPort->buffer.bytes;
     package->asHeatWiresRangePackage.header.startBit = 1;
@@ -253,9 +223,7 @@ PROTOCOL_PACKAGE_CTOR_ATTRS void constructHeatWiresRangePackage(TxPort *const tx
  * Constructor function: builds the protocol package at the given port's buffer.
  * @param txPort the port reference where to buffer the package at
  */
-extern PROTOCOL_PACKAGE_CTOR_ATTRS void constructHeaderPackage(TxPort *const txPort);
-
-PROTOCOL_PACKAGE_CTOR_ATTRS void constructHeaderPackage(TxPort *const txPort) {
+void constructHeaderPackage(TxPort *const txPort) {
     // TODO enhancement: calculate and set parity bit
     clearTransmissionPortBuffer(txPort);
     Package *package = (Package *) txPort->buffer.bytes;
@@ -273,11 +241,8 @@ PROTOCOL_PACKAGE_CTOR_ATTRS void constructHeaderPackage(TxPort *const txPort) {
  * @param txPort the port reference where to buffer the package at
  * @param heatingPowerLevel the power level applied to the actuators when actuating
  */
-extern PROTOCOL_PACKAGE_CTOR_ATTRS void constructHeatWiresModePackage(TxPort *const txPort,
-                                                                      const HeatingLevelType heatingPowerLevel);
-
-PROTOCOL_PACKAGE_CTOR_ATTRS void constructHeatWiresModePackage(TxPort *const txPort,
-                                                               const HeatingLevelType heatingPowerLevel) {
+void constructHeatWiresModePackage(TxPort *const txPort,
+                                   const HeatingLevelType heatingPowerLevel) {
     clearTransmissionPortBuffer(txPort);
     Package *package = (Package *) txPort->buffer.bytes;
     package->asHeatWiresModePackage.header.startBit = 1;
