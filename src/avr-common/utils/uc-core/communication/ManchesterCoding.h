@@ -14,7 +14,7 @@
  */
 //extern FUNC_ATTRS void __rectifyTransmissionBit(DirectionOrientedPort *port);
 
-static FUNC_ATTRS void __rectifyTransmissionBit(DirectionOrientedPort *port) {
+static FUNC_ATTRS void __rectifyTransmissionBit(DirectionOrientedPort *const port) {
 
     if (isDataEndPosition(port->txPort)) { // on tx pointer match end position
         port->txLowPimpl(); // return signal to default (inverted at receiver side)
@@ -35,7 +35,7 @@ static FUNC_ATTRS void __rectifyTransmissionBit(DirectionOrientedPort *port) {
  */
 //extern FUNC_ATTRS void __modulateTransmissionBit(DirectionOrientedPort *port);
 
-static FUNC_ATTRS void __modulateTransmissionBit(DirectionOrientedPort *port) {
+static FUNC_ATTRS void __modulateTransmissionBit(DirectionOrientedPort *const port) {
     if (port->txPort->buffer.pointer.bitMask &
         port->txPort->buffer.bytes[port->txPort->buffer.pointer.byteNumber]) {
         port->txLowPimpl();
@@ -49,7 +49,7 @@ static FUNC_ATTRS void __modulateTransmissionBit(DirectionOrientedPort *port) {
  * writes the next signal on the port pin
  * @param port the designated port to read buffered data from and write signal to
  */
-extern FUNC_ATTRS void transmit(DirectionOrientedPort *port);
+extern FUNC_ATTRS void transmit(DirectionOrientedPort *const port);
 
 FUNC_ATTRS void transmit(DirectionOrientedPort *port) {
     if (!port->txPort->isDataBuffered || !port->txPort->isTransmitting) {

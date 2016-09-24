@@ -286,7 +286,7 @@ static FUNC_ATTRS void __handleWaitForBeingEnumerated(void) {
  * Handles (state driven) neighbour synchronization node states.
  * @param endState the state when handler has finished
  */
-static FUNC_ATTRS void __handleSynchronizeNeighbour(StateType endState) {
+static FUNC_ATTRS void __handleSynchronizeNeighbour(const StateType endState) {
     CommunicationProtocolPortState *commPortState = ParticleAttributes.directionOrientedPorts.simultaneous.protocol;
     TxPort *txPort = ParticleAttributes.directionOrientedPorts.simultaneous.txPort;
     switch (commPortState->initiatorState) {
@@ -322,7 +322,7 @@ static FUNC_ATTRS void __handleSynchronizeNeighbour(StateType endState) {
  * but if simulation/test macros are defined it redirects to other states accordingly.
  * @param endState the state after this call if no test macros defined
  */
-static FUNC_ATTRS void __handleSynchronizeNeighbourDoneOrRunTest(StateType endState) {
+static FUNC_ATTRS void __handleSynchronizeNeighbourDoneOrRunTest(const StateType endState) {
 #if defined(SIMULATION_SET_NEW_NETWORK_GEOMETRY_TEST)
     if (ParticleAttributes.node.type == NODE_TYPE_ORIGIN) {
         ParticleAttributes.protocol.networkGeometry.rows = 2;
@@ -381,7 +381,7 @@ static FUNC_ATTRS void __handleSynchronizeNeighbourDoneOrRunTest(StateType endSt
  * Handles (state driven) relaying network geometry communication states.
  * @param endState the state when handler finished
  */
-static FUNC_ATTRS void __handleRelayAnnounceNetworkGeometry(StateType endState) {
+static FUNC_ATTRS void __handleRelayAnnounceNetworkGeometry(const StateType endState) {
     CommunicationProtocolPortState *commPortState = &ParticleAttributes.protocol.ports.north;
     switch (commPortState->initiatorState) {
         case COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT:
@@ -413,7 +413,7 @@ static FUNC_ATTRS void __handleRelayAnnounceNetworkGeometry(StateType endState) 
  * Handles (event driven) network geometry announcement states.
  * @param endState the state when handler finished
  */
-static FUNC_ATTRS void __handleSendAnnounceNetworkGeometry(StateType endState) {
+static FUNC_ATTRS void __handleSendAnnounceNetworkGeometry(const StateType endState) {
     TxPort *txPort = &ParticleAttributes.communication.ports.tx.north;
     CommunicationProtocolPortState *commPortState = &ParticleAttributes.protocol.ports.north;
 
@@ -528,7 +528,8 @@ static FUNC_ATTRS void __handleDiscoveryPulsingDone(void) {
  * @param cols the new network geometry rows
  * @param endState the state when handler finished
  */
-static FUNC_ATTRS void __handleSetNetworkGeometry(uint8_t rows, uint8_t cols, StateType endState) {
+static FUNC_ATTRS void __handleSetNetworkGeometry(const uint8_t rows, const uint8_t cols,
+                                                  const StateType endState) {
     CommunicationProtocolPortState *commPortState = ParticleAttributes.directionOrientedPorts.simultaneous.protocol;
     TxPort *txPort = ParticleAttributes.directionOrientedPorts.simultaneous.txPort;
     switch (commPortState->initiatorState) {
@@ -562,7 +563,7 @@ static FUNC_ATTRS void __handleSetNetworkGeometry(uint8_t rows, uint8_t cols, St
  * @param port the designated port
  * @param endState the end state when handler finished
  */
-static FUNC_ATTRS void __handleSendPackage(DirectionOrientedPort *port, StateType endState) {
+static FUNC_ATTRS void __handleSendPackage(DirectionOrientedPort *const port, const StateType endState) {
     CommunicationProtocolPortState *commPortState = port->protocol;
     switch (commPortState->initiatorState) {
         case COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT:

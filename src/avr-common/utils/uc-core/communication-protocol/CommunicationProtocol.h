@@ -28,11 +28,11 @@
  * @param bufferDataEndPointer the pointer field
  * @param uint16tExpectedDataEndPointer the expected pointer field value
  */
-extern FUNC_ATTRS bool equalsPackageSize(BufferBitPointer *bufferDataEndPointer,
-                                         uint16_t uint16tExpectedDataEndPointer);
+extern FUNC_ATTRS bool equalsPackageSize(const BufferBitPointer *const bufferDataEndPointer,
+                                         const uint16_t uint16tExpectedDataEndPointer);
 
-FUNC_ATTRS bool equalsPackageSize(BufferBitPointer *bufferDataEndPointer,
-                                  uint16_t uint16tExpectedDataEndPointer) {
+FUNC_ATTRS bool equalsPackageSize(const BufferBitPointer *const bufferDataEndPointer,
+                                  const uint16_t uint16tExpectedDataEndPointer) {
     return ((*((uint16_t *) (bufferDataEndPointer))) == uint16tExpectedDataEndPointer);
 }
 
@@ -55,9 +55,9 @@ FUNC_ATTRS void clearReceptionBuffers(void) {
  * Invalidates the given port's reception buffer.
  * @param o the port to invalidate the reception buffer
  */
-extern FUNC_ATTRS void clearReceptionPortBuffer(RxPort *o);
+extern FUNC_ATTRS void clearReceptionPortBuffer(RxPort *const o);
 
-FUNC_ATTRS void clearReceptionPortBuffer(RxPort *o) {
+FUNC_ATTRS void clearReceptionPortBuffer(RxPort *const o) {
     o->isDataBuffered = false;
     o->isOverflowed = false;
     DEBUG_CHAR_OUT('c');
@@ -67,9 +67,9 @@ FUNC_ATTRS void clearReceptionPortBuffer(RxPort *o) {
  * Prepares the given transmission port for buffering and later transmission.
  * @param o the port to prepare
  */
-extern FUNC_ATTRS void clearTransmissionPortBuffer(TxPort *o);
+extern FUNC_ATTRS void clearTransmissionPortBuffer(TxPort *const o);
 
-FUNC_ATTRS void clearTransmissionPortBuffer(TxPort *o) {
+FUNC_ATTRS void clearTransmissionPortBuffer(TxPort *const o) {
     o->isTransmitting = false;
     bufferBitPointerStart(&o->buffer.pointer);
 }
@@ -78,9 +78,9 @@ FUNC_ATTRS void clearTransmissionPortBuffer(TxPort *o) {
  * Puts the receptionist in start state and sets the timeout counter.
  * @param commPortState a reference to the designated port state
  */
-extern FUNC_ATTRS void setReceptionistStateStart(CommunicationProtocolPortState *commPortState);
+extern FUNC_ATTRS void setReceptionistStateStart(CommunicationProtocolPortState *const commPortState);
 
-FUNC_ATTRS void setReceptionistStateStart(CommunicationProtocolPortState *commPortState) {
+FUNC_ATTRS void setReceptionistStateStart(CommunicationProtocolPortState *const commPortState) {
     // ParticleAttributes.communicationProtocol.stateTimeoutCounter = COMMUNICATION_STATE_TIMEOUT_COUNTER;
     DEBUG_CHAR_OUT('r');
     commPortState->receptionistState = COMMUNICATION_RECEPTIONIST_STATE_TYPE_RECEIVE;
@@ -92,9 +92,9 @@ FUNC_ATTRS void setReceptionistStateStart(CommunicationProtocolPortState *commPo
  * Puts the initiator in start state and set the timeout counter.
  * @param commPortState a reference to the designated port state
  */
-extern FUNC_ATTRS void setInitiatorStateStart(CommunicationProtocolPortState *commPortState);
+extern FUNC_ATTRS void setInitiatorStateStart(CommunicationProtocolPortState *const commPortState);
 
-FUNC_ATTRS void setInitiatorStateStart(CommunicationProtocolPortState *commPortState) {
+FUNC_ATTRS void setInitiatorStateStart(CommunicationProtocolPortState *const commPortState) {
     DEBUG_CHAR_OUT('T');
     commPortState->initiatorState = COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT;
     commPortState->stateTimeoutCounter = COMMUNICATION_PROTOCOL_TIMEOUT_COUNTER_MAX;

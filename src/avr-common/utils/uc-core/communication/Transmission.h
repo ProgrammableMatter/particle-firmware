@@ -41,9 +41,9 @@ FUNC_ATTRS void scheduleStartTxInterrupt(void) {
  * there is no more data to transmit.
  * @param port the designated transmission port to read the buffer and transmit from
  */
-extern FUNC_ATTRS void enableTransmission(TxPort *port);
+extern FUNC_ATTRS void enableTransmission(TxPort *const port);
 
-FUNC_ATTRS void enableTransmission(TxPort *port) {
+FUNC_ATTRS void enableTransmission(TxPort *const port) {
     port->isTxClockPhase = true;
     port->isTransmitting = true;
     MEMORY_BARRIER;

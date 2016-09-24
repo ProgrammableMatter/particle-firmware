@@ -86,9 +86,9 @@ FUNC_ATTRS void executeSynchronizeLocalTimePackage(const TimePackage *const pack
  * Executes a set local address package.
  * @param package the package to interpret and execute
  */
-extern FUNC_ATTRS void executeSetLocalAddress(EnumerationPackage *package);
+extern FUNC_ATTRS void executeSetLocalAddress(const EnumerationPackage *const package);
 
-FUNC_ATTRS void executeSetLocalAddress(EnumerationPackage *package) {
+FUNC_ATTRS void executeSetLocalAddress(const EnumerationPackage *const package) {
     ParticleAttributes.node.address.row = package->addressRow;
     ParticleAttributes.node.address.column = package->addressColumn;
     ParticleAttributes.protocol.hasNetworkGeometryDiscoveryBreadCrumb = package->hasNetworkGeometryDiscoveryBreadCrumb;
@@ -101,9 +101,9 @@ FUNC_ATTRS void executeSetLocalAddress(EnumerationPackage *package) {
  * @param package the package to interpret and execute
  */
 extern FUNC_ATTRS void executeAnnounceNetworkGeometryPackage(
-        AnnounceNetworkGeometryPackage *package);
+        const AnnounceNetworkGeometryPackage *const package);
 
-FUNC_ATTRS void executeAnnounceNetworkGeometryPackage(AnnounceNetworkGeometryPackage *package) {
+FUNC_ATTRS void executeAnnounceNetworkGeometryPackage(const AnnounceNetworkGeometryPackage *const package) {
 
     if (ParticleAttributes.node.type == NODE_TYPE_ORIGIN) {
         ParticleAttributes.protocol.networkGeometry.rows = package->rows;
@@ -146,7 +146,8 @@ static FUNC_ATTRS void __volatileSram9ByteMemcopy(const void *const source,
 //extern FUNC_ATTRS void __relayPackage( Package *source,  DirectionOrientedPort *destination,
 //                                      uint16_t dataEndPointer, StateType endState);
 
-static FUNC_ATTRS void __relayPackage(Package *source, DirectionOrientedPort *destination,
+static FUNC_ATTRS void __relayPackage(const Package *const source,
+                                      const DirectionOrientedPort *const destination,
                                       uint16_t dataEndPointer,
                                       StateType endState) {
     clearTransmissionPortBuffer(destination->txPort);
@@ -174,9 +175,9 @@ static FUNC_ATTRS void __relayPackage(Package *source, DirectionOrientedPort *de
  * Performs simultaneous transmission on splitting points.
  * @param package the package to interpret and execute
  */
-extern FUNC_ATTRS void executeSetNetworkGeometryPackage(SetNetworkGeometryPackage *package);
+extern FUNC_ATTRS void executeSetNetworkGeometryPackage(const SetNetworkGeometryPackage *const package);
 
-FUNC_ATTRS void executeSetNetworkGeometryPackage(SetNetworkGeometryPackage *package) {
+FUNC_ATTRS void executeSetNetworkGeometryPackage(const SetNetworkGeometryPackage *const package) {
 
     bool deactivateParticle = false;
     if (ParticleAttributes.node.address.row > package->rows ||
@@ -230,11 +231,11 @@ FUNC_ATTRS void executeSetNetworkGeometryPackage(SetNetworkGeometryPackage *pack
  */
 //extern FUNC_ATTRS void __inferEastActuatorCommand( Package *package);
 
-static FUNC_ATTRS void __inferEastActuatorCommand(Package *package) {
+static FUNC_ATTRS void __inferEastActuatorCommand(const Package *const package) {
     if (ParticleAttributes.actuationCommand.executionState == ACTUATION_STATE_TYPE_IDLE &&
         package->asHeader.id == PACKAGE_HEADER_ID_TYPE_HEAT_WIRES) {
         if (package->asHeader.isRangeCommand) {
-            HeatWiresRangePackage *heatWiresRangePackage = &package->asHeatWiresRangePackage;
+            const HeatWiresRangePackage *const heatWiresRangePackage = &package->asHeatWiresRangePackage;
             if (heatWiresRangePackage->northRight) ParticleAttributes.actuationCommand.actuators.eastLeft = true;
             if (heatWiresRangePackage->northLeft) ParticleAttributes.actuationCommand.actuators.eastRight = true;
             ParticleAttributes.actuationCommand.actuationStart.periodTimeStamp = heatWiresRangePackage->startTimeStamp;
@@ -243,7 +244,7 @@ static FUNC_ATTRS void __inferEastActuatorCommand(Package *package) {
             ParticleAttributes.actuationCommand.isScheduled = true;
         }
         else {
-            HeatWiresPackage *heatWiresPackage = &package->asHeatWiresPackage;
+            const HeatWiresPackage *const heatWiresPackage = &package->asHeatWiresPackage;
             if (heatWiresPackage->northRight) ParticleAttributes.actuationCommand.actuators.eastLeft = true;
             if (heatWiresPackage->northLeft) ParticleAttributes.actuationCommand.actuators.eastRight = true;
             ParticleAttributes.actuationCommand.actuationStart.periodTimeStamp = heatWiresPackage->startTimeStamp;
@@ -262,11 +263,11 @@ static FUNC_ATTRS void __inferEastActuatorCommand(Package *package) {
  */
 //extern FUNC_ATTRS void __inferSouthActuatorCommand( Package *package);
 
-static FUNC_ATTRS void __inferSouthActuatorCommand(Package *package) {
+static FUNC_ATTRS void __inferSouthActuatorCommand(const Package *const package) {
     if (package->asHeader.id == PACKAGE_HEADER_ID_TYPE_HEAT_WIRES &&
         ParticleAttributes.actuationCommand.executionState == ACTUATION_STATE_TYPE_IDLE) {
         if (package->asHeader.isRangeCommand) {
-            HeatWiresRangePackage *heatWiresRangePackage = &package->asHeatWiresRangePackage;
+            const HeatWiresRangePackage *const heatWiresRangePackage = &package->asHeatWiresRangePackage;
             if (heatWiresRangePackage->northRight) ParticleAttributes.actuationCommand.actuators.southLeft = true;
             if (heatWiresRangePackage->northLeft) ParticleAttributes.actuationCommand.actuators.southRight = true;
             ParticleAttributes.actuationCommand.actuationStart.periodTimeStamp = heatWiresRangePackage->startTimeStamp;
@@ -274,7 +275,7 @@ static FUNC_ATTRS void __inferSouthActuatorCommand(Package *package) {
                     heatWiresRangePackage->startTimeStamp + heatWiresRangePackage->duration;
             ParticleAttributes.actuationCommand.isScheduled = true;
         } else {
-            HeatWiresPackage *heatWiresPackage = &package->asHeatWiresPackage;
+            const HeatWiresPackage *const heatWiresPackage = &package->asHeatWiresPackage;
             if (heatWiresPackage->northRight) ParticleAttributes.actuationCommand.actuators.southLeft = true;
             if (heatWiresPackage->northLeft) ParticleAttributes.actuationCommand.actuators.southRight = true;
             ParticleAttributes.actuationCommand.actuationStart.periodTimeStamp = heatWiresPackage->startTimeStamp;
@@ -291,10 +292,10 @@ static FUNC_ATTRS void __inferSouthActuatorCommand(Package *package) {
  */
 //extern FUNC_ATTRS void __scheduleHeatWiresCommand( Package *package);
 
-static FUNC_ATTRS void __scheduleHeatWiresCommand(Package *package) {
+static FUNC_ATTRS void __scheduleHeatWiresCommand(const Package *const package) {
     if (package->asHeader.id == PACKAGE_HEADER_ID_TYPE_HEAT_WIRES) {
         if (package->asHeader.isRangeCommand) {
-            HeatWiresRangePackage *heatWiresRangePackage = &package->asHeatWiresRangePackage;
+            const HeatWiresRangePackage *const heatWiresRangePackage = &package->asHeatWiresRangePackage;
             ParticleAttributes.actuationCommand.actuators.northLeft = heatWiresRangePackage->northLeft;
             ParticleAttributes.actuationCommand.actuators.northRight = heatWiresRangePackage->northRight;
             ParticleAttributes.actuationCommand.actuationStart.periodTimeStamp = heatWiresRangePackage->startTimeStamp;
@@ -305,7 +306,7 @@ static FUNC_ATTRS void __scheduleHeatWiresCommand(Package *package) {
             ParticleAttributes.protocol.isBroadcastEnabled = heatWiresRangePackage->header.enableBroadcast;
             ParticleAttributes.actuationCommand.isScheduled = true;
         } else {
-            HeatWiresPackage *heatWiresPackage = &package->asHeatWiresPackage;
+            const HeatWiresPackage *const heatWiresPackage = &package->asHeatWiresPackage;
             ParticleAttributes.actuationCommand.actuators.northLeft = heatWiresPackage->northLeft;
             ParticleAttributes.actuationCommand.actuators.northRight = heatWiresPackage->northRight;
             ParticleAttributes.actuationCommand.actuationStart.periodTimeStamp = heatWiresPackage->startTimeStamp;
@@ -324,9 +325,9 @@ static FUNC_ATTRS void __scheduleHeatWiresCommand(Package *package) {
  * Performs simultaneous transmission on splitting points.
  * @param package the package to interpret and execute
  */
-extern FUNC_ATTRS void executeHeatWiresPackage(HeatWiresPackage *package);
+extern FUNC_ATTRS void executeHeatWiresPackage(const HeatWiresPackage *const package);
 
-FUNC_ATTRS void executeHeatWiresPackage(HeatWiresPackage *package) {
+FUNC_ATTRS void executeHeatWiresPackage(const HeatWiresPackage *const package) {
     if (ParticleAttributes.node.address.row == package->addressRow &&
         ParticleAttributes.node.address.column == package->addressColumn &&
         ParticleAttributes.actuationCommand.executionState == ACTUATION_STATE_TYPE_IDLE) {
@@ -382,9 +383,9 @@ FUNC_ATTRS void executeHeatWiresPackage(HeatWiresPackage *package) {
  * Performs simultaneous transmission on splitting points.
  * @param package the package to interpret and execute
  */
-extern FUNC_ATTRS void executeHeatWiresRangePackage(HeatWiresRangePackage *package);
+extern FUNC_ATTRS void executeHeatWiresRangePackage(const HeatWiresRangePackage *const package);
 
-FUNC_ATTRS void executeHeatWiresRangePackage(HeatWiresRangePackage *package) {
+FUNC_ATTRS void executeHeatWiresRangePackage(const HeatWiresRangePackage *const package) {
     NodeAddress nodeAddressTopLeft;
     NodeAddress nodeAddressBottomRight;
     nodeAddressTopLeft.row = package->addressRow0;
@@ -477,9 +478,9 @@ FUNC_ATTRS void executeHeatWiresRangePackage(HeatWiresRangePackage *package) {
  * Performs simultaneous transmission on splitting points.
  * @param package the package to interpret and execute
  */
-extern FUNC_ATTRS void executeHeaderPackage(HeaderPackage *package);
+extern FUNC_ATTRS void executeHeaderPackage(const HeaderPackage *const package);
 
-FUNC_ATTRS void executeHeaderPackage(HeaderPackage *package) {
+FUNC_ATTRS void executeHeaderPackage(const HeaderPackage *const package) {
 
     if (!ParticleAttributes.protocol.isBroadcastEnabled) {
         // on disabled broadcast: relay package
@@ -507,9 +508,9 @@ FUNC_ATTRS void executeHeaderPackage(HeaderPackage *package) {
  * Performs simultaneous transmission on splitting points.
  * @param package the package to interpret and execute
  */
-extern FUNC_ATTRS void executeHeatWiresModePackage(HeatWiresModePackage *package);
+extern FUNC_ATTRS void executeHeatWiresModePackage(const HeatWiresModePackage *const package);
 
-FUNC_ATTRS void executeHeatWiresModePackage(HeatWiresModePackage *package) {
+FUNC_ATTRS void executeHeatWiresModePackage(const HeatWiresModePackage *const package) {
 
     if (!ParticleAttributes.protocol.isBroadcastEnabled) {
         // on disabled broadcast: relay package

@@ -12,7 +12,7 @@
  * Increments the iterator. If the position equals TIME_SYNCHRONIZATION_SAMPLES_FIFO_BUFFER_ITERATOR_END
  * the buffer's end as been reached.
  */
-void samplesFifoBufferFiFoBufferIteratorNext(SamplesFifoBuffer *samplesBuffer) {
+void samplesFifoBufferFiFoBufferIteratorNext(SamplesFifoBuffer *const samplesBuffer) {
 
     if (samplesBuffer->iterator >= (TIME_SYNCHRONIZATION_SAMPLES_FIFO_BUFFER_SIZE - 1)) {
         samplesBuffer->iterator = 0;
@@ -28,7 +28,7 @@ void samplesFifoBufferFiFoBufferIteratorNext(SamplesFifoBuffer *samplesBuffer) {
 /**
  * Sets the iterator to start position.
  */
-void samplesFifoBufferIteratorStart(SamplesFifoBuffer *samplesBuffer) {
+void samplesFifoBufferIteratorStart(SamplesFifoBuffer *const samplesBuffer) {
     samplesBuffer->iterator = samplesBuffer->startIdx;
 }
 
@@ -36,7 +36,7 @@ void samplesFifoBufferIteratorStart(SamplesFifoBuffer *samplesBuffer) {
  * Increments the end index for the next value to be inserted (First-in).
  * Also updates the start index for next value to be removed (First-out).
  */
-static void __samplesFifoBufferIncrementEndIndex(SamplesFifoBuffer *samplesBuffer) {
+static void __samplesFifoBufferIncrementEndIndex(SamplesFifoBuffer *const samplesBuffer) {
 
     bool isBufferFull = false;
     if (samplesBuffer->endIdx == samplesBuffer->startIdx) {
@@ -57,7 +57,7 @@ static void __samplesFifoBufferIncrementEndIndex(SamplesFifoBuffer *samplesBuffe
 /**
  * Adds a value to the FiFo buffer.
  */
-void samplesFifoBufferAddSample(SampleValueType sample, SamplesFifoBuffer *samplesBuffer) {
+void samplesFifoBufferAddSample(const SampleValueType sample, SamplesFifoBuffer *const samplesBuffer) {
     __samplesFifoBufferIncrementEndIndex(samplesBuffer);
     samplesBuffer->samples[samplesBuffer->endIdx] = sample;
 }

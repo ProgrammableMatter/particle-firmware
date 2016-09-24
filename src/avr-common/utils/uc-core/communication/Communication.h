@@ -10,12 +10,11 @@
 #include "CommunicationTypes.h"
 #include "ManchesterDecodingTypes.h"
 
-extern FUNC_ATTRS void bufferBitPointerIncrement(volatile BufferBitPointer *o);
 /**
  * Increments the bit mask and the byte number accordingly.
  * @param o the buffer bit pointer reference
  */
-FUNC_ATTRS void bufferBitPointerIncrement(volatile BufferBitPointer *o) {
+FUNC_ATTRS void bufferBitPointerIncrement(volatile BufferBitPointer *const o) {
     o->bitMask <<= 1;
     if ((o->bitMask == 0) && (o->byteNumber < (sizeof(((PortBuffer *) 0)->bytes)))) {
         o->bitMask = 1;
@@ -23,12 +22,11 @@ FUNC_ATTRS void bufferBitPointerIncrement(volatile BufferBitPointer *o) {
     }
 }
 
-extern FUNC_ATTRS void bufferBitPointerStart(volatile BufferBitPointer *o);
 /**
  * points the reception buffer pointer to the start position (lowest bit)
  * @param o the buffer bit pointer reference
  */
-FUNC_ATTRS void bufferBitPointerStart(volatile BufferBitPointer *o) {
+void bufferBitPointerStart(volatile BufferBitPointer *const o) {
     o->bitMask = 1;
     o->byteNumber = 0;
 }
@@ -38,17 +36,17 @@ FUNC_ATTRS void bufferBitPointerStart(volatile BufferBitPointer *o) {
  * The marker is set one bit beyond the last data bit.
  * @param o the transmission port reference
  */
-extern FUNC_ATTRS bool isDataEndPosition(TxPort *o);
 
-FUNC_ATTRS bool isDataEndPosition(TxPort *o) {
-    return o->dataEndPos.bitMask == o->buffer.pointer.bitMask &&
-           o->dataEndPos.byteNumber == o->buffer.pointer.byteNumber;
+bool isDataEndPosition(const TxPort *const txPort) {
+    return (txPort->dataEndPos.bitMask == txPort->buffer.pointer.bitMask) &&
+           (txPort->dataEndPos.byteNumber == txPort->buffer.pointer.byteNumber);
 }
 
 /**
  * Evaluates to true if the buffer bit pointer points beyond the last buffer bit.
  * @param bufferBitPointer the pointer to compare to
  */
-#define isBufferEndPosition(bufferBitPointer) \
-    (((bufferBitPointer)->byteNumber == (sizeof(((PortBuffer *) (0))->bytes))) && \
-    ((bufferBitPointer)->bitMask == 0x1))
+bool isBufferEndPosition(const BufferBitPointer *const bufferBitPointer) {
+    return (bufferBitPointer->byteNumber == (sizeof(((PortBuffer *const) (0))->bytes))) &&
+           (bufferBitPointer->bitMask == 0x1);
+}

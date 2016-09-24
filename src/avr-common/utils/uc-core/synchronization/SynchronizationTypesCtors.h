@@ -8,7 +8,7 @@
 
 #include "SynchronizationTypes.h"
 
-void constructSamplesFifoBuffer(SamplesFifoBuffer *o) {
+void constructSamplesFifoBuffer(SamplesFifoBuffer *const o) {
     o->numSamples = 0;
     o->startIdx = 0;
     o->endIdx = 0;
@@ -18,6 +18,6 @@ void constructSamplesFifoBuffer(SamplesFifoBuffer *o) {
     o->variance = 0;
 }
 
-void constructTimeSynchronization(TimeSynchronization *o) {
+void constructTimeSynchronization(TimeSynchronization *const o) {
     constructSamplesFifoBuffer(&o->timeIntervalSamples);
 }

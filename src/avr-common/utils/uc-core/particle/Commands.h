@@ -49,10 +49,10 @@ extern FUNC_ATTRS void handleEnumerateNeighbour(
         uint8_t remoteAddressColumn,
         StateType endState);
 
-FUNC_ATTRS void handleEnumerateNeighbour(DirectionOrientedPort *port,
-                                         uint8_t remoteAddressRow,
-                                         uint8_t remoteAddressColumn,
-                                         StateType endState) {
+FUNC_ATTRS void handleEnumerateNeighbour(DirectionOrientedPort *const port,
+                                         const uint8_t remoteAddressRow,
+                                         const uint8_t remoteAddressColumn,
+                                         const StateType endState) {
     // TODO: move function to ParticleCore.h
     CommunicationProtocolPortState *commPortState = port->protocol;
 
@@ -135,7 +135,7 @@ FUNC_ATTRS void handleEnumerateNeighbour(DirectionOrientedPort *port,
  * The package is propagated through the entire network.
  * @param heatingPowerLevel the new power level to set up
  */
-extern FUNC_ATTRS void sendHeatWiresModePackage(HeatingLevelType heatingPowerLevel);
+extern FUNC_ATTRS void sendHeatWiresModePackage(const HeatingLevelType heatingPowerLevel);
 
 FUNC_ATTRS void sendHeatWiresModePackage(HeatingLevelType heatingPowerLevel) {
     TxPort temporaryPackagePort;
@@ -156,10 +156,12 @@ FUNC_ATTRS void sendHeatWiresModePackage(HeatingLevelType heatingPowerLevel) {
  * @param timeStamp the time stamp when the actuation should start
  * @param duration 10bit actuation duration {@link #HeatWiresPackage}
  */
-extern FUNC_ATTRS void sendHeatWires(NodeAddress *nodeAddress, Actuators *wires, uint16_t timeStamp,
-                                     uint16_t duration);
+extern FUNC_ATTRS void sendHeatWires(const NodeAddress *const nodeAddress, const Actuators *const wires,
+                                     const uint16_t timeStamp,
+                                     const uint16_t duration);
 
-FUNC_ATTRS void sendHeatWires(NodeAddress *nodeAddress, Actuators *wires, uint16_t timeStamp,
+FUNC_ATTRS void sendHeatWires(const NodeAddress *const nodeAddress, const Actuators *const wires,
+                              const uint16_t timeStamp,
                               uint16_t duration) {
     if (ParticleAttributes.node.address.row > nodeAddress->row &&
         ParticleAttributes.node.address.column > nodeAddress->column) {
@@ -187,14 +189,15 @@ FUNC_ATTRS void sendHeatWires(NodeAddress *nodeAddress, Actuators *wires, uint16
  * @param timeStamp the time stamp when the actuation should start
  * @param duration 10bit actuation duration {@link #HeatWiresPackage}
  */
-extern FUNC_ATTRS void sendHeatWiresRange(NodeAddress *nodeAddressTopLeft,
-                                          NodeAddress *nodeAddressBottomRight,
-                                          Actuators *wires, uint16_t timeStamp,
-                                          uint16_t duration);
+extern FUNC_ATTRS void sendHeatWiresRange(const NodeAddress *const nodeAddressTopLeft,
+                                          const NodeAddress *const nodeAddressBottomRight,
+                                          const Actuators *const wires, const uint16_t timeStamp,
+                                          const uint16_t duration);
 
-FUNC_ATTRS void sendHeatWiresRange(NodeAddress *nodeAddressTopLeft, NodeAddress *nodeAddressBottomRight,
-                                   Actuators *wires, uint16_t timeStamp,
-                                   uint16_t duration) {
+FUNC_ATTRS void sendHeatWiresRange(const NodeAddress *const nodeAddressTopLeft,
+                                   const NodeAddress *const nodeAddressBottomRight,
+                                   const Actuators *const wires, const uint16_t timeStamp,
+                                   const uint16_t duration) {
 
     if (nodeAddressBottomRight->row < nodeAddressTopLeft->row ||
         nodeAddressBottomRight->column < nodeAddressTopLeft->column) {
@@ -234,9 +237,9 @@ FUNC_ATTRS void sendHeatWiresRange(NodeAddress *nodeAddressTopLeft, NodeAddress 
  * Sends a header package to adjacent neighbours.
  * @param package the package to send
  */
-extern FUNC_ATTRS void sendHeaderPackage(HeaderPackage *package);
+extern FUNC_ATTRS void sendHeaderPackage(HeaderPackage *const package);
 
-FUNC_ATTRS void sendHeaderPackage(HeaderPackage *package) {
+FUNC_ATTRS void sendHeaderPackage(HeaderPackage *const package) {
     package->startBit = 1;
     // interpret the package
     executeHeaderPackage(package);

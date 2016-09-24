@@ -30,7 +30,7 @@
  * @param isRxHigh the logic signal level
  */
 
-static FUNC_ATTRS void __handleInputInterrupt(DirectionOrientedPort *port,
+static FUNC_ATTRS void __handleInputInterrupt(DirectionOrientedPort *const port,
                                               const bool isRxHigh) {
     uint16_t timerCounterValue = TIMER_TX_RX_COUNTER_VALUE;
     switch (ParticleAttributes.node.state) {

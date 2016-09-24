@@ -13,24 +13,24 @@ extern CTOR_ATTRS void constructActuators(Actuators *o);
  * constructor function
  * @param o reference to the object to construct
  */
-CTOR_ATTRS void constructActuators(Actuators *o) {
+CTOR_ATTRS void constructActuators(Actuators *const o) {
     o->northLeft = false;
     o->northRight = false;
     o->eastLeft = false;
     o->eastRight = false;
 }
 
-extern CTOR_ATTRS void constructHeatingMode(HeatingMode *o);
+extern CTOR_ATTRS void constructHeatingMode(HeatingMode *const o);
 
 /**
  * constructor function
  * @param o reference to the object to construct
  */
-CTOR_ATTRS void constructHeatingMode(HeatingMode *o) {
+CTOR_ATTRS void constructHeatingMode(HeatingMode *const o) {
     o->dutyCycleLevel = HEATING_LEVEL_TYPE_MEDIUM;
 }
 
-extern FUNC_ATTRS void constructLocalTime(LocalTime *o);
+extern FUNC_ATTRS void constructLocalTime(LocalTime *const o);
 /**
  * constructor function
  * @param o reference to the object to construct
@@ -43,9 +43,9 @@ FUNC_ATTRS void constructLocalTime(LocalTime *o) {
  * constructor function
  * @param o reference to the object to construct
  */
-extern CTOR_ATTRS void constructActuationCommand(ActuationCommand *o);
+extern CTOR_ATTRS void constructActuationCommand(ActuationCommand *const o);
 
-CTOR_ATTRS void constructActuationCommand(ActuationCommand *o) {
+CTOR_ATTRS void constructActuationCommand(ActuationCommand *const o) {
     constructActuators(&o->actuators);
     constructHeatingMode(&o->actuationPower);
     constructLocalTime(&o->actuationStart);

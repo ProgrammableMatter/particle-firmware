@@ -14,9 +14,9 @@
  * constructor function
  * @param o reference to the object to construct
  */
-extern CTOR_ATTRS void constructCommunicationProtocolPortState(CommunicationProtocolPortState *o);
+extern CTOR_ATTRS void constructCommunicationProtocolPortState(CommunicationProtocolPortState *const o);
 
-CTOR_ATTRS void constructCommunicationProtocolPortState(CommunicationProtocolPortState *o) {
+CTOR_ATTRS void constructCommunicationProtocolPortState(CommunicationProtocolPortState *const o) {
     o->initiatorState = COMMUNICATION_INITIATOR_STATE_TYPE_IDLE;
     o->receptionistState = COMMUNICATION_RECEPTIONIST_STATE_TYPE_IDLE;
     o->stateTimeoutCounter = COMMUNICATION_PROTOCOL_TIMEOUT_COUNTER_MAX;
@@ -27,9 +27,9 @@ CTOR_ATTRS void constructCommunicationProtocolPortState(CommunicationProtocolPor
  * constructor function
  * @param o reference to the object to construct
  */
-extern CTOR_ATTRS void constructCommunicationProtocolPorts(CommunicationProtocolPorts *o);
+extern CTOR_ATTRS void constructCommunicationProtocolPorts(CommunicationProtocolPorts *const o);
 
-CTOR_ATTRS void constructCommunicationProtocolPorts(CommunicationProtocolPorts *o) {
+CTOR_ATTRS void constructCommunicationProtocolPorts(CommunicationProtocolPorts *const o) {
     constructCommunicationProtocolPortState(&o->north);
     constructCommunicationProtocolPortState(&o->east);
     constructCommunicationProtocolPortState(&o->south);
@@ -40,9 +40,9 @@ CTOR_ATTRS void constructCommunicationProtocolPorts(CommunicationProtocolPorts *
  * constructor function
  * @param o reference to the object to construct
  */
-extern CTOR_ATTRS void constructNetworkGeometry(NetworkGeometry *o);
+extern CTOR_ATTRS void constructNetworkGeometry(NetworkGeometry *const o);
 
-CTOR_ATTRS void constructNetworkGeometry(NetworkGeometry *o) {
+CTOR_ATTRS void constructNetworkGeometry(NetworkGeometry *const o) {
     o->rows = 0;
     o->columns = 0;
 }
@@ -51,9 +51,9 @@ CTOR_ATTRS void constructNetworkGeometry(NetworkGeometry *o) {
  * constructor function
  * @param o reference to the object to construct
  */
-extern CTOR_ATTRS void constructCommunicationProtocol(CommunicationProtocol *o);
+extern CTOR_ATTRS void constructCommunicationProtocol(CommunicationProtocol *const o);
 
-CTOR_ATTRS void constructCommunicationProtocol(CommunicationProtocol *o) {
+CTOR_ATTRS void constructCommunicationProtocol(CommunicationProtocol *const o) {
     constructCommunicationProtocolPorts(&o->ports);
     constructNetworkGeometry(&o->networkGeometry);
     o->hasNetworkGeometryDiscoveryBreadCrumb = false;

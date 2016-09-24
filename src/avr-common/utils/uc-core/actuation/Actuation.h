@@ -160,7 +160,7 @@ static FUNC_ATTRS void __enableReceptionInterrupts(void) {
  */
 //extern FUNC_ATTRS void handleExecuteActuation(void (actuationDoneCallback)(void));
 
-static FUNC_ATTRS void handleExecuteActuation(void (actuationDoneCallback)(void)) {
+static FUNC_ATTRS void handleExecuteActuation(void (*const actuationDoneCallback)(void)) {
     switch (ParticleAttributes.actuationCommand.executionState) {
         case ACTUATION_STATE_TYPE_IDLE:
             if (ParticleAttributes.actuationCommand.isScheduled) {

@@ -18,8 +18,8 @@
 //extern FUNC_ATTRS void __interpretWaitForBeingEnumeratedReception(volatile RxPort *rxPort,
 //                                                                  volatile CommunicationProtocolPortState *commPortState);
 
-static FUNC_ATTRS void __interpretWaitForBeingEnumeratedReception(RxPort *rxPort,
-                                                                  CommunicationProtocolPortState *commPortState) {
+static FUNC_ATTRS void __interpretWaitForBeingEnumeratedReception(RxPort *const rxPort,
+                                                                  CommunicationProtocolPortState *const commPortState) {
     Package *package = (Package *) rxPort->buffer.bytes;
     // interpret according to local reception protocol state
     switch (commPortState->receptionistState) {
@@ -78,7 +78,7 @@ static FUNC_ATTRS void __interpretWaitForBeingEnumeratedReception(RxPort *rxPort
  */
 //extern FUNC_ATTRS void __interpretReceivedPackage(volatile DirectionOrientedPort *port);
 
-static FUNC_ATTRS void __interpretReceivedPackage(volatile DirectionOrientedPort *port) {
+static FUNC_ATTRS void __interpretReceivedPackage(const DirectionOrientedPort *const port) {
     Package *package = (Package *) port->rxPort->buffer.bytes;
 
     switch (package->asHeader.id) {
@@ -154,10 +154,10 @@ static FUNC_ATTRS void __interpretReceivedPackage(volatile DirectionOrientedPort
 //                                                                 uint8_t expectedRemoteAddressRow,
 //                                                                 uint8_t expectedRemoteAddressColumn);
 
-static FUNC_ATTRS void __interpretEnumerateNeighbourAckReception(RxPort *rxPort,
-                                                                 CommunicationProtocolPortState *commPortState,
-                                                                 uint8_t expectedRemoteAddressRow,
-                                                                 uint8_t expectedRemoteAddressColumn) {
+static FUNC_ATTRS void __interpretEnumerateNeighbourAckReception(RxPort *const rxPort,
+                                                                 CommunicationProtocolPortState *const commPortState,
+                                                                 const uint8_t expectedRemoteAddressRow,
+                                                                 const uint8_t expectedRemoteAddressColumn) {
     // DEBUG_INT16_OUT(expectedRemoteAddressRow);
     // DEBUG_INT16_OUT(ParticleAttributes.node.address.row);
     // DEBUG_INT16_OUT(expectedRemoteAddressColumn);
@@ -199,7 +199,7 @@ static FUNC_ATTRS void __interpretEnumerateNeighbourAckReception(RxPort *rxPort,
  */
 //extern FUNC_ATTRS void interpretRxBuffer(volatile DirectionOrientedPort *port);
 
-static FUNC_ATTRS void interpretRxBuffer(DirectionOrientedPort *port) {
+static FUNC_ATTRS void interpretRxBuffer(DirectionOrientedPort *const port) {
     DEBUG_CHAR_OUT('I');
     switch (ParticleAttributes.node.state) {
         case STATE_TYPE_WAIT_FOR_BEING_ENUMERATED:

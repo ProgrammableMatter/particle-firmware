@@ -72,7 +72,7 @@
  */
 //extern DECODING_FUNC_ATTRS void __storeDataBit(RxPort *rxPort, const uint8_t isRisingEdge);
 
-static DECODING_FUNC_ATTRS void __storeDataBit(RxPort *rxPort, const uint8_t isRisingEdge) {
+static DECODING_FUNC_ATTRS void __storeDataBit(RxPort *const rxPort, const bool isRisingEdge) {
     // save bit to buffer
     if (!isBufferEndPosition(&rxPort->buffer.pointer)) {
         if (isRisingEdge) {
@@ -119,7 +119,7 @@ inline void __printSnapshotBufferSizeToSimulationRegister(RxSnapshotBuffer *o) {
  */
 //extern DECODING_FUNC_ATTRS void __rxSnapshotBufferIncrementStartIndex(RxSnapshotBuffer *o);
 
-static DECODING_FUNC_ATTRS void __rxSnapshotBufferIncrementStartIndex(RxSnapshotBuffer *o) {
+static DECODING_FUNC_ATTRS void __rxSnapshotBufferIncrementStartIndex(RxSnapshotBuffer *const o) {
     if (o->startIndex >= (RX_NUMBER_SNAPSHOTS - 1)) {
         o->startIndex = 0;
         return;
@@ -135,7 +135,7 @@ static DECODING_FUNC_ATTRS void __rxSnapshotBufferIncrementStartIndex(RxSnapshot
  */
 //extern DECODING_FUNC_ATTRS void __rxSnapshotBufferIncrementEndIndex(RxSnapshotBuffer *o);
 
-static DECODING_FUNC_ATTRS void __rxSnapshotBufferIncrementEndIndex(RxSnapshotBuffer *o) {
+static DECODING_FUNC_ATTRS void __rxSnapshotBufferIncrementEndIndex(RxSnapshotBuffer *const o) {
 
     if (o->endIndex >= (RX_NUMBER_SNAPSHOTS - 1)) {
         o->endIndex = 0;
@@ -172,9 +172,9 @@ static DECODING_FUNC_ATTRS void __rxSnapshotBufferIncrementEndIndex(RxSnapshotBu
 //extern DECODING_FUNC_ATTRS void __calculateTimestampLag(uint16_t *a, uint16_t *b,
 //                                                        uint16_t *result);
 
-static DECODING_FUNC_ATTRS void __calculateTimestampLag(uint16_t *previousSnapshotValue,
-                                                        uint16_t *currentSnapshotValue,
-                                                        uint16_t *result) {
+static DECODING_FUNC_ATTRS void __calculateTimestampLag(const uint16_t *const previousSnapshotValue,
+                                                        const uint16_t *const currentSnapshotValue,
+                                                        uint16_t *const result) {
     if ((*currentSnapshotValue) >= (*previousSnapshotValue)) {
         *result = *currentSnapshotValue - *previousSnapshotValue;
     } else { // if capture timer counter has overflowed
@@ -190,11 +190,11 @@ static DECODING_FUNC_ATTRS void __calculateTimestampLag(uint16_t *previousSnapsh
  * @param snapshotsBuffer a reference to the buffer to store to
  *
  */
-extern DECODING_FUNC_ATTRS void captureSnapshot(uint16_t *timerCounterValue, const bool isRisingEdge,
-                                                RxSnapshotBuffer *snapshotBuffer);
+extern DECODING_FUNC_ATTRS void captureSnapshot(uint16_t *const timerCounterValue, const bool isRisingEdge,
+                                                RxSnapshotBuffer *const snapshotBuffer);
 
-DECODING_FUNC_ATTRS void captureSnapshot(uint16_t *timerCounterValue, const bool isRisingEdge,
-                                         RxSnapshotBuffer *snapshotBuffer) {
+DECODING_FUNC_ATTRS void captureSnapshot(uint16_t *const timerCounterValue, const bool isRisingEdge,
+                                         RxSnapshotBuffer *const snapshotBuffer) {
 
     uint8_t nextEndIdx = 0;
     if (snapshotBuffer->endIndex >= (RX_NUMBER_SNAPSHOTS - 1)) {
@@ -245,7 +245,7 @@ DECODING_FUNC_ATTRS void captureSnapshot(uint16_t *timerCounterValue, const bool
 // */
 ////extern DECODING_FUNC_ATTRS void __approximateNewTxClockShift(uint16_t *snapshotValue);
 
-static DECODING_FUNC_ATTRS void __approximateNewTxClockShift(uint16_t snapshotValue) {
+static DECODING_FUNC_ATTRS void __approximateNewTxClockShift(const uint16_t snapshotValue) {
     ParticleAttributes.communication.timerAdjustment.isTransmissionClockShiftUpdateable = false;
     MEMORY_BARRIER;
     ParticleAttributes.communication.timerAdjustment.newTransmissionClockShift =
@@ -263,11 +263,11 @@ static DECODING_FUNC_ATTRS void __approximateNewTxClockShift(uint16_t snapshotVa
  * @param port the port to decode from and buffer to
  * @param interpreterImpl a interpreter implementation reference
  */
-extern FUNC_ATTRS void manchesterDecodeBuffer(DirectionOrientedPort *port,
-                                              void (*interpreterImpl)(DirectionOrientedPort *));
+extern FUNC_ATTRS void manchesterDecodeBuffer(DirectionOrientedPort *const port,
+                                              void (*const interpreterImpl)(DirectionOrientedPort *));
 
-FUNC_ATTRS void manchesterDecodeBuffer(DirectionOrientedPort *port,
-                                       void (*interpreterImpl)(DirectionOrientedPort *)) {
+FUNC_ATTRS void manchesterDecodeBuffer(DirectionOrientedPort *const port,
+                                       void (*const interpreterImpl)(DirectionOrientedPort *)) {
     RxPort *rxPort = port->rxPort;
     if (rxPort->isDataBuffered == true) {
         return;

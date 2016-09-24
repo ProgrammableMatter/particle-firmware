@@ -10,12 +10,12 @@
 #include "common/common.h"
 
 
-extern PROTOCOL_FUNC_ATTRS void setEvenParityBit(TxPort *txPort);
+extern PROTOCOL_FUNC_ATTRS void setEvenParityBit(TxPort *const txPort);
 /**
  * Stores the even parity bit of the TxPort's buffer to the same buffer.
  * The port data and data end position must be set up correctly.
  */
-PROTOCOL_FUNC_ATTRS void setEvenParityBit(TxPort *txPort) {
+PROTOCOL_FUNC_ATTRS void setEvenParityBit(TxPort *const txPort) {
     Package *package = (Package *) txPort->buffer.bytes;
     package->asHeader.parityBit = 0;
 
@@ -49,11 +49,11 @@ PROTOCOL_FUNC_ATTRS void setEvenParityBit(TxPort *txPort) {
     package->asHeader.parityBit = (evenParity getBit 1);
 }
 
-extern FUNC_ATTRS bool isEvenParity(RxPort *rxPort);
+extern FUNC_ATTRS bool isEvenParity(const RxPort *const rxPort);
 /**
  * Tests received buffer for even parity.
  */
-FUNC_ATTRS bool isEvenParity(RxPort *rxPort) {
+FUNC_ATTRS bool isEvenParity(const RxPort *const rxPort) {
     // on even parity
     if (rxPort->parityBitCounter == 0) {
         return true;
