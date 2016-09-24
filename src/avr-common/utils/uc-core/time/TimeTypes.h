@@ -7,7 +7,7 @@
  * Structure to Keep track of number of intervals passed since time tracking was activated.
  * A time interval can be adjusted at runtime.
  */
-typedef struct {
+typedef struct LocalTimeTracking {
     volatile uint16_t numTimePeriodsPassed;
     /**
      * adjustable delay for fine tuning

@@ -12,7 +12,7 @@
 /**
  * Possible manchester decoder states.
  */
-typedef enum {
+typedef enum ManchesterDecodingStateType {
     DECODER_STATE_TYPE_START, // initialization state before decoding
     DECODER_STATE_TYPE_DECODING, // state when decoding
     DECODER_STATE_TYPE_POST_TIMEOUT_PROCESS, // state after last decoding
@@ -21,7 +21,7 @@ typedef enum {
 /**
  * Manchester decoder state and phase state struct.
  */
-typedef struct {
+typedef struct ManchesterDecoderStates {
     ManchesterDecodingStateType decodingState;
     /**
      * phase state: the 1 bit counter is incremented by 1 on short intervals and
@@ -35,7 +35,7 @@ typedef struct {
  * A snapshot consists of a 16 bit value and the flank direction information. The least significant snapshot
  * bit is scarified for the flank direction information. Thus only the bits [15:1] of the snapshot are stored.
  */
-typedef struct {
+typedef struct Snapshot {
     volatile uint16_t isRisingEdge : 1;
     /**
      * The least significant snapshot value bit is ignored; this should be used as:
@@ -48,7 +48,7 @@ typedef struct {
  * The struct is used as buffer for storing timestamps of received pin change interrupts.
  * The timestamps are then decoded to bits and stored to a RxBuffer struct.
  */
-typedef struct {
+typedef struct RxSnapshotBuffer {
     /**
      * Manchester decoder states
      */

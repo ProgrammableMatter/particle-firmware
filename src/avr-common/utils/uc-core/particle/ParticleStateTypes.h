@@ -17,7 +17,7 @@
 /**
  * Possible particle's state machine states are listed in this enum.
  */
-typedef enum {
+typedef enum StateType {
     // uninitialized state
             STATE_TYPE_UNDEFINED = 0,
     // state when particle is initializing
@@ -107,7 +107,7 @@ typedef enum {
  * The node type describes node type according to the connectivity detected when discovery process
  * finished.
  */
-typedef enum {
+typedef enum NodeType {
     // invalid or uninitialized note
             NODE_TYPE_INVALID = 0,
     // not connected node
@@ -127,7 +127,7 @@ typedef enum {
 /**
  * The discovery pulse counter stores the amount of discovery pulses and the connectivity state.
  */
-typedef struct {
+typedef struct DiscoveryPulseCounter {
     // discovery pulse counter
     volatile uint8_t counter : 5;
     // connectivity flag
@@ -139,7 +139,7 @@ typedef struct {
  * Stores the amount of incoming pulses for each communication channel. The isConnected flags are set
  * if the number of incoming pulses exceeds a specific threshold.
  */
-typedef struct {
+typedef struct DiscoveryPulseCounters {
     DiscoveryPulseCounter north;
     DiscoveryPulseCounter east;
     DiscoveryPulseCounter south;
@@ -151,7 +151,7 @@ typedef struct {
  * The node address in the network. The origin node is addressed as row=1, column=1.
  * Address (0,0) is reserved.
  */
-typedef struct {
+typedef struct NodeAddress {
     uint8_t row;
     uint8_t column;
 } NodeAddress;
@@ -159,7 +159,7 @@ typedef struct {
 /**
  * Describes the node state type and address.
  */
-typedef struct {
+typedef struct Node {
     /**
      * Describes the global node states.
      */
@@ -185,7 +185,7 @@ typedef struct {
 /**
  * facade to bundle port resources
  */
-typedef struct {
+typedef struct DirectionOrientedPort {
     /**
      * discovery related
      */
@@ -217,7 +217,7 @@ typedef struct {
 /**
  * facade to bundle port resources in a direction oriented way
  */
-typedef struct {
+typedef struct DirectionOrientedPorts {
     /**
      * north port resources
      */
@@ -239,7 +239,7 @@ typedef struct {
 /**
  * The global particle structure containing buffers, states, counters and alike.
  */
-typedef struct {
+typedef struct Particle {
 #ifdef SIMULATION
     // a marker used to assure the correct interpretation of the particle structure when simulating
     uint8_t __structStartMarker;
