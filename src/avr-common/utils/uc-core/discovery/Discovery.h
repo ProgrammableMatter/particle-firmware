@@ -12,9 +12,9 @@
  * Increments the port discovery counter, but Overflows at RX_DISCOVERY_PULSE_COUNTER_MAX.
  * @param portCounter reference to the designated port counter
  */
-extern FUNC_ATTRS void dispatchFallingDiscoveryEdge(volatile DiscoveryPulseCounter *portCounter);
+extern FUNC_ATTRS void dispatchFallingDiscoveryEdge(DiscoveryPulseCounter *portCounter);
 
-FUNC_ATTRS void dispatchFallingDiscoveryEdge(volatile DiscoveryPulseCounter *portCounter) {
+FUNC_ATTRS void dispatchFallingDiscoveryEdge(DiscoveryPulseCounter *portCounter) {
     if (portCounter->counter < RX_DISCOVERY_PULSE_COUNTER_MAX) {
         portCounter->counter++;
 

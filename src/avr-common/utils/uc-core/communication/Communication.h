@@ -38,9 +38,9 @@ FUNC_ATTRS void bufferBitPointerStart(volatile BufferBitPointer *o) {
  * The marker is set one bit beyond the last data bit.
  * @param o the transmission port reference
  */
-extern FUNC_ATTRS bool isDataEndPosition(volatile TxPort *o);
+extern FUNC_ATTRS bool isDataEndPosition(TxPort *o);
 
-FUNC_ATTRS bool isDataEndPosition(volatile TxPort *o) {
+FUNC_ATTRS bool isDataEndPosition(TxPort *o) {
     return o->dataEndPos.bitMask == o->buffer.pointer.bitMask &&
            o->dataEndPos.byteNumber == o->buffer.pointer.byteNumber;
 }

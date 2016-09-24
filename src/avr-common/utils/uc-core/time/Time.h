@@ -26,6 +26,7 @@
 #define SCHEDULE_NEXT_LOCAL_TIME_INTERRUPT \
     if (ParticleAttributes.localTime.isTimePeriodInterruptDelayUpdateable) { \
         ParticleAttributes.localTime.timePeriodInterruptDelay = ParticleAttributes.localTime.newTimePeriodInterruptDelay; \
+        MEMORY_BARRIER; \
         ParticleAttributes.localTime.isTimePeriodInterruptDelayUpdateable = false; \
     } \
         LOCAL_TIME_INTERRUPT_COMPARE_VALUE += ParticleAttributes.localTime.timePeriodInterruptDelay
@@ -39,5 +40,6 @@ extern FUNC_ATTRS void enableLocalTimeInterrupt(void);
 
 FUNC_ATTRS void enableLocalTimeInterrupt(void) {
     LOCAL_TIME_INTERRUPT_COMPARE_VALUE = ParticleAttributes.localTime.timePeriodInterruptDelay;
+    MEMORY_BARRIER;
     LOCAL_TIME_INTERRUPT_COMPARE_ENABLE;
 }

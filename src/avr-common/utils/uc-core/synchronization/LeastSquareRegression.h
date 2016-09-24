@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include "SynchronizationTypes.h"
+
 typedef uint16_t MeasurementValueType;
 typedef float CalculationType;
 typedef float DeviationType;
@@ -39,29 +41,31 @@ Measurement measurements =//__attribute__ ((section (".noinit"))) =
 typedef uint16_t CumulationType;
 
 
+
 /**
  * calculating Linear least squares fitting function for measured values
  * https://en.wikipedia.org/wiki/Linear_least_squares_(mathematics)#Orthogonal_decomposition_methods
  */
-void calculateFittingFunction(void) {
+void calculateFittingFunction(MeasurementFiFoBuffer *measurements) {
     CumulationType a = 0, b = 0, c = 0, d = 0, e = 0, f = 0;
     CumulationType x = 0, y = 0;
     DeviationType mean = 0;
 
     for (uint8_t idx = 0; idx < measurements.numValues; idx++) {
-        x = measurements.xValues[idx];
         y = measurements.durations[idx];
 
-        a += 2 * (x * x);
-        b += 2 * x * y;
-        c += 2 * x;
+        // TODO optimize: pull 2-factor out of loop
+        a += 2 * idx * idx;
+        b += 2 * idx * y;
+        c += 2 * idx;
 
         d += 2;
         e += 2 * y;
-        f += 2 * x;
+        //f += 2 * idx;
 
         mean += y;
     }
+    f = c;
 
     mean /= measurements.numValues;
 

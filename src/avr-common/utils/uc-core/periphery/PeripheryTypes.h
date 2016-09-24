@@ -49,5 +49,5 @@ typedef struct Periphery {
     uint16_t loopCount;
     BlinkAddress blinkAddress;
     BlinkTimeInterval blinkTimeInterval;
-} volatile Periphery;
+} Periphery;
 

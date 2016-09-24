@@ -40,9 +40,9 @@ CTOR_ATTRS void constructPortBuffer(volatile PortBuffer *o) {
  * constructor function
  * @param o reference to the object to construct
  */
-extern CTOR_ATTRS void constructTxPort(volatile TxPort *o);
+extern CTOR_ATTRS void constructTxPort(TxPort *o);
 
-CTOR_ATTRS void constructTxPort(volatile TxPort *o) {
+CTOR_ATTRS void constructTxPort(TxPort *o) {
     constructPortBuffer(&(o->buffer));
     constructBufferBitPointer(&o->dataEndPos);
     o->isTransmitting = false;
@@ -56,9 +56,9 @@ CTOR_ATTRS void constructTxPort(volatile TxPort *o) {
  * constructor function
  * @param o reference to the object to construct
  */
-extern CTOR_ATTRS void constructTxPorts(volatile TxPorts *o);
+extern CTOR_ATTRS void constructTxPorts(TxPorts *o);
 
-CTOR_ATTRS void constructTxPorts(volatile TxPorts *o) {
+CTOR_ATTRS void constructTxPorts(TxPorts *o) {
     constructTxPort(&o->north);
     constructTxPort(&o->east);
     constructTxPort(&o->south);
@@ -68,9 +68,9 @@ CTOR_ATTRS void constructTxPorts(volatile TxPorts *o) {
  * constructor function
  * @param o reference to the object to construct
  */
-extern CTOR_ATTRS void constructRxPort(volatile RxPort *o);
+extern CTOR_ATTRS void constructRxPort(RxPort *o);
 
-CTOR_ATTRS void constructRxPort(volatile RxPort *o) {
+CTOR_ATTRS void constructRxPort(RxPort *o) {
     constructRxSnapshotBuffer(&o->snapshotsBuffer);
     constructPortBuffer(&(o->buffer));
     // o->receptionOffset = 0;
@@ -83,9 +83,9 @@ CTOR_ATTRS void constructRxPort(volatile RxPort *o) {
  * constructor function
  * @param o reference to the object to construct
  */
-extern CTOR_ATTRS void constructRxPorts(volatile RxPorts *o);
+extern CTOR_ATTRS void constructRxPorts(RxPorts *o);
 
-CTOR_ATTRS void constructRxPorts(volatile RxPorts *o) {
+CTOR_ATTRS void constructRxPorts(RxPorts *o) {
     constructRxPort(&(o->north));
     constructRxPort(&(o->east));
     constructRxPort(&(o->south));
@@ -95,9 +95,9 @@ CTOR_ATTRS void constructRxPorts(volatile RxPorts *o) {
  * constructor function
  * @param o reference to the object to construct
  */
-extern CTOR_ATTRS void constructCommunicationPorts(volatile CommunicationPorts *o);
+extern CTOR_ATTRS void constructCommunicationPorts(CommunicationPorts *o);
 
-CTOR_ATTRS void constructCommunicationPorts(volatile CommunicationPorts *o) {
+CTOR_ATTRS void constructCommunicationPorts(CommunicationPorts *o) {
     constructTxPorts(&(o->tx));
     constructRxPorts(&(o->rx));
 }
@@ -106,9 +106,9 @@ CTOR_ATTRS void constructCommunicationPorts(volatile CommunicationPorts *o) {
  * constructor function
  * @param o reference to the object to construct
  */
-extern CTOR_ATTRS void constructTransmissionTimerAdjustment(volatile TransmissionTimerAdjustment *o);
+extern CTOR_ATTRS void constructTransmissionTimerAdjustment(TransmissionTimerAdjustment *o);
 
-CTOR_ATTRS void constructTransmissionTimerAdjustment(volatile TransmissionTimerAdjustment *o) {
+CTOR_ATTRS void constructTransmissionTimerAdjustment(TransmissionTimerAdjustment *o) {
     o->maxShortIntervalDurationOvertimePercentageRatio = DEFAULT_MAX_SHORT_RECEPTION_OVERTIME_PERCENTAGE_RATIO;
     o->maxShortIntervalDuration =
             (DEFAULT_MAX_SHORT_RECEPTION_OVERTIME_PERCENTAGE_RATIO / 100.0) * DEFAULT_TX_RX_CLOCK_DELAY;
@@ -130,9 +130,9 @@ CTOR_ATTRS void constructTransmissionTimerAdjustment(volatile TransmissionTimerA
  * constructor function
  * @param o reference to the object to construct
  */
-extern CTOR_ATTRS void constructCommunication(volatile Communication *o);
+extern CTOR_ATTRS void constructCommunication(Communication *o);
 
-CTOR_ATTRS void constructCommunication(volatile Communication *o) {
+CTOR_ATTRS void constructCommunication(Communication *o) {
     constructTransmissionTimerAdjustment(&o->timerAdjustment);
     constructCommunicationPorts(&o->ports);
 }

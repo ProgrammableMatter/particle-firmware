@@ -18,9 +18,9 @@
 //extern FUNC_ATTRS void __interpretWaitForBeingEnumeratedReception(volatile RxPort *rxPort,
 //                                                                  volatile CommunicationProtocolPortState *commPortState);
 
-static FUNC_ATTRS void __interpretWaitForBeingEnumeratedReception(volatile RxPort *rxPort,
-                                                                  volatile CommunicationProtocolPortState *commPortState) {
-    volatile Package *package = (Package *) rxPort->buffer.bytes;
+static FUNC_ATTRS void __interpretWaitForBeingEnumeratedReception(RxPort *rxPort,
+                                                                  CommunicationProtocolPortState *commPortState) {
+    Package *package = (Package *) rxPort->buffer.bytes;
     // interpret according to local reception protocol state
     switch (commPortState->receptionistState) {
         // on received address information
@@ -154,8 +154,8 @@ static FUNC_ATTRS void __interpretReceivedPackage(volatile DirectionOrientedPort
 //                                                                 uint8_t expectedRemoteAddressRow,
 //                                                                 uint8_t expectedRemoteAddressColumn);
 
-static FUNC_ATTRS void __interpretEnumerateNeighbourAckReception(volatile RxPort *rxPort,
-                                                                 volatile CommunicationProtocolPortState *commPortState,
+static FUNC_ATTRS void __interpretEnumerateNeighbourAckReception(RxPort *rxPort,
+                                                                 CommunicationProtocolPortState *commPortState,
                                                                  uint8_t expectedRemoteAddressRow,
                                                                  uint8_t expectedRemoteAddressColumn) {
     // DEBUG_INT16_OUT(expectedRemoteAddressRow);
@@ -199,7 +199,7 @@ static FUNC_ATTRS void __interpretEnumerateNeighbourAckReception(volatile RxPort
  */
 //extern FUNC_ATTRS void interpretRxBuffer(volatile DirectionOrientedPort *port);
 
-static FUNC_ATTRS void interpretRxBuffer(volatile DirectionOrientedPort *port) {
+static FUNC_ATTRS void interpretRxBuffer(DirectionOrientedPort *port) {
     DEBUG_CHAR_OUT('I');
     switch (ParticleAttributes.node.state) {
         case STATE_TYPE_WAIT_FOR_BEING_ENUMERATED:

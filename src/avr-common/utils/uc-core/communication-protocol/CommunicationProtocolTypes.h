@@ -19,7 +19,7 @@ typedef enum CommunicationInitiatorStateTypes {
     COMMUNICATION_INITIATOR_STATE_TYPE_WAIT_FOR_RESPONSE,
     COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT_ACK,
     COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT_ACK_WAIT_FOR_TX_FINISHED
-} volatile CommunicationInitiatorStateTypes;
+} CommunicationInitiatorStateTypes;
 
 /**
  * Describes communication states of the receptionist. The receptionist is the particle
@@ -31,7 +31,7 @@ typedef enum CommunicationReceptionistStateTypes {
     COMMUNICATION_RECEPTIONIST_STATE_TYPE_TRANSMIT_ACK,
     COMMUNICATION_RECEPTIONIST_STATE_TYPE_TRANSMIT_ACK_WAIT_TX_FINISHED,
     COMMUNICATION_RECEPTIONIST_STATE_TYPE_WAIT_FOR_RESPONSE
-} volatile CommunicationReceptionistStateTypes;
+} CommunicationReceptionistStateTypes;
 
 /**
  * Describes the communication port state.
@@ -48,7 +48,7 @@ typedef struct CommunicationProtocolPortState {
     */
     uint8_t reTransmissions : 4;
     uint8_t __pad : 4;
-} volatile CommunicationProtocolPortState;
+} CommunicationProtocolPortState;
 
 /**
  * Communication protocol ports bundle.
@@ -57,7 +57,7 @@ typedef struct CommunicationProtocolPorts {
     CommunicationProtocolPortState north;
     CommunicationProtocolPortState east;
     CommunicationProtocolPortState south;
-} volatile CommunicationProtocolPorts;
+} CommunicationProtocolPorts;
 
 /**
  * Describes the network geometry; valid row/col values are (> 0) && (<= UINT8_MAX).
@@ -65,7 +65,7 @@ typedef struct CommunicationProtocolPorts {
 typedef struct NetworkGeometry {
     uint8_t rows;
     uint8_t columns;
-} volatile NetworkGeometry;
+} NetworkGeometry;
 
 /**
  * The communication protocol structure.
@@ -74,7 +74,7 @@ typedef struct CommunicationProtocol {
     CommunicationProtocolPorts ports;
     NetworkGeometry networkGeometry;
     uint8_t hasNetworkGeometryDiscoveryBreadCrumb : 1;
-    uint8_t isBroadcastEnabled : 1;
-    uint8_t isSimultaneousTransmissionEnabled : 1;
+    volatile uint8_t isBroadcastEnabled : 1;
+    volatile uint8_t isSimultaneousTransmissionEnabled : 1;
     uint8_t __pad : 5;
-} volatile CommunicationProtocol;
+} CommunicationProtocol;

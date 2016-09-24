@@ -12,6 +12,7 @@
 #include "uc-core/discovery/Discovery.h"
 #include "uc-core/communication/Transmission.h"
 #include "uc-core/communication/CommunicationTypesCtors.h"
+#include "uc-core/synchronization/Synchronization.h"
 
 /**
  * Executes a synchronize local time package.
@@ -19,11 +20,11 @@
  * @param package the package to interpret and execute
  */
 extern FUNC_ATTRS void executeSynchronizeLocalTimePackage(
-        volatile TimePackage *package, volatile PortBuffer *portBuffer);
+        const TimePackage *const package, const PortBuffer *const portBuffer);
 
-FUNC_ATTRS void executeSynchronizeLocalTimePackage(volatile TimePackage *package,
-                                                   volatile PortBuffer *portBuffer) {
-    //, volatile RxSnapshotBuffer *snapshotBuffer) {
+FUNC_ATTRS void executeSynchronizeLocalTimePackage(const TimePackage *const package,
+                                                   const PortBuffer *const portBuffer) {
+    //,  RxSnapshotBuffer *snapshotBuffer) {
     // DEBUG_INT16_OUT(snapshotBuffer->temporaryTxStopSnapshotTimerValue - snapshotBuffer->temporaryTxStartSnapshotTimerValue);
     // DEBUG_INT16_OUT(TIMER_TX_RX_COUNTER_VALUE);
 
@@ -40,23 +41,36 @@ FUNC_ATTRS void executeSynchronizeLocalTimePackage(volatile TimePackage *package
     TEST_POINT1_TOGGLE;
 
 
-    double accelerationFactor = 1.0;
-    // on package reception longer than expected -> accelerate the clock
+//    double accelerationFactor = 1.0;
+//    // on package reception longer than expected -> accelerate the clock
+//    if (portBuffer->receptionEndTimestamp >= portBuffer->receptionStartTimestamp) {
+//        accelerationFactor = (portBuffer->receptionEndTimestamp - portBuffer->receptionStartTimestamp) /
+//                             ParticleAttributes.localTime.timePeriodInterruptDelay;
+//        ParticleAttributes.localTime.newTimePeriodInterruptDelay =
+//                (1.0 + accelerationFactor) * ParticleAttributes.localTime.timePeriodInterruptDelay;
+//        ParticleAttributes.localTime.isTimePeriodInterruptDelayUpdateable = true;
+//    } else {
+//        // on package reception shorter than expected -> decelerate the clock
+//        accelerationFactor = (portBuffer->receptionStartTimestamp - portBuffer->receptionEndTimestamp) /
+//                             ParticleAttributes.localTime.timePeriodInterruptDelay;
+//        ParticleAttributes.localTime.newTimePeriodInterruptDelay =
+//                (1.0 - accelerationFactor) * ParticleAttributes.localTime.timePeriodInterruptDelay;
+//        ParticleAttributes.localTime.isTimePeriodInterruptDelayUpdateable = true;
+//    }
+
+
+    // the synchronization package rx duration should be exactly one uint_16 timestamp overflow
     if (portBuffer->receptionEndTimestamp >= portBuffer->receptionStartTimestamp) {
-        accelerationFactor = (portBuffer->receptionEndTimestamp - portBuffer->receptionStartTimestamp) /
-                             ParticleAttributes.localTime.timePeriodInterruptDelay;
-        ParticleAttributes.localTime.newTimePeriodInterruptDelay =
-                (1.0 + accelerationFactor) * ParticleAttributes.localTime.timePeriodInterruptDelay;
-        ParticleAttributes.localTime.isTimePeriodInterruptDelayUpdateable = true;
+        // on package reception longer than expected -> accelerate the clock
+        samplesFifoBufferAddSample(
+                0x7fff + (portBuffer->receptionEndTimestamp - portBuffer->receptionStartTimestamp),
+                &ParticleAttributes.timeSynchronization.timeIntervalSamples);
     } else {
         // on package reception shorter than expected -> decelerate the clock
-        accelerationFactor = (portBuffer->receptionStartTimestamp - portBuffer->receptionEndTimestamp) /
-                             ParticleAttributes.localTime.timePeriodInterruptDelay;
-        ParticleAttributes.localTime.newTimePeriodInterruptDelay =
-                (1.0 - accelerationFactor) * ParticleAttributes.localTime.timePeriodInterruptDelay;
-        ParticleAttributes.localTime.isTimePeriodInterruptDelayUpdateable = true;
+        samplesFifoBufferAddSample(
+                0x7fff - (portBuffer->receptionStartTimestamp - portBuffer->receptionEndTimestamp),
+                &ParticleAttributes.timeSynchronization.timeIntervalSamples);
     }
-
 
     // DEBUG_INT16_OUT(TIMER_TX_RX_COUNTER_VALUE);
     // DEBUG_INT16_OUT(package->time);
@@ -72,9 +86,9 @@ FUNC_ATTRS void executeSynchronizeLocalTimePackage(volatile TimePackage *package
  * Executes a set local address package.
  * @param package the package to interpret and execute
  */
-extern FUNC_ATTRS void executeSetLocalAddress(volatile EnumerationPackage *package);
+extern FUNC_ATTRS void executeSetLocalAddress(EnumerationPackage *package);
 
-FUNC_ATTRS void executeSetLocalAddress(volatile EnumerationPackage *package) {
+FUNC_ATTRS void executeSetLocalAddress(EnumerationPackage *package) {
     ParticleAttributes.node.address.row = package->addressRow;
     ParticleAttributes.node.address.column = package->addressColumn;
     ParticleAttributes.protocol.hasNetworkGeometryDiscoveryBreadCrumb = package->hasNetworkGeometryDiscoveryBreadCrumb;
@@ -87,9 +101,9 @@ FUNC_ATTRS void executeSetLocalAddress(volatile EnumerationPackage *package) {
  * @param package the package to interpret and execute
  */
 extern FUNC_ATTRS void executeAnnounceNetworkGeometryPackage(
-        volatile AnnounceNetworkGeometryPackage *package);
+        AnnounceNetworkGeometryPackage *package);
 
-FUNC_ATTRS void executeAnnounceNetworkGeometryPackage(volatile AnnounceNetworkGeometryPackage *package) {
+FUNC_ATTRS void executeAnnounceNetworkGeometryPackage(AnnounceNetworkGeometryPackage *package) {
 
     if (ParticleAttributes.node.type == NODE_TYPE_ORIGIN) {
         ParticleAttributes.protocol.networkGeometry.rows = package->rows;
@@ -110,9 +124,10 @@ FUNC_ATTRS void executeAnnounceNetworkGeometryPackage(volatile AnnounceNetworkGe
  * @param source where to read the bytes from
  * @param destination where to store the bytes to
  */
-//extern FUNC_ATTRS void __volatileSram9ByteMemcopy(volatile void *source, volatile void *destination);
+//extern FUNC_ATTRS void __volatileSram9ByteMemcopy( void *source,  void *destination);
 
-static FUNC_ATTRS void __volatileSram9ByteMemcopy(volatile void *source, volatile void *destination) {
+static FUNC_ATTRS void __volatileSram9ByteMemcopy(const void *const source,
+                                                  volatile void *const destination) {
     ((uint16_t *) destination)[0] = ((uint16_t *) source)[0];
     ((uint16_t *) destination)[1] = ((uint16_t *) source)[1];
     ((uint16_t *) destination)[2] = ((uint16_t *) source)[2];
@@ -128,10 +143,10 @@ static FUNC_ATTRS void __volatileSram9ByteMemcopy(volatile void *source, volatil
  * @param dataEndPointer the pointer marking the data end on buffer
  * @param endState the node state to switch to
  */
-//extern FUNC_ATTRS void __relayPackage(volatile Package *source, volatile DirectionOrientedPort *destination,
+//extern FUNC_ATTRS void __relayPackage( Package *source,  DirectionOrientedPort *destination,
 //                                      uint16_t dataEndPointer, StateType endState);
 
-static FUNC_ATTRS void __relayPackage(volatile Package *source, volatile DirectionOrientedPort *destination,
+static FUNC_ATTRS void __relayPackage(Package *source, DirectionOrientedPort *destination,
                                       uint16_t dataEndPointer,
                                       StateType endState) {
     clearTransmissionPortBuffer(destination->txPort);
@@ -159,9 +174,9 @@ static FUNC_ATTRS void __relayPackage(volatile Package *source, volatile Directi
  * Performs simultaneous transmission on splitting points.
  * @param package the package to interpret and execute
  */
-extern FUNC_ATTRS void executeSetNetworkGeometryPackage(volatile SetNetworkGeometryPackage *package);
+extern FUNC_ATTRS void executeSetNetworkGeometryPackage(SetNetworkGeometryPackage *package);
 
-FUNC_ATTRS void executeSetNetworkGeometryPackage(volatile SetNetworkGeometryPackage *package) {
+FUNC_ATTRS void executeSetNetworkGeometryPackage(SetNetworkGeometryPackage *package) {
 
     bool deactivateParticle = false;
     if (ParticleAttributes.node.address.row > package->rows ||
@@ -213,13 +228,13 @@ FUNC_ATTRS void executeSetNetworkGeometryPackage(volatile SetNetworkGeometryPack
  * This ensures the adjacent node is closing the current loop at the respective actuator.
  * @param package the package to infer actuator actions from
  */
-//extern FUNC_ATTRS void __inferEastActuatorCommand(volatile Package *package);
+//extern FUNC_ATTRS void __inferEastActuatorCommand( Package *package);
 
-static FUNC_ATTRS void __inferEastActuatorCommand(volatile Package *package) {
+static FUNC_ATTRS void __inferEastActuatorCommand(Package *package) {
     if (ParticleAttributes.actuationCommand.executionState == ACTUATION_STATE_TYPE_IDLE &&
         package->asHeader.id == PACKAGE_HEADER_ID_TYPE_HEAT_WIRES) {
         if (package->asHeader.isRangeCommand) {
-            volatile HeatWiresRangePackage *heatWiresRangePackage = &package->asHeatWiresRangePackage;
+            HeatWiresRangePackage *heatWiresRangePackage = &package->asHeatWiresRangePackage;
             if (heatWiresRangePackage->northRight) ParticleAttributes.actuationCommand.actuators.eastLeft = true;
             if (heatWiresRangePackage->northLeft) ParticleAttributes.actuationCommand.actuators.eastRight = true;
             ParticleAttributes.actuationCommand.actuationStart.periodTimeStamp = heatWiresRangePackage->startTimeStamp;
@@ -228,7 +243,7 @@ static FUNC_ATTRS void __inferEastActuatorCommand(volatile Package *package) {
             ParticleAttributes.actuationCommand.isScheduled = true;
         }
         else {
-            volatile HeatWiresPackage *heatWiresPackage = &package->asHeatWiresPackage;
+            HeatWiresPackage *heatWiresPackage = &package->asHeatWiresPackage;
             if (heatWiresPackage->northRight) ParticleAttributes.actuationCommand.actuators.eastLeft = true;
             if (heatWiresPackage->northLeft) ParticleAttributes.actuationCommand.actuators.eastRight = true;
             ParticleAttributes.actuationCommand.actuationStart.periodTimeStamp = heatWiresPackage->startTimeStamp;
@@ -245,13 +260,13 @@ static FUNC_ATTRS void __inferEastActuatorCommand(volatile Package *package) {
  * the respective actuator.
  * @param package the package to infer actuator actions from
  */
-//extern FUNC_ATTRS void __inferSouthActuatorCommand(volatile Package *package);
+//extern FUNC_ATTRS void __inferSouthActuatorCommand( Package *package);
 
-static FUNC_ATTRS void __inferSouthActuatorCommand(volatile Package *package) {
+static FUNC_ATTRS void __inferSouthActuatorCommand(Package *package) {
     if (package->asHeader.id == PACKAGE_HEADER_ID_TYPE_HEAT_WIRES &&
         ParticleAttributes.actuationCommand.executionState == ACTUATION_STATE_TYPE_IDLE) {
         if (package->asHeader.isRangeCommand) {
-            volatile HeatWiresRangePackage *heatWiresRangePackage = &package->asHeatWiresRangePackage;
+            HeatWiresRangePackage *heatWiresRangePackage = &package->asHeatWiresRangePackage;
             if (heatWiresRangePackage->northRight) ParticleAttributes.actuationCommand.actuators.southLeft = true;
             if (heatWiresRangePackage->northLeft) ParticleAttributes.actuationCommand.actuators.southRight = true;
             ParticleAttributes.actuationCommand.actuationStart.periodTimeStamp = heatWiresRangePackage->startTimeStamp;
@@ -259,7 +274,7 @@ static FUNC_ATTRS void __inferSouthActuatorCommand(volatile Package *package) {
                     heatWiresRangePackage->startTimeStamp + heatWiresRangePackage->duration;
             ParticleAttributes.actuationCommand.isScheduled = true;
         } else {
-            volatile HeatWiresPackage *heatWiresPackage = &package->asHeatWiresPackage;
+            HeatWiresPackage *heatWiresPackage = &package->asHeatWiresPackage;
             if (heatWiresPackage->northRight) ParticleAttributes.actuationCommand.actuators.southLeft = true;
             if (heatWiresPackage->northLeft) ParticleAttributes.actuationCommand.actuators.southRight = true;
             ParticleAttributes.actuationCommand.actuationStart.periodTimeStamp = heatWiresPackage->startTimeStamp;
@@ -274,12 +289,12 @@ static FUNC_ATTRS void __inferSouthActuatorCommand(volatile Package *package) {
  * Interpret a heat wires or heat wires range package and schedule the command.
  * @param package the package to interpret and execute
  */
-//extern FUNC_ATTRS void __scheduleHeatWiresCommand(volatile Package *package);
+//extern FUNC_ATTRS void __scheduleHeatWiresCommand( Package *package);
 
-static FUNC_ATTRS void __scheduleHeatWiresCommand(volatile Package *package) {
+static FUNC_ATTRS void __scheduleHeatWiresCommand(Package *package) {
     if (package->asHeader.id == PACKAGE_HEADER_ID_TYPE_HEAT_WIRES) {
         if (package->asHeader.isRangeCommand) {
-            volatile HeatWiresRangePackage *heatWiresRangePackage = &package->asHeatWiresRangePackage;
+            HeatWiresRangePackage *heatWiresRangePackage = &package->asHeatWiresRangePackage;
             ParticleAttributes.actuationCommand.actuators.northLeft = heatWiresRangePackage->northLeft;
             ParticleAttributes.actuationCommand.actuators.northRight = heatWiresRangePackage->northRight;
             ParticleAttributes.actuationCommand.actuationStart.periodTimeStamp = heatWiresRangePackage->startTimeStamp;
@@ -290,7 +305,7 @@ static FUNC_ATTRS void __scheduleHeatWiresCommand(volatile Package *package) {
             ParticleAttributes.protocol.isBroadcastEnabled = heatWiresRangePackage->header.enableBroadcast;
             ParticleAttributes.actuationCommand.isScheduled = true;
         } else {
-            volatile HeatWiresPackage *heatWiresPackage = &package->asHeatWiresPackage;
+            HeatWiresPackage *heatWiresPackage = &package->asHeatWiresPackage;
             ParticleAttributes.actuationCommand.actuators.northLeft = heatWiresPackage->northLeft;
             ParticleAttributes.actuationCommand.actuators.northRight = heatWiresPackage->northRight;
             ParticleAttributes.actuationCommand.actuationStart.periodTimeStamp = heatWiresPackage->startTimeStamp;
@@ -309,9 +324,9 @@ static FUNC_ATTRS void __scheduleHeatWiresCommand(volatile Package *package) {
  * Performs simultaneous transmission on splitting points.
  * @param package the package to interpret and execute
  */
-extern FUNC_ATTRS void executeHeatWiresPackage(volatile HeatWiresPackage *package);
+extern FUNC_ATTRS void executeHeatWiresPackage(HeatWiresPackage *package);
 
-FUNC_ATTRS void executeHeatWiresPackage(volatile HeatWiresPackage *package) {
+FUNC_ATTRS void executeHeatWiresPackage(HeatWiresPackage *package) {
     if (ParticleAttributes.node.address.row == package->addressRow &&
         ParticleAttributes.node.address.column == package->addressColumn &&
         ParticleAttributes.actuationCommand.executionState == ACTUATION_STATE_TYPE_IDLE) {
@@ -367,9 +382,9 @@ FUNC_ATTRS void executeHeatWiresPackage(volatile HeatWiresPackage *package) {
  * Performs simultaneous transmission on splitting points.
  * @param package the package to interpret and execute
  */
-extern FUNC_ATTRS void executeHeatWiresRangePackage(volatile HeatWiresRangePackage *package);
+extern FUNC_ATTRS void executeHeatWiresRangePackage(HeatWiresRangePackage *package);
 
-FUNC_ATTRS void executeHeatWiresRangePackage(volatile HeatWiresRangePackage *package) {
+FUNC_ATTRS void executeHeatWiresRangePackage(HeatWiresRangePackage *package) {
     NodeAddress nodeAddressTopLeft;
     NodeAddress nodeAddressBottomRight;
     nodeAddressTopLeft.row = package->addressRow0;
@@ -462,9 +477,9 @@ FUNC_ATTRS void executeHeatWiresRangePackage(volatile HeatWiresRangePackage *pac
  * Performs simultaneous transmission on splitting points.
  * @param package the package to interpret and execute
  */
-extern FUNC_ATTRS void executeHeaderPackage(volatile HeaderPackage *package);
+extern FUNC_ATTRS void executeHeaderPackage(HeaderPackage *package);
 
-FUNC_ATTRS void executeHeaderPackage(volatile HeaderPackage *package) {
+FUNC_ATTRS void executeHeaderPackage(HeaderPackage *package) {
 
     if (!ParticleAttributes.protocol.isBroadcastEnabled) {
         // on disabled broadcast: relay package
@@ -492,9 +507,9 @@ FUNC_ATTRS void executeHeaderPackage(volatile HeaderPackage *package) {
  * Performs simultaneous transmission on splitting points.
  * @param package the package to interpret and execute
  */
-extern FUNC_ATTRS void executeHeatWiresModePackage(volatile HeatWiresModePackage *package);
+extern FUNC_ATTRS void executeHeatWiresModePackage(HeatWiresModePackage *package);
 
-FUNC_ATTRS void executeHeatWiresModePackage(volatile HeatWiresModePackage *package) {
+FUNC_ATTRS void executeHeatWiresModePackage(HeatWiresModePackage *package) {
 
     if (!ParticleAttributes.protocol.isBroadcastEnabled) {
         // on disabled broadcast: relay package

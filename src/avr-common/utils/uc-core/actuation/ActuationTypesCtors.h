@@ -8,34 +8,34 @@
 
 #include "ActuationTypes.h"
 
-extern CTOR_ATTRS void constructActuators(volatile Actuators *o);
+extern CTOR_ATTRS void constructActuators(Actuators *o);
 /**
  * constructor function
  * @param o reference to the object to construct
  */
-CTOR_ATTRS void constructActuators(volatile Actuators *o) {
+CTOR_ATTRS void constructActuators(Actuators *o) {
     o->northLeft = false;
     o->northRight = false;
     o->eastLeft = false;
     o->eastRight = false;
 }
 
-extern CTOR_ATTRS void constructHeatingMode(volatile HeatingMode *o);
+extern CTOR_ATTRS void constructHeatingMode(HeatingMode *o);
 
 /**
  * constructor function
  * @param o reference to the object to construct
  */
-CTOR_ATTRS void constructHeatingMode(volatile HeatingMode *o) {
+CTOR_ATTRS void constructHeatingMode(HeatingMode *o) {
     o->dutyCycleLevel = HEATING_LEVEL_TYPE_MEDIUM;
 }
 
-extern FUNC_ATTRS void constructLocalTime(volatile LocalTime *o);
+extern FUNC_ATTRS void constructLocalTime(LocalTime *o);
 /**
  * constructor function
  * @param o reference to the object to construct
  */
-FUNC_ATTRS void constructLocalTime(volatile LocalTime *o) {
+FUNC_ATTRS void constructLocalTime(LocalTime *o) {
     o->periodTimeStamp = 0;
 };
 
@@ -43,9 +43,9 @@ FUNC_ATTRS void constructLocalTime(volatile LocalTime *o) {
  * constructor function
  * @param o reference to the object to construct
  */
-extern CTOR_ATTRS void constructActuationCommand(volatile struct ActuationCommand *o);
+extern CTOR_ATTRS void constructActuationCommand(struct ActuationCommand *o);
 
-CTOR_ATTRS void constructActuationCommand(volatile struct ActuationCommand *o) {
+CTOR_ATTRS void constructActuationCommand(struct ActuationCommand *o) {
     constructActuators(&o->actuators);
     constructHeatingMode(&o->actuationPower);
     constructLocalTime(&o->actuationStart);

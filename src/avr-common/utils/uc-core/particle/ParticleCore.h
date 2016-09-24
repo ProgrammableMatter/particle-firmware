@@ -32,8 +32,6 @@
 /**
  * Disables discovery sensing interrupts.
  */
-//extern FUNC_ATTRS void __disableDiscoverySensing(void);
-
 static FUNC_ATTRS void __disableDiscoverySensing(void) {
     DISCOVERY_INTERRUPTS_DISABLE;
 }
@@ -41,10 +39,9 @@ static FUNC_ATTRS void __disableDiscoverySensing(void) {
 /**
  * Enables discovery sensing interrupts.
  */
-//extern FUNC_ATTRS void __enableDiscoverySensing(void);
-
 static FUNC_ATTRS void __enableDiscoverySensing(void) {
 //    DISCOVERY_INTERRUPTS_SETUP;
+//    MEMORY_BARRIER;
     DISCOVERY_INTERRUPTS_ENABLE;
 }
 
@@ -64,18 +61,15 @@ static FUNC_ATTRS void __disableDiscoveryPulsing(void) {
 /**
  * Enables discovery sensing.
  */
-//extern FUNC_ATTRS void __enableDiscoveryPulsing(void);
-
 static FUNC_ATTRS void __enableDiscoveryPulsing(void) {
     TIMER_NEIGHBOUR_SENSE_ENABLE;
+    MEMORY_BARRIER;
     TIMER_NEIGHBOUR_SENSE_RESUME;
 }
 
 /**
  * Sets up ports and interrupts but does not enable the global interrupt (I-flag in SREG).
  */
-//extern FUNC_ATTRS void __initParticle(void);
-
 static FUNC_ATTRS void __initParticle(void) {
     LED_STATUS1_OFF;
     LED_STATUS2_OFF;
@@ -102,28 +96,30 @@ static FUNC_ATTRS void __initParticle(void) {
     set_sleep_mode(SLEEP_MODE_PWR_DOWN); // set sleep mode to power down
 
     // TODO: evaluation source
+    MEMORY_BARRIER;
     __TIMER1_OVERFLOW_INTERRUPT_ENABLE;
 }
 
 /**
  * Disables all reception interrupts.
  */
-//extern FUNC_ATTRS void __disableReceptionPinChangeInterrupts(void);
-
 static FUNC_ATTRS void __disableReceptionPinChangeInterrupts(void) {
+    DEBUG_CHAR_OUT('O');
     RX_NORTH_INTERRUPT_DISABLE;
+    DEBUG_CHAR_OUT('Q');
     RX_EAST_INTERRUPT_DISABLE;
+    DEBUG_CHAR_OUT('N');
     RX_SOUTH_INTERRUPT_DISABLE;
 }
 
 /**
  * Clears pending and enables reception interrupts for north port if connected.
  */
-//extern FUNC_ATTRS void __enableReceptionHardwareNorth(void);
-
 static FUNC_ATTRS void __enableReceptionHardwareNorth(void) {
     if (ParticleAttributes.discoveryPulseCounters.north.isConnected) {
+        DEBUG_CHAR_OUT('o');
         RX_NORTH_INTERRUPT_CLEAR_PENDING;
+        MEMORY_BARRIER;
         RX_NORTH_INTERRUPT_ENABLE;
     }
 }
@@ -131,11 +127,11 @@ static FUNC_ATTRS void __enableReceptionHardwareNorth(void) {
 /**
  * Clears pending and enables reception interrupts for east port if connected.
  */
-//extern FUNC_ATTRS void __enableReceptionHardwareEast(void);
-
 static FUNC_ATTRS void __enableReceptionHardwareEast(void) {
     if (ParticleAttributes.discoveryPulseCounters.east.isConnected) {
+        DEBUG_CHAR_OUT('q');
         RX_EAST_INTERRUPT_CLEAR_PENDING;
+        MEMORY_BARRIER;
         RX_EAST_INTERRUPT_ENABLE;
     }
 }
@@ -143,11 +139,11 @@ static FUNC_ATTRS void __enableReceptionHardwareEast(void) {
 /**
  * Clears pending and enables reception interrupts for south port if connected.
  */
-//extern FUNC_ATTRS void __enableReceptionHardwareSouth(void);
-
 static FUNC_ATTRS void __enableReceptionHardwareSouth(void) {
     if (ParticleAttributes.discoveryPulseCounters.south.isConnected) {
+        DEBUG_CHAR_OUT('m');
         RX_SOUTH_INTERRUPT_CLEAR_PENDING;
+        MEMORY_BARRIER;
         RX_SOUTH_INTERRUPT_ENABLE;
     }
 }
@@ -155,19 +151,15 @@ static FUNC_ATTRS void __enableReceptionHardwareSouth(void) {
 /**
  * Sets up and enables the tx/rx timer.
  */
-//extern FUNC_ATTRS void __enableTxRxTimer(void);
-
 static FUNC_ATTRS void __enableTxRxTimer(void) {
     TIMER_TX_RX_COUNTER_SETUP;
+    MEMORY_BARRIER;
     TIMER_TX_RX_COUNTER_ENABLE;
-//    TIMER_TX_RX_ENABLE_COMPARE_INTERRUPT;
 }
 
 /**
  * Disables the signal generating transmission interrupt.
  */
-//extern FUNC_ATTRS void __disableTransmission(void);
-
 //static FUNC_ATTRS void __disableTransmission(void) {
 //    TIMER_TX_RX_DISABLE_COMPARE_INTERRUPT;
 //}
@@ -175,10 +167,9 @@ static FUNC_ATTRS void __enableTxRxTimer(void) {
 /**
  * Sets up and enables reception for all connected ports.
  */
-//extern FUNC_ATTRS void __enableReceptionHardwareForConnectedPorts(void);
-
 static FUNC_ATTRS void __enableReceptionHardwareForConnectedPorts(void) {
 //    RX_INTERRUPTS_SETUP;
+//    MEMORY_BARRIER;
 //    RX_INTERRUPTS_ENABLE;
     __enableReceptionHardwareNorth();
     __enableReceptionHardwareEast();
@@ -188,7 +179,6 @@ static FUNC_ATTRS void __enableReceptionHardwareForConnectedPorts(void) {
 /**
  * Disables reception interrupts.
  */
-//static extern FUNC_ATTRS void __disableReception(void);
 
 FUNC_ATTRS void __disableReception(void) {
     __disableReceptionPinChangeInterrupts();
@@ -197,7 +187,6 @@ FUNC_ATTRS void __disableReception(void) {
 /**
  * Enables reception timer and interrupts.
  */
-//static extern FUNC_ATTRS void __enableReception(void);
 
 FUNC_ATTRS void __enableReception(void) {
     __enableTxRxTimer();
@@ -220,7 +209,6 @@ FUNC_ATTRS void __enableReception(void) {
 /**
  * Increments the discovery loop counter.
  */
-// extern FUNC_ATTRS void __discoveryLoopCount(void);
 
 static FUNC_ATTRS void __discoveryLoopCount(void) {
     if (ParticleAttributes.discoveryPulseCounters.loopCount < (UINT8_MAX)) {
@@ -231,8 +219,6 @@ static FUNC_ATTRS void __discoveryLoopCount(void) {
 /**
  * Sets the correct address if this node is the origin node.
  */
-//extern FUNC_ATTRS  void __updateOriginNodeAddress(void);
-
 static FUNC_ATTRS void __updateOriginNodeAddress(void) {
     if (ParticleAttributes.node.type == NODE_TYPE_ORIGIN) {
         ParticleAttributes.node.address.row = 1;
@@ -243,15 +229,14 @@ static FUNC_ATTRS void __updateOriginNodeAddress(void) {
 /**
  * Handles (state driven) the wait for being enumerated node state.
  */
-//extern FUNC_ATTRS void __handleWaitForBeingEnumerated(void);
-
 static FUNC_ATTRS void __handleWaitForBeingEnumerated(void) {
-    volatile CommunicationProtocolPortState *commPortState = &ParticleAttributes.protocol.ports.north;
+    CommunicationProtocolPortState *commPortState = &ParticleAttributes.protocol.ports.north;
     if (commPortState->stateTimeoutCounter == 0 &&
         commPortState->receptionistState != COMMUNICATION_RECEPTIONIST_STATE_TYPE_TRANSMIT_ACK &&
         commPortState->receptionistState !=
         COMMUNICATION_RECEPTIONIST_STATE_TYPE_TRANSMIT_ACK_WAIT_TX_FINISHED) {
         // on timeout: fall back to start state
+        DEBUG_CHAR_OUT('r');
         commPortState->receptionistState = COMMUNICATION_RECEPTIONIST_STATE_TYPE_RECEIVE;
         commPortState->stateTimeoutCounter = COMMUNICATION_PROTOCOL_TIMEOUT_COUNTER_MAX;
         if (commPortState->reTransmissions > 0) {
@@ -275,7 +260,7 @@ static FUNC_ATTRS void __handleWaitForBeingEnumerated(void) {
         case COMMUNICATION_RECEPTIONIST_STATE_TYPE_TRANSMIT_ACK:
             constructEnumerationACKWithAddressToParentPackage();
             enableTransmission(&ParticleAttributes.communication.ports.tx.north);
-            DEBUG_CHAR_OUT('f');
+            DEBUG_CHAR_OUT('g');
             commPortState->receptionistState = COMMUNICATION_RECEPTIONIST_STATE_TYPE_TRANSMIT_ACK_WAIT_TX_FINISHED;
             break;
             // wait for tx finished
@@ -284,7 +269,7 @@ static FUNC_ATTRS void __handleWaitForBeingEnumerated(void) {
                 break;
             }
             clearReceptionPortBuffer(&ParticleAttributes.communication.ports.rx.north);
-            DEBUG_CHAR_OUT('R');
+            DEBUG_CHAR_OUT('h');
             commPortState->receptionistState = COMMUNICATION_RECEPTIONIST_STATE_TYPE_WAIT_FOR_RESPONSE;
             break;
             // wait for response
@@ -301,11 +286,9 @@ static FUNC_ATTRS void __handleWaitForBeingEnumerated(void) {
  * Handles (state driven) neighbour synchronization node states.
  * @param endState the state when handler has finished
  */
-//extern FUNC_ATTRS void __handleSynchronizeNeighbour(StateType endState);
-
 static FUNC_ATTRS void __handleSynchronizeNeighbour(StateType endState) {
-    volatile CommunicationProtocolPortState *commPortState = ParticleAttributes.directionOrientedPorts.simultaneous.protocol;
-    volatile TxPort *txPort = ParticleAttributes.directionOrientedPorts.simultaneous.txPort;
+    CommunicationProtocolPortState *commPortState = ParticleAttributes.directionOrientedPorts.simultaneous.protocol;
+    TxPort *txPort = ParticleAttributes.directionOrientedPorts.simultaneous.txPort;
     switch (commPortState->initiatorState) {
         // transmit local time simultaneously on east and south ports
         case COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT:
@@ -339,8 +322,6 @@ static FUNC_ATTRS void __handleSynchronizeNeighbour(StateType endState) {
  * but if simulation/test macros are defined it redirects to other states accordingly.
  * @param endState the state after this call if no test macros defined
  */
-//extern FUNC_ATTRS void __handleSynchronizeNeighbourDoneOrRunTest(StateType endState);
-
 static FUNC_ATTRS void __handleSynchronizeNeighbourDoneOrRunTest(StateType endState) {
 #if defined(SIMULATION_SET_NEW_NETWORK_GEOMETRY_TEST)
     if (ParticleAttributes.node.type == NODE_TYPE_ORIGIN) {
@@ -400,10 +381,8 @@ static FUNC_ATTRS void __handleSynchronizeNeighbourDoneOrRunTest(StateType endSt
  * Handles (state driven) relaying network geometry communication states.
  * @param endState the state when handler finished
  */
-//extern FUNC_ATTRS void __handleRelayAnnounceNetworkGeometry(StateType endState);
-
 static FUNC_ATTRS void __handleRelayAnnounceNetworkGeometry(StateType endState) {
-    volatile CommunicationProtocolPortState *commPortState = &ParticleAttributes.protocol.ports.north;
+    CommunicationProtocolPortState *commPortState = &ParticleAttributes.protocol.ports.north;
     switch (commPortState->initiatorState) {
         case COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT:
             enableTransmission(&ParticleAttributes.communication.ports.tx.north);
@@ -434,11 +413,9 @@ static FUNC_ATTRS void __handleRelayAnnounceNetworkGeometry(StateType endState) 
  * Handles (event driven) network geometry announcement states.
  * @param endState the state when handler finished
  */
-// extern FUNC_ATTRS void __handleSendAnnounceNetworkGeometry(StateType endState);
-
 static FUNC_ATTRS void __handleSendAnnounceNetworkGeometry(StateType endState) {
-    volatile TxPort *txPort = &ParticleAttributes.communication.ports.tx.north;
-    volatile CommunicationProtocolPortState *commPortState = &ParticleAttributes.protocol.ports.north;
+    TxPort *txPort = &ParticleAttributes.communication.ports.tx.north;
+    CommunicationProtocolPortState *commPortState = &ParticleAttributes.protocol.ports.north;
 
     switch (ParticleAttributes.protocol.ports.north.initiatorState) {
         case COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT:
@@ -470,8 +447,6 @@ static FUNC_ATTRS void __handleSendAnnounceNetworkGeometry(StateType endState) {
 /**
  * Advance communication timeout counters.
  */
-//extern FUNC_ATTRS void __advanceCommunicationProtocolCounters(void);
-
 static FUNC_ATTRS void __advanceCommunicationProtocolCounters(void) {
     if (!ParticleAttributes.communication.ports.tx.north.isTransmitting &&
         ParticleAttributes.protocol.ports.north.stateTimeoutCounter > 0) {
@@ -490,8 +465,6 @@ static FUNC_ATTRS void __advanceCommunicationProtocolCounters(void) {
 /**
  * Handles discovery states, classifies the local node type and switches to next state.
  */
-// extern FUNC_ATTRS void __handleNeighboursDiscovery(void);
-
 static FUNC_ATTRS void __handleNeighboursDiscovery(void) {
     __discoveryLoopCount();
 
@@ -523,8 +496,6 @@ static FUNC_ATTRS void __handleNeighboursDiscovery(void) {
 /**
  * Handles the post discovery extended pulsing period with subsequent switch to next state.
  */
-//extern FUNC_ATTRS void __handleDiscoveryPulsing(void);
-
 static FUNC_ATTRS void __handleDiscoveryPulsing(void) {
     if (ParticleAttributes.discoveryPulseCounters.loopCount >= MAX_NEIGHBOUR_PULSING_LOOPS) {
         __disableDiscoveryPulsing();
@@ -537,8 +508,6 @@ static FUNC_ATTRS void __handleDiscoveryPulsing(void) {
 /**
  * Handle the discovery to enumeration state switch.
  */
-//extern FUNC_ATTRS void __handleDiscoveryPulsingDone(void);
-
 static FUNC_ATTRS void __handleDiscoveryPulsingDone(void) {
 
     if (ParticleAttributes.node.type == NODE_TYPE_ORIGIN) {
@@ -559,11 +528,9 @@ static FUNC_ATTRS void __handleDiscoveryPulsingDone(void) {
  * @param cols the new network geometry rows
  * @param endState the state when handler finished
  */
-//extern FUNC_ATTRS void __handleSetNetworkGeometry(uint8_t rows, uint8_t cols, StateType endState);
-
 static FUNC_ATTRS void __handleSetNetworkGeometry(uint8_t rows, uint8_t cols, StateType endState) {
-    volatile CommunicationProtocolPortState *commPortState = ParticleAttributes.directionOrientedPorts.simultaneous.protocol;
-    volatile TxPort *txPort = ParticleAttributes.directionOrientedPorts.simultaneous.txPort;
+    CommunicationProtocolPortState *commPortState = ParticleAttributes.directionOrientedPorts.simultaneous.protocol;
+    TxPort *txPort = ParticleAttributes.directionOrientedPorts.simultaneous.txPort;
     switch (commPortState->initiatorState) {
         case COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT:
             constructSetNetworkGeometryPackage(txPort, rows, cols);
@@ -595,10 +562,8 @@ static FUNC_ATTRS void __handleSetNetworkGeometry(uint8_t rows, uint8_t cols, St
  * @param port the designated port
  * @param endState the end state when handler finished
  */
-//extern FUNC_ATTRS void __handleSendPackage(volatile DirectionOrientedPort *port, StateType endState);
-
-static FUNC_ATTRS void __handleSendPackage(volatile DirectionOrientedPort *port, StateType endState) {
-    volatile CommunicationProtocolPortState *commPortState = port->protocol;
+static FUNC_ATTRS void __handleSendPackage(DirectionOrientedPort *port, StateType endState) {
+    CommunicationProtocolPortState *commPortState = port->protocol;
     switch (commPortState->initiatorState) {
         case COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT:
             enableTransmission(port->txPort);
@@ -627,8 +592,6 @@ static FUNC_ATTRS void __handleSendPackage(volatile DirectionOrientedPort *port,
 /**
  * Callback when actuation command has finished.
  */
-//extern FUNC_ATTRS void __onActuationDoneCallback(void);
-
 static FUNC_ATTRS void __onActuationDoneCallback(void) {
     ParticleAttributes.node.state = STATE_TYPE_IDLE;
 }
@@ -637,8 +600,6 @@ static FUNC_ATTRS void __onActuationDoneCallback(void) {
  * Checks whether an actuation is to be executed. Switches state if an actuation
  * command is scheduled and the current local time indicates an actuation start.
  */
-//extern FUNC_ATTRS void __handleIsActuationCommandPeriod(void);
-
 static FUNC_ATTRS void __handleIsActuationCommandPeriod(void) {
     if (ParticleAttributes.actuationCommand.isScheduled &&
         ParticleAttributes.actuationCommand.executionState == ACTUATION_STATE_TYPE_IDLE) {
@@ -653,8 +614,6 @@ static FUNC_ATTRS void __handleIsActuationCommandPeriod(void) {
  * The core function is called cyclically in the particle loop. It implements the
  * behaviour of the particle.
  */
-//extern inline void process(void);
-
 static inline void process(void) {
     // DEBUG_CHAR_OUT('P');
     // __heartBeatToggle();
@@ -679,6 +638,7 @@ static inline void process(void) {
         case STATE_TYPE_ACTIVE:
             ParticleAttributes.node.state = STATE_TYPE_NEIGHBOURS_DISCOVERY;
             __enableDiscoverySensing();
+            MEMORY_BARRIER;
             __enableDiscoveryPulsing();
             SEI;
             goto __STATE_TYPE_NEIGHBOURS_DISCOVERY;

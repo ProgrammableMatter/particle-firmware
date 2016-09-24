@@ -10,12 +10,12 @@
 #include "common/common.h"
 
 
-extern PROTOCOL_FUNC_ATTRS void setEvenParityBit(volatile TxPort *txPort);
+extern PROTOCOL_FUNC_ATTRS void setEvenParityBit(TxPort *txPort);
 /**
  * Stores the even parity bit of the TxPort's buffer to the same buffer.
  * The port data and data end position must be set up correctly.
  */
-PROTOCOL_FUNC_ATTRS void setEvenParityBit(volatile TxPort *txPort) {
+PROTOCOL_FUNC_ATTRS void setEvenParityBit(TxPort *txPort) {
     Package *package = (Package *) txPort->buffer.bytes;
     package->asHeader.parityBit = 0;
 
@@ -49,20 +49,22 @@ PROTOCOL_FUNC_ATTRS void setEvenParityBit(volatile TxPort *txPort) {
     package->asHeader.parityBit = (evenParity getBit 1);
 }
 
-extern FUNC_ATTRS bool isEvenParity(volatile RxPort *rxPort);
+extern FUNC_ATTRS bool isEvenParity(RxPort *rxPort);
 /**
  * Tests received buffer for even parity.
  */
-FUNC_ATTRS bool isEvenParity(volatile RxPort *rxPort) {
+FUNC_ATTRS bool isEvenParity(RxPort *rxPort) {
     // on even parity
     if (rxPort->parityBitCounter == 0) {
         return true;
     }
 
+#ifndef SIMULATION
     blinkParityErrorForever(rxPort->parityBitCounter);
+#endif
     return false;
 
-//    volatile Package *package = (Package *) rxPort->buffer.bytes;
+//    Package *package = (Package *) rxPort->buffer.bytes;
 //
 //    // on parity bit set in received package
 //    if (package->asHeader.parityBit) {

@@ -12,6 +12,7 @@
 #include "uc-core/configuration/IoPins.h"
 #include "uc-core/delay/delay.h"
 #include "uc-core/periphery/Periphery.h"
+#include "uc-core/synchronization/Synchronization.h"
 
 /**
  * Resets the decoder phase state do default.
@@ -69,18 +70,18 @@
  * @param rxPort the port where to buffer the bit
  * @param isRisingEdge the signal edge
  */
-//extern DECODING_FUNC_ATTRS void __storeDataBit(volatile RxPort *rxPort, const volatile uint8_t isRisingEdge);
+//extern DECODING_FUNC_ATTRS void __storeDataBit(RxPort *rxPort, const uint8_t isRisingEdge);
 
-static DECODING_FUNC_ATTRS void __storeDataBit(volatile RxPort *rxPort, const volatile uint8_t isRisingEdge) {
+static DECODING_FUNC_ATTRS void __storeDataBit(RxPort *rxPort, const uint8_t isRisingEdge) {
     // save bit to buffer
     if (!isBufferEndPosition(&rxPort->buffer.pointer)) {
         if (isRisingEdge) {
-            // DEBUG_CHAR_OUT('1');
+            DEBUG_CHAR_OUT('1');
             LED_STATUS2_TOGGLE;
             rxPort->buffer.bytes[rxPort->buffer.pointer.byteNumber] setBit rxPort->buffer.pointer.bitMask;
             rxPort->parityBitCounter++;
         } else {
-            // DEBUG_CHAR_OUT('0');
+            DEBUG_CHAR_OUT('0');
             LED_STATUS3_TOGGLE;
             rxPort->buffer.bytes[rxPort->buffer.pointer.byteNumber] unsetBit rxPort->buffer.pointer.bitMask;
         }
@@ -95,12 +96,12 @@ static DECODING_FUNC_ATTRS void __storeDataBit(volatile RxPort *rxPort, const vo
 #define __ifSimulationPrintSnapshotBufferSize(rxSnapshotBufferPtr) \
     __printSnapshotBufferSizeToSimulationRegister(rxSnapshotBufferPtr)
 
-extern inline void __printSnapshotBufferSizeToSimulationRegister(volatile RxSnapshotBuffer *o);
+extern inline void __printSnapshotBufferSizeToSimulationRegister(RxSnapshotBuffer *o);
 
 /**
  * for evaluation purpose
  */
-inline void __printSnapshotBufferSizeToSimulationRegister(volatile RxSnapshotBuffer *o) {
+inline void __printSnapshotBufferSizeToSimulationRegister(RxSnapshotBuffer *o) {
     if (o->endIndex >= o->startIndex) {
         DEBUG_INT16_OUT(o->endIndex - o->startIndex);
     } else {
@@ -116,9 +117,9 @@ inline void __printSnapshotBufferSizeToSimulationRegister(volatile RxSnapshotBuf
  * Increments the snapshots circular buffer start index.
  * @param o the snapshot buffer reference
  */
-//extern DECODING_FUNC_ATTRS void __rxSnapshotBufferIncrementStartIndex(volatile RxSnapshotBuffer *o);
+//extern DECODING_FUNC_ATTRS void __rxSnapshotBufferIncrementStartIndex(RxSnapshotBuffer *o);
 
-static DECODING_FUNC_ATTRS void __rxSnapshotBufferIncrementStartIndex(volatile RxSnapshotBuffer *o) {
+static DECODING_FUNC_ATTRS void __rxSnapshotBufferIncrementStartIndex(RxSnapshotBuffer *o) {
     if (o->startIndex >= (RX_NUMBER_SNAPSHOTS - 1)) {
         o->startIndex = 0;
         return;
@@ -132,9 +133,9 @@ static DECODING_FUNC_ATTRS void __rxSnapshotBufferIncrementStartIndex(volatile R
  * Increments the snapshots circular buffer end index.
  * @param o the snapshot buffer reference
  */
-//extern DECODING_FUNC_ATTRS void __rxSnapshotBufferIncrementEndIndex(volatile RxSnapshotBuffer *o);
+//extern DECODING_FUNC_ATTRS void __rxSnapshotBufferIncrementEndIndex(RxSnapshotBuffer *o);
 
-static DECODING_FUNC_ATTRS void __rxSnapshotBufferIncrementEndIndex(volatile RxSnapshotBuffer *o) {
+static DECODING_FUNC_ATTRS void __rxSnapshotBufferIncrementEndIndex(RxSnapshotBuffer *o) {
 
     if (o->endIndex >= (RX_NUMBER_SNAPSHOTS - 1)) {
         o->endIndex = 0;
@@ -168,12 +169,12 @@ static DECODING_FUNC_ATTRS void __rxSnapshotBufferIncrementEndIndex(volatile RxS
  * @param b subtrahend
  * @param result the positive difference in between the minuend and subtrahend
  */
-//extern DECODING_FUNC_ATTRS void __calculateTimestampLag(volatile uint16_t *a, volatile uint16_t *b,
-//                                                        volatile uint16_t *result);
+//extern DECODING_FUNC_ATTRS void __calculateTimestampLag(uint16_t *a, uint16_t *b,
+//                                                        uint16_t *result);
 
-static DECODING_FUNC_ATTRS void __calculateTimestampLag(volatile uint16_t *previousSnapshotValue,
-                                                        volatile uint16_t *currentSnapshotValue,
-                                                        volatile uint16_t *result) {
+static DECODING_FUNC_ATTRS void __calculateTimestampLag(uint16_t *previousSnapshotValue,
+                                                        uint16_t *currentSnapshotValue,
+                                                        uint16_t *result) {
     if ((*currentSnapshotValue) >= (*previousSnapshotValue)) {
         *result = *currentSnapshotValue - *previousSnapshotValue;
     } else { // if capture timer counter has overflowed
@@ -190,10 +191,10 @@ static DECODING_FUNC_ATTRS void __calculateTimestampLag(volatile uint16_t *previ
  *
  */
 extern DECODING_FUNC_ATTRS void captureSnapshot(uint16_t *timerCounterValue, const bool isRisingEdge,
-                                                volatile RxSnapshotBuffer *snapshotBuffer);
+                                                RxSnapshotBuffer *snapshotBuffer);
 
 DECODING_FUNC_ATTRS void captureSnapshot(uint16_t *timerCounterValue, const bool isRisingEdge,
-                                         volatile RxSnapshotBuffer *snapshotBuffer) {
+                                         RxSnapshotBuffer *snapshotBuffer) {
 
     uint8_t nextEndIdx = 0;
     if (snapshotBuffer->endIndex >= (RX_NUMBER_SNAPSHOTS - 1)) {
@@ -204,13 +205,15 @@ DECODING_FUNC_ATTRS void captureSnapshot(uint16_t *timerCounterValue, const bool
 
     if (nextEndIdx == snapshotBuffer->startIndex) {
         snapshotBuffer->isOverflowed = true;
+#ifndef SIMULATION
+        // TODO: evaluation code
         blinkReceptionBufferOverflowErrorForever();
+#endif
     }
 
     volatile Snapshot *snapshot = &(snapshotBuffer->snapshots[snapshotBuffer->endIndex]);
     __rxSnapshotBufferIncrementEndIndex(snapshotBuffer);
     (*((volatile uint16_t *) (snapshot))) = (*timerCounterValue & 0xFFFE) | isRisingEdge;
-
     __ifSimulationPrintSnapshotBufferSize(snapshotBuffer);
 }
 
@@ -221,31 +224,33 @@ DECODING_FUNC_ATTRS void captureSnapshot(uint16_t *timerCounterValue, const bool
  */
 //extern DECODING_FUNC_ATTRS void __approximateNewTxClockSpeed(volatile RxPort *rxPort);
 
-static DECODING_FUNC_ATTRS void __approximateNewTxClockSpeed(volatile RxPort *rxPort) {
+//static DECODING_FUNC_ATTRS void __approximateNewTxClockSpeed(volatile RxPort *rxPort) {
+//
+//    ParticleAttributes.communication.timerAdjustment.isTransmissionClockDelayUpdateable = false;
+//    __calculateTimestampLag(&rxPort->buffer.receptionStartTimestamp,
+//                            &rxPort->buffer.receptionEndTimestamp,
+//                            &ParticleAttributes.communication.timerAdjustment.newTransmissionClockDelay);
+//    ParticleAttributes.communication.timerAdjustment.newTransmissionClockDelay =
+//            (ParticleAttributes.communication.timerAdjustment.newTransmissionClockDelay /
+//             rxPort->snapshotsBuffer.numberHalfCyclesPassed) * 2;
+//    ParticleAttributes.communication.timerAdjustment.isTransmissionClockDelayUpdateable = true;
+//
+//    // TODO: clock speed adjustment implementation regarding __approximateNewClockSpeed() outcome is missing
+//}
 
-    ParticleAttributes.communication.timerAdjustment.isTransmissionClockDelayUpdateable = false;
-    __calculateTimestampLag(&rxPort->buffer.receptionStartTimestamp,
-                            &rxPort->buffer.receptionEndTimestamp,
-                            &ParticleAttributes.communication.timerAdjustment.newTransmissionClockDelay);
-    ParticleAttributes.communication.timerAdjustment.newTransmissionClockDelay =
-            (ParticleAttributes.communication.timerAdjustment.newTransmissionClockDelay /
-             rxPort->snapshotsBuffer.numberHalfCyclesPassed) * 2;
-    ParticleAttributes.communication.timerAdjustment.isTransmissionClockDelayUpdateable = true;
 
-    // TODO: clock speed adjustment implementation regarding __approximateNewClockSpeed() outcome is missing
-}
+///**
+// * Calculates the a new transmission clock shift/window according to the specified timings.
+// * @param snapshotValue the first snapshot of a transmission
+// */
+////extern DECODING_FUNC_ATTRS void __approximateNewTxClockShift(uint16_t *snapshotValue);
 
-
-/**
- * Calculates the a new transmission clock shift/window according to the specified timings.
- * @param snapshotValue the first snapshot of a transmission
- */
-//extern DECODING_FUNC_ATTRS void __approximateNewTxClockShift(volatile uint16_t *snapshotValue);
-
-static DECODING_FUNC_ATTRS void __approximateNewTxClockShift(volatile uint16_t *snapshotValue) {
+static DECODING_FUNC_ATTRS void __approximateNewTxClockShift(uint16_t snapshotValue) {
     ParticleAttributes.communication.timerAdjustment.isTransmissionClockShiftUpdateable = false;
+    MEMORY_BARRIER;
     ParticleAttributes.communication.timerAdjustment.newTransmissionClockShift =
-            (*snapshotValue % ParticleAttributes.communication.timerAdjustment.transmissionClockDelay) / 2;
+            (snapshotValue % ParticleAttributes.communication.timerAdjustment.transmissionClockDelay) / 2;
+    MEMORY_BARRIER;
     ParticleAttributes.communication.timerAdjustment.isTransmissionClockShiftUpdateable = true;
 
     // TODO: clock synchronization implementation regarding __approximateNewClockShift() outcome is missing
@@ -258,12 +263,12 @@ static DECODING_FUNC_ATTRS void __approximateNewTxClockShift(volatile uint16_t *
  * @param port the port to decode from and buffer to
  * @param interpreterImpl a interpreter implementation reference
  */
-extern FUNC_ATTRS void manchesterDecodeBuffer(volatile DirectionOrientedPort *port,
-                                              void (*interpreterImpl)(volatile DirectionOrientedPort *));
+extern FUNC_ATTRS void manchesterDecodeBuffer(DirectionOrientedPort *port,
+                                              void (*interpreterImpl)(DirectionOrientedPort *));
 
-FUNC_ATTRS void manchesterDecodeBuffer(volatile DirectionOrientedPort *port,
-                                       void (*interpreterImpl)(volatile DirectionOrientedPort *)) {
-    volatile RxPort *rxPort = port->rxPort;
+FUNC_ATTRS void manchesterDecodeBuffer(DirectionOrientedPort *port,
+                                       void (*interpreterImpl)(DirectionOrientedPort *)) {
+    RxPort *rxPort = port->rxPort;
     if (rxPort->isDataBuffered == true) {
         return;
     }
@@ -278,13 +283,13 @@ FUNC_ATTRS void manchesterDecodeBuffer(volatile DirectionOrientedPort *port,
                     __resetDecoderPhaseState(rxPort->snapshotsBuffer.decoderStates.phaseState);
                     rxPort->snapshotsBuffer.temporarySnapshotTimerValue = __getTimerValue(snapshot);
                     ParticleAttributes.communication.timerAdjustment.isTransmissionClockDelayUpdateable = false;
+                    MEMORY_BARRIER;
 //                    rxPort->snapshotsBuffer.temporaryTxStartSnapshotTimerValue = rxPort->snapshotsBuffer.temporarySnapshotTimerValue;
 //                    rxPort->snapshotsBuffer.temporaryTxStopSnapshotTimerValue = rxPort->snapshotsBuffer.temporaryTxStartSnapshotTimerValue;
 
                     // calculate clock shift for synchronization
                     if (rxPort == &ParticleAttributes.communication.ports.rx.north) {
-                        uint16_t timerValue = __getTimerValue(snapshot);
-                        __approximateNewTxClockShift(&timerValue);
+                        __approximateNewTxClockShift(__getTimerValue(snapshot));
                     }
 
                     DEBUG_CHAR_OUT('+');
@@ -372,8 +377,10 @@ FUNC_ATTRS void manchesterDecodeBuffer(volatile DirectionOrientedPort *port,
         value = rxPort->buffer.pointer.bitMask;
         DEBUG_INT16_OUT(rxPort->buffer.pointer.bitMask);
 #endif
-            __approximateNewTxClockSpeed(rxPort);
+            // TODO: capture sync pdu duration -> linear fitting
+//            __approximateNewTxClockSpeed(rxPort);
             rxPort->isDataBuffered = true;
+            MEMORY_BARRIER;
             ParticleAttributes.communication.timerAdjustment.isTransmissionClockDelayUpdateable = true;
             rxPort->snapshotsBuffer.decoderStates.decodingState = DECODER_STATE_TYPE_START;
             interpreterImpl(port);

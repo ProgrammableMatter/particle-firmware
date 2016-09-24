@@ -14,6 +14,7 @@
 #include "PointerImplementation.h"
 #include "uc-core/communication/PointerImplementation.h"
 #include "uc-core/periphery/PeripheryTypesCtors.h"
+#include "uc-core/synchronization/SynchronizationTypesCtors.h"
 
 //
 ///**
@@ -32,9 +33,9 @@
  * constructor function
  * @param o the object to construct
  */
-extern CTOR_ATTRS void constructDiscoveryPulseCounter(volatile DiscoveryPulseCounter *o);
+extern CTOR_ATTRS void constructDiscoveryPulseCounter(DiscoveryPulseCounter *o);
 
-CTOR_ATTRS void constructDiscoveryPulseCounter(volatile DiscoveryPulseCounter *o) {
+CTOR_ATTRS void constructDiscoveryPulseCounter(DiscoveryPulseCounter *o) {
     o->counter = 0;
     o->isConnected = false;
 }
@@ -43,9 +44,9 @@ CTOR_ATTRS void constructDiscoveryPulseCounter(volatile DiscoveryPulseCounter *o
  * constructor function
  * @param o the object to construct
  */
-extern CTOR_ATTRS void constructDiscoveryPulseCounters(volatile DiscoveryPulseCounters *o);
+extern CTOR_ATTRS void constructDiscoveryPulseCounters(DiscoveryPulseCounters *o);
 
-CTOR_ATTRS void constructDiscoveryPulseCounters(volatile DiscoveryPulseCounters *o) {
+CTOR_ATTRS void constructDiscoveryPulseCounters(DiscoveryPulseCounters *o) {
     constructDiscoveryPulseCounter(&(o->north));
     constructDiscoveryPulseCounter(&(o->east));
     constructDiscoveryPulseCounter(&(o->south));
@@ -56,9 +57,9 @@ CTOR_ATTRS void constructDiscoveryPulseCounters(volatile DiscoveryPulseCounters 
  * constructor function
  * @param o the object to construct
  */
-extern CTOR_ATTRS void constructNodeAddress(volatile NodeAddress *o);
+extern CTOR_ATTRS void constructNodeAddress(NodeAddress *o);
 
-CTOR_ATTRS void constructNodeAddress(volatile NodeAddress *o) {
+CTOR_ATTRS void constructNodeAddress(NodeAddress *o) {
     *((uint16_t *) o) = 0x0000;
 }
 
@@ -66,9 +67,9 @@ CTOR_ATTRS void constructNodeAddress(volatile NodeAddress *o) {
  * constructor function
  * @param o the object to construct
  */
-extern CTOR_ATTRS void constructNode(volatile Node *o);
+extern CTOR_ATTRS void constructNode(Node *o);
 
-CTOR_ATTRS void constructNode(volatile Node *o) {
+CTOR_ATTRS void constructNode(Node *o) {
     o->state = STATE_TYPE_UNDEFINED;
     o->type = NODE_TYPE_INVALID;
     constructNodeAddress(&(o->address));
@@ -78,23 +79,23 @@ CTOR_ATTRS void constructNode(volatile Node *o) {
  * constructor function
  * @param o the object to construct
  */
-extern CTOR_ATTRS void constructDirectionOrientedPort(volatile DirectionOrientedPort *o,
-                                                      volatile DiscoveryPulseCounter *discoveryPulseCounter,
-                                                      volatile TxPort *txPort,
-                                                      volatile RxPort *rxPort,
-                                                      void (receivePimpl)(void),
-                                                      void (txHighPimpl)(void),
-                                                      void (txLowPimpl)(void),
-                                                      volatile CommunicationProtocolPortState *protocolState);
+//extern CTOR_ATTRS void constructDirectionOrientedPort(volatile DirectionOrientedPort *o,
+//                                                      volatile DiscoveryPulseCounter *discoveryPulseCounter,
+//                                                      volatile TxPort *txPort,
+//                                                      volatile RxPort *rxPort,
+//                                                      void (receivePimpl)(void),
+//                                                      void (txHighPimpl)(void),
+//                                                      void (txLowPimpl)(void),
+//                                                      volatile CommunicationProtocolPortState *protocolState);
 
-void CTOR_ATTRS constructDirectionOrientedPort(volatile DirectionOrientedPort *o,
-                                               volatile DiscoveryPulseCounter *discoveryPulseCounter,
-                                               volatile TxPort *txPort,
-                                               volatile RxPort *rxPort,
+void CTOR_ATTRS constructDirectionOrientedPort(DirectionOrientedPort *o,
+                                               DiscoveryPulseCounter *discoveryPulseCounter,
+                                               TxPort *txPort,
+                                               RxPort *rxPort,
                                                void (receivePimpl)(void),
                                                void (txHighPimpl)(void),
                                                void (txLowPimpl)(void),
-                                               volatile CommunicationProtocolPortState *protocolState) {
+                                               CommunicationProtocolPortState *protocolState) {
     o->discoveryPulseCounter = discoveryPulseCounter;
     o->rxPort = rxPort;
     o->txPort = txPort;
@@ -108,9 +109,9 @@ void CTOR_ATTRS constructDirectionOrientedPort(volatile DirectionOrientedPort *o
  * constructor function
  * @param o the object to construct
  */
-extern void CTOR_ATTRS constructDirectionOrientedPorts(volatile DirectionOrientedPorts *o);
+//extern void CTOR_ATTRS constructDirectionOrientedPorts(volatile DirectionOrientedPorts *o);
 
-void CTOR_ATTRS constructDirectionOrientedPorts(volatile DirectionOrientedPorts *o) {
+void CTOR_ATTRS constructDirectionOrientedPorts(DirectionOrientedPorts *o) {
     constructDirectionOrientedPort(&o->north,
                                    &ParticleAttributes.discoveryPulseCounters.north,
                                    &ParticleAttributes.communication.ports.tx.north,
@@ -149,15 +150,16 @@ void CTOR_ATTRS constructDirectionOrientedPorts(volatile DirectionOrientedPorts 
  * constructor function
  * @param o the object to construct
  */
-extern CTOR_ATTRS void constructParticle(volatile Particle *o);
+//extern CTOR_ATTRS void constructParticle(volatile Particle *o);
 
-CTOR_ATTRS void constructParticle(volatile Particle *o) {
+CTOR_ATTRS void constructParticle(Particle *o) {
     constructNode(&(o->node));
     constructDiscoveryPulseCounters(&o->discoveryPulseCounters);
     constructCommunication(&o->communication);
     constructPeriphery(&o->periphery);
     constructCommunicationProtocol(&o->protocol);
     constructActuationCommand(&o->actuationCommand);
+    constructTimeSynchronization(&o->timeSynchronization);
     constructLocalTimeTracking(&o->localTime);
     constructDirectionOrientedPorts(&o->directionOrientedPorts);
 #ifdef SIMULATION

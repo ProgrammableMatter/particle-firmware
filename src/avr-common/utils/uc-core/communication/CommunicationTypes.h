@@ -17,7 +17,7 @@ typedef struct BufferBitPointer {
     uint8_t byteNumber : 4; // the referenced byte index
     uint8_t __pad: 4;
     uint8_t bitMask; // the referenced bit in the byte
-} volatile BufferBitPointer;
+} BufferBitPointer;
 
 /**
  * Provides a linear 4 byte buffer and a bit pointer per communication channel.
@@ -35,19 +35,19 @@ typedef struct PortBuffer {
      * field stores the last edge event's timer value of the last transmission
      */
     uint16_t receptionEndTimestamp;
-} volatile PortBuffer;
+} PortBuffer;
 
 /**
  * Transmission port structure.
  */
 typedef struct TxPort {
-    PortBuffer buffer;
-    BufferBitPointer dataEndPos; // data in between buffer start and dataEndPos is to be transmitted
-    uint8_t isTransmitting : 1; // true during transmission, else false
-    uint8_t isTxClockPhase : 1; // true if clock phase, else on data phase
-    uint8_t isDataBuffered : 1; // true if the buffer contains data to be transmitted
+    volatile PortBuffer buffer;
+    volatile BufferBitPointer dataEndPos; // data in between buffer start and dataEndPos is to be transmitted
+    volatile uint8_t isTransmitting : 1; // true during transmission, else false
+    volatile uint8_t isTxClockPhase : 1; // true if clock phase, else on data phase
+    volatile uint8_t isDataBuffered : 1; // true if the buffer contains data to be transmitted
     uint8_t __pad : 5;
-} volatile TxPort;
+} TxPort;
 
 /**
  * Transmission ports bundle.
@@ -56,7 +56,7 @@ typedef struct TxPorts {
     TxPort north;
     TxPort east;
     TxPort south;
-} volatile TxPorts;
+} TxPorts;
 
 /**
  * Reception port structure.
@@ -65,11 +65,11 @@ typedef struct RxPort {
     // each pin interrupt stores snapshots and the flank direction into the buffer
     RxSnapshotBuffer snapshotsBuffer;
     PortBuffer buffer;
-    uint8_t isOverflowed : 1;
-    uint8_t isDataBuffered : 1;
-    uint8_t parityBitCounter : 1; // 1-bit counter to track odd number of 1-bits
-    uint8_t __pad : 5;
-} volatile RxPort;
+    volatile uint8_t isOverflowed : 1;
+    volatile uint8_t isDataBuffered : 1;
+    volatile uint8_t parityBitCounter : 1; // 1-bit counter to track odd number of 1-bits
+    volatile uint8_t __pad : 5;
+} RxPort;
 
 /**
  * Transmission timing related fields that allows runtime changes.
@@ -137,7 +137,7 @@ typedef struct RxPorts {
     RxPort north;
     RxPort east;
     RxPort south;
-} volatile RxPorts;
+} RxPorts;
 
 /**
  * Communication ports bundle.
@@ -145,7 +145,7 @@ typedef struct RxPorts {
 typedef struct CommunicationPorts {
     TxPorts tx;
     RxPorts rx;
-} volatile CommunicationPorts;
+} CommunicationPorts;
 
 /**
  * Communication structure.
@@ -153,4 +153,4 @@ typedef struct CommunicationPorts {
 typedef struct Communication {
     TransmissionTimerAdjustment timerAdjustment;
     CommunicationPorts ports;
-} volatile Communication;
+} Communication;

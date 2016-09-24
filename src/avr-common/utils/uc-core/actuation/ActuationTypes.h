@@ -31,16 +31,17 @@ typedef enum ActuationStateType {
  * Describes which wires are to be actuated. South and east wires will be
  * actuated passively (pulled up or low), whereas north wires will be pulsed
  * according to the power configuration.
+ * Only north wires are driven by IDR, thus volatile.
  */
 typedef struct Actuators {
     /**
      * north left wire
      */
-    uint8_t northLeft : 1;
+    volatile uint8_t northLeft : 1;
     /**
      * north right wire
      */
-    uint8_t northRight : 1;
+    volatile uint8_t northRight : 1;
     /**
      * east left wire: in case of folding along x-axis
      */
@@ -59,7 +60,7 @@ typedef struct Actuators {
     uint8_t southRight :1;
 
     uint8_t __pad : 2;
-} volatile Actuators;
+} Actuators;
 
 /**
  * Describes the heating mode/output power.
@@ -67,14 +68,14 @@ typedef struct Actuators {
 typedef struct HeatingMode {
     uint8_t dutyCycleLevel : 2;
     uint8_t __pad : 6;
-} volatile HeatingMode;
+} HeatingMode;
 
 /**
  * describes a local time stamp
  */
 typedef struct LocalTime {
     uint16_t periodTimeStamp;
-} volatile LocalTime;
+} LocalTime;
 
 /**
  * Describes an actuation command.
@@ -106,4 +107,4 @@ typedef struct ActuationCommand {
      */
     uint8_t isScheduled : 1;
     uint8_t __pad : 7;
-} volatile ActuationCommand;
+} ActuationCommand;

@@ -13,9 +13,9 @@
  * constructor function
  * @param o the object to construct
  */
-extern CTOR_ATTRS void constructLocalTimeTracking(volatile LocalTimeTracking *o);
+extern CTOR_ATTRS void constructLocalTimeTracking(LocalTimeTracking *o);
 
-extern CTOR_ATTRS void constructLocalTimeTracking(volatile LocalTimeTracking *o) {
+extern CTOR_ATTRS void constructLocalTimeTracking(LocalTimeTracking *o) {
     o->numTimePeriodsPassed = 0;
     o->timePeriodInterruptDelay = LOCAL_TIME_DEFAULT_INTERRUPT_DELAY;
     o->newTimePeriodInterruptDelay = 0;

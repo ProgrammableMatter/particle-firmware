@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include "common/common.h"
 #include "uc-core/configuration/interrupts/TxRxTimer.h"
 #include "simulation/SimulationMacros.h"
 
@@ -31,6 +32,7 @@ FUNC_ATTRS void scheduleStartTxInterrupt(void) {
                                  ParticleAttributes.communication.timerAdjustment.transmissionClockDelay)
                                 + 2 * ParticleAttributes.communication.timerAdjustment.transmissionClockDelay
                                 + ParticleAttributes.communication.timerAdjustment.transmissionClockShift;
+    MEMORY_BARRIER;
     TIMER_TX_RX_ENABLE_COMPARE_INTERRUPT;
 }
 
@@ -39,11 +41,12 @@ FUNC_ATTRS void scheduleStartTxInterrupt(void) {
  * there is no more data to transmit.
  * @param port the designated transmissoin port to read the buffer and transmit from
  */
-extern FUNC_ATTRS void enableTransmission(volatile TxPort *port);
+extern FUNC_ATTRS void enableTransmission(TxPort *port);
 
-FUNC_ATTRS void enableTransmission(volatile TxPort *port) {
+FUNC_ATTRS void enableTransmission(TxPort *port) {
     port->isTxClockPhase = true;
     port->isTransmitting = true;
+    MEMORY_BARRIER;
     port->isDataBuffered = true;
     scheduleStartTxInterrupt();
 }

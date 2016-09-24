@@ -29,10 +29,8 @@
  * @param port the designated port
  * @param isRxHigh the logic signal level
  */
-//static extern FUNC_ATTRS void __handleInputInterrupt(volatile DirectionOrientedPort *port,
-//                                             const bool isRxHigh);
 
-FUNC_ATTRS static void __handleInputInterrupt(volatile DirectionOrientedPort *port,
+static FUNC_ATTRS void __handleInputInterrupt(DirectionOrientedPort *port,
                                               const bool isRxHigh) {
     uint16_t timerCounterValue = TIMER_TX_RX_COUNTER_VALUE;
     switch (ParticleAttributes.node.state) {
@@ -53,7 +51,6 @@ FUNC_ATTRS static void __handleInputInterrupt(volatile DirectionOrientedPort *po
 /**
  * Schedules the next transmission interrupt if transmission data is buffered.
  */
-// extern FUNC_ATTRS void __scheduleNextTransmission(void);
 
 static FUNC_ATTRS void __scheduleNextTransmission(void) {
     if (ParticleAttributes.communication.ports.tx.north.isTransmitting ||

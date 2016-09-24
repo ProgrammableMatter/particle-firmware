@@ -161,16 +161,15 @@ static FUNC_ATTRS void __enableReceptionInterrupts(void) {
 //extern FUNC_ATTRS void handleExecuteActuation(void (actuationDoneCallback)(void));
 
 static FUNC_ATTRS void handleExecuteActuation(void (actuationDoneCallback)(void)) {
-    volatile ActuationCommand *actuationCommand = &ParticleAttributes.actuationCommand;
-    switch (actuationCommand->executionState) {
+    switch (ParticleAttributes.actuationCommand.executionState) {
         case ACTUATION_STATE_TYPE_IDLE:
-            if (actuationCommand->isScheduled) {
-                actuationCommand->isScheduled = false;
-                actuationCommand->executionState = ACTUATION_STATE_TYPE_START;
+            if (ParticleAttributes.actuationCommand.isScheduled) {
+                ParticleAttributes.actuationCommand.isScheduled = false;
+                ParticleAttributes.actuationCommand.executionState = ACTUATION_STATE_TYPE_START;
                 goto __ACTUATION_STATE_TYPE_START;
             } else {
                 // in case of race; actuator interrupt vs main loop
-                actuationCommand->executionState = ACTUATION_STATE_TYPE_DONE;
+                ParticleAttributes.actuationCommand.executionState = ACTUATION_STATE_TYPE_DONE;
                 goto __ACTUATION_STATE_TYPE_DONE;
                 return;
             }
@@ -180,7 +179,7 @@ static FUNC_ATTRS void handleExecuteActuation(void (actuationDoneCallback)(void)
         case ACTUATION_STATE_TYPE_START:
 //            DEBUG_CHAR_OUT('y');
             __startActuation();
-            actuationCommand->executionState = ACTUATION_STATE_TYPE_WORKING;
+            ParticleAttributes.actuationCommand.executionState = ACTUATION_STATE_TYPE_WORKING;
             goto __ACTUATION_STATE_TYPE_WORKING;
             break;
 
@@ -188,7 +187,7 @@ static FUNC_ATTRS void handleExecuteActuation(void (actuationDoneCallback)(void)
         case ACTUATION_STATE_TYPE_WORKING:
             if (ParticleAttributes.actuationCommand.actuationEnd.periodTimeStamp <
                 ParticleAttributes.localTime.numTimePeriodsPassed) {
-                actuationCommand->executionState = ACTUATION_STATE_TYPE_RELAXATION_PAUSE;
+                ParticleAttributes.actuationCommand.executionState = ACTUATION_STATE_TYPE_RELAXATION_PAUSE;
                 goto __ACTUATION_STATE_TYPE_RELAXATION_PAUSE;
             }
             return;
@@ -201,14 +200,14 @@ static FUNC_ATTRS void handleExecuteActuation(void (actuationDoneCallback)(void)
             __truncateReceptionBuffers();
             // let bouncing signals pass
             DELAY_US_150;
-            actuationCommand->executionState = ACTUATION_STATE_TYPE_DONE;
+            ParticleAttributes.actuationCommand.executionState = ACTUATION_STATE_TYPE_DONE;
             goto __ACTUATION_STATE_TYPE_DONE;
             break;
 
         __ACTUATION_STATE_TYPE_DONE:
         case ACTUATION_STATE_TYPE_DONE:
             __enableReceptionInterrupts();
-            actuationCommand->executionState = ACTUATION_STATE_TYPE_IDLE;
+            ParticleAttributes.actuationCommand.executionState = ACTUATION_STATE_TYPE_IDLE;
             actuationDoneCallback();
             *((uint8_t *) &ParticleAttributes.actuationCommand.actuators) = 0;
 //            DEBUG_CHAR_OUT('Y');

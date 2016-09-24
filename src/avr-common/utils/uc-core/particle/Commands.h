@@ -44,23 +44,24 @@ FUNC_ATTRS void setNewNetworkGeometry(void) {
  * @param endState state when transaction has finished
  */
 extern FUNC_ATTRS void handleEnumerateNeighbour(
-        volatile DirectionOrientedPort *port,
+        DirectionOrientedPort *port,
         uint8_t remoteAddressRow,
         uint8_t remoteAddressColumn,
         StateType endState);
 
-FUNC_ATTRS void handleEnumerateNeighbour(volatile DirectionOrientedPort *port,
+FUNC_ATTRS void handleEnumerateNeighbour(DirectionOrientedPort *port,
                                          uint8_t remoteAddressRow,
                                          uint8_t remoteAddressColumn,
                                          StateType endState) {
     // TODO: move function to ParticleCore.h
-    volatile CommunicationProtocolPortState *commPortState = port->protocol;
+    CommunicationProtocolPortState *commPortState = port->protocol;
 
 
     if (commPortState->stateTimeoutCounter == 0 &&
         commPortState->initiatorState != COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT &&
         commPortState->initiatorState != COMMUNICATION_INITIATOR_STATE_TYPE_IDLE) {
         // on timeout: fall back to start state
+        DEBUG_CHAR_OUT('T');
         commPortState->initiatorState = COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT;
         commPortState->stateTimeoutCounter = COMMUNICATION_PROTOCOL_TIMEOUT_COUNTER_MAX;
         if (commPortState->reTransmissions > 0) {
@@ -74,7 +75,7 @@ FUNC_ATTRS void handleEnumerateNeighbour(volatile DirectionOrientedPort *port,
         commPortState->initiatorState = COMMUNICATION_INITIATOR_STATE_TYPE_IDLE;
     }
 
-    volatile TxPort *txPort = port->txPort;
+    TxPort *txPort = port->txPort;
     switch (commPortState->initiatorState) {
         // transmit new address
         case COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT:

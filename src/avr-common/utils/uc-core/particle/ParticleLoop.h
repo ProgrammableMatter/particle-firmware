@@ -11,7 +11,7 @@
 /**
  * The main particle loop. It repetitively calls the state driven particle core implementation.
  */
-extern inline void processLoop(void);
+extern inline void processLoop(void) __attribute__ ((noreturn));
 
 inline void processLoop(void) {
     IO_PORTS_SETUP; // configure input/output pins

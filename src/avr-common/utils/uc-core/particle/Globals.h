@@ -13,7 +13,7 @@
 /**
  * The global particle state structure containing attributes, buffers and alike.
  */
-volatile Particle ParticleAttributes __attribute__ ((section (".noinit")));
+Particle ParticleAttributes __attribute__ ((section (".noinit")));
 
 // Further globals can be safely declared here:
 // FooType YourGlobalVariable
