@@ -9,13 +9,15 @@
 #include "SynchronizationTypes.h"
 
 void constructSamplesFifoBuffer(SamplesFifoBuffer *const o) {
+    o->__startIdx = 0;
+    o->__insertIndex = 0;
     o->numSamples = 0;
-    o->startIdx = 0;
-    o->endIdx = 0;
-    o->iterator = o->startIdx;
+    o->iterator = o->__startIdx;
     o->k = 0;
     o->d = 0;
     o->variance = 0;
+    o->stdDeviance = 0;
+    o->isCalculationValid = false;
 }
 
 void constructTimeSynchronization(TimeSynchronization *const o) {

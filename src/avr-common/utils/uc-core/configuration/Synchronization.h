@@ -15,3 +15,10 @@
  * default numeric value indicating buffer's end position
  */
 #define TIME_SYNCHRONIZATION_SAMPLES_FIFO_BUFFER_ITERATOR_END ((uint8_t)(TIME_SYNCHRONIZATION_SAMPLES_FIFO_BUFFER_SIZE + 1))
+
+
+/**
+ * The difference of measured synchronization package durations are shifted by the offset 0x7fff to overcome the
+ * need of signed or uint_32.
+ */
+#define TIME_SYNCHRONIZATION_SAMPLE_OFFSET 0x7fff

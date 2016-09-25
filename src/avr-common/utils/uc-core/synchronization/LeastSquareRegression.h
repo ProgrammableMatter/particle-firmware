@@ -7,78 +7,117 @@
 #pragma once
 
 #include "SynchronizationTypes.h"
+#include "uc-core/configuration/synchronization/LeastSquareRegression.h"
 
-typedef uint16_t MeasurementValueType;
-typedef float CalculationType;
-typedef float DeviationType;
+#ifdef LEAST_SQUARE_REGRESSION_MATH_SQRT
+#  include <math.h>
+#endif
 
-typedef struct Measurement {
-    MeasurementValueType xValues[10];
-    MeasurementValueType durations[10];
-    uint8_t numValues;
-    float k;
-    float d;
-    float variance;
-} Measurement;
 
-Measurement measurements =//__attribute__ ((section (".noinit"))) =
-        {
-                .xValues  = {1, 2, 3, 4},
-                .durations = {6, 5, 7, 10},
-                .numValues = 4,
-//                .k = 0,
-//                .d = 0,
-                .variance = 0,
-        };
+#ifdef LEAST_SQUARE_REGRESSION_BINARY_SEARCH_SQRT
 
-//Measurement measurements =
-//        {
-//                .xValues  = {1, 2, 3, 4, 5},
-//                .durations = {1, 1, 1, 1, 1},
-//                .numValues =5,
-//        };
-
-typedef uint16_t CumulationType;
+#define NAN __builtin_nan("")
 
 
 /**
- * calculating Linear least squares fitting function for measured values
- * https://en.wikipedia.org/wiki/Linear_least_squares_(mathematics)#Orthogonal_decomposition_methods
+ * Binary search for sqrt as proposed in:
+ * http://www.avrfreaks.net/forum/where-sqrt-routine
  */
-void calculateFittingFunction(MeasurementFiFoBuffer *measurements) {
-    CumulationType a = 0, b = 0, c = 0, d = 0, e = 0, f = 0;
-    CumulationType x = 0, y = 0;
-    DeviationType mean = 0;
-
-    for (uint8_t idx = 0; idx < measurements.numValues; idx++) {
-        y = measurements.durations[idx];
-
-        // TODO optimize: pull 2-factor out of loop
-        a += 2 * idx * idx;
-        b += 2 * idx * y;
-        c += 2 * idx;
-
-        d += 2;
-        e += 2 * y;
-        //f += 2 * idx;
-
-        mean += y;
+static void binarySearchSqr(const float *const number, float *const result) {
+#define __binary_sqr_search_digits_accuracy 0.1
+    if ((*number) >= 0) {
+        float left = 0;
+        float right = *number + 1;
+//        float *center = result;
+        while ((right - left) > __binary_sqr_search_digits_accuracy) {
+            *result = (left + right) / 2;
+            if ((*result) * (*result) < (*number))
+                left = *result;
+            else
+                right = *result;
+        };
+        *result = (left + right) / 2;
+    } else {
+        *result = NAN;
     }
-    f = c;
+}
 
-    mean /= measurements.numValues;
+#endif
 
-    for (uint8_t idx = 0; idx < measurements.numValues; idx++) {
-        y = measurements.durations[idx];
-        CalculationType diff;
-        if (y >= mean) {
-            diff = y - mean;
+/**
+ * Calculating Linear Least Squares fitting function for measured values:
+ * https://en.wikipedia.org/wiki/Linear_least_squares_(mathematics)#Orthogonal_decomposition_methods
+ * The output (fitting function and several statistical values) are stored to the SamplesFifoBuffer.
+ */
+void calculateLinearFittingFunction(SamplesFifoBuffer *const measurements) {
+    measurements->isCalculationValid = false;
+
+    CumulationType a_ = 0, b_ = 0, c_ = 0, e_ = 0;
+    SampleValueType y = 0;
+    IndexType x = 1;
+    measurements->mean = 0;
+
+    samplesFifoBufferIteratorStart(measurements);
+    do {
+        y = measurements->samples[measurements->iterator];
+        // a_ += 2 * x * x;
+        a_ += x * x;
+        // b_ += 2 * x * y;
+        b_ += x * y;
+        // c_ += 2 * x;
+        c_ += x;
+        // d_ += 2; --> same as numSamples * 2
+        e_ += y;
+        // f += 2 * x; --> f == c
+
+        // pulled out 2-factor: numSamples * 2
+        measurements->mean += y;
+        x++;
+
+        samplesFifoBufferFiFoBufferIteratorNext(measurements);
+    } while (measurements->iterator < TIME_SYNCHRONIZATION_SAMPLES_FIFO_BUFFER_ITERATOR_END);
+
+    a_ *= 2;
+    b_ *= 2;
+    c_ *= 2;
+    uint8_t d_ = measurements->numSamples * 2;
+    e_ *= 2;
+    CumulationType *f_ = &c_;
+
+    measurements->mean /= measurements->numSamples;
+
+    samplesFifoBufferIteratorStart(measurements);
+    do {
+        y = measurements->samples[measurements->iterator];
+        CalculationType difference;
+        if (y >= measurements->mean) {
+            difference = y - measurements->mean;
         } else {
-            diff = mean - y;
+            difference = measurements->mean - y;
         }
-        measurements.variance += diff * diff;
-    }
-    measurements.variance /= measurements.numValues;
-    measurements.k = (d * b - c * e) / (CalculationType) (d * a - f * c);
-    measurements.d = (-measurements.k * a + b) / c;
+
+        measurements->variance += difference * difference;
+
+        samplesFifoBufferFiFoBufferIteratorNext(measurements);
+    } while (measurements->iterator < TIME_SYNCHRONIZATION_SAMPLES_FIFO_BUFFER_ITERATOR_END);
+
+    measurements->variance /= measurements->numSamples;
+    // we obtain two linear equations from the transformed partial derivatives to d and k
+    // with k explicitly
+    measurements->k = (d_ * b_ - c_ * e_) / (CalculationType) (d_ * a_ - (*f_) * c_);
+    // and d explicitly
+    measurements->d = (-measurements->k * a_ + b_) / c_;
+
+    //  standard deviance as sqrt(variance)
+#ifdef LEAST_SQUARE_REGRESSION_MATH_SQRT
+    measurements->stdDeviance = sqrt(measurements->d);
+#else
+#  if defined(LEAST_SQUARE_REGRESSION_BINARY_SEARCH_SQRT)
+    binarySearchSqr(&measurements->d, &measurements->stdDeviance);
+#  else
+#    error sqrt implementation not specified
+#  endif
+#endif
+
+    measurements->isCalculationValid = true;
 }

@@ -10,13 +10,15 @@
 #include "uc-core/configuration/Synchronization.h"
 
 #ifdef C_STRUCTS_TO_JSON_PARSER_TYPEDEF_NOT_SUPPORTED_SUPPRESS_REGULAR_TYPEDEFS
+# define CumulationType uint32_t
 # define SampleValueType uint16_t
 # define CalculationType float
-# define DeviationType float
+#define IndexType uint8_t
 #else
+typedef uint32_t CumulationType;
 typedef uint16_t SampleValueType;
 typedef float CalculationType;
-typedef float DeviationType;
+typedef uint8_t IndexType;
 #endif
 
 /**
@@ -29,21 +31,21 @@ typedef struct SamplesFifoBuffer {
      */
     SampleValueType samples[TIME_SYNCHRONIZATION_SAMPLES_FIFO_BUFFER_SIZE];
     /**
-     * number of buffered samples
-     */
-    uint8_t numSamples;
-    /**
      * index of 1st valid element in buffer
      */
-    uint8_t startIdx;
+    IndexType __startIdx;
     /**
-     * index of 1st invalid element in buffer
+     * index for next insert
      */
-    uint8_t endIdx;
+    IndexType __insertIndex;
     /**
-    * index of current iterator
+     * number of buffered samples
+     */
+    IndexType numSamples;
+    /**
+    * index of iterator for outer access
     */
-    uint8_t iterator;
+    IndexType iterator;
     /**
     * k as known of f(x)=k*x+d
     */
@@ -53,9 +55,23 @@ typedef struct SamplesFifoBuffer {
     */
     CalculationType d;
     /**
-    * sample's variance
+     * samples' mean
+     */
+    CalculationType mean;
+    /**
+    * samples' variance
     */
-    DeviationType variance;
+    CalculationType variance;
+    /**
+     * samples' standard deviation
+     */
+    CalculationType stdDeviance;
+
+    /**
+     * Indicates whether the fields for calculation results are valid or not.
+     */
+    uint8_t isCalculationValid : 1;
+    uint8_t __pad : 7;
 } SamplesFifoBuffer;
 
 

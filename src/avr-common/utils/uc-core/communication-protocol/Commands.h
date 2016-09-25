@@ -13,6 +13,7 @@
 #include "uc-core/communication/Transmission.h"
 #include "uc-core/communication/CommunicationTypesCtors.h"
 #include "uc-core/synchronization/Synchronization.h"
+#include "uc-core/synchronization/LeastSquareRegression.h"
 
 /**
  * Executes a synchronize local time package.
@@ -56,18 +57,24 @@ void executeSynchronizeLocalTimePackage(const TimePackage *const package,
 //    }
 
 
-    // the synchronization package rx duration should be exactly one uint_16 timestamp overflow
+    // the synchronization package rx duration should take exactly one 16bit timer-counter overflow
     if (portBuffer->receptionEndTimestamp >= portBuffer->receptionStartTimestamp) {
         // on package reception longer than expected -> accelerate the clock
         samplesFifoBufferAddSample(
-                0x7fff + (portBuffer->receptionEndTimestamp - portBuffer->receptionStartTimestamp),
+                TIME_SYNCHRONIZATION_SAMPLE_OFFSET +
+                (portBuffer->receptionEndTimestamp - portBuffer->receptionStartTimestamp),
                 &ParticleAttributes.timeSynchronization.timeIntervalSamples);
     } else {
         // on package reception shorter than expected -> decelerate the clock
         samplesFifoBufferAddSample(
-                0x7fff - (portBuffer->receptionStartTimestamp - portBuffer->receptionEndTimestamp),
+                TIME_SYNCHRONIZATION_SAMPLE_OFFSET -
+                (portBuffer->receptionStartTimestamp - portBuffer->receptionEndTimestamp),
                 &ParticleAttributes.timeSynchronization.timeIntervalSamples);
     }
+
+    // calculate the fitting function to approximate the parameters for the new 16-bit
+    // (tx/rx/time tracking) clock skew
+    calculateLinearFittingFunction(&ParticleAttributes.timeSynchronization.timeIntervalSamples);
 
     // DEBUG_INT16_OUT(TIMER_TX_RX_COUNTER_VALUE);
     // DEBUG_INT16_OUT(package->time);
