@@ -145,7 +145,7 @@ ISR(TX_TIMER_INTERRUPT_VECT) {
 ISR(LOCAL_TIME_INTERRUPT_VECT) {
     TEST_POINT1_TOGGLE;
     ParticleAttributes.localTime.numTimePeriodsPassed++;
-    SCHEDULE_NEXT_LOCAL_TIME_INTERRUPT;
+    scheduleNextLocalTimeInterrupt();
 
 // evaluation code: sync network in broadcast mode: seems unstable
 // after some hops, receiver reports parity bit error

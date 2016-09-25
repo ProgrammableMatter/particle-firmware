@@ -18,8 +18,10 @@
  * @param bufferDataEndPointer the pointer field
  * @param uint16tNewDataEndPointer the new pointer field value
  */
-#define setBufferDataEndPointer(bufferDataEndPointer, uint16tNewDataEndPointer) \
-    (*((uint16_t *) &bufferDataEndPointer) = uint16tNewDataEndPointer)
+void setBufferDataEndPointer(volatile BufferBitPointer *const dataEndPointer,
+                             const uint16_t newDataEndPointer) {
+    (*((volatile uint16_t *) dataEndPointer) = newDataEndPointer);
+}
 
 /**
  * Evaluates to true if the buffered data's end position equals the specified end position,

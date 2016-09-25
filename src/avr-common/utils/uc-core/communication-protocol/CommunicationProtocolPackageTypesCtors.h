@@ -42,7 +42,7 @@ void constructEnumeratePackage(TxPort *const txPort,
     }
     package->asEnumerationPackage.addressRow = localAddressRow;
     package->asEnumerationPackage.addressColumn = localAddressColumn;
-    setBufferDataEndPointer(txPort->dataEndPos, EnumerationPackageBufferPointerSize);
+    setBufferDataEndPointer(&txPort->dataEndPos, EnumerationPackageBufferPointerSize);
     setEvenParityBit(txPort);
 }
 
@@ -59,7 +59,7 @@ void constructEnumerationACKPackage(TxPort *const txPort) {
     package->asACKPackage.id = PACKAGE_HEADER_ID_TYPE_ACK;
     package->asACKPackage.isRangeCommand = false;
 
-    setBufferDataEndPointer(txPort->dataEndPos, AckPackagePointerSize);
+    setBufferDataEndPointer(&txPort->dataEndPos, AckPackagePointerSize);
     setEvenParityBit(txPort);
 
 }
@@ -76,7 +76,7 @@ void constructEnumerationACKWithAddressToParentPackage(void) {
     package->asACKWithLocalAddress.addressRow = ParticleAttributes.node.address.row;
     package->asACKWithLocalAddress.addressColumn = ParticleAttributes.node.address.column;
 
-    setBufferDataEndPointer(ParticleAttributes.communication.ports.tx.north.dataEndPos,
+    setBufferDataEndPointer(&ParticleAttributes.communication.ports.tx.north.dataEndPos,
                             AckWithAddressPackageBufferPointerSize);
     setEvenParityBit(&ParticleAttributes.communication.ports.tx.north);
 }
@@ -102,7 +102,7 @@ void constructSyncTimePackage(TxPort *const txPort) {
 //    package->asSyncTimePackage.packageTransmissionLatency = 0;
 //    package->asSyncTimePackage.stuffing = 0;
 
-    setBufferDataEndPointer(txPort->dataEndPos, TimePackageBufferPointerSize);
+    setBufferDataEndPointer(&txPort->dataEndPos, TimePackageBufferPointerSize);
     setEvenParityBit(txPort);
     // DEBUG_INT16_OUT(TIMER_TX_RX_COUNTER_VALUE);
 }
@@ -123,7 +123,7 @@ void constructAnnounceNetworkGeometryPackage(uint8_t row, uint8_t column) {
     package->asAnnounceNetworkGeometryPackage.rows = row;
     package->asAnnounceNetworkGeometryPackage.columns = column;
 
-    setBufferDataEndPointer(ParticleAttributes.communication.ports.tx.north.dataEndPos,
+    setBufferDataEndPointer(&ParticleAttributes.communication.ports.tx.north.dataEndPos,
                             AnnounceNetworkGeometryPackageBufferPointerSize);
     setEvenParityBit(&ParticleAttributes.communication.ports.tx.north);
 }
@@ -146,7 +146,7 @@ void constructSetNetworkGeometryPackage(TxPort *const txPort, const uint8_t rows
     package->asSetNetworkGeometryPackage.rows = rows;
     package->asSetNetworkGeometryPackage.columns = columns;
 
-    setBufferDataEndPointer(txPort->dataEndPos, SetNetworkGeometryPackageBufferPointerSize);
+    setBufferDataEndPointer(&txPort->dataEndPos, SetNetworkGeometryPackageBufferPointerSize);
     setEvenParityBit(txPort);
 }
 
@@ -179,7 +179,7 @@ void constructHeatWiresPackage(TxPort *const txPort,
     package->asHeatWiresPackage.northLeft = wires->northLeft;
     package->asHeatWiresPackage.northRight = wires->northRight;
 
-    setBufferDataEndPointer(txPort->dataEndPos, HeatWiresPackageBufferPointerSize);
+    setBufferDataEndPointer(&txPort->dataEndPos, HeatWiresPackageBufferPointerSize);
     setEvenParityBit(txPort);
 }
 
@@ -215,7 +215,7 @@ void constructHeatWiresRangePackage(TxPort *const txPort,
     package->asHeatWiresRangePackage.northLeft = wires->northLeft;
     package->asHeatWiresRangePackage.northRight = wires->northRight;
 
-    setBufferDataEndPointer(txPort->dataEndPos, HeatWiresRangePackageBufferPointerSize);
+    setBufferDataEndPointer(&txPort->dataEndPos, HeatWiresRangePackageBufferPointerSize);
     setEvenParityBit(txPort);
 }
 
@@ -224,7 +224,6 @@ void constructHeatWiresRangePackage(TxPort *const txPort,
  * @param txPort the port reference where to buffer the package at
  */
 void constructHeaderPackage(TxPort *const txPort) {
-    // TODO enhancement: calculate and set parity bit
     clearTransmissionPortBuffer(txPort);
     Package *package = (Package *) txPort->buffer.bytes;
     package->asHeader.startBit = 1;
@@ -232,7 +231,7 @@ void constructHeaderPackage(TxPort *const txPort) {
     package->asHeader.isRangeCommand = false;
     package->asHeader.enableBroadcast = false;
 
-    setBufferDataEndPointer(txPort->dataEndPos, HeaderPackagePointerSize);
+    setBufferDataEndPointer(&txPort->dataEndPos, HeaderPackagePointerSize);
     setEvenParityBit(txPort);
 }
 
@@ -250,6 +249,6 @@ void constructHeatWiresModePackage(TxPort *const txPort,
     package->asHeatWiresModePackage.header.enableBroadcast = false;
     package->asHeatWiresModePackage.heatMode = heatingPowerLevel;
 
-    setBufferDataEndPointer(txPort->dataEndPos, HeatWiresModePackageBufferPointerSize);
+    setBufferDataEndPointer(&txPort->dataEndPos, HeatWiresModePackageBufferPointerSize);
     setEvenParityBit(txPort);
 }

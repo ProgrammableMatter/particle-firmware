@@ -140,7 +140,7 @@ static void __relayPackage(const Package *const source,
     clearTransmissionPortBuffer(destination->txPort);
     setInitiatorStateStart(destination->protocol);
     __volatileSram9ByteMemcopy(source, destination->txPort->buffer.bytes);
-    setBufferDataEndPointer(destination->txPort->dataEndPos, dataEndPointer);
+    setBufferDataEndPointer(&destination->txPort->dataEndPos, dataEndPointer);
     ParticleAttributes.node.state = endState;
 
     if (destination == &ParticleAttributes.directionOrientedPorts.simultaneous) {
