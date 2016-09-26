@@ -73,11 +73,11 @@ static void __interpretWaitForBeingEnumeratedReception(RxPort *const rxPort,
  * Interpret received packages in working state (idle state).
  * @param rxPort the port to interpret data from
  */
+
 static void __interpretReceivedPackage(const DirectionOrientedPort *const port) {
     Package *package = (Package *) port->rxPort->buffer.bytes;
 
     switch (package->asHeader.id) {
-
         case PACKAGE_HEADER_ID_TYPE_SYNC_TIME:
             if (isEvenParity(port->rxPort) &&
                 equalsPackageSize(&port->rxPort->buffer.pointer, TimePackageBufferPointerSize)) {

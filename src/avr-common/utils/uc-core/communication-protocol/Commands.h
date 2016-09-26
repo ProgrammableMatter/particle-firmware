@@ -13,7 +13,6 @@
 #include "uc-core/communication/Transmission.h"
 #include "uc-core/communication/CommunicationTypesCtors.h"
 #include "uc-core/synchronization/Synchronization.h"
-#include "uc-core/synchronization/LeastSquareRegression.h"
 
 /**
  * Executes a synchronize local time package.
@@ -26,17 +25,17 @@ void executeSynchronizeLocalTimePackage(const TimePackage *const package,
     // DEBUG_INT16_OUT(snapshotBuffer->temporaryTxStopSnapshotTimerValue - snapshotBuffer->temporaryTxStartSnapshotTimerValue);
     // DEBUG_INT16_OUT(TIMER_TX_RX_COUNTER_VALUE);
 
-    LED_STATUS3_TOGGLE;
-    TIMER_TX_RX_COUNTER_VALUE =
-            package->time +
-            COMMUNICATION_PROTOCOL_TIME_SYNCHRONIZATION_PER_NODE_INTERRUPT_LAG *
-            (ParticleAttributes.node.address.row - 1 +
-             ParticleAttributes.node.address.column - 1) +
-            package->packageTransmissionLatency +
-            COMMUNICATION_PROTOCOL_TIME_SYNCHRONIZATION_PACKAGE_EXECUTION_LAG +
-            COMMUNICATION_PROTOCOL_TIME_SYNCHRONIZATION_MANUAL_POSITIVE_ADJUSTMENT -
-            COMMUNICATION_PROTOCOL_TIME_SYNCHRONIZATION_MANUAL_NEGATIVE_ADJUSTMENT;
-    TEST_POINT1_TOGGLE;
+//    LED_STATUS3_TOGGLE;
+//    TIMER_TX_RX_COUNTER_VALUE =
+//            package->time +
+//            COMMUNICATION_PROTOCOL_TIME_SYNCHRONIZATION_PER_NODE_INTERRUPT_LAG *
+//            (ParticleAttributes.node.address.row - 1 +
+//             ParticleAttributes.node.address.column - 1) +
+//            package->packageTransmissionLatency +
+//            COMMUNICATION_PROTOCOL_TIME_SYNCHRONIZATION_PACKAGE_EXECUTION_LAG +
+//            COMMUNICATION_PROTOCOL_TIME_SYNCHRONIZATION_MANUAL_POSITIVE_ADJUSTMENT -
+//            COMMUNICATION_PROTOCOL_TIME_SYNCHRONIZATION_MANUAL_NEGATIVE_ADJUSTMENT;
+//    TEST_POINT1_TOGGLE;
 
 
 //    double accelerationFactor = 1.0;
@@ -74,15 +73,12 @@ void executeSynchronizeLocalTimePackage(const TimePackage *const package,
 
     // calculate the fitting function to approximate the parameters for the new 16-bit
     // (tx/rx/time tracking) clock skew
-    calculateLinearFittingFunction(&ParticleAttributes.timeSynchronization.timeIntervalSamples);
+    tryApproximateTimings(&ParticleAttributes.timeSynchronization);
 
     // DEBUG_INT16_OUT(TIMER_TX_RX_COUNTER_VALUE);
     // DEBUG_INT16_OUT(package->time);
     // DEBUG_INT16_OUT(package->packageTransmissionLatency);
     ParticleAttributes.protocol.isBroadcastEnabled = package->header.enableBroadcast;
-
-    // TODO: calculate and update communication clock delay ParticleAttributes.communication.timerAdjustment.*
-    // implementation of communication speed adjustment is missing
 }
 
 
@@ -230,7 +226,9 @@ static void __inferEastActuatorCommand(const Package *const package) {
             if (heatWiresRangePackage->northLeft) ParticleAttributes.actuationCommand.actuators.eastRight = true;
             ParticleAttributes.actuationCommand.actuationStart.periodTimeStamp = heatWiresRangePackage->startTimeStamp;
             ParticleAttributes.actuationCommand.actuationEnd.periodTimeStamp =
-                    heatWiresRangePackage->startTimeStamp + heatWiresRangePackage->duration;
+                    heatWiresRangePackage->startTimeStamp +
+                    ((((uint16_t) heatWiresRangePackage->durationMsb) << 8) |
+                     heatWiresRangePackage->durationLsb);
             ParticleAttributes.actuationCommand.isScheduled = true;
         }
         else {
@@ -239,7 +237,9 @@ static void __inferEastActuatorCommand(const Package *const package) {
             if (heatWiresPackage->northLeft) ParticleAttributes.actuationCommand.actuators.eastRight = true;
             ParticleAttributes.actuationCommand.actuationStart.periodTimeStamp = heatWiresPackage->startTimeStamp;
             ParticleAttributes.actuationCommand.actuationEnd.periodTimeStamp =
-                    heatWiresPackage->startTimeStamp + heatWiresPackage->duration;
+                    heatWiresPackage->startTimeStamp +
+                    ((((uint16_t) heatWiresPackage->durationMsb) << 8) | heatWiresPackage->durationLsb);
+
             ParticleAttributes.actuationCommand.isScheduled = true;
         }
     }
@@ -260,7 +260,9 @@ static void __inferSouthActuatorCommand(const Package *const package) {
             if (heatWiresRangePackage->northLeft) ParticleAttributes.actuationCommand.actuators.southRight = true;
             ParticleAttributes.actuationCommand.actuationStart.periodTimeStamp = heatWiresRangePackage->startTimeStamp;
             ParticleAttributes.actuationCommand.actuationEnd.periodTimeStamp =
-                    heatWiresRangePackage->startTimeStamp + heatWiresRangePackage->duration;
+                    heatWiresRangePackage->startTimeStamp +
+                    ((((uint16_t) heatWiresRangePackage->durationMsb) << 8) |
+                     heatWiresRangePackage->durationLsb);
             ParticleAttributes.actuationCommand.isScheduled = true;
         } else {
             const HeatWiresPackage *const heatWiresPackage = &package->asHeatWiresPackage;
@@ -268,7 +270,8 @@ static void __inferSouthActuatorCommand(const Package *const package) {
             if (heatWiresPackage->northLeft) ParticleAttributes.actuationCommand.actuators.southRight = true;
             ParticleAttributes.actuationCommand.actuationStart.periodTimeStamp = heatWiresPackage->startTimeStamp;
             ParticleAttributes.actuationCommand.actuationEnd.periodTimeStamp =
-                    heatWiresPackage->startTimeStamp + heatWiresPackage->duration;
+                    heatWiresPackage->startTimeStamp +
+                    ((((uint16_t) heatWiresPackage->durationMsb) << 8) | heatWiresPackage->durationLsb);
             ParticleAttributes.actuationCommand.isScheduled = true;
         }
     }
@@ -288,7 +291,7 @@ static void __scheduleHeatWiresCommand(const Package *const package) {
             ParticleAttributes.actuationCommand.actuationEnd.periodTimeStamp =
                     heatWiresRangePackage->startTimeStamp +
                     ((((uint16_t) heatWiresRangePackage->durationMsb) << 8) |
-                     heatWiresRangePackage->duration);
+                     heatWiresRangePackage->durationLsb);
             ParticleAttributes.protocol.isBroadcastEnabled = heatWiresRangePackage->header.enableBroadcast;
             ParticleAttributes.actuationCommand.isScheduled = true;
         } else {
@@ -298,7 +301,7 @@ static void __scheduleHeatWiresCommand(const Package *const package) {
             ParticleAttributes.actuationCommand.actuationStart.periodTimeStamp = heatWiresPackage->startTimeStamp;
             ParticleAttributes.actuationCommand.actuationEnd.periodTimeStamp =
                     heatWiresPackage->startTimeStamp +
-                    ((((uint16_t) heatWiresPackage->durationMsb) << 8) | heatWiresPackage->duration);
+                    ((((uint16_t) heatWiresPackage->durationMsb) << 8) | heatWiresPackage->durationLsb);
             ParticleAttributes.protocol.isBroadcastEnabled = heatWiresPackage->header.enableBroadcast;
             ParticleAttributes.actuationCommand.isScheduled = true;
         }

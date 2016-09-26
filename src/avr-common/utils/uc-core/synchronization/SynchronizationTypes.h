@@ -8,6 +8,8 @@
 
 #include <stdint.h>
 #include "uc-core/configuration/Synchronization.h"
+#include "LeastSquareRegressionTypes.h"
+#include "SampleFifoTypes.h"
 
 #ifdef C_STRUCTS_TO_JSON_PARSER_TYPEDEF_NOT_SUPPORTED_SUPPRESS_REGULAR_TYPEDEFS
 # define CumulationType uint32_t
@@ -21,43 +23,18 @@ typedef float CalculationType;
 typedef uint8_t IndexType;
 #endif
 
-/**
- * Simple first-in first-out buffer for 1-dimensional samples (y-values).
- * X-values the samples' index.
- */
-typedef struct SamplesFifoBuffer {
+typedef struct TimeSynchronization {
+    SamplesFifoBuffer timeIntervalSamples;
+    LeastSquareRegressionResult fittingFunction;
     /**
-     * samples buffer
-     */
-    SampleValueType samples[TIME_SYNCHRONIZATION_SAMPLES_FIFO_BUFFER_SIZE];
-    /**
-     * index of 1st valid element in buffer
-     */
-    IndexType __startIdx;
-    /**
-     * index for next insert
-     */
-    IndexType __insertIndex;
-    /**
-     * number of buffered samples
-     */
-    IndexType numSamples;
-    /**
-    * index of iterator for outer access
+    * samples' mean
     */
-    IndexType iterator;
-    /**
-    * k as known of f(x)=k*x+d
-    */
-    CalculationType k;
-    /**
-    * d as known of f(x)=k*x+d
-    */
-    CalculationType d;
-    /**
-     * samples' mean
-     */
     CalculationType mean;
+
+    /**
+     * The progressive mean has kind of knowledge of previous values and is the 1/2 of the last progressive mean and the current value.
+     */
+    CumulationType progressiveMean;
     /**
     * samples' variance
     */
@@ -72,9 +49,4 @@ typedef struct SamplesFifoBuffer {
      */
     uint8_t isCalculationValid : 1;
     uint8_t __pad : 7;
-} SamplesFifoBuffer;
-
-
-typedef struct TimeSynchronization {
-    SamplesFifoBuffer timeIntervalSamples;
 } TimeSynchronization;

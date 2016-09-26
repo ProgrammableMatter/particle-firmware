@@ -21,6 +21,8 @@ void constructEnumeratePackage(TxPort *const txPort,
                                const uint8_t localAddressRow,
                                const uint8_t localAddressColumn) {
     clearTransmissionPortBuffer(txPort);
+//    clearBufferBytes(&txPort->buffer);
+
     Package *package = (Package *) txPort->buffer.bytes;
 
     package->asEnumerationPackage.header.startBit = 1;
@@ -36,7 +38,8 @@ void constructEnumeratePackage(TxPort *const txPort,
             || (txPort == &ParticleAttributes.communication.ports.tx.south
                 && !ParticleAttributes.discoveryPulseCounters.east.isConnected)) {
             package->asEnumerationPackage.hasNetworkGeometryDiscoveryBreadCrumb = true;
-        } else {
+        }
+        else {
             package->asEnumerationPackage.hasNetworkGeometryDiscoveryBreadCrumb = false;
         }
     }
@@ -174,7 +177,7 @@ void constructHeatWiresPackage(TxPort *const txPort,
     package->asHeatWiresPackage.addressRow = address->row;
     package->asHeatWiresPackage.addressColumn = address->column;
     package->asHeatWiresPackage.startTimeStamp = startTimeStamp;
-    package->asHeatWiresPackage.duration = duration & 0x00ff;
+    package->asHeatWiresPackage.durationLsb = duration & 0x00ff;
     package->asHeatWiresPackage.durationMsb = duration & 0x0300;
     package->asHeatWiresPackage.northLeft = wires->northLeft;
     package->asHeatWiresPackage.northRight = wires->northRight;
@@ -210,7 +213,7 @@ void constructHeatWiresRangePackage(TxPort *const txPort,
     package->asHeatWiresRangePackage.addressRow1 = nodeAddressBottomRight->row;
     package->asHeatWiresRangePackage.addressColumn1 = nodeAddressBottomRight->column;
     package->asHeatWiresRangePackage.startTimeStamp = startTimeStamp;
-    package->asHeatWiresRangePackage.duration = duration & 0x00ff;
+    package->asHeatWiresRangePackage.durationLsb = duration & 0x00ff;
     package->asHeatWiresRangePackage.durationMsb = (duration & 0x0300) >> 8;
     package->asHeatWiresRangePackage.northLeft = wires->northLeft;
     package->asHeatWiresRangePackage.northRight = wires->northRight;

@@ -38,9 +38,9 @@ void scheduleStartTxInterrupt(void) {
  * @param port the designated transmission port to read the buffer and transmit from
  */
 void enableTransmission(TxPort *const port) {
+    DEBUG_CHAR_OUT('t');
     port->isTxClockPhase = true;
     port->isTransmitting = true;
-    MEMORY_BARRIER;
     port->isDataBuffered = true;
     scheduleStartTxInterrupt();
 }

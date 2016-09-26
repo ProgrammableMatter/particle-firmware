@@ -224,6 +224,5 @@ void sendHeaderPackage(HeaderPackage *const package) {
 }
 
 void sendSyncPackage(void) {
-    ParticleAttributes.node.state = STATE_TYPE_SYNC_NEIGHBOUR;
-    setInitiatorStateStart(ParticleAttributes.directionOrientedPorts.simultaneous.protocol);
+    ParticleAttributes.node.state = STATE_TYPE_RESYNC_NEIGHBOUR;
 }

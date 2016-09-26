@@ -59,6 +59,7 @@ static void __scheduleNextTransmission(void) {
         scheduleNextTxInterrupt();
     } else {
         TIMER_TX_RX_DISABLE_COMPARE_INTERRUPT;
+        DEBUG_CHAR_OUT('U');
     }
 }
 
@@ -147,15 +148,17 @@ ISR(LOCAL_TIME_INTERRUPT_VECT) {
     ParticleAttributes.localTime.numTimePeriodsPassed++;
     scheduleNextLocalTimeInterrupt();
 
-// evaluation code: sync network in broadcast mode: seems unstable
-// after some hops, receiver reports parity bit error
-//    if ((ParticleAttributes.localTime.numTimePeriodsPassed != 0) &&
-//        (ParticleAttributes.localTime.numTimePeriodsPassed % 2048) == 0) {
-//        if (ParticleAttributes.node.type == NODE_TYPE_ORIGIN) {
-//            sendSyncPackage();
-//            LED_STATUS1_TOGGLE;
-//        }
-//    }
+    if (ParticleAttributes.node.type == NODE_TYPE_ORIGIN) {
+        if (
+//                ParticleAttributes.directionOrientedPorts.east.txPort->isTransmitting == false &&
+//            ParticleAttributes.directionOrientedPorts.south.txPort->isTransmitting == false &&
+                ParticleAttributes.localTime.numTimePeriodsPassed > 2) {
+            if ((ParticleAttributes.localTime.numTimePeriodsPassed % 3) == 0) {
+                sendSyncPackage();
+                LED_STATUS1_TOGGLE;
+            }
+        }
+    }
 }
 
 /**

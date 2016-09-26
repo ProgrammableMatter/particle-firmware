@@ -762,6 +762,11 @@ static inline void process(void) {
 
             // ---------------- working states: sync neighbour ----------------
 
+        case STATE_TYPE_RESYNC_NEIGHBOUR:
+            setInitiatorStateStart(ParticleAttributes.directionOrientedPorts.simultaneous.protocol);
+            ParticleAttributes.node.state = STATE_TYPE_SYNC_NEIGHBOUR;
+            break;
+
         case STATE_TYPE_SYNC_NEIGHBOUR:
             __handleSynchronizeNeighbour(STATE_TYPE_SYNC_NEIGHBOUR_DONE);
             break;
@@ -831,6 +836,7 @@ static inline void process(void) {
 
         __STATE_TYPE_IDLE:
         case STATE_TYPE_IDLE:
+
             ParticleAttributes.directionOrientedPorts.north.receivePimpl();
             ParticleAttributes.directionOrientedPorts.east.receivePimpl();
             ParticleAttributes.directionOrientedPorts.south.receivePimpl();

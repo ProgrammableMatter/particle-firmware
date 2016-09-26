@@ -8,6 +8,7 @@
 
 #include "SynchronizationTypes.h"
 #include "uc-core/configuration/synchronization/LeastSquareRegression.h"
+#include "Synchronization.h"
 
 #ifdef LEAST_SQUARE_REGRESSION_MATH_SQRT
 #  include <math.h>
@@ -18,12 +19,11 @@
 
 #define NAN __builtin_nan("")
 
-
 /**
  * Binary search for sqrt as proposed in:
  * http://www.avrfreaks.net/forum/where-sqrt-routine
  */
-static void binarySearchSqr(const float *const number, float *const result) {
+static void __binarySearchSqr(const float *const number, float *const result) {
 #define __binary_sqr_search_digits_accuracy 0.1
     if ((*number) >= 0) {
         float left = 0;
@@ -45,21 +45,100 @@ static void binarySearchSqr(const float *const number, float *const result) {
 #endif
 
 /**
+ * @return true if enough data is queued for calculations
+ */
+static bool __isEnoughDataAvailable(const TimeSynchronization *const timeSynchronization) {
+    // on too less samples calculation is not performed
+    if (timeSynchronization->timeIntervalSamples.numSamples < TIME_SYNCHRONIZATION_MINIMUM_SAMPLES) {
+        return false;
+    } else {
+        return true;
+    }
+}
+
+void calculateMean(TimeSynchronization *const timeSynchronization) {
+    if (false == __isEnoughDataAvailable(timeSynchronization)) {
+        return;
+    }
+    CumulationType sum = 0;
+    samplesFifoBufferIteratorStart(&timeSynchronization->timeIntervalSamples);
+    do {
+        sum += timeSynchronization->timeIntervalSamples.samples[timeSynchronization->timeIntervalSamples.iterator];
+        samplesFifoBufferFiFoBufferIteratorNext(&timeSynchronization->timeIntervalSamples);
+    } while (timeSynchronization->timeIntervalSamples.iterator <
+             TIME_SYNCHRONIZATION_SAMPLES_FIFO_BUFFER_ITERATOR_END);
+    timeSynchronization->mean = sum / (CalculationType) timeSynchronization->timeIntervalSamples.numSamples;
+}
+
+/**
+ * Calculate the variance and std deviance of the values in the fifo buffer.
+ * @pre The arithmetic mean must be valid.
+ */
+void calculateVarianceAndStdDeviance(TimeSynchronization *const timeSynchronization) {
+    timeSynchronization->isCalculationValid = false;
+    MEMORY_BARRIER;
+
+    if (false == __isEnoughDataAvailable(timeSynchronization)) {
+        return;
+    }
+
+    SampleValueType y = 0;
+    samplesFifoBufferIteratorStart(&timeSynchronization->timeIntervalSamples);
+    // @pre timeSynchronization->mean is valid
+    do {
+        y = timeSynchronization->timeIntervalSamples.samples[timeSynchronization->timeIntervalSamples.iterator];
+        CalculationType difference;
+        if (y >= timeSynchronization->mean) {
+            difference = y - timeSynchronization->mean;
+        } else {
+            difference = timeSynchronization->mean - y;
+        }
+
+        timeSynchronization->variance += difference * difference;
+
+        samplesFifoBufferFiFoBufferIteratorNext(&timeSynchronization->timeIntervalSamples);
+    } while (timeSynchronization->timeIntervalSamples.iterator <
+             TIME_SYNCHRONIZATION_SAMPLES_FIFO_BUFFER_ITERATOR_END);
+
+    timeSynchronization->variance /= timeSynchronization->timeIntervalSamples.numSamples;
+
+    //  standard deviance as sqrt(variance)
+#ifdef LEAST_SQUARE_REGRESSION_MATH_SQRT
+    measurements->stdDeviance = sqrt(timeSynchronization->variance);
+#else
+#  if defined(LEAST_SQUARE_REGRESSION_BINARY_SEARCH_SQRT)
+    __binarySearchSqr(&timeSynchronization->variance, &timeSynchronization->stdDeviance);
+#  else
+#    error sqrt implementation not specified
+#  endif
+#endif
+
+    MEMORY_BARRIER;
+    timeSynchronization->isCalculationValid = true;
+}
+
+/**
  * Calculating Linear Least Squares fitting function for measured values:
  * https://en.wikipedia.org/wiki/Linear_least_squares_(mathematics)#Orthogonal_decomposition_methods
  * The output (fitting function and several statistical values) are stored to the SamplesFifoBuffer.
+ * The arithmetic mean is calculated in the same pass followed by a second std deviance pass.
  */
-void calculateLinearFittingFunction(SamplesFifoBuffer *const measurements) {
-    measurements->isCalculationValid = false;
+void calculateLinearFittingFunction(TimeSynchronization *const timeSynchronization) {
+    timeSynchronization->fittingFunction.isCalculationValid = false;
+    MEMORY_BARRIER;
+
+    if (false == __isEnoughDataAvailable(timeSynchronization)) {
+        return;
+    }
 
     CumulationType a_ = 0, b_ = 0, c_ = 0, e_ = 0;
     SampleValueType y = 0;
     IndexType x = 1;
-    measurements->mean = 0;
+    timeSynchronization->mean = 0;
 
-    samplesFifoBufferIteratorStart(measurements);
+    samplesFifoBufferIteratorStart(&timeSynchronization->timeIntervalSamples);
     do {
-        y = measurements->samples[measurements->iterator];
+        y = timeSynchronization->timeIntervalSamples.samples[timeSynchronization->timeIntervalSamples.iterator];
         // a_ += 2 * x * x;
         a_ += x * x;
         // b_ += 2 * x * y;
@@ -70,54 +149,30 @@ void calculateLinearFittingFunction(SamplesFifoBuffer *const measurements) {
         e_ += y;
         // f += 2 * x; --> f == c
 
-        // pulled out 2-factor: numSamples * 2
-        measurements->mean += y;
+        // 2-factor pulled our of loop means each factor *= 2
+        timeSynchronization->mean += y;
         x++;
 
-        samplesFifoBufferFiFoBufferIteratorNext(measurements);
-    } while (measurements->iterator < TIME_SYNCHRONIZATION_SAMPLES_FIFO_BUFFER_ITERATOR_END);
+        samplesFifoBufferFiFoBufferIteratorNext(&timeSynchronization->timeIntervalSamples);
+    } while (timeSynchronization->timeIntervalSamples.iterator <
+             TIME_SYNCHRONIZATION_SAMPLES_FIFO_BUFFER_ITERATOR_END);
 
     a_ *= 2;
     b_ *= 2;
     c_ *= 2;
-    uint8_t d_ = measurements->numSamples * 2;
+    uint8_t d_ = timeSynchronization->timeIntervalSamples.numSamples * 2;
     e_ *= 2;
     CumulationType *f_ = &c_;
 
-    measurements->mean /= measurements->numSamples;
+    timeSynchronization->mean /= timeSynchronization->timeIntervalSamples.numSamples;
+    calculateVarianceAndStdDeviance(timeSynchronization);
 
-    samplesFifoBufferIteratorStart(measurements);
-    do {
-        y = measurements->samples[measurements->iterator];
-        CalculationType difference;
-        if (y >= measurements->mean) {
-            difference = y - measurements->mean;
-        } else {
-            difference = measurements->mean - y;
-        }
-
-        measurements->variance += difference * difference;
-
-        samplesFifoBufferFiFoBufferIteratorNext(measurements);
-    } while (measurements->iterator < TIME_SYNCHRONIZATION_SAMPLES_FIFO_BUFFER_ITERATOR_END);
-
-    measurements->variance /= measurements->numSamples;
     // we obtain two linear equations from the transformed partial derivatives to d and k
     // with k explicitly
-    measurements->k = (d_ * b_ - c_ * e_) / (CalculationType) (d_ * a_ - (*f_) * c_);
+    timeSynchronization->fittingFunction.k = (d_ * b_ - c_ * e_) / (CalculationType) (d_ * a_ - (*f_) * c_);
     // and d explicitly
-    measurements->d = (-measurements->k * a_ + b_) / c_;
+    timeSynchronization->fittingFunction.d = (timeSynchronization->fittingFunction.k * a_ + b_) / c_;
 
-    //  standard deviance as sqrt(variance)
-#ifdef LEAST_SQUARE_REGRESSION_MATH_SQRT
-    measurements->stdDeviance = sqrt(measurements->d);
-#else
-#  if defined(LEAST_SQUARE_REGRESSION_BINARY_SEARCH_SQRT)
-    binarySearchSqr(&measurements->d, &measurements->stdDeviance);
-#  else
-#    error sqrt implementation not specified
-#  endif
-#endif
-
-    measurements->isCalculationValid = true;
+    MEMORY_BARRIER;
+    timeSynchronization->fittingFunction.isCalculationValid = true;
 }

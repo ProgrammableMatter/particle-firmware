@@ -8,6 +8,7 @@
 
 #include "uc-core/communication/CommunicationTypes.h"
 #include "common/common.h"
+#include "simulation/SimulationMacros.h"
 
 /**
  * Stores the even parity bit of the TxPort's buffer to the same buffer.
@@ -56,9 +57,10 @@ bool isEvenParity(const RxPort *const rxPort) {
         return true;
     }
 
-#ifndef SIMULATION
-    blinkParityErrorForever(rxPort->parityBitCounter);
+#ifdef SIMULATION
+    DEBUG_CHAR_OUT('9');
 #endif
+    blinkParityErrorForever(rxPort->parityBitCounter);
     return false;
 
 //    Package *package = (Package *) rxPort->buffer.bytes;

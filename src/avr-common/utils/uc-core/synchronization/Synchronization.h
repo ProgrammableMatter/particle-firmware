@@ -7,58 +7,40 @@
 #pragma once
 
 #include "SynchronizationTypes.h"
+#include "SamplesFifo.h"
+#include "LeastSquareRegression.h"
 
 /**
- * circular-increment an index with respect to the fifo buffer boundaries
+ * Clock skew approximation entry point: Independent on which approximation strategy is chosen,
+ * this approximation function is triggered after each TimePackage has been received correctly and
+ * it's pdu reception duration offset has been stored to the fifo queue.
  */
-static void __samplesFifoBufferIncrementIndex(uint8_t *const index) {
-    if (*index < (TIME_SYNCHRONIZATION_SAMPLES_FIFO_BUFFER_SIZE - 1)) {
-        (*index)++;
+void tryApproximateTimings(TimeSynchronization *const timeSynchronization) {
+#define __STRATEGY_SIMPLE_MEAN_AND_STDDEVIANCE
+//#define __STRATEGY_LEAST_SQUARE_LINEAR_FITTING
+
+    LED_STATUS1_TOGGLE;
+    LED_STATUS2_TOGGLE;
+    LED_STATUS3_TOGGLE;
+#ifdef __STRATEGY_SIMPLE_MEAN_AND_STDDEVIANCE
+    if (timeSynchronization->progressiveMean == 0) {
+        timeSynchronization->progressiveMean = timeSynchronization->timeIntervalSamples.samples[timeSynchronization->timeIntervalSamples.__insertIndex];
     } else {
-        *index = 0;
+        timeSynchronization->progressiveMean +=
+                timeSynchronization->timeIntervalSamples.samples[timeSynchronization->timeIntervalSamples.__insertIndex];
+        timeSynchronization->progressiveMean /= 2.0;
     }
-}
 
-/**
- * Increments the iterator. If the position equals TIME_SYNCHRONIZATION_SAMPLES_FIFO_BUFFER_ITERATOR_END
- * the buffer's end as been reached.
- */
-void samplesFifoBufferFiFoBufferIteratorNext(SamplesFifoBuffer *const samplesBuffer) {
-    __samplesFifoBufferIncrementIndex(&samplesBuffer->iterator);
-    if (samplesBuffer->iterator == samplesBuffer->__startIdx) {
-        samplesBuffer->iterator = TIME_SYNCHRONIZATION_SAMPLES_FIFO_BUFFER_ITERATOR_END;
-    }
-}
-
-/**
- * Sets the iterator to start position.
- */
-void samplesFifoBufferIteratorStart(SamplesFifoBuffer *const samplesBuffer) {
-    samplesBuffer->iterator = samplesBuffer->__startIdx;
-}
-
-/**
- * Increments the end index for the next value to be inserted (First-in).
- * Also updates the start index for next value to be removed (First-out).
- */
-static void __samplesFifoBufferIncrementInsertIndex(SamplesFifoBuffer *const samplesBuffer) {
-    if (samplesBuffer->numSamples <= 0) {
-        samplesBuffer->__insertIndex++;
-    } else {
-        __samplesFifoBufferIncrementIndex(&samplesBuffer->__insertIndex);
-        if (samplesBuffer->__insertIndex == samplesBuffer->__startIdx) {
-            __samplesFifoBufferIncrementIndex(&samplesBuffer->__startIdx);
-        }
-    }
-}
-
-/**
- * Adds a value to the FiFo buffer.
- */
-void samplesFifoBufferAddSample(const SampleValueType sample, SamplesFifoBuffer *const samplesBuffer) {
-    if (samplesBuffer->numSamples < TIME_SYNCHRONIZATION_SAMPLES_FIFO_BUFFER_SIZE) {
-        samplesBuffer->numSamples++;
-    }
-    __samplesFifoBufferIncrementInsertIndex(samplesBuffer);
-    samplesBuffer->samples[samplesBuffer->__insertIndex] = sample;
+    calculateMean(timeSynchronization);
+    calculateVarianceAndStdDeviance(timeSynchronization);
+#else
+#  if defined(__STRATEGY_LEAST_SQUARE_LINEAR_FITTING)
+    calculateLinearFittingFunction(timeSynchronization);
+#  else
+#    error no approximation strategy specified
+#  endif
+#endif
+    LED_STATUS1_TOGGLE;
+    LED_STATUS2_TOGGLE;
+    LED_STATUS3_TOGGLE;
 }

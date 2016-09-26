@@ -19,13 +19,20 @@ void constructBufferBitPointer(volatile BufferBitPointer *const o) {
 }
 
 /**
+ * writes 0 to the port buffer
+ */
+void clearBufferBytes(volatile PortBuffer *const o) {
+    for (uint8_t i = 0; i < sizeof(o->bytes); i++) {
+        o->bytes[i] = 0;
+    }
+}
+
+/**
  * constructor function
  * @param o reference to the object to construct
  */
 void constructPortBuffer(volatile PortBuffer *const o) {
-    for (uint8_t i = 0; i < sizeof(o->bytes); i++) {
-        o->bytes[i] = 0;
-    }
+    clearBufferBytes(o);
     o->bytes[0] = 0x1; // set start bit
     constructBufferBitPointer(&(o->pointer));
     o->receptionStartTimestamp = 0;

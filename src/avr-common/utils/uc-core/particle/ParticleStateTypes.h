@@ -62,6 +62,8 @@ typedef enum StateType {
     // state when announcing network geometry is finished
             STATE_TYPE_ANNOUNCE_NETWORK_GEOMETRY_DONE,
 
+    // state set by interrupt handler indicating new synchronization to be scheduled
+            STATE_TYPE_RESYNC_NEIGHBOUR,
     // state when origin node sends local time to neighbours
             STATE_TYPE_SYNC_NEIGHBOUR,
     // state when origin sending local time to neighbours has finished

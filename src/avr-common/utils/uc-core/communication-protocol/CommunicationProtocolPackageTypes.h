@@ -173,7 +173,7 @@ typedef struct HeatWiresPackage {
     uint8_t addressRow : 8;
     uint8_t addressColumn: 8;
     uint16_t startTimeStamp : 16;
-    uint8_t duration : 8;
+    uint8_t durationLsb : 8;
     uint8_t durationMsb : 2;
     uint8_t northLeft : 1;
     uint8_t northRight: 1;
@@ -195,7 +195,7 @@ typedef struct HeatWiresRangePackage {
     uint8_t addressRow1 : 8;
     uint8_t addressColumn1 : 8;
     uint16_t startTimeStamp : 16;
-    uint8_t duration : 8;
+    uint8_t durationLsb : 8;
     uint8_t durationMsb : 2;
     uint8_t northLeft : 1;
     uint8_t northRight: 1;

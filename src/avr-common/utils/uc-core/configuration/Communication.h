@@ -47,7 +47,7 @@
  */
 //#define DEFAULT_MAX_SHORT_RECEPTION_OVERTIME_PERCENTAGE_RATIO ((uint8_t) 59)
 // TODO: find lower level
-#define DEFAULT_MAX_SHORT_RECEPTION_OVERTIME_PERCENTAGE_RATIO ((uint8_t) 60)
+#define DEFAULT_MAX_SHORT_RECEPTION_OVERTIME_PERCENTAGE_RATIO ((uint8_t) 75)
 /**
  * Maximum long reception time lag. If maximum long snapshot lag is exceeded the reception
  * experiences a timeout.

@@ -74,12 +74,12 @@ static void __storeDataBit(RxPort *const rxPort, const bool isRisingEdge) {
     // save bit to buffer
     if (!isBufferEndPosition(&rxPort->buffer.pointer)) {
         if (isRisingEdge) {
-            DEBUG_CHAR_OUT('1');
+//            DEBUG_CHAR_OUT('1');
             LED_STATUS2_TOGGLE;
             rxPort->buffer.bytes[rxPort->buffer.pointer.byteNumber] setBit rxPort->buffer.pointer.bitMask;
             rxPort->parityBitCounter++;
         } else {
-            DEBUG_CHAR_OUT('0');
+//            DEBUG_CHAR_OUT('0');
             LED_STATUS3_TOGGLE;
             rxPort->buffer.bytes[rxPort->buffer.pointer.byteNumber] unsetBit rxPort->buffer.pointer.bitMask;
         }
@@ -89,7 +89,7 @@ static void __storeDataBit(RxPort *const rxPort, const bool isRisingEdge) {
     }
 }
 
-#ifdef SIMULATION
+#ifdef SIMULATIONxx
 
 #define __ifSimulationPrintSnapshotBufferSize(rxSnapshotBufferPtr) \
     __printSnapshotBufferSizeToSimulationRegister(rxSnapshotBufferPtr)
@@ -98,7 +98,9 @@ static void __storeDataBit(RxPort *const rxPort, const bool isRisingEdge) {
  * for evaluation purpose
  */
 static void __printSnapshotBufferSizeToSimulationRegister(RxSnapshotBuffer *o) {
-    if (o->endIndex >= o->startIndex) {
+    if (o->endIndex == o->startIndex) {
+        DEBUG_INT16_OUT(0);
+    } else if (o->endIndex > o->startIndex) {
         DEBUG_INT16_OUT(o->endIndex - o->startIndex);
     } else {
         DEBUG_INT16_OUT(o->endIndex + (RX_NUMBER_SNAPSHOTS - o->startIndex));
@@ -116,9 +118,9 @@ static void __printSnapshotBufferSizeToSimulationRegister(RxSnapshotBuffer *o) {
 static void __rxSnapshotBufferIncrementStartIndex(RxSnapshotBuffer *const o) {
     if (o->startIndex >= (RX_NUMBER_SNAPSHOTS - 1)) {
         o->startIndex = 0;
-        return;
+    } else {
+        o->startIndex++;
     }
-    o->startIndex++;
 
     __ifSimulationPrintSnapshotBufferSize(o);
 }
@@ -128,12 +130,11 @@ static void __rxSnapshotBufferIncrementStartIndex(RxSnapshotBuffer *const o) {
  * @param o the snapshot buffer reference
  */
 static void __rxSnapshotBufferIncrementEndIndex(RxSnapshotBuffer *const o) {
-
     if (o->endIndex >= (RX_NUMBER_SNAPSHOTS - 1)) {
         o->endIndex = 0;
-        return;
+    } else {
+        o->endIndex++;
     }
-    o->endIndex++;
 }
 
 /**
@@ -181,25 +182,27 @@ static void __calculateTimestampLag(const uint16_t *const previousSnapshotValue,
  */
 void captureSnapshot(uint16_t *const timerCounterValue, const bool isRisingEdge,
                      RxSnapshotBuffer *const snapshotBuffer) {
-
     uint8_t nextEndIdx = 0;
-    if (snapshotBuffer->endIndex >= (RX_NUMBER_SNAPSHOTS - 1)) {
-        nextEndIdx = 0;
-    } else {
+    if (snapshotBuffer->endIndex < (RX_NUMBER_SNAPSHOTS - 1)) {
         nextEndIdx = snapshotBuffer->endIndex + 1;
     }
 
     if (nextEndIdx == snapshotBuffer->startIndex) {
         snapshotBuffer->isOverflowed = true;
-#ifndef SIMULATION
+#ifdef SIMULATION
+        DEBUG_CHAR_OUT('8');
+#endif
         // TODO: evaluation code
         blinkReceptionBufferOverflowErrorForever();
-#endif
     }
 
     volatile Snapshot *snapshot = &(snapshotBuffer->snapshots[snapshotBuffer->endIndex]);
     __rxSnapshotBufferIncrementEndIndex(snapshotBuffer);
-    (*((volatile uint16_t *) (snapshot))) = (*timerCounterValue & 0xFFFE) | isRisingEdge;
+    if (isRisingEdge) {
+        (*((volatile uint16_t *) (snapshot))) = (*timerCounterValue & 0xFFFE) | 1;
+    } else {
+        (*((volatile uint16_t *) (snapshot))) = (*timerCounterValue & 0xFFFE);
+    }
     __ifSimulationPrintSnapshotBufferSize(snapshotBuffer);
 }
 
@@ -295,7 +298,7 @@ void manchesterDecodeBuffer(DirectionOrientedPort *const port,
                 uint16_t difference;
                 __calculateTimestampLag(&rxPort->snapshotsBuffer.temporarySnapshotTimerValue,
                                         (uint16_t *) &timerValue, &difference);
-                // DEBUG_INT16_OUT(difference);
+                DEBUG_INT16_OUT(difference);
 
                 if (difference <=
                     ParticleAttributes.communication.timerAdjustment.maxLongIntervalDuration) {
@@ -337,7 +340,7 @@ void manchesterDecodeBuffer(DirectionOrientedPort *const port,
                 uint16_t difference;
                 __calculateTimestampLag(&rxPort->snapshotsBuffer.temporarySnapshotTimerValue, &timerNow,
                                         &difference);
-                // DEBUG_INT16_OUT(difference);
+                DEBUG_INT16_OUT(difference);
                 if (difference >=
                     2 * ParticleAttributes.communication.timerAdjustment.transmissionClockDelay) {
 #ifdef SIMULATION
