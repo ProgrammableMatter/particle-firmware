@@ -9,6 +9,10 @@
 #include "SynchronizationTypes.h"
 #include "LeastSquareRegressionTypesCtors.h"
 
+/**
+ * constructor function
+ * @param o reference to the object to construct
+ */
 void constructSamplesFifoBuffer(SamplesFifoBuffer *const o) {
     o->__startIdx = 0;
     o->__insertIndex = 0;

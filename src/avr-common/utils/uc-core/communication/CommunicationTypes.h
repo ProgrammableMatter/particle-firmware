@@ -103,11 +103,11 @@ typedef struct TransmissionTimerAdjustment {
      * Regarding tx: transmission interrupts are scheduled according this delay
      * Regarding rx: the short and long interval durations are derived from this delay
      */
-    uint16_t transmissionClockDelay;
+    volatile uint16_t transmissionClockDelay;
     /**
      * transmissionClockDelayHalf = transmissionClockDelay / 2
      */
-    uint16_t transmissionClockDelayHalf;
+    volatile uint16_t transmissionClockDelayHalf;
 
     /**
      * the newly calculated / approximated transmission clock delay
@@ -128,7 +128,7 @@ typedef struct TransmissionTimerAdjustment {
     uint8_t isTransmissionClockShiftUpdateable : 1;
 
     uint8_t __pad : 6;
-} volatile TransmissionTimerAdjustment;
+} TransmissionTimerAdjustment;
 
 /**
  * Reception ports bundle.

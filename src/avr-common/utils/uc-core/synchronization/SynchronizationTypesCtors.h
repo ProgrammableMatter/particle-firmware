@@ -10,6 +10,10 @@
 #include "LeastSquareRegressionTypesCtors.h"
 #include "SampleFifoTypesCtors.h"
 
+/**
+ * constructor function
+ * @param o reference to the object to construct
+ */
 void constructTimeSynchronization(TimeSynchronization *const o) {
     constructSamplesFifoBuffer(&o->timeIntervalSamples);
     constructLeastSquareRegressionResult(&o->fittingFunction);
@@ -17,5 +21,7 @@ void constructTimeSynchronization(TimeSynchronization *const o) {
     o->progressiveMean = 0;
     o->variance = 0;
     o->stdDeviance = 0;
+    o->nextSyncPackageTransmissionStartTime = 3;
     o->isCalculationValid = false;
+    o->isNextSyncPackageTransmissionEnabled = false;
 }

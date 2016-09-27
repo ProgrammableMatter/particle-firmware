@@ -612,6 +612,23 @@ static void __handleIsActuationCommandPeriod(void) {
 }
 
 /**
+ * On matching time period puts the particle to synchronization state and disables further synchronization scheduling.
+ * The enable scheduling flag is enabled by local time tracking interrupt.
+ */
+static void __sendNextSyncTimePackage(void) {
+    if (ParticleAttributes.node.type == NODE_TYPE_ORIGIN) {
+        if (ParticleAttributes.timeSynchronization.isNextSyncPackageTransmissionEnabled) {
+            if (ParticleAttributes.timeSynchronization.nextSyncPackageTransmissionStartTime ==
+                ParticleAttributes.localTime.numTimePeriodsPassed) {
+                ParticleAttributes.node.state = STATE_TYPE_RESYNC_NEIGHBOUR;
+                ParticleAttributes.timeSynchronization.nextSyncPackageTransmissionStartTime += 3;
+                ParticleAttributes.timeSynchronization.isNextSyncPackageTransmissionEnabled = false;
+            }
+        }
+    }
+}
+
+/**
  * The core function is called cyclically in the particle loop. It implements the
  * behaviour of the particle.
  */
@@ -841,6 +858,7 @@ static inline void process(void) {
             ParticleAttributes.directionOrientedPorts.east.receivePimpl();
             ParticleAttributes.directionOrientedPorts.south.receivePimpl();
             __handleIsActuationCommandPeriod();
+            __sendNextSyncTimePackage();
 
             if (ParticleAttributes.localTime.numTimePeriodsPassed > 10) {
                 blinkAddressNonblocking();

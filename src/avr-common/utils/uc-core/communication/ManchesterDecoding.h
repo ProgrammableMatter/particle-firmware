@@ -9,6 +9,7 @@
 #include "uc-core/configuration/interrupts/TxRxTimer.h"
 #include "simulation/SimulationMacros.h"
 #include "uc-core/configuration/Particle.h"
+#include "uc-core/configuration/Communication.h"
 #include "uc-core/configuration/IoPins.h"
 #include "uc-core/delay/delay.h"
 #include "uc-core/periphery/Periphery.h"
@@ -89,7 +90,8 @@ static void __storeDataBit(RxPort *const rxPort, const bool isRisingEdge) {
     }
 }
 
-#ifdef SIMULATIONxx
+//#ifdef SIMULATION_doesnotexist
+#ifdef SIMULATION
 
 #define __ifSimulationPrintSnapshotBufferSize(rxSnapshotBufferPtr) \
     __printSnapshotBufferSizeToSimulationRegister(rxSnapshotBufferPtr)
@@ -98,12 +100,16 @@ static void __storeDataBit(RxPort *const rxPort, const bool isRisingEdge) {
  * for evaluation purpose
  */
 static void __printSnapshotBufferSizeToSimulationRegister(RxSnapshotBuffer *o) {
-    if (o->endIndex == o->startIndex) {
-        DEBUG_INT16_OUT(0);
-    } else if (o->endIndex > o->startIndex) {
-        DEBUG_INT16_OUT(o->endIndex - o->startIndex);
-    } else {
-        DEBUG_INT16_OUT(o->endIndex + (RX_NUMBER_SNAPSHOTS - o->startIndex));
+    uint16_t size = 0;
+    if (o->endIndex > o->startIndex) {
+        size = o->endIndex - o->startIndex;
+    } else if (o->endIndex < o->startIndex) {
+        size = o->endIndex + (RX_NUMBER_SNAPSHOTS - o->startIndex);
+    }
+
+    // cut off possible overflows due to race with incomint reception interrupt
+    if (size <= RX_NUMBER_SNAPSHOTS) {
+        DEBUG_INT16_OUT(size);
     }
 }
 
@@ -298,7 +304,7 @@ void manchesterDecodeBuffer(DirectionOrientedPort *const port,
                 uint16_t difference;
                 __calculateTimestampLag(&rxPort->snapshotsBuffer.temporarySnapshotTimerValue,
                                         (uint16_t *) &timerValue, &difference);
-                DEBUG_INT16_OUT(difference);
+//                DEBUG_INT16_OUT(difference);
 
                 if (difference <=
                     ParticleAttributes.communication.timerAdjustment.maxLongIntervalDuration) {
@@ -340,7 +346,7 @@ void manchesterDecodeBuffer(DirectionOrientedPort *const port,
                 uint16_t difference;
                 __calculateTimestampLag(&rxPort->snapshotsBuffer.temporarySnapshotTimerValue, &timerNow,
                                         &difference);
-                DEBUG_INT16_OUT(difference);
+//                DEBUG_INT16_OUT(difference);
                 if (difference >=
                     2 * ParticleAttributes.communication.timerAdjustment.transmissionClockDelay) {
 #ifdef SIMULATION

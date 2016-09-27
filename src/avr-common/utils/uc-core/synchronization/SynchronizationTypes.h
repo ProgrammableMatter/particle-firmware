@@ -30,7 +30,6 @@ typedef struct TimeSynchronization {
     * samples' mean
     */
     CalculationType mean;
-
     /**
      * The progressive mean has kind of knowledge of previous values and is the 1/2 of the last progressive mean and the current value.
      */
@@ -43,10 +42,18 @@ typedef struct TimeSynchronization {
      * samples' standard deviation
      */
     CalculationType stdDeviance;
-
+    /**
+     * next local time stamp when transmisson is to be initialized
+     */
+    uint16_t nextSyncPackageTransmissionStartTime;
     /**
      * Indicates whether the fields for calculation results are valid or not.
      */
     uint8_t isCalculationValid : 1;
-    uint8_t __pad : 7;
+    /**
+     * if flag is set, transmission of further synchronization package is scheduled
+     */
+    volatile uint8_t isNextSyncPackageTransmissionEnabled : 1;
+    uint8_t __pad : 6;
+
 } TimeSynchronization;

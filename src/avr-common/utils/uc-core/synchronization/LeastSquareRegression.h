@@ -49,7 +49,7 @@ static void __binarySearchSqr(const float *const number, float *const result) {
  */
 static bool __isEnoughDataAvailable(const TimeSynchronization *const timeSynchronization) {
     // on too less samples calculation is not performed
-    if (timeSynchronization->timeIntervalSamples.numSamples < TIME_SYNCHRONIZATION_MINIMUM_SAMPLES) {
+    if (timeSynchronization->timeIntervalSamples.numSamples < (TIME_SYNCHRONIZATION_MINIMUM_SAMPLES - 1)) {
         return false;
     } else {
         return true;

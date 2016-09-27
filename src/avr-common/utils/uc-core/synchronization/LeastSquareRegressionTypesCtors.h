@@ -8,6 +8,10 @@
 
 #include "LeastSquareRegressionTypes.h"
 
+/**
+ * constructor function
+ * @param o reference to the object to construct
+ */
 void constructLeastSquareRegressionResult(LeastSquareRegressionResult *const o) {
     o->k = 0;
     o->d = 0;

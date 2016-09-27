@@ -139,6 +139,10 @@ ISR(TX_TIMER_INTERRUPT_VECT) {
     }
 }
 
+// C = A – B * (A / B)
+#define __UNSAFE_SMALL_NUMBER_DETERMINISTIC_DELAY_MODULO(a, b) \
+    (a - b * (a / b))
+
 /**
  * On local time period passed interrupt.
  * simulator int. #8
@@ -146,19 +150,7 @@ ISR(TX_TIMER_INTERRUPT_VECT) {
 ISR(LOCAL_TIME_INTERRUPT_VECT) {
     TEST_POINT1_TOGGLE;
     ParticleAttributes.localTime.numTimePeriodsPassed++;
-    scheduleNextLocalTimeInterrupt();
-
-    if (ParticleAttributes.node.type == NODE_TYPE_ORIGIN) {
-        if (
-//                ParticleAttributes.directionOrientedPorts.east.txPort->isTransmitting == false &&
-//            ParticleAttributes.directionOrientedPorts.south.txPort->isTransmitting == false &&
-                ParticleAttributes.localTime.numTimePeriodsPassed > 2) {
-            if ((ParticleAttributes.localTime.numTimePeriodsPassed % 3) == 0) {
-                sendSyncPackage();
-                LED_STATUS1_TOGGLE;
-            }
-        }
-    }
+    ParticleAttributes.timeSynchronization.isNextSyncPackageTransmissionEnabled = true;
 }
 
 /**
