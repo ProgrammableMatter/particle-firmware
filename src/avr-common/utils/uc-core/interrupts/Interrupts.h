@@ -139,10 +139,6 @@ ISR(TX_TIMER_INTERRUPT_VECT) {
     }
 }
 
-// C = A – B * (A / B)
-#define __UNSAFE_SMALL_NUMBER_DETERMINISTIC_DELAY_MODULO(a, b) \
-    (a - b * (a / b))
-
 /**
  * On local time period passed interrupt.
  * simulator int. #8
