@@ -9,12 +9,12 @@
 /**
  * Amount of uint16 samples the synchronization buffers for clock skew approximation.
  */
-#define TIME_SYNCHRONIZATION_SAMPLES_FIFO_BUFFER_SIZE 10
+#define TIME_SYNCHRONIZATION_SAMPLES_FIFO_BUFFER_SIZE 30
 
 /**
  * The minimum amount of samples needed to perform an approximation.
  */
-#define TIME_SYNCHRONIZATION_MINIMUM_SAMPLES 3
+#define TIME_SYNCHRONIZATION_MINIMUM_SAMPLES 10
 
 /**
  * default numeric value indicating buffer's end position
