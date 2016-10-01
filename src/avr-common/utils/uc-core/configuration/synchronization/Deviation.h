@@ -11,5 +11,5 @@
  * double sqrt(double val) of math.h or binary search
  * sqrt(float *val, float *result)
  */
-//#define LEAST_SQUARE_REGRESSION_MATH_SQRT
-#define LEAST_SQUARE_REGRESSION_BINARY_SEARCH_SQRT
+//#define DEVIATION_MATH_SQRT
+#define DEVIATION_BINARY_SEARCH_SQRT

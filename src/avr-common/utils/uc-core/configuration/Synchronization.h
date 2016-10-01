@@ -23,7 +23,7 @@
 
 
 /**
- * The difference of measured synchronization package durations are shifted by the offset 0x7fff to overcome the
- * need of signed or uint_32.
+ * The difference of measured synchronization package durations are shifted by the synthetic offset UINT16_MAX/2=0x7fff
+ * to overcome the need of signed data types.
  */
 #define TIME_SYNCHRONIZATION_SAMPLE_OFFSET 0x7fff
