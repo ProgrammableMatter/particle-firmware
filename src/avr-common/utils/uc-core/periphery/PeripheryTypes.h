@@ -49,5 +49,8 @@ typedef struct Periphery {
     uint16_t loopCount;
     BlinkAddress blinkAddress;
     BlinkTimeInterval blinkTimeInterval;
+//    // validation code
+//    volatile uint8_t isTxSouthToggleEnabled : 1;
+//    uint8_t _pad: 7;
 } Periphery;
 
