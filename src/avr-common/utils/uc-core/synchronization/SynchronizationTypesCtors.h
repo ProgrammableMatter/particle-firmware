@@ -16,12 +16,15 @@
  */
 void constructTimeSynchronization(TimeSynchronization *const o) {
     constructSamplesFifoBuffer(&o->timeIntervalSamples);
+#ifdef SYNCHRONIZATION_STRATEGY_LEAST_SQUARE_LINEAR_FITTING
     constructLeastSquareRegressionResult(&o->fittingFunction);
+#endif
     o->mean = 0;
     o->progressiveMean = 0;
     o->variance = 0;
     o->stdDeviance = 0;
-    o->nextSyncPackageTransmissionStartTime = 3;
+    // TODO: evaluation code
+    o->nextSyncPackageTransmissionStartTime = 10;
     o->isCalculationValid = false;
     o->isNextSyncPackageTransmissionEnabled = false;
 }

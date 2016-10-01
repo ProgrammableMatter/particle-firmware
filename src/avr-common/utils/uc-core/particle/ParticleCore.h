@@ -97,7 +97,6 @@ static void __initParticle(void) {
 
     // TODO: evaluation source
     MEMORY_BARRIER;
-    __TIMER1_OVERFLOW_INTERRUPT_ENABLE;
 }
 
 /**
@@ -601,28 +600,30 @@ static void __onActuationDoneCallback(void) {
  * Checks whether an actuation is to be executed. Switches state if an actuation
  * command is scheduled and the current local time indicates an actuation start.
  */
-static void __handleIsActuationCommandPeriod(void) {
-    if (ParticleAttributes.actuationCommand.isScheduled &&
-        ParticleAttributes.actuationCommand.executionState == ACTUATION_STATE_TYPE_IDLE) {
-        if (ParticleAttributes.actuationCommand.actuationStart.periodTimeStamp <=
-            ParticleAttributes.localTime.numTimePeriodsPassed) {
-            ParticleAttributes.node.state = STATE_TYPE_EXECUTE_ACTUATION_COMMAND;
-        }
-    }
-}
+//static void __handleIsActuationCommandPeriod(void) {
+//    if (ParticleAttributes.actuationCommand.isScheduled &&
+//        ParticleAttributes.actuationCommand.executionState == ACTUATION_STATE_TYPE_IDLE) {
+//        if (ParticleAttributes.actuationCommand.actuationStart.periodTimeStamp <=
+//            ParticleAttributes.localTime.numTimePeriodsPassed) {
+//            ParticleAttributes.node.state = STATE_TYPE_EXECUTE_ACTUATION_COMMAND;
+//        }
+//    }
+//}
 
 /**
  * On matching time period puts the particle to synchronization state and disables further synchronization scheduling.
  * The enable scheduling flag is enabled by local time tracking interrupt.
  */
 static void __sendNextSyncTimePackage(void) {
+#define __syncPackageTransmissionStartSeparation 7
     if (ParticleAttributes.node.type == NODE_TYPE_ORIGIN) {
         if (ParticleAttributes.timeSynchronization.isNextSyncPackageTransmissionEnabled) {
             if (ParticleAttributes.timeSynchronization.nextSyncPackageTransmissionStartTime ==
                 ParticleAttributes.localTime.numTimePeriodsPassed) {
                 ParticleAttributes.node.state = STATE_TYPE_RESYNC_NEIGHBOUR;
-                ParticleAttributes.timeSynchronization.nextSyncPackageTransmissionStartTime += 3;
+                ParticleAttributes.timeSynchronization.nextSyncPackageTransmissionStartTime += __syncPackageTransmissionStartSeparation;
                 ParticleAttributes.timeSynchronization.isNextSyncPackageTransmissionEnabled = false;
+                LED_STATUS2_TOGGLE;
             }
         }
     }
@@ -790,10 +791,11 @@ static inline void process(void) {
 
         case STATE_TYPE_SYNC_NEIGHBOUR_DONE:
             __handleSynchronizeNeighbourDoneOrRunTest(STATE_TYPE_IDLE);
+            ParticleAttributes.timeSynchronization.isNextSyncPackageTransmissionEnabled = true;
             break;
 
             // ---------------- working states: set network geometry----------------
-            // todo unused state
+            // TODO: unused state
         case STATE_TYPE_SEND_SET_NETWORK_GEOMETRY:
             __handleSetNetworkGeometry(ParticleAttributes.protocol.networkGeometry.rows,
                                        ParticleAttributes.protocol.networkGeometry.columns,
@@ -853,19 +855,21 @@ static inline void process(void) {
 
         __STATE_TYPE_IDLE:
         case STATE_TYPE_IDLE:
-
             ParticleAttributes.directionOrientedPorts.north.receivePimpl();
             ParticleAttributes.directionOrientedPorts.east.receivePimpl();
             ParticleAttributes.directionOrientedPorts.south.receivePimpl();
-            __handleIsActuationCommandPeriod();
+
+            // TODO: evaluation code
+//            __handleIsActuationCommandPeriod();
             __sendNextSyncTimePackage();
-
-            if (ParticleAttributes.localTime.numTimePeriodsPassed > 10) {
-                blinkAddressNonblocking();
-                blinkTimeIntervalNonblocking();
-            }
-
-
+//
+//            if (ParticleAttributes.localTime.numTimePeriodsPassed > 250) {
+//                blinkAddressNonblocking();
+//                blinkTimeIntervalNonblocking();
+//                ParticleAttributes.periphery.isTxSouthToggleEnabled = true;
+//                forever;
+//
+//            }
             break;
 
             // ---------------- standby states: sleep mode related states ----------------
