@@ -16,33 +16,33 @@ void dispatchFallingDiscoveryEdge(DiscoveryPulseCounter *const portCounter) {
     if (portCounter->counter < RX_DISCOVERY_PULSE_COUNTER_MAX) {
         portCounter->counter++;
 
-        // TODO: evaluation code
-        if (portCounter == &ParticleAttributes.discoveryPulseCounters.north) {
-            LED_STATUS1_TOGGLE;
-        } else if (portCounter == &ParticleAttributes.discoveryPulseCounters.east) {
-            LED_STATUS2_TOGGLE;
-        } else if (portCounter == &ParticleAttributes.discoveryPulseCounters.south) {
-            LED_STATUS3_TOGGLE;
-        } else {
-            LED_STATUS1_TOGGLE;
-            LED_STATUS2_TOGGLE;
-            LED_STATUS3_TOGGLE;
-        }
+//        // evaluation code
+//        if (portCounter == &ParticleAttributes.discoveryPulseCounters.north) {
+//            LED_STATUS1_TOGGLE;
+//        } else if (portCounter == &ParticleAttributes.discoveryPulseCounters.east) {
+//            LED_STATUS2_TOGGLE;
+//        } else if (portCounter == &ParticleAttributes.discoveryPulseCounters.south) {
+//            LED_STATUS3_TOGGLE;
+//        } else {
+//            LED_STATUS1_TOGGLE;
+//            LED_STATUS2_TOGGLE;
+//            LED_STATUS3_TOGGLE;
+//        }
     } else {
         portCounter->isConnected = true;
 
-        // TODO: evaluation code
-        if (portCounter == &ParticleAttributes.discoveryPulseCounters.north) {
-            LED_STATUS1_ON;
-        } else if (portCounter == &ParticleAttributes.discoveryPulseCounters.east) {
-            LED_STATUS2_ON;
-        } else if (portCounter == &ParticleAttributes.discoveryPulseCounters.south) {
-            LED_STATUS3_ON;
-        } else {
-            LED_STATUS1_ON;
-            LED_STATUS2_ON;
-            LED_STATUS3_ON;
-        }
+//        // evaluation code
+//        if (portCounter == &ParticleAttributes.discoveryPulseCounters.north) {
+//            LED_STATUS1_ON;
+//        } else if (portCounter == &ParticleAttributes.discoveryPulseCounters.east) {
+//            LED_STATUS2_ON;
+//        } else if (portCounter == &ParticleAttributes.discoveryPulseCounters.south) {
+//            LED_STATUS3_ON;
+//        } else {
+//            LED_STATUS1_ON;
+//            LED_STATUS2_ON;
+//            LED_STATUS3_ON;
+//        }
     }
 }
 
