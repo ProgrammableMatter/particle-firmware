@@ -69,7 +69,13 @@ static void __scheduleNextTransmission(void) {
  */
 ISR(NORTH_PIN_CHANGE_INTERRUPT_VECT) {
 //    TEST_POINT1_TOGGLE;
-//    LED_STATUS1_TOGGLE;
+
+//    // validation code to measure signal forwarding latency
+//    if (ParticleAttributes.periphery.isTxSouthToggleEnabled) {
+//        SOUTH_TX_TOGGLE;
+//        return;
+//    }
+
     // DEBUG_INT16_OUT(TIMER_TX_RX_COUNTER_VALUE);
     if (ParticleAttributes.protocol.isBroadcastEnabled) {
         if (NORTH_RX_IS_HI) {
@@ -80,6 +86,7 @@ ISR(NORTH_PIN_CHANGE_INTERRUPT_VECT) {
     }
     __handleInputInterrupt(&ParticleAttributes.directionOrientedPorts.north,
                            NORTH_RX_IS_HI);
+//    TEST_POINT1_TOGGLE;
 }
 
 /**
@@ -88,7 +95,9 @@ ISR(NORTH_PIN_CHANGE_INTERRUPT_VECT) {
  */
 ISR(EAST_PIN_CHANGE_INTERRUPT_VECT) {
 //    TEST_POINT1_TOGGLE;
-//    LED_STATUS2_TOGGLE;
+
+//    // TODO: evaluation code to prove that east pin change ISR can be triggered due to voltage glitches
+//    // to reproduce activate the source and follow the discovery period on the oscilloscope
 //    if (!EAST_RX_IS_HI)
 //        TEST_POINT1_TOGGLE;
     __handleInputInterrupt(&ParticleAttributes.directionOrientedPorts.east,
@@ -100,8 +109,6 @@ ISR(EAST_PIN_CHANGE_INTERRUPT_VECT) {
  * simulator int. #2
  */
 ISR(SOUTH_PIN_CHANGE_INTERRUPT_VECT) {
-//    TEST_POINT1_TOGGLE;
-//    LED_STATUS3_TOGGLE;
     __handleInputInterrupt(&ParticleAttributes.directionOrientedPorts.south,
                            SOUTH_RX_IS_HI);
 }
@@ -143,10 +150,17 @@ ISR(TX_TIMER_INTERRUPT_VECT) {
  * On local time period passed interrupt.
  * simulator int. #8
  */
+//EMPTY_INTERRUPT(LOCAL_TIME_INTERRUPT_VECT)
 ISR(LOCAL_TIME_INTERRUPT_VECT) {
     TEST_POINT1_TOGGLE;
     ParticleAttributes.localTime.numTimePeriodsPassed++;
-    ParticleAttributes.timeSynchronization.isNextSyncPackageTransmissionEnabled = true;
+
+    if (ParticleAttributes.localTime.isTimePeriodInterruptDelayUpdateable) {
+        ParticleAttributes.localTime.timePeriodInterruptDelay =
+                ParticleAttributes.localTime.newTimePeriodInterruptDelay;
+        ParticleAttributes.localTime.isTimePeriodInterruptDelayUpdateable = false;
+    }
+    LOCAL_TIME_INTERRUPT_COMPARE_VALUE += ParticleAttributes.localTime.timePeriodInterruptDelay;
 }
 
 /**
@@ -169,6 +183,9 @@ ISR(ACTUATOR_PWM_INTERRUPT_VECT) {
 EMPTY_INTERRUPT(__UNUSED_TIMER0_OVERFLOW_INTERRUPT_VECT)
 
 EMPTY_INTERRUPT(__UNUSED_TIMER1_OVERFLOW_INTERRUPT_VECT)
+//ISR(__UNUSED_TIMER1_OVERFLOW_INTERRUPT_VECT) {
+//    LED_STATUS3_TOGGLE;
+//}
 
 # ifdef SIMULATION
 const char isrVector0Msg[] PROGMEM = "BAD ISR";
