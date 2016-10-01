@@ -76,12 +76,12 @@ static void __storeDataBit(RxPort *const rxPort, const bool isRisingEdge) {
     if (!isBufferEndPosition(&rxPort->buffer.pointer)) {
         if (isRisingEdge) {
 //            DEBUG_CHAR_OUT('1');
-            LED_STATUS2_TOGGLE;
+//            LED_STATUS2_TOGGLE;
             rxPort->buffer.bytes[rxPort->buffer.pointer.byteNumber] setBit rxPort->buffer.pointer.bitMask;
             rxPort->parityBitCounter++;
         } else {
 //            DEBUG_CHAR_OUT('0');
-            LED_STATUS3_TOGGLE;
+//            LED_STATUS3_TOGGLE;
             rxPort->buffer.bytes[rxPort->buffer.pointer.byteNumber] unsetBit rxPort->buffer.pointer.bitMask;
         }
         bufferBitPointerIncrement(&rxPort->buffer.pointer);
@@ -166,12 +166,13 @@ static void __rxSnapshotBufferIncrementEndIndex(RxSnapshotBuffer *const o) {
  * Calculates the time lag in between two timestamp values.
  * @param a minuend
  * @param b subtrahend
- * @param result the positive difference in between the minuend and subtrahend
+ * @param result the positive difference in between the minuend and subtrahend with respect to
+ * timestamp being possibly separated by timer/counter overflow
  */
 static void __calculateTimestampLag(const uint16_t *const previousSnapshotValue,
                                     const uint16_t *const currentSnapshotValue,
                                     uint16_t *const result) {
-    if ((*currentSnapshotValue) >= (*previousSnapshotValue)) {
+    if (*currentSnapshotValue >= *previousSnapshotValue) {
         *result = *currentSnapshotValue - *previousSnapshotValue;
     } else { // if capture timer counter has overflowed
         *result = (UINT16_MAX - *previousSnapshotValue) + *currentSnapshotValue;
@@ -303,7 +304,7 @@ void manchesterDecodeBuffer(DirectionOrientedPort *const port,
                 uint16_t timerValue = __getTimerValue(snapshot);
                 uint16_t difference;
                 __calculateTimestampLag(&rxPort->snapshotsBuffer.temporarySnapshotTimerValue,
-                                        (uint16_t *) &timerValue, &difference);
+                                        &timerValue, &difference);
 //                DEBUG_INT16_OUT(difference);
 
                 if (difference <=
@@ -324,7 +325,6 @@ void manchesterDecodeBuffer(DirectionOrientedPort *const port,
 
                     if (__isDataPhase(rxPort->snapshotsBuffer.decoderStates.phaseState)) {
                         __storeDataBit(rxPort, snapshot->isRisingEdge);
-                        LED_STATUS1_TOGGLE;
                     } else {
                     }
                     rxPort->snapshotsBuffer.temporarySnapshotTimerValue = __getTimerValue(snapshot);
@@ -341,8 +341,13 @@ void manchesterDecodeBuffer(DirectionOrientedPort *const port,
 
             // on empty queue check for timeout
             if (__rxSnapshotBufferIsEmpty(&rxPort->snapshotsBuffer)) {
-                // volatile Snapshot *snapshot = __rxSnapshotBufferPeek(&rxPort->snapshotsBuffer);
+                uint8_t sreg = SREG;
+                MEMORY_BARRIER;
+                CLI;
+                MEMORY_BARRIER;
                 uint16_t timerNow = TIMER_TX_RX_COUNTER_VALUE;
+                MEMORY_BARRIER;
+                SREG = sreg;
                 uint16_t difference;
                 __calculateTimestampLag(&rxPort->snapshotsBuffer.temporarySnapshotTimerValue, &timerNow,
                                         &difference);
