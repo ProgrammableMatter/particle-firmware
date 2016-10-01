@@ -7,7 +7,7 @@
 #pragma once
 
 #include <stdint.h>
-#include "uc-core/configuration/Synchronization.h"
+#include "uc-core/configuration/synchronization/Synchronization.h"
 #include "LeastSquareRegressionTypes.h"
 #include "SampleFifoTypes.h"
 
@@ -25,7 +25,9 @@ typedef uint8_t IndexType;
 
 typedef struct TimeSynchronization {
     SamplesFifoBuffer timeIntervalSamples;
+#ifdef SYNCHRONIZATION_STRATEGY_LEAST_SQUARE_LINEAR_FITTING
     LeastSquareRegressionResult fittingFunction;
+#endif
     /**
     * samples' mean
     */

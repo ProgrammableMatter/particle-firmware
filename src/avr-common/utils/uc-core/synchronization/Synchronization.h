@@ -5,17 +5,15 @@
  */
 
 #pragma once
-#define __STRATEGY_SIMPLE_MEAN_AND_STDDEVIANCE
-//#define __STRATEGY_LEAST_SQUARE_LINEAR_FITTING
 
-
+#include "uc-core/configuration/synchronization/Synchronization.h"
 #include "SynchronizationTypes.h"
 #include "SamplesFifo.h"
 
-#ifdef __STRATEGY_LEAST_SQUARE_LINEAR_FITTING
+#ifdef SYNCHRONIZATION_STRATEGY_LEAST_SQUARE_LINEAR_FITTING
 #  include "LeastSquareRegression.h"
 #endif
-#ifdef __STRATEGY_SIMPLE_MEAN_AND_STDDEVIANCE
+#ifdef SYNCHRONIZATION_STRATEGY_SIMPLE_MEAN_AND_STDDEVIANCE
 
 #  include "Deviation.h"
 
@@ -44,7 +42,7 @@ void tryApproximateTimings(TimeSynchronization *const timeSynchronization) {
         return;
     }
 
-#ifdef __STRATEGY_SIMPLE_MEAN_AND_STDDEVIANCE
+#ifdef SYNCHRONIZATION_STRATEGY_SIMPLE_MEAN_AND_STDDEVIANCE
     if (timeSynchronization->progressiveMean == 0) {
         timeSynchronization->progressiveMean = timeSynchronization->timeIntervalSamples.samples[timeSynchronization->timeIntervalSamples.__insertIndex];
     } else {
@@ -56,7 +54,7 @@ void tryApproximateTimings(TimeSynchronization *const timeSynchronization) {
     calculateMean(timeSynchronization);
     calculateVarianceAndStdDeviance(timeSynchronization);
 #else
-#  if defined(__STRATEGY_LEAST_SQUARE_LINEAR_FITTING)
+#  if defined(SYNCHRONIZATION_STRATEGY_LEAST_SQUARE_LINEAR_FITTING)
     calculateLinearFittingFunction(timeSynchronization);
 #  else
 #    error no approximation strategy specified

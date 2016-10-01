@@ -7,7 +7,7 @@
 #pragma once
 
 #include <stdint.h>
-#include "uc-core/configuration/Synchronization.h"
+#include "uc-core/configuration/synchronization/SampleFifoTypes.h"
 #include "LeastSquareRegressionTypes.h"
 
 #ifdef C_STRUCTS_TO_JSON_PARSER_TYPEDEF_NOT_SUPPORTED_SUPPRESS_REGULAR_TYPEDEFS

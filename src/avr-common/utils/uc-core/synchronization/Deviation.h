@@ -6,8 +6,8 @@
 
 #pragma once
 
-#include "SynchronizationTypes.h"
 #include "uc-core/configuration/synchronization/Deviation.h"
+#include "SynchronizationTypes.h"
 #include "Synchronization.h"
 
 #ifndef DEVIATION_BINARY_SEARCH_SQRT

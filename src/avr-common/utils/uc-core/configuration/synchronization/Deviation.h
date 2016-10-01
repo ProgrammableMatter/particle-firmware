@@ -1,7 +1,7 @@
 /**
  * @author Raoul Rubien 23.09.2016
  *
- * Linear Least Squares Regression related configuration.
+ * Deviation related configuration.
  */
 
 #pragma once

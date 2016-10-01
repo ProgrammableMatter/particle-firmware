@@ -56,6 +56,7 @@ static void __samplesFifoBufferIncrementInsertIndex(SamplesFifoBuffer *const sam
  * Adds a value to the FiFo buffer.
  */
 void samplesFifoBufferAddSample(const SampleValueType sample, SamplesFifoBuffer *const samplesBuffer) {
+    // TODO: if enough samples, enable outlier detection using µ +/- 2*sigma
     if (samplesBuffer->numSamples < TIME_SYNCHRONIZATION_SAMPLES_FIFO_BUFFER_SIZE) {
         samplesBuffer->numSamples++;
     }
