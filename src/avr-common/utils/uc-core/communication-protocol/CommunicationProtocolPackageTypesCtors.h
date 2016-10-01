@@ -57,8 +57,8 @@ void constructEnumerationACKPackage(TxPort *const txPort) {
     clearTransmissionPortBuffer(txPort);
     Package *package = (Package *) txPort->buffer.bytes;
     package->asACKPackage.startBit = 1;
-    package->asACKPackage.enableBroadcast = true;
-//    package->asACKPackage.enableBroadcast = false;
+    package->asACKPackage.enableBroadcast = false;
+//    package->asACKPackage.enableBroadcast = true;
     package->asACKPackage.id = PACKAGE_HEADER_ID_TYPE_ACK;
     package->asACKPackage.isRangeCommand = false;
 
@@ -94,9 +94,15 @@ void constructSyncTimePackage(TxPort *const txPort) {
     package->asSyncTimePackage.header.startBit = 1;
     package->asSyncTimePackage.header.id = PACKAGE_HEADER_ID_TYPE_SYNC_TIME;
     package->asSyncTimePackage.header.isRangeCommand = true;
-//    package->asSyncTimePackage.header.enableBroadcast = false;
-    package->asSyncTimePackage.header.enableBroadcast = true;
+    package->asSyncTimePackage.header.enableBroadcast = false;
+//    package->asSyncTimePackage.header.enableBroadcast = true;
+    uint8_t sreg = SREG;
+    MEMORY_BARRIER;
+    CLI;
+    MEMORY_BARRIER;
     package->asSyncTimePackage.time = TIMER_TX_RX_COUNTER_VALUE;
+    MEMORY_BARRIER;
+    SREG = sreg;
     package->asSyncTimePackage.packageTransmissionLatency = COMMUNICATION_PROTOCOL_TIME_SYNCHRONIZATION_PACKAGE_RECEPTION_DURATION;
     package->asSyncTimePackage.stuffing1 = 0x5555;
     package->asSyncTimePackage.stuffing2 = 0x55;
@@ -121,8 +127,8 @@ void constructAnnounceNetworkGeometryPackage(uint8_t row, uint8_t column) {
     package->asAnnounceNetworkGeometryPackage.header.startBit = 1;
     package->asAnnounceNetworkGeometryPackage.header.id = PACKAGE_HEADER_ID_TYPE_NETWORK_GEOMETRY_RESPONSE;
     package->asAnnounceNetworkGeometryPackage.header.isRangeCommand = false;
-    package->asAnnounceNetworkGeometryPackage.header.enableBroadcast = true;
-//    package->asAnnounceNetworkGeometryPackage.header.enableBroadcast = false;
+//    package->asAnnounceNetworkGeometryPackage.header.enableBroadcast = true;
+    package->asAnnounceNetworkGeometryPackage.header.enableBroadcast = false;
     package->asAnnounceNetworkGeometryPackage.rows = row;
     package->asAnnounceNetworkGeometryPackage.columns = column;
 
@@ -145,7 +151,8 @@ void constructSetNetworkGeometryPackage(TxPort *const txPort, const uint8_t rows
     package->asSetNetworkGeometryPackage.header.startBit = 1;
     package->asSetNetworkGeometryPackage.header.id = PACKAGE_HEADER_ID_TYPE_SET_NETWORK_GEOMETRY;
     package->asSetNetworkGeometryPackage.header.isRangeCommand = false;
-    package->asSetNetworkGeometryPackage.header.enableBroadcast = true;
+    package->asSetNetworkGeometryPackage.header.enableBroadcast = false;
+//    package->asSetNetworkGeometryPackage.header.enableBroadcast = true;
     package->asSetNetworkGeometryPackage.rows = rows;
     package->asSetNetworkGeometryPackage.columns = columns;
 
