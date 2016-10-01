@@ -150,7 +150,10 @@ typedef struct EnumerationPackage {
 #define EnumerationPackageBufferPointerSize (__pointerBytes(3) | __pointerBits(1))
 
 /**
- * describes a synchronize time package
+ * Describes a synchronize time package.
+ * The package size is chosen to take exactly as long as needed to overflow the timer/counter 1 interrupt.
+ * Thus (1+2+2+2+1) * 8 *    (512*2) = 65536 cycles
+ *       ^ bytes      ^bits   ^ line coding clock duration in cycles (see configuration/Communication.h)
  */
 typedef struct TimePackage {
     HeaderPackage header;
