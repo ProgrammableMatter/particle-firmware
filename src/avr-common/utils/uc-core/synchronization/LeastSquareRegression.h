@@ -15,7 +15,7 @@
  * The output (fitting function and several statistical values) are stored to the SamplesFifoBuffer.
  * The arithmetic mean is calculated in the same pass followed by a second std deviance pass.
  */
-void calculateLinearFittingFunction(TimeSynchronization *const timeSynchronization) {
+void calculateLinearFittingFunctionVarianceAndStdDeviance(TimeSynchronization *const timeSynchronization) {
     timeSynchronization->fittingFunction.isCalculationValid = false;
     MEMORY_BARRIER;
 
