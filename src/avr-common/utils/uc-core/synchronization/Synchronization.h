@@ -7,6 +7,7 @@
 #pragma once
 
 #include "uc-core/configuration/synchronization/Synchronization.h"
+#include "uc-core/particle/Globals.h"
 #include "SynchronizationTypes.h"
 #include "SamplesFifo.h"
 
@@ -53,15 +54,21 @@ void tryApproximateTimings(TimeSynchronization *const timeSynchronization) {
 #endif
             float newTimePeriodInterruptDelay;
             if (ParticleAttributes.timeSynchronization.mean > TIME_SYNCHRONIZATION_SAMPLE_OFFSET) {
-                newTimePeriodInterruptDelay = LOCAL_TIME_DEFAULT_INTERRUPT_DELAY +
-                                              LOCAL_TIME_DEFAULT_INTERRUPT_DELAY_WORKING_POINT_PERCENTAGE *
-                                              (ParticleAttributes.timeSynchronization.mean -
-                                               TIME_SYNCHRONIZATION_SAMPLE_OFFSET);
+                newTimePeriodInterruptDelay =
+                        SYNCHRONIZATION_MANUAL_ADJUSTMENT_CLOCK_DECELERATION
+                        LOCAL_TIME_DEFAULT_INTERRUPT_DELAY +
+                        LOCAL_TIME_DEFAULT_INTERRUPT_DELAY_WORKING_POINT_PERCENTAGE *
+                        (ParticleAttributes.timeSynchronization.mean -
+                         TIME_SYNCHRONIZATION_SAMPLE_OFFSET)
+                        SYNCHRONIZATION_MANUAL_ADJUSTMENT_CLOCK_ACCELERATION;
             } else {
-                newTimePeriodInterruptDelay = LOCAL_TIME_DEFAULT_INTERRUPT_DELAY -
-                                              LOCAL_TIME_DEFAULT_INTERRUPT_DELAY_WORKING_POINT_PERCENTAGE *
-                                              (TIME_SYNCHRONIZATION_SAMPLE_OFFSET -
-                                               ParticleAttributes.timeSynchronization.mean);
+                newTimePeriodInterruptDelay =
+                        SYNCHRONIZATION_MANUAL_ADJUSTMENT_CLOCK_DECELERATION
+                        LOCAL_TIME_DEFAULT_INTERRUPT_DELAY -
+                        LOCAL_TIME_DEFAULT_INTERRUPT_DELAY_WORKING_POINT_PERCENTAGE *
+                        (TIME_SYNCHRONIZATION_SAMPLE_OFFSET -
+                         ParticleAttributes.timeSynchronization.mean)
+                        SYNCHRONIZATION_MANUAL_ADJUSTMENT_CLOCK_ACCELERATION;
             }
             __roundFloatToUnsigned(&newTimePeriodInterruptDelay,
                                    &ParticleAttributes.localTime.newTimePeriodInterruptDelay);
