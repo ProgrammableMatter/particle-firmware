@@ -116,3 +116,17 @@ void calculateVarianceAndStdDeviance(TimeSynchronization *const timeSynchronizat
     MEMORY_BARRIER;
     timeSynchronization->isCalculationValid = true;
 }
+
+
+/**
+ * Calculates a quick and simple approximated mean value.
+ * This method is not very stable against outlier.
+ */
+void calculateProgressiveMean(const CumulationType sample, TimeSynchronization *const timeSynchronization) {
+    if (timeSynchronization->progressiveMean == 0) {
+        timeSynchronization->progressiveMean = sample;
+    } else {
+        timeSynchronization->progressiveMean += sample;
+        timeSynchronization->progressiveMean /= 2.0;
+    }
+}
