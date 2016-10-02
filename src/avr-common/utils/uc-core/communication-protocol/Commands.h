@@ -70,8 +70,7 @@ void executeSynchronizeLocalTimePackage(const TimePackage *const package,
                 (portBuffer->receptionStartTimestamp - portBuffer->receptionEndTimestamp);
     }
 
-    samplesFifoBufferAddSample(value, &ParticleAttributes.timeSynchronization.timeIntervalSamples);
-    calculateProgressiveMean(value, &ParticleAttributes.timeSynchronization);
+    samplesFifoBufferAddSample(value, &ParticleAttributes.timeSynchronization);
     tryApproximateTimings(&ParticleAttributes.timeSynchronization);
 
     // DEBUG_INT16_OUT(TIMER_TX_RX_COUNTER_VALUE);

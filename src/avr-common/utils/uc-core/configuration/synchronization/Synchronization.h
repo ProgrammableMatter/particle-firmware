@@ -29,15 +29,12 @@
  *  correlated to the difference of the current mean and the initial local time tracking timer/counter
  *  compare value.
  */
-#define SYNCHRONIZATION_MANUAL_ADJUSTMENT_CLOCK_DECELERATION ((uint8_t) 10) +
-//#define SYNCHRONIZATION_MANUAL_ADJUSTMENT_CLOCK_DECELERATION
-
+#define __SYNCHRONIZATION_MANUAL_ADJUSTMENT_CLOCK_SLOW_DOWN + ((uint8_t) 10)
+#define __SYNCHRONIZATION_MANUAL_ADJUSTMENT_CLOCK_SPEED_UP - ((uint8_t) 0)
+#define SYNCHRONIZATION_MANUAL_ADJUSTMENT_CLOCK_ACCELERATION __SYNCHRONIZATION_MANUAL_ADJUSTMENT_CLOCK_SLOW_DOWN
 
 /**
- * Manual clock synchronization adjustment to accelerate the local time tracking.
- * Decreases the timer/counter compare value.
- * TODO: Investigate why this constant value is necessary (rounding error, float inaccuracy or conceptual error?).
- * TODO: Enhancement of the SYNCHRONIZATION_MANUAL_ADJUSTMENT_CLOCK_ACCELERATION value.
+ * Defines the factor f for outlier detection. Samples having values not within
+ * [µ - f * σ, µ + f * σ] are rejected.
  */
-//#define SYNCHRONIZATION_MANUAL_ADJUSTMENT_CLOCK_ACCELERATION - ((uint8_t) 0)
-#define SYNCHRONIZATION_MANUAL_ADJUSTMENT_CLOCK_ACCELERATION
+#define SYNCHRONIZATION_OUTLIER_REJECTION_SIGMA_FACTOR ((float) 2.8)

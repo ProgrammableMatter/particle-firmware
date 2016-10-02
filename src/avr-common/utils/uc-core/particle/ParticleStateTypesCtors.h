@@ -16,24 +16,10 @@
 #include "uc-core/periphery/PeripheryTypesCtors.h"
 #include "uc-core/synchronization/SynchronizationTypesCtors.h"
 
-//
-///**
-// * constructor function
-// * @param o the object to construct
-// */
-//extern void constructTimerCounterAdjustment(volatile TimerCounterAdjustment *o);
-//
-//void constructTimerCounterAdjustment(volatile TimerCounterAdjustment *o) {
-//    o->counterOffset = 0;
-//    o->isPositiveCounterOffset = true;
-//    o->isCounterOffsetValid = false;
-//}
-
 /**
  * constructor function
  * @param o the object to construct
  */
-
 void constructDiscoveryPulseCounter(DiscoveryPulseCounter *const o) {
     o->counter = 0;
     o->isConnected = false;
@@ -43,7 +29,6 @@ void constructDiscoveryPulseCounter(DiscoveryPulseCounter *const o) {
  * constructor function
  * @param o the object to construct
  */
-
 void constructDiscoveryPulseCounters(DiscoveryPulseCounters *const o) {
     constructDiscoveryPulseCounter(&(o->north));
     constructDiscoveryPulseCounter(&(o->east));
@@ -63,7 +48,6 @@ void constructNodeAddress(NodeAddress *const o) {
  * constructor function
  * @param o the object to construct
  */
-
 void constructNode(Node *o) {
     o->state = STATE_TYPE_UNDEFINED;
     o->type = NODE_TYPE_INVALID;
@@ -74,15 +58,6 @@ void constructNode(Node *o) {
  * constructor function
  * @param o the object to construct
  */
-//extern CTOR_ATTRS void constructDirectionOrientedPort(volatile DirectionOrientedPort *o,
-//                                                      volatile DiscoveryPulseCounter *discoveryPulseCounter,
-//                                                      volatile TxPort *txPort,
-//                                                      volatile RxPort *rxPort,
-//                                                      void (receivePimpl)(void),
-//                                                      void (txHighPimpl)(void),
-//                                                      void (txLowPimpl)(void),
-//                                                      volatile CommunicationProtocolPortState *protocolState);
-
 void constructDirectionOrientedPort(DirectionOrientedPort *const o,
                                     DiscoveryPulseCounter *const discoveryPulseCounter,
                                     TxPort *const txPort,
@@ -143,8 +118,6 @@ void constructDirectionOrientedPorts(DirectionOrientedPorts *const o) {
  * constructor function
  * @param o the object to construct
  */
-//extern CTOR_ATTRS void constructParticle(volatile Particle *o);
-
 void constructParticle(Particle *const o) {
     constructNode(&(o->node));
     constructDiscoveryPulseCounters(&o->discoveryPulseCounters);

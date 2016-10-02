@@ -170,20 +170,6 @@ typedef struct Node {
     NodeAddress address;
 } Node;
 
-///**
-// * keeps adjustment attributes for the internal 16bit timer/counter
-// */
-//typedef struct {
-//    // todo: unused field localTime
-//    // uint16_t localTime;
-//    // todo: unused field remoteTime
-//    // uint16_t remoteTime;
-//    uint16_t counterOffset;
-//    int8_t isPositiveCounterOffset : 1;
-//    int8_t isCounterOffsetValid : 1;
-//    int8_t __pad : 6;
-//} TimerCounterAdjustment;
-
 /**
  * facade to bundle port resources
  */

@@ -25,6 +25,7 @@
  */
 static void __binarySearchSqr(const float *const number, float *const result) {
 #define __binary_sqr_search_digits_accuracy 0.1
+//#define __binary_sqr_search_digits_accuracy 0.01
     if ((*number) >= 0) {
         float left = 0;
         float right = *number + 1;
@@ -44,31 +45,20 @@ static void __binarySearchSqr(const float *const number, float *const result) {
 
 #endif
 
-/**
- * @return true if enough data is queued for calculations
- */
-static bool __isEnoughDataAvailable(const TimeSynchronization *const timeSynchronization) {
-    // on too less samples calculation is not performed
-    if (timeSynchronization->timeIntervalSamples.numSamples < (TIME_SYNCHRONIZATION_MINIMUM_SAMPLES - 1)) {
-        return false;
-    } else {
-        return true;
-    }
-}
-
-void calculateMean(TimeSynchronization *const timeSynchronization) {
-//    if (false == __isEnoughDataAvailable(timeSynchronization)) {
-//        return;
-//    }
-    CumulationType sum = 0;
-    samplesFifoBufferIteratorStart(&timeSynchronization->timeIntervalSamples);
-    do {
-        sum += timeSynchronization->timeIntervalSamples.samples[timeSynchronization->timeIntervalSamples.iterator];
-        samplesFifoBufferFiFoBufferIteratorNext(&timeSynchronization->timeIntervalSamples);
-    } while (timeSynchronization->timeIntervalSamples.iterator <
-             TIME_SYNCHRONIZATION_SAMPLES_FIFO_BUFFER_ITERATOR_END);
-    timeSynchronization->mean = sum / (CalculationType) timeSynchronization->timeIntervalSamples.numSamples;
-}
+///**
+// * Calculates the mean of all available samples in the FiFo.
+// * A call to this function involves iterating the whole FiFo.
+// */
+//void calculateMean(TimeSynchronization *const timeSynchronization) {
+//    CumulationType sum = 0;
+//    samplesFifoBufferIteratorStart(&timeSynchronization->timeIntervalSamples);
+//    do {
+//        sum += timeSynchronization->timeIntervalSamples.samples[timeSynchronization->timeIntervalSamples.iterator];
+//        samplesFifoBufferFiFoBufferIteratorNext(&timeSynchronization->timeIntervalSamples);
+//    } while (timeSynchronization->timeIntervalSamples.iterator <
+//             TIME_SYNCHRONIZATION_SAMPLES_FIFO_BUFFER_ITERATOR_END);
+//    timeSynchronization->mean = sum / (CalculationType) timeSynchronization->timeIntervalSamples.numSamples;
+//}
 
 /**
  * Calculate the variance and std deviance of the values in the fifo buffer.
@@ -78,31 +68,19 @@ void calculateVarianceAndStdDeviance(TimeSynchronization *const timeSynchronizat
     timeSynchronization->isCalculationValid = false;
     MEMORY_BARRIER;
 
-//    if (false == __isEnoughDataAvailable(timeSynchronization)) {
-//        return;
-//    }
-
     SampleValueType y = 0;
     samplesFifoBufferIteratorStart(&timeSynchronization->timeIntervalSamples);
     // @pre timeSynchronization->mean is valid
     do {
         y = timeSynchronization->timeIntervalSamples.samples[timeSynchronization->timeIntervalSamples.iterator];
-        CalculationType difference;
-        if (y >= timeSynchronization->mean) {
-            difference = y - timeSynchronization->mean;
-        } else {
-            difference = timeSynchronization->mean - y;
-        }
-
+        CalculationType difference = y - timeSynchronization->mean;
         timeSynchronization->variance += difference * difference;
-
         samplesFifoBufferFiFoBufferIteratorNext(&timeSynchronization->timeIntervalSamples);
     } while (timeSynchronization->timeIntervalSamples.iterator <
              TIME_SYNCHRONIZATION_SAMPLES_FIFO_BUFFER_ITERATOR_END);
 
     timeSynchronization->variance /= timeSynchronization->timeIntervalSamples.numSamples;
 
-    //  standard deviance as sqrt(variance)
 #ifdef DEVIATION_MATH_SQRT
     measurements->stdDeviance = sqrt(timeSynchronization->variance);
 #else
@@ -115,18 +93,4 @@ void calculateVarianceAndStdDeviance(TimeSynchronization *const timeSynchronizat
 
     MEMORY_BARRIER;
     timeSynchronization->isCalculationValid = true;
-}
-
-
-/**
- * Calculates a quick and simple approximated mean value.
- * This method is not very stable against outlier.
- */
-void calculateProgressiveMean(const CumulationType sample, TimeSynchronization *const timeSynchronization) {
-    if (timeSynchronization->progressiveMean == 0) {
-        timeSynchronization->progressiveMean = sample;
-    } else {
-        timeSynchronization->progressiveMean += sample;
-        timeSynchronization->progressiveMean /= 2.0;
-    }
 }

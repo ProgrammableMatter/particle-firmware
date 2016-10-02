@@ -20,11 +20,15 @@ void constructTimeSynchronization(TimeSynchronization *const o) {
     constructLeastSquareRegressionResult(&o->fittingFunction);
 #endif
     o->mean = 0;
+    o->__unnormalizedCumulativeMean = 0;
     o->progressiveMean = 0;
     o->variance = 0;
     o->stdDeviance = 0;
+    o->outlierLowerBound = 0;
+    o->outlierUpperBound = 0;
     // TODO: evaluation code
     o->nextSyncPackageTransmissionStartTime = 10;
     o->isCalculationValid = false;
     o->isNextSyncPackageTransmissionEnabled = false;
+    o->isOutlierRejectionBoundValid = false;
 }

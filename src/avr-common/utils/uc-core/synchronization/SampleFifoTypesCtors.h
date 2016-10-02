@@ -18,4 +18,6 @@ void constructSamplesFifoBuffer(SamplesFifoBuffer *const o) {
     o->__insertIndex = 0;
     o->numSamples = 0;
     o->iterator = o->__startIdx;
+    o->dropOut = 0;
+    o->isDropOutValid = false;
 }

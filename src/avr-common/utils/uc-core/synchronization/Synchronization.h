@@ -34,17 +34,30 @@ static void __roundFloatToUnsigned(volatile const float *const source, volatile 
 }
 
 /**
+ * Update the outlier limits.
+ */
+//static void __updateOutlierRejectionLimit(TimeSynchronization *const timeSynchronization) {
+////    float rejectionLimit = 0.5 + (4.0 *
+////                                 timeSynchronization->stdDeviance);
+//    float rejectionLimit = 10000;
+//    timeSynchronization->outlierLowerBound = timeSynchronization->mean - rejectionLimit;
+//    timeSynchronization->outlierUpperBound = timeSynchronization->mean + rejectionLimit;
+//    timeSynchronization->isOutlierRejectionBoundValid = true;
+//}
+
+/**
  * Clock skew approximation entry point: Independent on which approximation strategy is chosen,
  * this approximation function is triggered after each TimePackage has been received correctly and
  * it's pdu reception duration offset has been stored to the fifo queue.
  */
 void tryApproximateTimings(TimeSynchronization *const timeSynchronization) {
-    if (__isEnoughDataAvailable(timeSynchronization)) {
+    if (isEnoughFifoDataAvailable(timeSynchronization)) {
         if (ParticleAttributes.localTime.isTimePeriodInterruptDelayUpdateable == false) {
 
 #ifdef SYNCHRONIZATION_STRATEGY_SIMPLE_MEAN_AND_STDDEVIANCE
-            calculateMean(timeSynchronization);
+//            calculateMean(timeSynchronization); // already calculated step-wise on inserting values to fifo
             calculateVarianceAndStdDeviance(timeSynchronization);
+//            __updateOutlierRejectionLimit(timeSynchronization);
 #else
 #  if defined(SYNCHRONIZATION_STRATEGY_LEAST_SQUARE_LINEAR_FITTING)
             calculateLinearFittingFunctionVarianceAndStdDeviance(timeSynchronization);
@@ -52,22 +65,22 @@ void tryApproximateTimings(TimeSynchronization *const timeSynchronization) {
 #    error no approximation strategy specified
 #  endif
 #endif
+
+//#define __synchronization_meanValue ParticleAttributes.timeSynchronization.progressiveMean
+#define __synchronization_meanValue ParticleAttributes.timeSynchronization.mean
+
             float newTimePeriodInterruptDelay;
-            if (ParticleAttributes.timeSynchronization.mean > TIME_SYNCHRONIZATION_SAMPLE_OFFSET) {
+            if (__synchronization_meanValue > TIME_SYNCHRONIZATION_SAMPLE_OFFSET) {
                 newTimePeriodInterruptDelay =
-                        SYNCHRONIZATION_MANUAL_ADJUSTMENT_CLOCK_DECELERATION
                         LOCAL_TIME_DEFAULT_INTERRUPT_DELAY +
                         LOCAL_TIME_DEFAULT_INTERRUPT_DELAY_WORKING_POINT_PERCENTAGE *
-                        (ParticleAttributes.timeSynchronization.mean -
-                         TIME_SYNCHRONIZATION_SAMPLE_OFFSET)
+                        (__synchronization_meanValue - TIME_SYNCHRONIZATION_SAMPLE_OFFSET)
                         SYNCHRONIZATION_MANUAL_ADJUSTMENT_CLOCK_ACCELERATION;
             } else {
                 newTimePeriodInterruptDelay =
-                        SYNCHRONIZATION_MANUAL_ADJUSTMENT_CLOCK_DECELERATION
                         LOCAL_TIME_DEFAULT_INTERRUPT_DELAY -
                         LOCAL_TIME_DEFAULT_INTERRUPT_DELAY_WORKING_POINT_PERCENTAGE *
-                        (TIME_SYNCHRONIZATION_SAMPLE_OFFSET -
-                         ParticleAttributes.timeSynchronization.mean)
+                        (TIME_SYNCHRONIZATION_SAMPLE_OFFSET - __synchronization_meanValue)
                         SYNCHRONIZATION_MANUAL_ADJUSTMENT_CLOCK_ACCELERATION;
             }
             __roundFloatToUnsigned(&newTimePeriodInterruptDelay,

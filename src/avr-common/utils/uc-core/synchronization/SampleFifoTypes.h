@@ -47,4 +47,15 @@ typedef struct SamplesFifoBuffer {
     * index of iterator for outer access
     */
     IndexType iterator;
+    /**
+     * the last FiFo value that has been dropped out of the queue
+     */
+    SampleValueType dropOut;
+    /**
+     * indicates whether the dropOut value is valid or not
+     */
+    uint8_t isDropOutValid :1;
+
+    uint8_t __pad :7;
+
 } SamplesFifoBuffer;

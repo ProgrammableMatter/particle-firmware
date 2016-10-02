@@ -32,6 +32,13 @@ typedef struct TimeSynchronization {
     * samples' mean
     */
     CalculationType mean;
+
+    /**
+     * The cumulative unnormalized mean field is used to calculate a step-wise mean
+     * by just observing the incoming and outgoing FiFo values without
+     * the need for a complete FiFo iteration.
+     */
+    CumulationType __unnormalizedCumulativeMean;
     /**
      * The progressive mean has kind of knowledge of previous values and is the 1/2 of the last progressive mean and the current value.
      */
@@ -45,7 +52,15 @@ typedef struct TimeSynchronization {
      */
     CalculationType stdDeviance;
     /**
-     * next local time stamp when transmisson is to be initialized
+     * Lower bound for outlier to be rejected.
+     */
+    SampleValueType outlierLowerBound;
+    /**
+     * Upper bound for outlier to be rejected.
+     */
+    SampleValueType outlierUpperBound;
+    /**
+     * next local time stamp when transmission is to be initialized
      */
     uint16_t nextSyncPackageTransmissionStartTime;
     /**
@@ -56,6 +71,7 @@ typedef struct TimeSynchronization {
      * if flag is set, transmission of further synchronization package is scheduled
      */
     volatile uint8_t isNextSyncPackageTransmissionEnabled : 1;
-    uint8_t __pad : 6;
+    uint8_t isOutlierRejectionBoundValid : 1;
+    uint8_t __pad : 5;
 
 } TimeSynchronization;
