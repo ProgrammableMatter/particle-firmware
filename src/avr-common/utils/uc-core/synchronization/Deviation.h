@@ -68,12 +68,11 @@ void calculateVarianceAndStdDeviance(TimeSynchronization *const timeSynchronizat
     timeSynchronization->isCalculationValid = false;
     MEMORY_BARRIER;
 
-    SampleValueType y = 0;
     samplesFifoBufferIteratorStart(&timeSynchronization->timeIntervalSamples);
     // @pre timeSynchronization->mean is valid
     do {
-        y = timeSynchronization->timeIntervalSamples.samples[timeSynchronization->timeIntervalSamples.iterator];
-        CalculationType difference = y - timeSynchronization->mean;
+        CalculationType difference = timeSynchronization->mean -
+                                     timeSynchronization->timeIntervalSamples.samples[timeSynchronization->timeIntervalSamples.iterator];
         timeSynchronization->variance += difference * difference;
         samplesFifoBufferFiFoBufferIteratorNext(&timeSynchronization->timeIntervalSamples);
     } while (timeSynchronization->timeIntervalSamples.iterator <
