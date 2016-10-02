@@ -7,20 +7,9 @@
 #pragma once
 
 #include <stdint.h>
+#include "BasicCalculationTypes.h"
 #include "uc-core/configuration/synchronization/SampleFifoTypes.h"
 #include "LeastSquareRegressionTypes.h"
-
-#ifdef C_STRUCTS_TO_JSON_PARSER_TYPEDEF_NOT_SUPPORTED_SUPPRESS_REGULAR_TYPEDEFS
-# define CumulationType uint32_t
-# define SampleValueType uint16_t
-# define CalculationType float
-#define IndexType uint8_t
-#else
-typedef uint32_t CumulationType;
-typedef uint16_t SampleValueType;
-typedef float CalculationType;
-typedef uint8_t IndexType;
-#endif
 
 /**
  * Simple first-in first-out buffer for 1-dimensional samples (y-values).
