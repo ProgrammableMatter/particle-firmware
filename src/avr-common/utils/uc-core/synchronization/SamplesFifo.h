@@ -117,12 +117,14 @@ static void __calculateProgressiveMean(const CumulationType sample,
  */
 void samplesFifoBufferAddSample(const SampleValueType sample,
                                 TimeSynchronization *const timeSynchronization) {
-//    if (timeSynchronization->isOutlierRejectionBoundValid) {
-//        if ((float)sample < timeSynchronization->outlierLowerBound ||
-//                (float)sample > timeSynchronization->outlierUpperBound) {
-//            return;
-//        }
-//    }
+#ifdef SYNCHRONIZATION_ENABLE_OUTLIER_REJECTION
+    if (timeSynchronization->isOutlierRejectionBoundValid) {
+        if (sample < timeSynchronization->outlierLowerBound ||
+            sample > timeSynchronization->outlierUpperBound) {
+            return;
+        }
+    }
+#endif
 
     if (timeSynchronization->timeIntervalSamples.numSamples < TIME_SYNCHRONIZATION_SAMPLES_FIFO_BUFFER_SIZE) {
         timeSynchronization->timeIntervalSamples.numSamples++;

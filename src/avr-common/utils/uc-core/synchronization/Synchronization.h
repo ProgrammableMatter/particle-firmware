@@ -23,27 +23,27 @@
 #include "uc-core/configuration/Time.h"
 
 
-static void __roundFloatToUnsigned(volatile const float *const source, volatile uint16_t *const result) {
-    if ((*source >= 0 - 0.5) && (*source <= UINT16_MAX + 0.5)) {
-        *result = (uint16_t) (*source + 0.5);
-        MEMORY_BARRIER;
-        ParticleAttributes.localTime.isTimePeriodInterruptDelayUpdateable = true;
-    } else {
-        *result = 0;
-    }
-}
+//static void __roundFloatToUnsigned(volatile const float *const source, volatile uint16_t *const result) {
+//    if ((*source >= 0 - 0.5) && (*source <= UINT16_MAX + 0.5)) {
+//        *result = (uint16_t) (*source + 0.5);
+//    } else {
+//        *result = 0;
+//    }
+//}
 
+#ifdef SYNCHRONIZATION_ENABLE_OUTLIER_REJECTION
 /**
  * Update the outlier limits.
  */
-//static void __updateOutlierRejectionLimit(TimeSynchronization *const timeSynchronization) {
-////    float rejectionLimit = 0.5 + (4.0 *
-////                                 timeSynchronization->stdDeviance);
-//    float rejectionLimit = 10000;
-//    timeSynchronization->outlierLowerBound = timeSynchronization->mean - rejectionLimit;
-//    timeSynchronization->outlierUpperBound = timeSynchronization->mean + rejectionLimit;
-//    timeSynchronization->isOutlierRejectionBoundValid = true;
-//}
+static void __updateOutlierRejectionLimit(TimeSynchronization *const timeSynchronization) {
+    float rejectionLimit = 0.5 + (SYNCHRONIZATION_OUTLIER_REJECTION_SIGMA_FACTOR *
+                                  timeSynchronization->stdDeviance);
+    timeSynchronization->outlierLowerBound = timeSynchronization->mean - rejectionLimit;
+    timeSynchronization->outlierUpperBound = timeSynchronization->mean + rejectionLimit;
+    timeSynchronization->isOutlierRejectionBoundValid = true;
+}
+
+#endif
 
 /**
  * Clock skew approximation entry point: Independent on which approximation strategy is chosen,
@@ -55,9 +55,17 @@ void tryApproximateTimings(TimeSynchronization *const timeSynchronization) {
         if (ParticleAttributes.localTime.isTimePeriodInterruptDelayUpdateable == false) {
 
 #ifdef SYNCHRONIZATION_STRATEGY_SIMPLE_MEAN_AND_STDDEVIANCE
-//            calculateMean(timeSynchronization); // already calculated step-wise on inserting values to fifo
+            // mean already calculated step-wise on inserting values to FiFo
+            // calculateMean(timeSynchronization);
             calculateVarianceAndStdDeviance(timeSynchronization);
-//            __updateOutlierRejectionLimit(timeSynchronization);
+
+#  ifdef SYNCHRONIZATION_ENABLE_OUTLIER_REJECTION
+            if (timeSynchronization->timeIntervalSamples.numSamples >=
+                TIME_SYNCHRONIZATION_SAMPLES_FIFO_BUFFER_SIZE) {
+                __updateOutlierRejectionLimit(timeSynchronization);
+            }
+#  endif
+
 #else
 #  if defined(SYNCHRONIZATION_STRATEGY_LEAST_SQUARE_LINEAR_FITTING)
             calculateLinearFittingFunctionVarianceAndStdDeviance(timeSynchronization);
@@ -83,8 +91,9 @@ void tryApproximateTimings(TimeSynchronization *const timeSynchronization) {
                         (TIME_SYNCHRONIZATION_SAMPLE_OFFSET - __synchronization_meanValue)
                         SYNCHRONIZATION_MANUAL_ADJUSTMENT_CLOCK_ACCELERATION;
             }
-            __roundFloatToUnsigned(&newTimePeriodInterruptDelay,
-                                   &ParticleAttributes.localTime.newTimePeriodInterruptDelay);
+
+            ParticleAttributes.localTime.newTimePeriodInterruptDelay = 0.5 + newTimePeriodInterruptDelay;
+            MEMORY_BARRIER;
             ParticleAttributes.localTime.isTimePeriodInterruptDelayUpdateable = true;
         }
     }
