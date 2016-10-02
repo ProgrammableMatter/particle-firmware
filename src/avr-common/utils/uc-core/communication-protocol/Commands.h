@@ -58,19 +58,31 @@ void executeSynchronizeLocalTimePackage(const TimePackage *const package,
 
     // The synchronization package rx duration should take exactly one 16bit timer-counter overflow.
     // Thus the start and end timestamp difference sould be 0 on perfect match.
-    uint16_t value;
+    SampleValueType smapleValue;
     if (portBuffer->receptionEndTimestamp >= portBuffer->receptionStartTimestamp) {
         // on package reception longer than expected -> accelerate the clock
-        value = TIME_SYNCHRONIZATION_SAMPLE_OFFSET + // add synthetic offset
+        smapleValue = TIME_SYNCHRONIZATION_SAMPLE_OFFSET + // add synthetic offset
                 (portBuffer->receptionEndTimestamp - portBuffer->receptionStartTimestamp);
 
     } else {
         // on package reception shorter than expected -> decelerate the clock
-        value = TIME_SYNCHRONIZATION_SAMPLE_OFFSET - // add synthetic offset
+        smapleValue = TIME_SYNCHRONIZATION_SAMPLE_OFFSET - // add synthetic offset
                 (portBuffer->receptionStartTimestamp - portBuffer->receptionEndTimestamp);
     }
 
-    samplesFifoBufferAddSample(value, &ParticleAttributes.timeSynchronization);
+//    SampleValueType smapleValue;
+//    if (portBuffer->receptionEndTimestamp >= portBuffer->receptionStartTimestamp) {
+//        // on package reception longer than expected -> accelerate the clock
+//        smapleValue = UINT16_MAX +
+//                (portBuffer->receptionEndTimestamp - portBuffer->receptionStartTimestamp);
+//
+//    } else {
+//        // on package reception shorter than expected -> decelerate the clock
+//        smapleValue = UINT16_MAX -
+//                (portBuffer->receptionStartTimestamp - portBuffer->receptionEndTimestamp);
+//    }
+
+    samplesFifoBufferAddSample(&smapleValue, &ParticleAttributes.timeSynchronization);
     tryApproximateTimings(&ParticleAttributes.timeSynchronization);
 
     // DEBUG_INT16_OUT(TIMER_TX_RX_COUNTER_VALUE);

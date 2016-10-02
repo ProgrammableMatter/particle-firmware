@@ -72,10 +72,10 @@ static bool isEnoughFifoDataAvailable(const TimeSynchronization *const timeSynch
  * An updated is performed if the TIME_SYNCHRONIZATION_MINIMUM_SAMPLES limit is exceeded.
  */
 static void __calculateMeanUsingFifoInOutObservations(TimeSynchronization *const timeSynchronization,
-                                                      const SampleValueType fifoIn,
-                                                      const SampleValueType fifoOut) {
-    timeSynchronization->__unnormalizedCumulativeMean += fifoIn;
-    timeSynchronization->__unnormalizedCumulativeMean -= fifoOut;
+                                                      const SampleValueType *const fifoIn,
+                                                      const SampleValueType *const fifoOut) {
+    timeSynchronization->__unnormalizedCumulativeMean += *fifoIn;
+    timeSynchronization->__unnormalizedCumulativeMean -= *fifoOut;
 
     if (isEnoughFifoDataAvailable(timeSynchronization)) {
         // on enough data stored: update mean
@@ -90,8 +90,8 @@ static void __calculateMeanUsingFifoInOutObservations(TimeSynchronization *const
  * An updated is performed if the TIME_SYNCHRONIZATION_MINIMUM_SAMPLES limit is exceeded.
  */
 static void __calculateMeanUsingFifoInObservations(TimeSynchronization *const timeSynchronization,
-                                                   const SampleValueType fifoIn) {
-    timeSynchronization->__unnormalizedCumulativeMean += fifoIn;
+                                                   const SampleValueType *const fifoIn) {
+    timeSynchronization->__unnormalizedCumulativeMean += *fifoIn;
     if (isEnoughFifoDataAvailable(timeSynchronization)) {
         timeSynchronization->mean = (CalculationType) timeSynchronization->__unnormalizedCumulativeMean /
                                     (CalculationType) timeSynchronization->timeIntervalSamples.numSamples;
@@ -102,16 +102,17 @@ static void __calculateMeanUsingFifoInObservations(TimeSynchronization *const ti
  * Calculates a quick and simple approximated mean value.
  * This method is not very stable against outlier.
  */
-static void __calculateProgressiveMean(const CumulationType sample,
+static void __calculateProgressiveMean(const SampleValueType *const sample,
                                        TimeSynchronization *const timeSynchronization) {
     if (timeSynchronization->progressiveMean == 0) {
-        timeSynchronization->progressiveMean = sample;
+        timeSynchronization->progressiveMean = *sample;
     } else {
-        timeSynchronization->progressiveMean += sample;
+        timeSynchronization->progressiveMean += *sample;
         timeSynchronization->progressiveMean = (CalculationType) timeSynchronization->progressiveMean / 2.0;
     }
 }
 
+#ifdef SYNCHRONIZATION_ENABLE_OUTLIER_REJECTION
 static void __reduceRejectionCounters(AdaptiveSampleRejection *const adaptiveSampleRejection) {
     if ((adaptiveSampleRejection->rejected >= UINT8_MAX) ||
         (adaptiveSampleRejection->accepted >= UINT8_MAX)) {
@@ -178,12 +179,12 @@ static void __updateCurrentRejectionBoundaries(TimeSynchronization *const timeSy
             timeSynchronization->mean + adaptiveSampleRejection->currentAcceptedDeviation;
     adaptiveSampleRejection->isOutlierRejectionBoundValid = true;
 }
-
+#endif
 
 /**
  * Adds a value to the FiFo buffer.
  */
-void samplesFifoBufferAddSample(const SampleValueType sample,
+void samplesFifoBufferAddSample(const SampleValueType *const sample,
                                 TimeSynchronization *const timeSynchronization) {
 #ifdef SYNCHRONIZATION_ENABLE_OUTLIER_REJECTION
     if (timeSynchronization->timeIntervalSamples.numSamples >=
@@ -191,8 +192,8 @@ void samplesFifoBufferAddSample(const SampleValueType sample,
 
         bool isToBeRejected = false;
         if (timeSynchronization->adaptiveSampleRejection.isOutlierRejectionBoundValid) {
-            if (sample < timeSynchronization->adaptiveSampleRejection.outlierLowerBound ||
-                sample > timeSynchronization->adaptiveSampleRejection.outlierUpperBound) {
+            if (*sample < timeSynchronization->adaptiveSampleRejection.outlierLowerBound ||
+                *sample > timeSynchronization->adaptiveSampleRejection.outlierUpperBound) {
                 timeSynchronization->adaptiveSampleRejection.rejected++;
                 isToBeRejected = true;
             } else {
@@ -213,7 +214,7 @@ void samplesFifoBufferAddSample(const SampleValueType sample,
         timeSynchronization->timeIntervalSamples.numSamples++;
     }
     __samplesFifoBufferIncrementInsertIndex(&timeSynchronization->timeIntervalSamples);
-    timeSynchronization->timeIntervalSamples.samples[timeSynchronization->timeIntervalSamples.__insertIndex] = sample;
+    timeSynchronization->timeIntervalSamples.samples[timeSynchronization->timeIntervalSamples.__insertIndex] = *sample;
 
     // calculate progressive mean
     __calculateProgressiveMean(sample, timeSynchronization);
@@ -223,7 +224,7 @@ void samplesFifoBufferAddSample(const SampleValueType sample,
         // on fifo has dropped out a first-in value
         __calculateMeanUsingFifoInOutObservations(timeSynchronization,
                                                   sample,
-                                                  timeSynchronization->timeIntervalSamples.dropOut);
+                                                  &timeSynchronization->timeIntervalSamples.dropOut);
     } else {
         // on fifo not entirely saturated
         __calculateMeanUsingFifoInObservations(timeSynchronization, sample);

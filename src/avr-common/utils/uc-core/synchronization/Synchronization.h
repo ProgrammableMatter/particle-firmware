@@ -58,7 +58,7 @@ void tryApproximateTimings(TimeSynchronization *const timeSynchronization) {
 #ifdef SYNCHRONIZATION_STRATEGY_SIMPLE_MEAN_AND_STDDEVIANCE
             // mean already calculated step-wise on inserting values to FiFo
             // calculateMean(timeSynchronization);
-            calculateVarianceAndStdDeviance(timeSynchronization);
+//            calculateVarianceAndStdDeviance(timeSynchronization);
 
 //#  ifdef SYNCHRONIZATION_ENABLE_OUTLIER_REJECTION
 //            if (timeSynchronization->timeIntervalSamples.numSamples >=
@@ -93,8 +93,31 @@ void tryApproximateTimings(TimeSynchronization *const timeSynchronization) {
                         SYNCHRONIZATION_MANUAL_ADJUSTMENT_CLOCK_ACCELERATION;
             }
 
-            ParticleAttributes.localTime.newTimePeriodInterruptDelay = (CalculationType) (0.5 +
-                                                                                          newTimePeriodInterruptDelay);
+            ParticleAttributes.localTime.newTimePeriodInterruptDelay = (uint16_t) (0.5 +
+                                                                                   newTimePeriodInterruptDelay);
+
+//            CalculationType newTimePeriodInterruptDelay;
+//            if (__synchronization_meanValue > TIME_SYNCHRONIZATION_SAMPLE_OFFSET) {
+//                newTimePeriodInterruptDelay =
+//                        (CalculationType) LOCAL_TIME_DEFAULT_INTERRUPT_DELAY +
+//                        (CalculationType) LOCAL_TIME_DEFAULT_INTERRUPT_DELAY_WORKING_POINT_PERCENTAGE *
+//                        (__synchronization_meanValue - (CalculationType) TIME_SYNCHRONIZATION_SAMPLE_OFFSET)
+//                        SYNCHRONIZATION_MANUAL_ADJUSTMENT_CLOCK_ACCELERATION;
+//            } else {
+//                newTimePeriodInterruptDelay =
+//                        (CalculationType) LOCAL_TIME_DEFAULT_INTERRUPT_DELAY -
+//                        (CalculationType) LOCAL_TIME_DEFAULT_INTERRUPT_DELAY_WORKING_POINT_PERCENTAGE *
+//                        ((CalculationType) TIME_SYNCHRONIZATION_SAMPLE_OFFSET - __synchronization_meanValue)
+//                        SYNCHRONIZATION_MANUAL_ADJUSTMENT_CLOCK_ACCELERATION;
+//            }
+
+
+//            CalculationType newTimePeriodInterruptDelay = __synchronization_meanValue * LOCAL_TIME_DEFAULT_INTERRUPT_DELAY_WORKING_POINT_PERCENTAGE;
+//            if (newTimePeriodInterruptDelay >= UINT16_MAX) {
+//                blinkGenericErrorForever();
+//            }
+
+//            ParticleAttributes.localTime.newTimePeriodInterruptDelay = (uint16_t) newTimePeriodInterruptDelay;
             MEMORY_BARRIER;
             ParticleAttributes.localTime.isTimePeriodInterruptDelayUpdateable = true;
         }

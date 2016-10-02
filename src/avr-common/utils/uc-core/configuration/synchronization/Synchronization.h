@@ -37,7 +37,7 @@
 /**
  * en- or disable outlier rejection
  */
-#define SYNCHRONIZATION_ENABLE_OUTLIER_REJECTION
+//#define SYNCHRONIZATION_ENABLE_OUTLIER_REJECTION
 
 /**
  * Defines the factor f for outlier detection. Samples having values not within
