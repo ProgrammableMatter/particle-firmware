@@ -23,12 +23,12 @@
  * Binary search for sqrt as proposed in:
  * http://www.avrfreaks.net/forum/where-sqrt-routine
  */
-static void __binarySearchSqr(const float *const number, float *const result) {
+static void __binarySearchSqr(const CalculationType *const number, CalculationType *const result) {
 #define __binary_sqr_search_digits_accuracy 0.1
 //#define __binary_sqr_search_digits_accuracy 0.01
     if ((*number) >= 0) {
-        float left = 0;
-        float right = *number + 1;
+        CalculationType left = 0;
+        CalculationType right = *number + 1;
 //        float *center = result;
         while ((right - left) > __binary_sqr_search_digits_accuracy) {
             *result = (left + right) / 2;

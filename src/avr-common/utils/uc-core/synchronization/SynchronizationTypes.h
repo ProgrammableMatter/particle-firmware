@@ -12,7 +12,31 @@
 #include "LeastSquareRegressionTypes.h"
 #include "SampleFifoTypes.h"
 
+
+typedef struct AdaptiveSampleRejection {
+    uint8_t rejected;
+    uint8_t accepted;
+    float currentRejectionRatio;
+    float targetRejectionRatio;
+    float currentAcceptedDeviation;
+    /**
+     * Lower bound for outlier to be rejected.
+     */
+    SampleValueType outlierLowerBound;
+    /**
+     * Upper bound for outlier to be rejected.
+     */
+    SampleValueType outlierUpperBound;
+    /**
+     * switch enabled when outlier rejection boundary is valid
+     */
+    uint8_t isOutlierRejectionBoundValid : 1;
+    uint8_t isCurrentRejectionRatioValid : 1;
+    uint8_t __pad : 5;
+} AdaptiveSampleRejection;
+
 typedef struct TimeSynchronization {
+    AdaptiveSampleRejection adaptiveSampleRejection;
     SamplesFifoBuffer timeIntervalSamples;
 #ifdef SYNCHRONIZATION_STRATEGY_LEAST_SQUARE_LINEAR_FITTING
     LeastSquareRegressionResult fittingFunction;
@@ -40,14 +64,7 @@ typedef struct TimeSynchronization {
      * samples' standard deviation
      */
     CalculationType stdDeviance;
-    /**
-     * Lower bound for outlier to be rejected.
-     */
-    SampleValueType outlierLowerBound;
-    /**
-     * Upper bound for outlier to be rejected.
-     */
-    SampleValueType outlierUpperBound;
+
     /**
      * next local time stamp when transmission is to be initialized
      */
@@ -73,9 +90,5 @@ typedef struct TimeSynchronization {
      * barrier for sync package scheduling
      */
     uint8_t isNextSyncPackageTransmissionEnabled : 1;
-    /**
-     * switch enabled when outlier rejection boundary is valid
-     */
-    uint8_t isOutlierRejectionBoundValid : 1;
-    uint8_t __pad : 5;
+    uint8_t __pad : 7;
 } TimeSynchronization;

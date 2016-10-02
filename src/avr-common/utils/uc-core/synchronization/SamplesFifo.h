@@ -79,7 +79,7 @@ static void __calculateMeanUsingFifoInOutObservations(TimeSynchronization *const
 
     if (isEnoughFifoDataAvailable(timeSynchronization)) {
         // on enough data stored: update mean
-        timeSynchronization->mean = timeSynchronization->__unnormalizedCumulativeMean /
+        timeSynchronization->mean = (CalculationType) timeSynchronization->__unnormalizedCumulativeMean /
                                     (CalculationType) timeSynchronization->timeIntervalSamples.numSamples;
     }
 }
@@ -93,7 +93,7 @@ static void __calculateMeanUsingFifoInObservations(TimeSynchronization *const ti
                                                    const SampleValueType fifoIn) {
     timeSynchronization->__unnormalizedCumulativeMean += fifoIn;
     if (isEnoughFifoDataAvailable(timeSynchronization)) {
-        timeSynchronization->mean = timeSynchronization->__unnormalizedCumulativeMean /
+        timeSynchronization->mean = (CalculationType) timeSynchronization->__unnormalizedCumulativeMean /
                                     (CalculationType) timeSynchronization->timeIntervalSamples.numSamples;
     }
 }
@@ -108,9 +108,77 @@ static void __calculateProgressiveMean(const CumulationType sample,
         timeSynchronization->progressiveMean = sample;
     } else {
         timeSynchronization->progressiveMean += sample;
-        timeSynchronization->progressiveMean /= 2.0;
+        timeSynchronization->progressiveMean = (CalculationType) timeSynchronization->progressiveMean / 2.0;
     }
 }
+
+static void __reduceRejectionCounters(AdaptiveSampleRejection *const adaptiveSampleRejection) {
+    if ((adaptiveSampleRejection->rejected >= UINT8_MAX) ||
+        (adaptiveSampleRejection->accepted >= UINT8_MAX)) {
+        adaptiveSampleRejection->rejected =
+                (1.0 + (float) adaptiveSampleRejection->rejected) / 2.0;
+        adaptiveSampleRejection->accepted =
+                (1.0 + (float) adaptiveSampleRejection->accepted) / 2.0;
+    }
+}
+
+static void __updateCurrentRejectionRatio(AdaptiveSampleRejection *const adaptiveSampleRejection) {
+    // omit division by 0
+    if (adaptiveSampleRejection->accepted <= 0 || adaptiveSampleRejection->rejected <= 0) {
+        adaptiveSampleRejection->accepted++;
+        adaptiveSampleRejection->rejected++;
+    }
+    adaptiveSampleRejection->currentRejectionRatio =
+            (float) adaptiveSampleRejection->rejected /
+            (float) adaptiveSampleRejection->accepted;
+}
+
+static void __updateCurrentRejectionBoundaries(TimeSynchronization *const timeSynchronization) {
+    LED_STATUS1_ON;
+    AdaptiveSampleRejection *const adaptiveSampleRejection = &timeSynchronization->adaptiveSampleRejection;
+    __updateCurrentRejectionRatio(adaptiveSampleRejection);
+
+    // TODO: move attenuation factor to configuration
+    // update rejection interval
+    if (adaptiveSampleRejection->currentRejectionRatio >
+        adaptiveSampleRejection->targetRejectionRatio) {
+        // linear decrease rejection boundary with attenuation factor
+        adaptiveSampleRejection->currentAcceptedDeviation -=
+                0.75 * adaptiveSampleRejection->currentAcceptedDeviation /
+                (adaptiveSampleRejection->currentRejectionRatio /
+                 adaptiveSampleRejection->targetRejectionRatio);
+
+        if (adaptiveSampleRejection->currentAcceptedDeviation <= 1000) {
+            adaptiveSampleRejection->currentAcceptedDeviation = 1000;
+        }
+        LED_STATUS2_ON;
+        LED_STATUS3_OFF;
+    } else {
+        // linear increase rejection boundary with attenuation factor
+        adaptiveSampleRejection->currentAcceptedDeviation +=
+                0.75 * adaptiveSampleRejection->currentAcceptedDeviation *
+                (adaptiveSampleRejection->targetRejectionRatio /
+                 adaptiveSampleRejection->currentRejectionRatio);
+
+        if (adaptiveSampleRejection->currentAcceptedDeviation >= 32000) {
+            adaptiveSampleRejection->currentAcceptedDeviation = 32000;
+        }
+        LED_STATUS2_OFF;
+        LED_STATUS3_ON;
+    }
+
+
+    if (adaptiveSampleRejection->currentAcceptedDeviation > 3000) {
+        LED_STATUS1_OFF;
+    }
+    // update new rejection boundaries
+    adaptiveSampleRejection->outlierLowerBound =
+            timeSynchronization->mean - adaptiveSampleRejection->currentAcceptedDeviation;
+    adaptiveSampleRejection->outlierUpperBound =
+            timeSynchronization->mean + adaptiveSampleRejection->currentAcceptedDeviation;
+    adaptiveSampleRejection->isOutlierRejectionBoundValid = true;
+}
+
 
 /**
  * Adds a value to the FiFo buffer.
@@ -118,9 +186,24 @@ static void __calculateProgressiveMean(const CumulationType sample,
 void samplesFifoBufferAddSample(const SampleValueType sample,
                                 TimeSynchronization *const timeSynchronization) {
 #ifdef SYNCHRONIZATION_ENABLE_OUTLIER_REJECTION
-    if (timeSynchronization->isOutlierRejectionBoundValid) {
-        if (sample < timeSynchronization->outlierLowerBound ||
-            sample > timeSynchronization->outlierUpperBound) {
+    if (timeSynchronization->timeIntervalSamples.numSamples >=
+        TIME_SYNCHRONIZATION_SAMPLES_FIFO_BUFFER_SIZE) {
+
+        bool isToBeRejected = false;
+        if (timeSynchronization->adaptiveSampleRejection.isOutlierRejectionBoundValid) {
+            if (sample < timeSynchronization->adaptiveSampleRejection.outlierLowerBound ||
+                sample > timeSynchronization->adaptiveSampleRejection.outlierUpperBound) {
+                timeSynchronization->adaptiveSampleRejection.rejected++;
+                isToBeRejected = true;
+            } else {
+                timeSynchronization->adaptiveSampleRejection.accepted++;
+            }
+        }
+
+        __reduceRejectionCounters(&timeSynchronization->adaptiveSampleRejection);
+        __updateCurrentRejectionBoundaries(timeSynchronization);
+
+        if (isToBeRejected) {
             return;
         }
     }

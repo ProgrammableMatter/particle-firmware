@@ -30,9 +30,10 @@
  * @param isRxHigh the logic signal level
  */
 
-static void __handleInputInterrupt(DirectionOrientedPort *const port,
-                                   const bool isRxHigh) {
-    uint16_t timerCounterValue = TIMER_TX_RX_COUNTER_VALUE;
+// TODO: inline vs. not inline (sync. issue)
+static inline void __handleInputInterrupt(DirectionOrientedPort *const port,
+                                          const bool isRxHigh, uint16_t timerCounterValue) {
+//    uint16_t timerCounterValue = TIMER_TX_RX_COUNTER_VALUE;
     switch (ParticleAttributes.node.state) {
         case STATE_TYPE_NEIGHBOURS_DISCOVERY:
             // on discovery pulse
@@ -85,7 +86,7 @@ ISR(NORTH_PIN_CHANGE_INTERRUPT_VECT) {
         }
     }
     __handleInputInterrupt(&ParticleAttributes.directionOrientedPorts.north,
-                           NORTH_RX_IS_HI);
+                           NORTH_RX_IS_HI, TIMER_TX_RX_COUNTER_VALUE);
 //    TEST_POINT1_TOGGLE;
 }
 
@@ -101,7 +102,7 @@ ISR(EAST_PIN_CHANGE_INTERRUPT_VECT) {
 //    if (!EAST_RX_IS_HI)
 //        TEST_POINT1_TOGGLE;
     __handleInputInterrupt(&ParticleAttributes.directionOrientedPorts.east,
-                           EAST_RX_IS_HI);
+                           EAST_RX_IS_HI, TIMER_TX_RX_COUNTER_VALUE);
 }
 
 /**
@@ -110,7 +111,7 @@ ISR(EAST_PIN_CHANGE_INTERRUPT_VECT) {
  */
 ISR(SOUTH_PIN_CHANGE_INTERRUPT_VECT) {
     __handleInputInterrupt(&ParticleAttributes.directionOrientedPorts.south,
-                           SOUTH_RX_IS_HI);
+                           SOUTH_RX_IS_HI, TIMER_TX_RX_COUNTER_VALUE);
 }
 
 /**

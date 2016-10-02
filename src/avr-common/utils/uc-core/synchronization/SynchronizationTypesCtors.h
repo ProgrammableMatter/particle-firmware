@@ -10,12 +10,26 @@
 #include "LeastSquareRegressionTypesCtors.h"
 #include "SampleFifoTypesCtors.h"
 
+
+void constructAdaptiveSampleRejection(AdaptiveSampleRejection *const o) {
+    o->rejected = 0;
+    o->accepted = 0;
+    o->currentAcceptedDeviation = 20000;
+    o->currentRejectionRatio = 0;
+    o->targetRejectionRatio = 0.4;
+    o->outlierLowerBound = 0;
+    o->outlierUpperBound = 0;
+    o->isOutlierRejectionBoundValid = false;
+    o->isCurrentRejectionRatioValid = false;
+}
+
 /**
  * constructor function
  * @param o reference to the object to construct
  */
 void constructTimeSynchronization(TimeSynchronization *const o) {
     constructSamplesFifoBuffer(&o->timeIntervalSamples);
+    constructAdaptiveSampleRejection(&o->adaptiveSampleRejection);
 #ifdef SYNCHRONIZATION_STRATEGY_LEAST_SQUARE_LINEAR_FITTING
     constructLeastSquareRegressionResult(&o->fittingFunction);
 #endif
@@ -24,14 +38,11 @@ void constructTimeSynchronization(TimeSynchronization *const o) {
     o->progressiveMean = 0;
     o->variance = 0;
     o->stdDeviance = 0;
-    o->outlierLowerBound = 0;
-    o->outlierUpperBound = 0;
-    // TODO: nextSyncPackge initial start time must be dependent to the network int. phase end
+    // TODO: nextSyncPackge initial start time depends on the network int. phase's end
     o->nextSyncPackageTransmissionStartTime = 20;
     o->fastSyncPackageSeparation = 10;
-    o->syncPackageSeparation = 600;
+    o->syncPackageSeparation = 300;
     o->totalFastSyncPackagesToTransmit = 500;
     o->isCalculationValid = false;
     o->isNextSyncPackageTransmissionEnabled = false;
-    o->isOutlierRejectionBoundValid = false;
 }

@@ -16,6 +16,7 @@
 #else
 typedef uint32_t CumulationType;
 typedef uint16_t SampleValueType;
-typedef float CalculationType;
+//typedef float CalculationType;
+typedef double CalculationType;
 typedef uint8_t IndexType;
 #endif
