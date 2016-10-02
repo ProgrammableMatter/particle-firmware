@@ -7,21 +7,10 @@
 #pragma once
 
 #include <stdint.h>
+#include "BasicCalculationTypes.h"
 #include "uc-core/configuration/synchronization/Synchronization.h"
 #include "LeastSquareRegressionTypes.h"
 #include "SampleFifoTypes.h"
-
-#ifdef C_STRUCTS_TO_JSON_PARSER_TYPEDEF_NOT_SUPPORTED_SUPPRESS_REGULAR_TYPEDEFS
-# define CumulationType uint32_t
-# define SampleValueType uint16_t
-# define CalculationType float
-#define IndexType uint8_t
-#else
-typedef uint32_t CumulationType;
-typedef uint16_t SampleValueType;
-typedef float CalculationType;
-typedef uint8_t IndexType;
-#endif
 
 typedef struct TimeSynchronization {
     SamplesFifoBuffer timeIntervalSamples;
@@ -64,14 +53,29 @@ typedef struct TimeSynchronization {
      */
     uint16_t nextSyncPackageTransmissionStartTime;
     /**
+     * default sync package delay in between packages
+     */
+    uint16_t syncPackageSeparation;
+    /**
      * Indicates whether the fields for calculation results are valid or not.
      */
     uint8_t isCalculationValid : 1;
     /**
-     * if flag is set, transmission of further synchronization package is scheduled
+     * sync. package separation during fast sync. phase; usually much lower than default sync package separation
      */
-    volatile uint8_t isNextSyncPackageTransmissionEnabled : 1;
+    uint8_t fastSyncPackageSeparation;
+    /**
+     * number of packages to transmit for fast synchronization
+     */
+    uint16_t totalFastSyncPackagesToTransmit;
+
+    /**
+     * barrier for sync package scheduling
+     */
+    uint8_t isNextSyncPackageTransmissionEnabled : 1;
+    /**
+     * switch enabled when outlier rejection boundary is valid
+     */
     uint8_t isOutlierRejectionBoundValid : 1;
     uint8_t __pad : 5;
-
 } TimeSynchronization;

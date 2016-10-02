@@ -611,17 +611,27 @@ static void __onActuationDoneCallback(void) {
 //}
 
 /**
- * On matching time period puts the particle to synchronization state and disables further synchronization scheduling.
- * The enable scheduling flag is enabled by local time tracking interrupt.
+ * On matching time period puts the particle to synchronization state and disables further synchronization
+ * scheduling until the package is transmitted.
  */
 static void __sendNextSyncTimePackage(void) {
-#define __syncPackageTransmissionStartSeparation 7
     if (ParticleAttributes.node.type == NODE_TYPE_ORIGIN) {
         if (ParticleAttributes.timeSynchronization.isNextSyncPackageTransmissionEnabled) {
             if (ParticleAttributes.timeSynchronization.nextSyncPackageTransmissionStartTime ==
                 ParticleAttributes.localTime.numTimePeriodsPassed) {
+
+                if (ParticleAttributes.timeSynchronization.totalFastSyncPackagesToTransmit <= 0) {
+                    // separation on default cyclic synchronization
+                    ParticleAttributes.timeSynchronization.nextSyncPackageTransmissionStartTime +=
+                            ParticleAttributes.timeSynchronization.syncPackageSeparation;
+                } else {
+                    // separation on fast synchronization
+                    ParticleAttributes.timeSynchronization.nextSyncPackageTransmissionStartTime +=
+                            ParticleAttributes.timeSynchronization.fastSyncPackageSeparation;
+                    ParticleAttributes.timeSynchronization.totalFastSyncPackagesToTransmit--;
+                }
+
                 ParticleAttributes.node.state = STATE_TYPE_RESYNC_NEIGHBOUR;
-                ParticleAttributes.timeSynchronization.nextSyncPackageTransmissionStartTime += __syncPackageTransmissionStartSeparation;
                 ParticleAttributes.timeSynchronization.isNextSyncPackageTransmissionEnabled = false;
                 LED_STATUS2_TOGGLE;
             }
@@ -791,6 +801,7 @@ static inline void process(void) {
 
         case STATE_TYPE_SYNC_NEIGHBOUR_DONE:
             __handleSynchronizeNeighbourDoneOrRunTest(STATE_TYPE_IDLE);
+            // TODO: the flag should be set in the local time tracking ISR
             ParticleAttributes.timeSynchronization.isNextSyncPackageTransmissionEnabled = true;
             break;
 

@@ -26,8 +26,11 @@ void constructTimeSynchronization(TimeSynchronization *const o) {
     o->stdDeviance = 0;
     o->outlierLowerBound = 0;
     o->outlierUpperBound = 0;
-    // TODO: evaluation code
-    o->nextSyncPackageTransmissionStartTime = 10;
+    // TODO: nextSyncPackge initial start time must be dependent to the network int. phase end
+    o->nextSyncPackageTransmissionStartTime = 20;
+    o->fastSyncPackageSeparation = 10;
+    o->syncPackageSeparation = 600;
+    o->totalFastSyncPackagesToTransmit = 500;
     o->isCalculationValid = false;
     o->isNextSyncPackageTransmissionEnabled = false;
     o->isOutlierRejectionBoundValid = false;
