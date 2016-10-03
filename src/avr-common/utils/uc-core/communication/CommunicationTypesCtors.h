@@ -14,7 +14,7 @@
  */
 void constructBufferBitPointer(volatile BufferBitPointer *const o) {
     o->byteNumber = 0;
-    o->__pad = 0;
+    o->__pad = 0; // do not remove!
     o->bitMask = 1;
 }
 
@@ -44,7 +44,7 @@ void constructPortBuffer(volatile PortBuffer *const o) {
  * @param o reference to the object to construct
  */
 void constructTxPort(TxPort *const o) {
-    constructPortBuffer(&(o->buffer));
+    constructPortBuffer(&o->buffer);
     constructBufferBitPointer(&o->dataEndPos);
     o->isTransmitting = false;
     o->isTxClockPhase = false;
@@ -69,7 +69,7 @@ void constructTxPorts(TxPorts *const o) {
  */
 void constructRxPort(RxPort *const o) {
     constructRxSnapshotBuffer(&o->snapshotsBuffer);
-    constructPortBuffer(&(o->buffer));
+    constructPortBuffer(&o->buffer);
     // o->receptionOffset = 0;
     o->isOverflowed = false;
     o->isDataBuffered = false;
@@ -81,9 +81,9 @@ void constructRxPort(RxPort *const o) {
  * @param o reference to the object to construct
  */
 void constructRxPorts(RxPorts *const o) {
-    constructRxPort(&(o->north));
-    constructRxPort(&(o->east));
-    constructRxPort(&(o->south));
+    constructRxPort(&o->north);
+    constructRxPort(&o->east);
+    constructRxPort(&o->south);
 }
 
 /**
@@ -91,8 +91,8 @@ void constructRxPorts(RxPorts *const o) {
  * @param o reference to the object to construct
  */
 void constructCommunicationPorts(CommunicationPorts *const o) {
-    constructTxPorts(&(o->tx));
-    constructRxPorts(&(o->rx));
+    constructTxPorts(&o->tx);
+    constructRxPorts(&o->rx);
 }
 
 /**

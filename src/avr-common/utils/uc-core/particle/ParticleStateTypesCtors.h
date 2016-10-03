@@ -30,9 +30,9 @@ void constructDiscoveryPulseCounter(DiscoveryPulseCounter *const o) {
  * @param o the object to construct
  */
 void constructDiscoveryPulseCounters(DiscoveryPulseCounters *const o) {
-    constructDiscoveryPulseCounter(&(o->north));
-    constructDiscoveryPulseCounter(&(o->east));
-    constructDiscoveryPulseCounter(&(o->south));
+    constructDiscoveryPulseCounter(&o->north);
+    constructDiscoveryPulseCounter(&o->east);
+    constructDiscoveryPulseCounter(&o->south);
     o->loopCount = 0;
 }
 
@@ -41,7 +41,8 @@ void constructDiscoveryPulseCounters(DiscoveryPulseCounters *const o) {
  * @param o the object to construct
  */
 void constructNodeAddress(NodeAddress *const o) {
-    *((uint16_t *) o) = 0x0000;
+    o->row = 0;
+    o->column = 0;
 }
 
 /**
@@ -51,7 +52,7 @@ void constructNodeAddress(NodeAddress *const o) {
 void constructNode(Node *o) {
     o->state = STATE_TYPE_UNDEFINED;
     o->type = NODE_TYPE_INVALID;
-    constructNodeAddress(&(o->address));
+    constructNodeAddress(&o->address);
 }
 
 /**
