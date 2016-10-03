@@ -58,7 +58,7 @@ static void __samplesFifoBufferIncrementInsertIndex(SamplesFifoBuffer *const sam
  * @return true if enough data is queued for calculations
  */
 static bool isEnoughFifoDataAvailable(const TimeSynchronization *const timeSynchronization) {
-    // on too less samples calculation is not performed
+    // if too less samples calculation is not performed
     if (timeSynchronization->timeIntervalSamples.numSamples < (TIME_SYNCHRONIZATION_MINIMUM_SAMPLES - 1)) {
         return false;
     } else {
@@ -66,16 +66,17 @@ static bool isEnoughFifoDataAvailable(const TimeSynchronization *const timeSynch
     }
 }
 
+#ifdef SYNCHRONIZATION_STRATEGY_MEAN_ENABLE_ONLINE_CALCULATION
 /**
  * Updates the mean of all available samples using only observations of incoming and outgoing FiFo values.
  * One call to this function does not iterate the whole FiFo.
  * An updated is performed if the TIME_SYNCHRONIZATION_MINIMUM_SAMPLES limit is exceeded.
  */
 static void __calculateMeanUsingFifoInOutObservations(TimeSynchronization *const timeSynchronization,
-                                                      const SampleValueType *const fifoIn,
-                                                      const SampleValueType *const fifoOut) {
-    timeSynchronization->__unnormalizedCumulativeMean += *fifoIn;
-    timeSynchronization->__unnormalizedCumulativeMean -= *fifoOut;
+                                                      const SampleValueType fifoIn,
+                                                      const SampleValueType fifoOut) {
+    timeSynchronization->__unnormalizedCumulativeMean += fifoIn;
+    timeSynchronization->__unnormalizedCumulativeMean -= fifoOut;
 
     if (isEnoughFifoDataAvailable(timeSynchronization)) {
         // on enough data stored: update mean
@@ -90,88 +91,83 @@ static void __calculateMeanUsingFifoInOutObservations(TimeSynchronization *const
  * An updated is performed if the TIME_SYNCHRONIZATION_MINIMUM_SAMPLES limit is exceeded.
  */
 static void __calculateMeanUsingFifoInObservations(TimeSynchronization *const timeSynchronization,
-                                                   const SampleValueType *const fifoIn) {
-    timeSynchronization->__unnormalizedCumulativeMean += *fifoIn;
+                                                   const SampleValueType fifoIn) {
+    timeSynchronization->__unnormalizedCumulativeMean += fifoIn;
     if (isEnoughFifoDataAvailable(timeSynchronization)) {
         timeSynchronization->mean = (CalculationType) timeSynchronization->__unnormalizedCumulativeMean /
                                     (CalculationType) timeSynchronization->timeIntervalSamples.numSamples;
     }
 }
 
+#endif
+
+#ifdef SYNCHRONIZATION_STRATEGY_PROGRESSIVE_MEAN
 /**
  * Calculates a quick and simple approximated mean value.
  * This method is not very stable against outlier.
  */
-static void __calculateProgressiveMean(const SampleValueType *const sample,
+static void __calculateProgressiveMean(const SampleValueType sample,
                                        TimeSynchronization *const timeSynchronization) {
     if (timeSynchronization->progressiveMean == 0) {
-        timeSynchronization->progressiveMean = *sample;
+        timeSynchronization->progressiveMean = sample;
     } else {
-        timeSynchronization->progressiveMean += *sample;
+        timeSynchronization->progressiveMean += sample;
         timeSynchronization->progressiveMean = (CalculationType) timeSynchronization->progressiveMean / 2.0;
     }
 }
+#endif
 
-#ifdef SYNCHRONIZATION_ENABLE_OUTLIER_REJECTION
-static void __reduceRejectionCounters(AdaptiveSampleRejection *const adaptiveSampleRejection) {
-    if ((adaptiveSampleRejection->rejected >= UINT8_MAX) ||
-        (adaptiveSampleRejection->accepted >= UINT8_MAX)) {
-        adaptiveSampleRejection->rejected =
-                (1.0 + (float) adaptiveSampleRejection->rejected) / 2.0;
-        adaptiveSampleRejection->accepted =
-                (1.0 + (float) adaptiveSampleRejection->accepted) / 2.0;
-    }
+#ifdef SYNCHRONIZATION_ENABLE_SIGMA_DEPENDENT_OUTLIER_REJECTION
+/**
+ * Update the outlier limits.
+ */
+static void __updateOutlierRejectionLimitDependingOnSigma(TimeSynchronization *const timeSynchronization) {
+    CalculationType rejectionLimit = (CalculationType) 0.5 +(SYNCHRONIZATION_OUTLIER_REJECTION_SIGMA_FACTOR *
+                                  timeSynchronization->stdDeviance);
+    timeSynchronization->adaptiveSampleRejection.outlierLowerBound = timeSynchronization->mean - rejectionLimit;
+    timeSynchronization->adaptiveSampleRejection.outlierUpperBound = timeSynchronization->mean + rejectionLimit;
+    timeSynchronization->adaptiveSampleRejection.isOutlierRejectionBoundValid = true;
 }
+#endif
 
-static void __updateCurrentRejectionRatio(AdaptiveSampleRejection *const adaptiveSampleRejection) {
-    // omit division by 0
+#ifdef SYNCHRONIZATION_ENABLE_ADAPTIVE_OUTLIER_REJECTION
+static void __reduceRejectionCounters(AdaptiveSampleRejection *const adaptiveSampleRejection) {
+    if ((adaptiveSampleRejection->rejected >= 2000) ||
+        (adaptiveSampleRejection->accepted >= 2000)) {
+        adaptiveSampleRejection->rejected <<= 1;
+        adaptiveSampleRejection->accepted <<= 1;
+    }
+
     if (adaptiveSampleRejection->accepted <= 0 || adaptiveSampleRejection->rejected <= 0) {
         adaptiveSampleRejection->accepted++;
         adaptiveSampleRejection->rejected++;
     }
-    adaptiveSampleRejection->currentRejectionRatio =
-            (float) adaptiveSampleRejection->rejected /
-            (float) adaptiveSampleRejection->accepted;
 }
 
 static void __updateCurrentRejectionBoundaries(TimeSynchronization *const timeSynchronization) {
-    LED_STATUS1_ON;
     AdaptiveSampleRejection *const adaptiveSampleRejection = &timeSynchronization->adaptiveSampleRejection;
-    __updateCurrentRejectionRatio(adaptiveSampleRejection);
-
-    // TODO: move attenuation factor to configuration
     // update rejection interval
-    if (adaptiveSampleRejection->currentRejectionRatio >
-        adaptiveSampleRejection->targetRejectionRatio) {
-        // linear decrease rejection boundary with attenuation factor
-        adaptiveSampleRejection->currentAcceptedDeviation -=
-                0.75 * adaptiveSampleRejection->currentAcceptedDeviation /
-                (adaptiveSampleRejection->currentRejectionRatio /
-                 adaptiveSampleRejection->targetRejectionRatio);
-
-        if (adaptiveSampleRejection->currentAcceptedDeviation <= 1000) {
-            adaptiveSampleRejection->currentAcceptedDeviation = 1000;
+    if (adaptiveSampleRejection->accepted > (9*adaptiveSampleRejection->rejected + 50)) {
+        adaptiveSampleRejection->currentAcceptedDeviation -= 4;
+        if (adaptiveSampleRejection->currentAcceptedDeviation <= 10) {
+            adaptiveSampleRejection->currentAcceptedDeviation = 10;
+//            LED_STATUS2_ON;
+        } else {
+//            LED_STATUS2_TOGGLE;
         }
-        LED_STATUS2_ON;
-        LED_STATUS3_OFF;
+    } else if (adaptiveSampleRejection->accepted < (9*adaptiveSampleRejection->rejected)) {
+        adaptiveSampleRejection->currentAcceptedDeviation += 4;
+        if (adaptiveSampleRejection->currentAcceptedDeviation >= 10000) {
+            adaptiveSampleRejection->currentAcceptedDeviation = 10000;
+            LED_STATUS3_ON;
+        } else {
+//            LED_STATUS3_TOGGLE;
+        }
     } else {
-        // linear increase rejection boundary with attenuation factor
-        adaptiveSampleRejection->currentAcceptedDeviation +=
-                0.75 * adaptiveSampleRejection->currentAcceptedDeviation *
-                (adaptiveSampleRejection->targetRejectionRatio /
-                 adaptiveSampleRejection->currentRejectionRatio);
-
-        if (adaptiveSampleRejection->currentAcceptedDeviation >= 32000) {
-            adaptiveSampleRejection->currentAcceptedDeviation = 32000;
-        }
-        LED_STATUS2_OFF;
-        LED_STATUS3_ON;
+//        LED_STATUS3_TOGGLE;
+//        LED_STATUS2_TOGGLE;
     }
 
-
-    if (adaptiveSampleRejection->currentAcceptedDeviation > 3000) {
-        LED_STATUS1_OFF;
-    }
     // update new rejection boundaries
     adaptiveSampleRejection->outlierLowerBound =
             timeSynchronization->mean - adaptiveSampleRejection->currentAcceptedDeviation;
@@ -184,49 +180,62 @@ static void __updateCurrentRejectionBoundaries(TimeSynchronization *const timeSy
 /**
  * Adds a value to the FiFo buffer.
  */
-void samplesFifoBufferAddSample(const SampleValueType *const sample,
+void samplesFifoBufferAddSample(const SampleValueType sample,
                                 TimeSynchronization *const timeSynchronization) {
-#ifdef SYNCHRONIZATION_ENABLE_OUTLIER_REJECTION
+#ifdef SYNCHRONIZATION_ENABLE_ADAPTIVE_OUTLIER_REJECTION
     if (timeSynchronization->timeIntervalSamples.numSamples >=
         TIME_SYNCHRONIZATION_SAMPLES_FIFO_BUFFER_SIZE) {
 
         bool isToBeRejected = false;
-        if (timeSynchronization->adaptiveSampleRejection.isOutlierRejectionBoundValid) {
-            if (*sample < timeSynchronization->adaptiveSampleRejection.outlierLowerBound ||
-                *sample > timeSynchronization->adaptiveSampleRejection.outlierUpperBound) {
-                timeSynchronization->adaptiveSampleRejection.rejected++;
-                isToBeRejected = true;
-            } else {
-                timeSynchronization->adaptiveSampleRejection.accepted++;
-            }
+//        if (timeSynchronization->adaptiveSampleRejection.isOutlierRejectionBoundValid) {
+        if (sample < timeSynchronization->adaptiveSampleRejection.outlierLowerBound ||
+            sample > timeSynchronization->adaptiveSampleRejection.outlierUpperBound) {
+            timeSynchronization->adaptiveSampleRejection.rejected++;
+            isToBeRejected = true;
+        } else {
+            timeSynchronization->adaptiveSampleRejection.accepted++;
         }
+//        }
 
         __reduceRejectionCounters(&timeSynchronization->adaptiveSampleRejection);
         __updateCurrentRejectionBoundaries(timeSynchronization);
 
         if (isToBeRejected) {
+//            LED_STATUS1_TOGGLE;
             return;
         }
     }
+#else
+#  if defined(SYNCHRONIZATION_ENABLE_SIGMA_DEPENDENT_OUTLIER_REJECTION)
+    if (timeSynchronization->timeIntervalSamples.numSamples >=
+        TIME_SYNCHRONIZATION_SAMPLES_FIFO_BUFFER_SIZE) {
+        __updateOutlierRejectionLimitDependingOnSigma(timeSynchronization);
+    }
+#  endif
 #endif
 
+    // add sample to FiFo
     if (timeSynchronization->timeIntervalSamples.numSamples < TIME_SYNCHRONIZATION_SAMPLES_FIFO_BUFFER_SIZE) {
         timeSynchronization->timeIntervalSamples.numSamples++;
     }
     __samplesFifoBufferIncrementInsertIndex(&timeSynchronization->timeIntervalSamples);
-    timeSynchronization->timeIntervalSamples.samples[timeSynchronization->timeIntervalSamples.__insertIndex] = *sample;
+    timeSynchronization->timeIntervalSamples.samples[timeSynchronization->timeIntervalSamples.__insertIndex] = sample;
 
+#ifdef SYNCHRONIZATION_STRATEGY_PROGRESSIVE_MEAN
     // calculate progressive mean
     __calculateProgressiveMean(sample, timeSynchronization);
+#endif
 
-    // calculate mean stepwise
+#ifdef SYNCHRONIZATION_STRATEGY_MEAN_ENABLE_ONLINE_CALCULATION
+    // calculate mean stepwise / on-line
     if (timeSynchronization->timeIntervalSamples.isDropOutValid) {
         // on fifo has dropped out a first-in value
         __calculateMeanUsingFifoInOutObservations(timeSynchronization,
                                                   sample,
-                                                  &timeSynchronization->timeIntervalSamples.dropOut);
+                                                  timeSynchronization->timeIntervalSamples.dropOut);
     } else {
         // on fifo not entirely saturated
         __calculateMeanUsingFifoInObservations(timeSynchronization, sample);
     }
+#endif
 }

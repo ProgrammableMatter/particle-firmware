@@ -54,14 +54,20 @@ void southTxLoImpl(void) {
  * Writes a logic high to the east and south transmission pins.
  */
 void simultaneousTxHiImpl(void) {
+    MEMORY_BARRIER;
     EAST_TX_LO; // must be inverted due to missing MOSFET
+    MEMORY_BARRIER;
     SOUTH_TX_HI;
+    MEMORY_BARRIER;
 }
 
 /**
  * Writes a logic low to east and south transmission pins.
  */
 void simultaneousTxLoImpl(void) {
+    MEMORY_BARRIER;
     EAST_TX_HI; // must be inverted due to missing MOSFET
+    MEMORY_BARRIER;
     SOUTH_TX_LO;
+    MEMORY_BARRIER;
 }

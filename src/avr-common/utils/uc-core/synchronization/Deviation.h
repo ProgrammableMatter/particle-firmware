@@ -45,20 +45,21 @@ static void __binarySearchSqr(const CalculationType *const number, CalculationTy
 
 #endif
 
-///**
-// * Calculates the mean of all available samples in the FiFo.
-// * A call to this function involves iterating the whole FiFo.
-// */
-//void calculateMean(TimeSynchronization *const timeSynchronization) {
-//    CumulationType sum = 0;
-//    samplesFifoBufferIteratorStart(&timeSynchronization->timeIntervalSamples);
-//    do {
-//        sum += timeSynchronization->timeIntervalSamples.samples[timeSynchronization->timeIntervalSamples.iterator];
-//        samplesFifoBufferFiFoBufferIteratorNext(&timeSynchronization->timeIntervalSamples);
-//    } while (timeSynchronization->timeIntervalSamples.iterator <
-//             TIME_SYNCHRONIZATION_SAMPLES_FIFO_BUFFER_ITERATOR_END);
-//    timeSynchronization->mean = sum / (CalculationType) timeSynchronization->timeIntervalSamples.numSamples;
-//}
+/**
+ * Calculates the mean of all available samples in the FiFo.
+ * A call to this function involves iterating the whole FiFo.
+ */
+void calculateMean(TimeSynchronization *const timeSynchronization) {
+    CumulationType sum = 0;
+    samplesFifoBufferIteratorStart(&timeSynchronization->timeIntervalSamples);
+    do {
+        sum += timeSynchronization->timeIntervalSamples.samples[timeSynchronization->timeIntervalSamples.iterator];
+        samplesFifoBufferFiFoBufferIteratorNext(&timeSynchronization->timeIntervalSamples);
+    } while (timeSynchronization->timeIntervalSamples.iterator <
+             TIME_SYNCHRONIZATION_SAMPLES_FIFO_BUFFER_ITERATOR_END);
+    timeSynchronization->mean =
+            (CalculationType) sum / (CalculationType) timeSynchronization->timeIntervalSamples.numSamples;
+}
 
 /**
  * Calculate the variance and std deviance of the values in the fifo buffer.
@@ -81,7 +82,7 @@ void calculateVarianceAndStdDeviance(TimeSynchronization *const timeSynchronizat
     timeSynchronization->variance /= timeSynchronization->timeIntervalSamples.numSamples;
 
 #ifdef DEVIATION_MATH_SQRT
-    measurements->stdDeviance = sqrt(timeSynchronization->variance);
+    timeSynchronization->stdDeviance = sqrt(timeSynchronization->variance);
 #else
 #  if defined(DEVIATION_BINARY_SEARCH_SQRT)
     __binarySearchSqr(&timeSynchronization->variance, &timeSynchronization->stdDeviance);
@@ -93,3 +94,5 @@ void calculateVarianceAndStdDeviance(TimeSynchronization *const timeSynchronizat
     MEMORY_BARRIER;
     timeSynchronization->isCalculationValid = true;
 }
+
+

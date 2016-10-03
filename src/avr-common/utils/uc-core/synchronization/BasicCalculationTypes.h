@@ -15,9 +15,9 @@
 #  define IndexType uint8_t
 #else
 typedef uint32_t CumulationType;
-//typedef uint16_t SampleValueType;
-typedef uint32_t SampleValueType;
-//typedef float CalculationType;
-typedef double CalculationType;
+typedef uint16_t SampleValueType;
+//typedef uint32_t SampleValueType; // for comparison/testing
+typedef float CalculationType;
+//typedef double CalculationType; // for comparison/testing
 typedef uint8_t IndexType;
 #endif
