@@ -9,6 +9,7 @@
 #include <stdint.h>
 #include "ManchesterDecodingTypes.h"
 #include "uc-core/configuration/Particle.h"
+#include "uc-core/configuration/communication/Communication.h"
 
 /**
  * Describes a bit within a 4 byte buffer.
@@ -25,7 +26,7 @@ typedef struct BufferBitPointer {
  * after being decoded.
  */
 typedef struct PortBuffer {
-    uint8_t bytes[TX_RX_NUMBER_BUFFER_BYTES]; // reception buffer
+    uint8_t bytes[COMMUNICATION_TX_RX_NUMBER_BUFFER_BYTES]; // reception buffer
     BufferBitPointer pointer; // points to the next free position
     /**
      * field stores the 1st edge event's timer value of the last transmission

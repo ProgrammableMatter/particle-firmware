@@ -22,7 +22,7 @@
 #define TIMER_TX_COUNTER_TOP_VECTOR TIMER1_COMPA_vect
 // int #7
 ISR(TIMER_TX_COUNTER_TOP_VECTOR) {
-    OCR1A += DEFAULT_TX_RX_CLOCK_DELAY;
+    OCR1A += COMMUNICATION_DEFAULT_TX_RX_CLOCK_DELAY;
     if (ParticleAttributes.communication.ports.tx.south.buffer.pointer.bitMask &
         ParticleAttributes.communication.ports.tx.south.buffer.bytes[ParticleAttributes.communication.ports.tx.
                 south.buffer.pointer.byteNumber]) {
@@ -37,7 +37,7 @@ ISR(TIMER_TX_COUNTER_TOP_VECTOR) {
 #define TIMER_TX_COUNTER_CENTER_VECTOR TIMER1_COMPB_vect
 // int #8
 ISR(TIMER_TX_COUNTER_CENTER_VECTOR) {
-    OCR1B += DEFAULT_TX_RX_CLOCK_DELAY;
+    OCR1B += COMMUNICATION_DEFAULT_TX_RX_CLOCK_DELAY;
     if (isDataEndPosition(&ParticleAttributes.communication.ports.tx.south)) {
         // return signal to default
         SOUTH_TX_LO; // inverted on receiver side
@@ -80,10 +80,10 @@ inline void initTransmission(void) {
 
     TIMER_TX_RX_COUNTER_SETUP;
 
-    OCR1A = DEFAULT_TX_RX_CLOCK_DELAY;
-    OCR1B = DEFAULT_TX_RX_CLOCK_DELAY + (DEFAULT_TX_RX_CLOCK_DELAY / 2);
+    OCR1A = COMMUNICATION_DEFAULT_TX_RX_CLOCK_DELAY;
+    OCR1B = COMMUNICATION_DEFAULT_TX_RX_CLOCK_DELAY + (COMMUNICATION_DEFAULT_TX_RX_CLOCK_DELAY / 2);
     // start transmission with TIMER_TX_COUNTER_TOP_VECTOR
-    TCNT1 = DEFAULT_TX_RX_CLOCK_DELAY / 2;
+    TCNT1 = COMMUNICATION_DEFAULT_TX_RX_CLOCK_DELAY / 2;
 
     TIMER_TX_ENABLE_COMPARE_TOP_INTERRUPT;
     TIMER_TX_ENABLE_COMPARE_CENTER_INTERRUPT;

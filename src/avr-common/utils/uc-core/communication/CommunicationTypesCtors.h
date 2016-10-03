@@ -100,15 +100,17 @@ void constructCommunicationPorts(CommunicationPorts *const o) {
  * @param o reference to the object to construct
  */
 void constructTransmissionTimerAdjustment(TransmissionTimerAdjustment *const o) {
-    o->maxShortIntervalDurationOvertimePercentageRatio = DEFAULT_MAX_SHORT_RECEPTION_OVERTIME_PERCENTAGE_RATIO;
+    o->maxShortIntervalDurationOvertimePercentageRatio = COMMUNICATION_DEFAULT_MAX_SHORT_RECEPTION_OVERTIME_PERCENTAGE_RATIO;
     o->maxShortIntervalDuration =
-            (DEFAULT_MAX_SHORT_RECEPTION_OVERTIME_PERCENTAGE_RATIO / 100.0) * DEFAULT_TX_RX_CLOCK_DELAY;
-    o->maxLongIntervalDurationOvertimePercentageRatio = DEFAULT_MAX_LONG_RECEPTION_OVERTIME_PERCENTAGE_RATIO;
+            (COMMUNICATION_DEFAULT_MAX_SHORT_RECEPTION_OVERTIME_PERCENTAGE_RATIO / 100.0) *
+            COMMUNICATION_DEFAULT_TX_RX_CLOCK_DELAY;
+    o->maxLongIntervalDurationOvertimePercentageRatio = COMMUNICATION_DEFAULT_MAX_LONG_RECEPTION_OVERTIME_PERCENTAGE_RATIO;
     o->maxLongIntervalDuration =
-            (DEFAULT_MAX_LONG_RECEPTION_OVERTIME_PERCENTAGE_RATIO / 100.0) * DEFAULT_TX_RX_CLOCK_DELAY;
+            (COMMUNICATION_DEFAULT_MAX_LONG_RECEPTION_OVERTIME_PERCENTAGE_RATIO / 100.0) *
+            COMMUNICATION_DEFAULT_TX_RX_CLOCK_DELAY;
 
-    o->transmissionClockDelay = DEFAULT_TX_RX_CLOCK_DELAY;
-    o->transmissionClockDelayHalf = DEFAULT_TX_RX_CLOCK_DELAY >> 1;
+    o->transmissionClockDelay = COMMUNICATION_DEFAULT_TX_RX_CLOCK_DELAY;
+    o->transmissionClockDelayHalf = COMMUNICATION_DEFAULT_TX_RX_CLOCK_DELAY >> 1;
     o->newTransmissionClockDelay = 0;
     o->isTransmissionClockDelayUpdateable = false;
 

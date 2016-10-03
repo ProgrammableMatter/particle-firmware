@@ -9,7 +9,7 @@
 #include "uc-core/configuration/interrupts/TxRxTimer.h"
 #include "simulation/SimulationMacros.h"
 #include "uc-core/configuration/Particle.h"
-#include "uc-core/configuration/Communication.h"
+#include "uc-core/configuration/communication/Communication.h"
 #include "uc-core/configuration/IoPins.h"
 #include "uc-core/delay/delay.h"
 #include "uc-core/periphery/Periphery.h"
@@ -104,11 +104,11 @@ static void __printSnapshotBufferSizeToSimulationRegister(RxSnapshotBuffer *o) {
     if (o->endIndex > o->startIndex) {
         size = o->endIndex - o->startIndex;
     } else if (o->endIndex < o->startIndex) {
-        size = o->endIndex + (RX_NUMBER_SNAPSHOTS - o->startIndex);
+        size = o->endIndex + (MANCHESTER_DECODING_RX_NUMBER_SNAPSHOTS - o->startIndex);
     }
 
     // cut off possible overflows due to race with incomint reception interrupt
-    if (size <= RX_NUMBER_SNAPSHOTS) {
+    if (size <= MANCHESTER_DECODING_RX_NUMBER_SNAPSHOTS) {
         DEBUG_INT16_OUT(size);
     }
 }
@@ -122,7 +122,7 @@ static void __printSnapshotBufferSizeToSimulationRegister(RxSnapshotBuffer *o) {
  * @param o the snapshot buffer reference
  */
 static void __rxSnapshotBufferIncrementStartIndex(RxSnapshotBuffer *const o) {
-    if (o->startIndex >= (RX_NUMBER_SNAPSHOTS - 1)) {
+    if (o->startIndex >= (MANCHESTER_DECODING_RX_NUMBER_SNAPSHOTS - 1)) {
         o->startIndex = 0;
     } else {
         o->startIndex++;
@@ -136,7 +136,7 @@ static void __rxSnapshotBufferIncrementStartIndex(RxSnapshotBuffer *const o) {
  * @param o the snapshot buffer reference
  */
 static void __rxSnapshotBufferIncrementEndIndex(RxSnapshotBuffer *const o) {
-    if (o->endIndex >= (RX_NUMBER_SNAPSHOTS - 1)) {
+    if (o->endIndex >= (MANCHESTER_DECODING_RX_NUMBER_SNAPSHOTS - 1)) {
         o->endIndex = 0;
     } else {
         o->endIndex++;
@@ -190,7 +190,7 @@ static void __calculateTimestampLag(const uint16_t *const previousSnapshotValue,
 void captureSnapshot(uint16_t *const timerCounterValue, const bool isRisingEdge,
                      RxSnapshotBuffer *const snapshotBuffer) {
     uint8_t nextEndIdx = 0;
-    if (snapshotBuffer->endIndex < (RX_NUMBER_SNAPSHOTS - 1)) {
+    if (snapshotBuffer->endIndex < (MANCHESTER_DECODING_RX_NUMBER_SNAPSHOTS - 1)) {
         nextEndIdx = snapshotBuffer->endIndex + 1;
     }
 

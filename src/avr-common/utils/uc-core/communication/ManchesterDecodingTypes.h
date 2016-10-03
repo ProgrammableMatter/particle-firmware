@@ -7,7 +7,7 @@
 #pragma once
 
 #include <stdint.h>
-#include "uc-core/configuration/Communication.h"
+#include "uc-core/configuration/communication/ManchesterDecoding.h"
 
 /**
  * Possible manchester decoder states.
@@ -56,7 +56,7 @@ typedef struct RxSnapshotBuffer {
     /**
      * snapshot buffer
      */
-    volatile Snapshot snapshots[RX_NUMBER_SNAPSHOTS];
+    volatile Snapshot snapshots[MANCHESTER_DECODING_RX_NUMBER_SNAPSHOTS];
     /**
      * field stores the previous dequeue value
      */

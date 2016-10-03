@@ -39,38 +39,26 @@
 /**
  * Initial value for clock delay for Manchester (de-)coding (reception and transmission).
  */
-#define DEFAULT_TX_RX_CLOCK_DELAY ((uint16_t) 1024)
+#define COMMUNICATION_DEFAULT_TX_RX_CLOCK_DELAY ((uint16_t) 1024)
 //#define DEFAULT_TX_RX_CLOCK_DELAY ((uint16_t) 2048)
 
 /**
  * Maximum short reception time lag.
  */
-//#define DEFAULT_MAX_SHORT_RECEPTION_OVERTIME_PERCENTAGE_RATIO ((uint8_t) 59)
+//#define COMMUNICATION_DEFAULT_MAX_SHORT_RECEPTION_OVERTIME_PERCENTAGE_RATIO ((uint8_t) 59)
 // TODO: find lower level
-#define DEFAULT_MAX_SHORT_RECEPTION_OVERTIME_PERCENTAGE_RATIO ((uint8_t) 75)
+#define COMMUNICATION_DEFAULT_MAX_SHORT_RECEPTION_OVERTIME_PERCENTAGE_RATIO ((uint8_t) 75)
 /**
  * Maximum long reception time lag. If maximum long snapshot lag is exceeded the reception
  * experiences a timeout.
  */
-//#define DEFAULT_MAX_LONG_RECEPTION_OVERTIME_PERCENTAGE_RATIO ((uint8_t) 112)
+//#define COMMUNICATION_DEFAULT_MAX_LONG_RECEPTION_OVERTIME_PERCENTAGE_RATIO ((uint8_t) 112)
 // TODO: find lower level
-#define DEFAULT_MAX_LONG_RECEPTION_OVERTIME_PERCENTAGE_RATIO ((uint8_t) 125)
+#define COMMUNICATION_DEFAULT_MAX_LONG_RECEPTION_OVERTIME_PERCENTAGE_RATIO ((uint8_t) 125)
 
 /**
  * Number of buffer bytes for reception and transmission. Received snapshots are decoded to
  * the reception buffer. Data to be sent is read from the transmission buffer.
  */
-#define TX_RX_NUMBER_BUFFER_BYTES 9
-
-/**
- * Size of reception snapshot buffer per port.
- */
-// 88% snapshots buffer of 9 byte PDU max. events
-//#define RX_NUMBER_SNAPSHOTS 127
-// 44% snapshots buffer of max. 9 byte PDU max. events
-//#define RX_NUMBER_SNAPSHOTS 64
-// 22% snapshots buffer of 9 byte PDU max. events
-//#define RX_NUMBER_SNAPSHOTS 32
-// 20% snapshots buffer of 9 byte PDU max. events
-#define RX_NUMBER_SNAPSHOTS 29
+#define COMMUNICATION_TX_RX_NUMBER_BUFFER_BYTES 9
 
