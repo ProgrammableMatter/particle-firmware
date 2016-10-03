@@ -35,8 +35,6 @@ void constructPortBuffer(volatile PortBuffer *const o) {
     clearBufferBytes(o);
     o->bytes[0] = 0x1; // set start bit
     constructBufferBitPointer(&(o->pointer));
-    o->receptionStartTimestamp = 0;
-    o->receptionEndTimestamp = 0;
 }
 
 /**

@@ -23,7 +23,7 @@
 typedef struct AdaptiveSampleRejection {
     uint16_t rejected;
     uint16_t accepted;
-    int16_t currentAcceptedDeviation;
+    int16_t currentAcceptedDeviation; // must be signed!
     /**
      * Lower bound for outlier to be rejected.
      */

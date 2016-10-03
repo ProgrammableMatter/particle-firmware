@@ -82,7 +82,7 @@ void calculateVarianceAndStdDeviance(TimeSynchronization *const timeSynchronizat
     timeSynchronization->variance /= timeSynchronization->timeIntervalSamples.numSamples;
 
 #ifdef DEVIATION_MATH_SQRT
-    timeSynchronization->stdDeviance = sqrt(timeSynchronization->variance);
+    timeSynchronization->stdDeviance = sqrtf(timeSynchronization->variance);
 #else
 #  if defined(DEVIATION_BINARY_SEARCH_SQRT)
     __binarySearchSqr(&timeSynchronization->variance, &timeSynchronization->stdDeviance);

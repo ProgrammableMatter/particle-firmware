@@ -60,23 +60,29 @@ void tryApproximateTimings(TimeSynchronization *const timeSynchronization) {
                         SYNCHRONIZATION_MANUAL_ADJUSTMENT_CLOCK_ACCELERATION;
             }
 
-//            // TODO: evaluation code
+            // TODO: is this last averaging relevant?
+            newTimePeriodInterruptDelay =
+                    (uint16_t) (0.5 + (ParticleAttributes.localTime.newTimePeriodInterruptDelay +
+                                       newTimePeriodInterruptDelay) / 2.0);
+
+            // TODO: evaluation code
             if (newTimePeriodInterruptDelay >= UINT16_MAX) {
-                return;
                 blinkGenericErrorForever();
             }
 
             // TODO: evaluation code
             if ((0.5 + newTimePeriodInterruptDelay) >
-                (ParticleAttributes.localTime.newTimePeriodInterruptDelay + 2)) {
+                (ParticleAttributes.localTime.newTimePeriodInterruptDelay + 1.0)) {
                 LED_STATUS3_TOGGLE;
             } else if ((0.5 + newTimePeriodInterruptDelay) <
-                       (ParticleAttributes.localTime.newTimePeriodInterruptDelay - 2)) {
-                LED_STATUS1_TOGGLE;
+                       (ParticleAttributes.localTime.newTimePeriodInterruptDelay - 1.0)) {
+                LED_STATUS2_TOGGLE;
             } else {
                 LED_STATUS2_TOGGLE;
+                LED_STATUS3_TOGGLE;
             }
 
+            // update the new mean/clock skew
             ParticleAttributes.localTime.newTimePeriodInterruptDelay =
                     (uint16_t) (0.5 + newTimePeriodInterruptDelay);
             MEMORY_BARRIER;

@@ -285,17 +285,15 @@ void manchesterDecodeBuffer(DirectionOrientedPort *const port,
                     rxPort->snapshotsBuffer.temporarySnapshotTimerValue = __getTimerValue(snapshot);
                     ParticleAttributes.communication.timerAdjustment.isTransmissionClockDelayUpdateable = false;
                     MEMORY_BARRIER;
-//                    rxPort->snapshotsBuffer.temporaryTxStartSnapshotTimerValue = rxPort->snapshotsBuffer.temporarySnapshotTimerValue;
-//                    rxPort->snapshotsBuffer.temporaryTxStopSnapshotTimerValue = rxPort->snapshotsBuffer.temporaryTxStartSnapshotTimerValue;
 
                     // calculate clock shift for synchronization
                     if (rxPort == &ParticleAttributes.communication.ports.rx.north) {
-                        __approximateNewTxClockShift(__getTimerValue(snapshot));
+                        __approximateNewTxClockShift(rxPort->snapshotsBuffer.temporarySnapshotTimerValue);
                     }
 
                     DEBUG_CHAR_OUT('+');
                     rxPort->parityBitCounter = 0;
-                    rxPort->buffer.receptionStartTimestamp = rxPort->snapshotsBuffer.temporarySnapshotTimerValue;
+                    rxPort->buffer.receptionDuration = 0;
                     rxPort->snapshotsBuffer.decoderStates.decodingState = DECODER_STATE_TYPE_DECODING;
                     __rxSnapshotBufferDequeue(&rxPort->snapshotsBuffer);
                     goto __DECODER_STATE_TYPE_DECODING;
@@ -337,8 +335,8 @@ void manchesterDecodeBuffer(DirectionOrientedPort *const port,
                         __storeDataBit(rxPort, snapshot->isRisingEdge);
                     } else {
                     }
-                    rxPort->snapshotsBuffer.temporarySnapshotTimerValue = __getTimerValue(snapshot);
-//                    rxPort->snapshotsBuffer.temporaryTxStopSnapshotTimerValue = rxPort->snapshotsBuffer.temporarySnapshotTimerValue;
+                    rxPort->snapshotsBuffer.temporarySnapshotTimerValue = timerValue;
+                    rxPort->buffer.receptionDuration += difference;
                     __rxSnapshotBufferDequeue(&rxPort->snapshotsBuffer);
                     // on overdue: difference of two snapshots exceed the max. rx clock duration
                 } else {
@@ -367,7 +365,6 @@ void manchesterDecodeBuffer(DirectionOrientedPort *const port,
 #ifdef SIMULATION
                     rxPort->snapshotsBuffer.decoderStates.decodingState = DECODER_STATE_TYPE_POST_TIMEOUT_PROCESS;
 #endif
-                    rxPort->buffer.receptionEndTimestamp = rxPort->snapshotsBuffer.temporarySnapshotTimerValue;
                     goto __DECODER_STATE_TYPE_POST_TIMEOUT_PROCESS;
                 }
             }

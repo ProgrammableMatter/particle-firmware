@@ -29,13 +29,9 @@ typedef struct PortBuffer {
     uint8_t bytes[COMMUNICATION_TX_RX_NUMBER_BUFFER_BYTES]; // reception buffer
     BufferBitPointer pointer; // points to the next free position
     /**
-     * field stores the 1st edge event's timer value of the last transmission
+     * total package reception duration
      */
-    uint16_t receptionStartTimestamp;
-    /**
-     * field stores the last edge event's timer value of the last transmission
-     */
-    uint16_t receptionEndTimestamp;
+    uint32_t receptionDuration;
 } PortBuffer;
 
 /**

@@ -11,7 +11,7 @@
  * the edge direction bit to one uint8_t which uses 1/3 less memory for
  * decoding buffer but looses the least significant bit for timestamp accuracy.
  */
-#define MANCHESTER_DECODING_ENABLE_MERGE_TIMESTAMP_WITH_EDGE_DIRECTION
+//#define MANCHESTER_DECODING_ENABLE_MERGE_TIMESTAMP_WITH_EDGE_DIRECTION
 
 /**
  * Size of reception snapshot buffer per port.

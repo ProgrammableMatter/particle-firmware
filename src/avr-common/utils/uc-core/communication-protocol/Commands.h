@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include "uc-core/configuration/communication/Commands.h"
 #include "CommunicationProtocolTypes.h"
 #include "CommunicationProtocolPackageTypesCtors.h"
 #include "uc-core/communication/ManchesterDecodingTypes.h"
@@ -13,14 +14,13 @@
 #include "uc-core/communication/Transmission.h"
 #include "uc-core/communication/CommunicationTypesCtors.h"
 #include "uc-core/synchronization/Synchronization.h"
-
 /**
  * Executes a synchronize local time package.
  * Reads the delivered time adds a correction offset and updates the local time.
  * @param package the package to interpret and execute
  */
 void executeSynchronizeLocalTimePackage(const TimePackage *const package,
-                                        const PortBuffer *const portBuffer) {
+                                        PortBuffer *const portBuffer) {
     //,  RxSnapshotBuffer *snapshotBuffer) {
     // DEBUG_INT16_OUT(snapshotBuffer->temporaryTxStopSnapshotTimerValue - snapshotBuffer->temporaryTxStartSnapshotTimerValue);
     // DEBUG_INT16_OUT(TIMER_TX_RX_COUNTER_VALUE);
@@ -56,33 +56,27 @@ void executeSynchronizeLocalTimePackage(const TimePackage *const package,
 //    }
 
 
-    // The synchronization package rx duration should take exactly one 16bit timer-counter overflow.
-    // Thus the start and end timestamp difference sould be 0 on perfect match.
-    SampleValueType smapleValue;
-
-    if (portBuffer->receptionEndTimestamp >= portBuffer->receptionStartTimestamp) {
-        // on package reception longer than expected -> accelerate the clock
-        // TODO - hotfix : some durations cannot be inferred from start/end timestampt
-        if ((portBuffer->receptionEndTimestamp - portBuffer->receptionStartTimestamp) < 5000) {
-        smapleValue = TIME_SYNCHRONIZATION_SAMPLE_OFFSET + // add synthetic offset
-                (portBuffer->receptionEndTimestamp - portBuffer->receptionStartTimestamp);
-            samplesFifoBufferAddSample(smapleValue, &ParticleAttributes.timeSynchronization);
-        } else {
-            blinkParityErrorForever(1); // lr
-        }
-
+    // take just the deviation from the expected package transmission duration which is
+    if (portBuffer->receptionDuration > COMMANDS_EXPECTED_TIME_PACKAGE_RECEPTION_DURATION) {
+        portBuffer->receptionDuration = portBuffer->receptionDuration - UINT16_MAX;
     } else {
-        // on package reception shorter than expected -> decelerate the clock
-        // TODO - hotfix : some durations cannot be inferred from start/end timestampt
-        if ((portBuffer->receptionStartTimestamp - portBuffer->receptionEndTimestamp) < 5000) {
-        smapleValue = TIME_SYNCHRONIZATION_SAMPLE_OFFSET - // add synthetic offset
-                (portBuffer->receptionStartTimestamp - portBuffer->receptionEndTimestamp);
-            samplesFifoBufferAddSample(smapleValue, &ParticleAttributes.timeSynchronization);
-        } else {
-            blinkParityErrorForever(0); // rl
-        }
+        portBuffer->receptionDuration =
+                COMMANDS_EXPECTED_TIME_PACKAGE_RECEPTION_DURATION - portBuffer->receptionDuration;
     }
 
+    if (portBuffer->receptionDuration > UINT16_MAX) {
+        blinkParityErrorForever(0);
+    }
+
+    if (portBuffer->receptionDuration > (UINT16_MAX / 2)) {
+        blinkParityErrorForever(1);
+    }
+
+    SampleValueType sampleValue = (uint16_t) portBuffer->receptionDuration;
+    // to avoid the need of signed, push the value by an offset, usually ~UINT16_MAX/2
+    sampleValue += TIME_SYNCHRONIZATION_SAMPLE_OFFSET;
+
+    samplesFifoBufferAddSample(&sampleValue, &ParticleAttributes.timeSynchronization);
     tryApproximateTimings(&ParticleAttributes.timeSynchronization);
 
     // DEBUG_INT16_OUT(TIMER_TX_RX_COUNTER_VALUE);
