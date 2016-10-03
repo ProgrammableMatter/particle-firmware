@@ -62,9 +62,13 @@
 /**
  * evaluates to a snapshot's uint16_t timer value
  */
+#ifdef MANCHESTER_DECODING_ENABLE_MERGE_TIMESTAMP_WITH_EDGE_DIRECTION
 #define __getTimerValue(snapshot) \
     (snapshot->timerValue << 1)
-
+#else
+#define __getTimerValue(snapshot) \
+    (snapshot->timerValue)
+#endif
 
 /**
  * Stores the data bit to the reception buffer unless the buffer is saturated.
@@ -205,11 +209,17 @@ void captureSnapshot(uint16_t *const timerCounterValue, const bool isRisingEdge,
 
     volatile Snapshot *snapshot = &(snapshotBuffer->snapshots[snapshotBuffer->endIndex]);
     __rxSnapshotBufferIncrementEndIndex(snapshotBuffer);
+
+#ifdef MANCHESTER_DECODING_ENABLE_MERGE_TIMESTAMP_WITH_EDGE_DIRECTION
     if (isRisingEdge) {
         (*((volatile uint16_t *) (snapshot))) = (*timerCounterValue & 0xFFFE) | 1;
     } else {
         (*((volatile uint16_t *) (snapshot))) = (*timerCounterValue & 0xFFFE);
     }
+#else
+    snapshot->timerValue = *timerCounterValue;
+    snapshot->isRisingEdge = isRisingEdge;
+#endif
     __ifSimulationPrintSnapshotBufferSize(snapshotBuffer);
 }
 

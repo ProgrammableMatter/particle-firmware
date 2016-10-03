@@ -35,6 +35,7 @@ typedef struct ManchesterDecoderStates {
  * A snapshot consists of a 16 bit value and the flank direction information. The least significant snapshot
  * bit is scarified for the flank direction information. Thus only the bits [15:1] of the snapshot are stored.
  */
+#ifdef MANCHESTER_DECODING_ENABLE_MERGE_TIMESTAMP_WITH_EDGE_DIRECTION
 typedef struct Snapshot {
     volatile uint16_t isRisingEdge : 1;
     /**
@@ -43,6 +44,13 @@ typedef struct Snapshot {
      */
     volatile uint16_t timerValue : 15;
 } Snapshot;
+#else
+typedef struct Snapshot {
+    volatile uint16_t timerValue;
+    volatile uint8_t isRisingEdge : 1;
+    volatile uint8_t __pad : 7;
+} Snapshot;
+#endif
 
 /**
  * The struct is used as buffer for storing timestamps of received pin change interrupts.
