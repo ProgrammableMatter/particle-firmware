@@ -16,6 +16,6 @@
 void constructLocalTimeTracking(LocalTimeTracking *const o) {
     o->numTimePeriodsPassed = 0;
     o->timePeriodInterruptDelay = LOCAL_TIME_DEFAULT_INTERRUPT_DELAY;
-    o->newTimePeriodInterruptDelay = 0;
+    o->newTimePeriodInterruptDelay = LOCAL_TIME_DEFAULT_INTERRUPT_DELAY;
     o->isTimePeriodInterruptDelayUpdateable = false;
 }
