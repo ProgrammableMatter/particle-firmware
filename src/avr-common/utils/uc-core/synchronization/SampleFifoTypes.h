@@ -11,6 +11,12 @@
 #include "uc-core/configuration/synchronization/SampleFifoTypes.h"
 #include "LeastSquareRegressionTypes.h"
 
+typedef struct FifoElement {
+    SampleValueType value;
+    uint8_t isRejected : 1;
+    uint8_t __pad : 7;
+} FifoElement;
+
 /**
  * Simple first-in first-out buffer for 1-dimensional samples (y-values).
  * X-values the samples' index.
@@ -19,7 +25,7 @@ typedef struct SamplesFifoBuffer {
     /**
      * samples buffer
      */
-    SampleValueType samples[TIME_SYNCHRONIZATION_SAMPLES_FIFO_BUFFER_SIZE];
+    FifoElement samples[TIME_SYNCHRONIZATION_SAMPLES_FIFO_BUFFER_SIZE];
     /**
      * index of 1st valid element in buffer
      */
@@ -39,11 +45,12 @@ typedef struct SamplesFifoBuffer {
     /**
      * the last FiFo value that has been dropped out of the queue
      */
-    SampleValueType dropOut;
+    FifoElement dropOut;
     /**
      * indicates whether the dropOut value is valid or not
      */
     uint8_t isDropOutValid :1;
+    uint8_t __isPreDropOutValid :1;
 
     uint8_t __pad :7;
 

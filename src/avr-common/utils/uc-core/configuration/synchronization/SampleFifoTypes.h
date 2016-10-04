@@ -11,13 +11,11 @@
  * Amount of uint16 samples the synchronization buffers for clock skew approximation.
  */
 #define TIME_SYNCHRONIZATION_SAMPLES_FIFO_BUFFER_SIZE 120
-//#define TIME_SYNCHRONIZATION_SAMPLES_FIFO_BUFFER_SIZE 5
 
 /**
  * The minimum amount of samples needed to perform an approximation.
  */
-#define TIME_SYNCHRONIZATION_MINIMUM_SAMPLES 40
-//#define TIME_SYNCHRONIZATION_MINIMUM_SAMPLES 2
+#define TIME_SYNCHRONIZATION_MINIMUM_SAMPLES 90
 
 /**
  * default numeric value indicating buffer's end position
@@ -43,8 +41,8 @@
 //#  define SYNCHRONIZATION_OUTLIER_REJECTION_SIGMA_FACTOR ((CalculationType) 4.0)
 //#  define SYNCHRONIZATION_OUTLIER_REJECTION_SIGMA_FACTOR ((CalculationType) 3.0)
 //#  define SYNCHRONIZATION_OUTLIER_REJECTION_SIGMA_FACTOR ((CalculationType) 2.8)
-#  define SYNCHRONIZATION_OUTLIER_REJECTION_SIGMA_FACTOR ((CalculationType) 2.0)
-//#  define SYNCHRONIZATION_OUTLIER_REJECTION_SIGMA_FACTOR ((CalculationType) 1.0)
+//#  define SYNCHRONIZATION_OUTLIER_REJECTION_SIGMA_FACTOR ((CalculationType) 2.0)
+#  define SYNCHRONIZATION_OUTLIER_REJECTION_SIGMA_FACTOR ((CalculationType) 1.0)
 #endif
 
 #ifdef SYNCHRONIZATION_ENABLE_ADAPTIVE_OUTLIER_REJECTION
@@ -60,7 +58,7 @@
 /**
  * step to increase/decrease the acceptance interval
  */
-#  define SAMPLE_FIFO_ADAPTIVE_REJECTION_UPDATE_REJECTION_STEP ((uint8_t) 4)
+#  define SAMPLE_FIFO_ADAPTIVE_REJECTION_UPDATE_REJECTION_STEP ((uint8_t) 10)
 /**
  * minimum acceptance interval:
  * mean +/- SAMPLE_FIFO_ADAPTIVE_REJECTION_UPDATE_REJECTION_MIN_INTERVAL
@@ -70,10 +68,10 @@
  * maximum acceptance interval:
  * mean +/- SAMPLE_FIFO_ADAPTIVE_REJECTION_UPDATE_REJECTION_MAX_INTERVAL
  */
-#  define SAMPLE_FIFO_ADAPTIVE_REJECTION_UPDATE_REJECTION_MAX_INTERVAL ((int16_t) 1000)
+#  define SAMPLE_FIFO_ADAPTIVE_REJECTION_UPDATE_REJECTION_MAX_INTERVAL ((int16_t) 20000)
 /**
  * the factor of accepted versus rejected:
  * accpeted ~ SAMPLE_FIFO_ADAPTIVE_REJECTION_ACCEPTANCE_RATIO * rejected
  */
-#  define SAMPLE_FIFO_ADAPTIVE_REJECTION_ACCEPTANCE_RATIO ((uint16_t) 4)
+#  define SAMPLE_FIFO_ADAPTIVE_REJECTION_ACCEPTANCE_RATIO ((uint16_t) 9)
 #endif

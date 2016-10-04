@@ -9,15 +9,24 @@
 #include "SynchronizationTypes.h"
 #include "LeastSquareRegressionTypesCtors.h"
 
+void constructFifoElement(FifoElement *const o) {
+    o->value = 0;
+    o->isRejected = false;
+}
+
 /**
  * constructor function
  * @param o reference to the object to construct
  */
 void constructSamplesFifoBuffer(SamplesFifoBuffer *const o) {
+    for (uint8_t i = 0; i < TIME_SYNCHRONIZATION_SAMPLES_FIFO_BUFFER_SIZE; i++) {
+        constructFifoElement(&o->samples[i]);
+    }
     o->__startIdx = 0;
     o->__insertIndex = 0;
     o->numSamples = 0;
     o->iterator = o->__startIdx;
-    o->dropOut = 0;
+    constructFifoElement(&o->dropOut);
     o->isDropOutValid = false;
+    o->__isPreDropOutValid = false;
 }
