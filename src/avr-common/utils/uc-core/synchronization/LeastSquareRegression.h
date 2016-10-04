@@ -56,7 +56,8 @@ void calculateLinearFittingFunctionVarianceAndStdDeviance(TimeSynchronization *c
     e_ *= 2;
     CumulationType *f_ = &c_;
 
-    timeSynchronization->mean /= timeSynchronization->timeIntervalSamples.numSamples;
+    timeSynchronization->mean =
+            timeSynchronization->mean / (CalculationType) timeSynchronization->timeIntervalSamples.numSamples;
     calculateVarianceAndStdDeviance(timeSynchronization);
 
     // we obtain two linear equations from the transformed partial derivatives to d and k
