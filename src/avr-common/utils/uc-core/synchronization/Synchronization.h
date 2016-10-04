@@ -31,7 +31,8 @@
  * it's pdu reception duration offset has been stored to the fifo queue.
  */
 void tryApproximateTimings(TimeSynchronization *const timeSynchronization) {
-    if (isEnoughFifoDataAvailable(timeSynchronization)) {
+//    if (isEnoughFifoDataAvailable(timeSynchronization)) {
+    if (isFiFoFull(&timeSynchronization->timeIntervalSamples)) {
         if (ParticleAttributes.localTime.isTimePeriodInterruptDelayUpdateable == false) {
 
 #ifndef SYNCHRONIZATION_STRATEGY_MEAN_ENABLE_ONLINE_CALCULATION
@@ -39,25 +40,29 @@ void tryApproximateTimings(TimeSynchronization *const timeSynchronization) {
 #endif
 
 #ifdef SYNCHRONIZATION_STRATEGY_MEAN
-#  define __synchronization_meanValue ParticleAttributes.timeSynchronization.mean
+#  ifdef SYNCHRONIZATION_STRATEGY_MEAN_WITHOUT_OUTLIER
+#    define __synchronization_meanValue ParticleAttributes.timeSynchronization.meanWithoutOutlier
+#  else
+#    define __synchronization_meanValue ParticleAttributes.timeSynchronization.mean
+#  endif
 #else
-#ifdef SYNCHRONIZATION_STRATEGY_PROGRESSIVE_MEAN
-#  define __synchronization_meanValue ParticleAttributes.timeSynchronization.progressiveMean
-#endif
+#  ifdef SYNCHRONIZATION_STRATEGY_PROGRESSIVE_MEAN
+#    define __synchronization_meanValue ParticleAttributes.timeSynchronization.progressiveMean
+#  endif
 #endif
             CalculationType newTimePeriodInterruptDelay;
             if (__synchronization_meanValue > TIME_SYNCHRONIZATION_SAMPLE_OFFSET) {
                 newTimePeriodInterruptDelay =
                         (CalculationType) LOCAL_TIME_DEFAULT_INTERRUPT_DELAY +
-                        (CalculationType) LOCAL_TIME_DEFAULT_INTERRUPT_DELAY_WORKING_POINT_PERCENTAGE *
-                        (__synchronization_meanValue - (CalculationType) TIME_SYNCHRONIZATION_SAMPLE_OFFSET)
-                        SYNCHRONIZATION_MANUAL_ADJUSTMENT_CLOCK_ACCELERATION;
+                        SYNCHRONIZATION_MANUAL_SAMPLE_MEAN_ATTENUATION_FACTOR_ABOVE_EXPECTATION *
+                        (__synchronization_meanValue - (CalculationType) TIME_SYNCHRONIZATION_SAMPLE_OFFSET);
+//                        SYNCHRONIZATION_MANUAL_ADJUSTMENT_CLOCK_ACCELERATION;
             } else {
                 newTimePeriodInterruptDelay =
                         (CalculationType) LOCAL_TIME_DEFAULT_INTERRUPT_DELAY -
-                        (CalculationType) LOCAL_TIME_DEFAULT_INTERRUPT_DELAY_WORKING_POINT_PERCENTAGE *
-                        ((CalculationType) TIME_SYNCHRONIZATION_SAMPLE_OFFSET - __synchronization_meanValue)
-                        SYNCHRONIZATION_MANUAL_ADJUSTMENT_CLOCK_ACCELERATION;
+                        SYNCHRONIZATION_MANUAL_SAMPLE_MEAN_ATTENUATION_FACTOR_BELOW_EXPECTATION *
+                        ((CalculationType) TIME_SYNCHRONIZATION_SAMPLE_OFFSET - __synchronization_meanValue);
+//                        SYNCHRONIZATION_MANUAL_ADJUSTMENT_CLOCK_ACCELERATION;
             }
 
             // TODO: is this last averaging relevant?
@@ -70,17 +75,17 @@ void tryApproximateTimings(TimeSynchronization *const timeSynchronization) {
                 blinkGenericErrorForever();
             }
 
-            // TODO: evaluation code
-            if ((0.5 + newTimePeriodInterruptDelay) >
-                (ParticleAttributes.localTime.newTimePeriodInterruptDelay + 1.0)) {
-                LED_STATUS3_TOGGLE;
-            } else if ((0.5 + newTimePeriodInterruptDelay) <
-                       (ParticleAttributes.localTime.newTimePeriodInterruptDelay - 1.0)) {
-                LED_STATUS2_TOGGLE;
-            } else {
-                LED_STATUS2_TOGGLE;
-                LED_STATUS3_TOGGLE;
-            }
+//            // TODO: evaluation code
+//            if ((0.5 + newTimePeriodInterruptDelay) >
+//                (ParticleAttributes.localTime.newTimePeriodInterruptDelay + 1.0)) {
+//                LED_STATUS3_TOGGLE;
+//            } else if ((0.5 + newTimePeriodInterruptDelay) <
+//                       (ParticleAttributes.localTime.newTimePeriodInterruptDelay - 1.0)) {
+//                LED_STATUS2_TOGGLE;
+//            } else {
+//                LED_STATUS2_TOGGLE;
+//                LED_STATUS3_TOGGLE;
+//            }
 
             // update the new mean/clock skew
             ParticleAttributes.localTime.newTimePeriodInterruptDelay =
@@ -103,15 +108,7 @@ void tryApproximateTimings(TimeSynchronization *const timeSynchronization) {
 void tryApproximateTimings(TimeSynchronization *const timeSynchronization) {
     if (isEnoughFifoDataAvailable(timeSynchronization)) {
         if (ParticleAttributes.localTime.isTimePeriodInterruptDelayUpdateable == false) {
-
-#ifndef SYNCHRONIZATION_STRATEGY_MEAN_ENABLE_ONLINE_CALCULATION
-            calculateMean(timeSynchronization);
-#endif
-//            calculateVarianceAndStdDeviance(timeSynchronization);
-
-#ifdef SYNCHRONIZATION_STRATEGY_LEAST_SQUARE_LINEAR_FITTING
             calculateLinearFittingFunctionVarianceAndStdDeviance(timeSynchronization);
-#endif
 
 #define __synchronization_meanValue timeSynchronization->fittingFunction.d
 

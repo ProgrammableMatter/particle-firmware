@@ -12,13 +12,6 @@
 #include "LeastSquareRegressionTypes.h"
 #include "SampleFifoTypes.h"
 
-//
-//typedef struct SyncPackageTiming {
-//    uint16_t pduDuration;
-//    uint8_t isPduDurationValid : 1;
-//    uint8_t __pad: 1;
-//} SyncPackageTiming;
-
 #if defined(SYNCHRONIZATION_ENABLE_ADAPTIVE_OUTLIER_REJECTION) || defined(SYNCHRONIZATION_ENABLE_SIGMA_DEPENDENT_OUTLIER_REJECTION)
 typedef struct AdaptiveSampleRejection {
     uint16_t rejected;
@@ -55,6 +48,8 @@ typedef struct TimeSynchronization {
     * samples' mean
     */
     CalculationType mean;
+    CalculationType meanWithoutOutlier;
+
 #ifdef SYNCHRONIZATION_STRATEGY_MEAN_ENABLE_ONLINE_CALCULATION
     /**
      * The cumulative unnormalized mean field is used to calculate a step-wise mean
@@ -62,6 +57,8 @@ typedef struct TimeSynchronization {
      * the need for a complete FiFo iteration.
      */
     CumulationType __unnormalizedCumulativeMean;
+    CumulationType __unnormalizedCumulativeMeanWithoutOutlier;
+    uint16_t __numberCumulatedValuesWithoutOutlier;
 #endif
 #ifdef SYNCHRONIZATION_STRATEGY_PROGRESSIVE_MEAN
     /**

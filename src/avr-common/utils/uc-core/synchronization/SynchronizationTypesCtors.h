@@ -10,11 +10,6 @@
 #include "LeastSquareRegressionTypesCtors.h"
 #include "SampleFifoTypesCtors.h"
 
-//void constructSyncPackageTiming(SyncPackageTiming *const o) {
-//    o->pduDuration = 0;
-//    o->isPduDurationValid = false;
-//}
-
 #if defined(SYNCHRONIZATION_ENABLE_ADAPTIVE_OUTLIER_REJECTION) || defined(SYNCHRONIZATION_ENABLE_SIGMA_DEPENDENT_OUTLIER_REJECTION)
 
 void constructAdaptiveSampleRejection(AdaptiveSampleRejection *const o) {
@@ -43,9 +38,12 @@ void constructTimeSynchronization(TimeSynchronization *const o) {
     constructLeastSquareRegressionResult(&o->fittingFunction);
 #endif
     o->mean = 0;
+    o->meanWithoutOutlier = 0;
 #ifdef SYNCHRONIZATION_STRATEGY_MEAN_ENABLE_ONLINE_CALCULATION
     o->__unnormalizedCumulativeMean = 0;
 #endif
+    o->__unnormalizedCumulativeMeanWithoutOutlier = 0;
+    o->__numberCumulatedValuesWithoutOutlier = 0;
 #ifdef SYNCHRONIZATION_STRATEGY_PROGRESSIVE_MEAN
     o->progressiveMean = 0;
 #endif
