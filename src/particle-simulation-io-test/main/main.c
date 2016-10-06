@@ -46,19 +46,19 @@ int main(void) {
         LED_STATUS4_ON;
     }
 
-    extraTransitions++;
-    LED_STATUS5_SETUP;
-    for (int i = 0; i < extraTransitions; ++i) {
-        LED_STATUS5_OFF;
-        LED_STATUS5_ON;
-    }
+//    extraTransitions++;
+//    LED_STATUS5_SETUP;
+//    for (int i = 0; i < extraTransitions; ++i) {
+//        LED_STATUS5_OFF;
+//        LED_STATUS5_ON;
+//    }
 
-    extraTransitions++;
-    LED_STATUS6_SETUP;
-    for (int i = 0; i < extraTransitions; ++i) {
-        LED_STATUS6_OFF;
-        LED_STATUS6_ON;
-    }
+//    extraTransitions++;
+//    LED_STATUS6_SETUP;
+//    for (int i = 0; i < extraTransitions; ++i) {
+//        LED_STATUS6_OFF;
+//        LED_STATUS6_ON;
+//    }
 
     extraTransitions++;
     TEST_POINT1_SETUP;
@@ -72,6 +72,20 @@ int main(void) {
     for (int i = 0; i < extraTransitions; ++i) {
         TEST_POINT2_LO;
         TEST_POINT2_HI;
+    }
+
+    extraTransitions++;
+    TEST_POINT3_SETUP;
+    for (int i = 0; i < extraTransitions; ++i) {
+        TEST_POINT3_LO;
+        TEST_POINT3_HI;
+    }
+
+    extraTransitions++;
+    TEST_POINT4_SETUP;
+    for (int i = 0; i < extraTransitions; ++i) {
+        TEST_POINT4_LO;
+        TEST_POINT4_HI;
     }
 
     extraTransitions++;
