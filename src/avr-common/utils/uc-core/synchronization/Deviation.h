@@ -9,6 +9,7 @@
 #include "uc-core/configuration/synchronization/Deviation.h"
 #include "SynchronizationTypes.h"
 #include "Synchronization.h"
+#include "uc-core/stdout/stdio.h"
 
 #ifndef DEVIATION_BINARY_SEARCH_SQRT
 
@@ -48,30 +49,66 @@ static void __binarySearchSqr(const CalculationType *const number, CalculationTy
 #endif
 
 /**
- * Calculates the mean of all available samples in the FiFo.
+ * Calculates the mean excluding outlier using the current µ and current σ.
+ * @pre the mean must be valid
+ * @pre the standard deviation must be valid
+ */
+void calculateMeanWithoutOutlier(TimeSynchronization *const timeSynchronization) {
+    timeSynchronization->meanWithoutOutlier = 0;
+//    timeSynchronization->adaptiveSampleRejection.outlierLowerBound =
+//            roundf(timeSynchronization->mean - timeSynchronization->stdDeviance);
+//    timeSynchronization->adaptiveSampleRejection.outlierUpperBound =
+//            roundf(timeSynchronization->mean + timeSynchronization->stdDeviance);
+
+    IndexType numberCumulatedValues = 0;
+    samplesFifoBufferIteratorStart(&timeSynchronization->timeIntervalSamples);
+    do {
+        SampleValueType sample = timeSynchronization->timeIntervalSamples.samples[timeSynchronization->timeIntervalSamples.iterator].value;
+        if (sample >= timeSynchronization->adaptiveSampleRejection.outlierLowerBound &&
+            sample <= timeSynchronization->adaptiveSampleRejection.outlierUpperBound) {
+            timeSynchronization->meanWithoutOutlier += sample;
+            numberCumulatedValues++;
+        }
+        samplesFifoBufferFiFoBufferIteratorNext(&timeSynchronization->timeIntervalSamples);
+    } while (timeSynchronization->timeIntervalSamples.iterator <
+             TIME_SYNCHRONIZATION_SAMPLES_FIFO_BUFFER_ITERATOR_END);
+
+    timeSynchronization->meanWithoutOutlier /= (CalculationType) numberCumulatedValues;
+}
+
+
+/**
+ * Calculates the mean (off-line) of all available samples in the FiFo.
  * A call to this function involves iterating the whole FiFo.
  */
 void calculateMean(TimeSynchronization *const timeSynchronization) {
-    CumulationType sum = 0;
-    CumulationType numberCumulatedValues = 0;
-    CumulationType sumWithoutOutlier = 0;
-    CumulationType numberCumulatedValuesWithoutOutlier = 0;
+    timeSynchronization->mean = 0;
+    timeSynchronization->meanWithoutMarkedOutlier = 0;
+    IndexType numberCumulatedValues = 0;
+    IndexType numberCumulatedValuesWithoutOutlier = 0;
+
+
     samplesFifoBufferIteratorStart(&timeSynchronization->timeIntervalSamples);
     do {
+        SampleValueType sample = timeSynchronization->timeIntervalSamples.samples[timeSynchronization->timeIntervalSamples.iterator].value;
         if (timeSynchronization->timeIntervalSamples.samples[timeSynchronization->timeIntervalSamples.iterator].isRejected ==
             false) {
-            sumWithoutOutlier += timeSynchronization->timeIntervalSamples.samples[timeSynchronization->timeIntervalSamples.iterator].value;
+            timeSynchronization->meanWithoutMarkedOutlier += sample;
             numberCumulatedValuesWithoutOutlier++;
         }
-        sum += timeSynchronization->timeIntervalSamples.samples[timeSynchronization->timeIntervalSamples.iterator].value;
+        timeSynchronization->mean = timeSynchronization->mean + sample;
+
         numberCumulatedValues++;
         samplesFifoBufferFiFoBufferIteratorNext(&timeSynchronization->timeIntervalSamples);
     } while (timeSynchronization->timeIntervalSamples.iterator <
              TIME_SYNCHRONIZATION_SAMPLES_FIFO_BUFFER_ITERATOR_END);
-    timeSynchronization->mean =
-            (CalculationType) sum / (CalculationType) numberCumulatedValues;
-    timeSynchronization->meanWithoutOutlier =
-            (CalculationType) sumWithoutOutlier / (CalculationType) numberCumulatedValuesWithoutOutlier;
+
+//        uint32_t f = (uint32_t) timeSynchronization->mean;
+//        printf("ms: %lu \n", f );
+//        printf("mc %u \n", (uint16_t)numberCumulatedValues);
+
+    timeSynchronization->mean = timeSynchronization->mean / numberCumulatedValues;
+    timeSynchronization->meanWithoutMarkedOutlier /= (CalculationType) numberCumulatedValuesWithoutOutlier;
 }
 
 /**
@@ -82,7 +119,7 @@ void calculateVarianceAndStdDeviance(TimeSynchronization *const timeSynchronizat
     timeSynchronization->isCalculationValid = false;
     MEMORY_BARRIER;
 
-    CumulationType numberCumulatedValues = 0;
+    IndexType numberCumulatedValues = 0;
     samplesFifoBufferIteratorStart(&timeSynchronization->timeIntervalSamples);
     // @pre timeSynchronization->mean is valid
     do {
@@ -110,5 +147,3 @@ void calculateVarianceAndStdDeviance(TimeSynchronization *const timeSynchronizat
     MEMORY_BARRIER;
     timeSynchronization->isCalculationValid = true;
 }
-
-
