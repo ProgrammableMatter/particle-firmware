@@ -57,8 +57,10 @@ void simultaneousTxHiImpl(void) {
     MEMORY_BARRIER;
     EAST_TX_LO; // must be inverted due to missing MOSFET
     MEMORY_BARRIER;
-    // TODO: is the noop tuning needed?
-//    NOOP;
+    // Since we observe a greater delay between the rising edges of the
+    // east (with MOSFET) and south (with MOSFET) ports, we introduce a
+    // synthetic delay at the falling edges to make both delays more similar.
+    NOOP;
     MEMORY_BARRIER;
     SOUTH_TX_HI;
     MEMORY_BARRIER;
