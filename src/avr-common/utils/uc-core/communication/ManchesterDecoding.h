@@ -204,7 +204,7 @@ void captureSnapshot(uint16_t *const timerCounterValue, const bool isRisingEdge,
         DEBUG_CHAR_OUT('8');
 #endif
         // TODO: evaluation code
-        blinkReceptionBufferOverflowErrorForever();
+        blinkReceptionBufferOverflowErrorForever(&ParticleAttributes.alerts);
     }
 
     volatile Snapshot *snapshot = &(snapshotBuffer->snapshots[snapshotBuffer->endIndex]);
@@ -294,6 +294,7 @@ void manchesterDecodeBuffer(DirectionOrientedPort *const port,
                     DEBUG_CHAR_OUT('+');
                     rxPort->parityBitCounter = 0;
                     rxPort->buffer.receptionDuration = 0;
+//                    rxPort->buffer.receptionStartTimestamp = rxPort->snapshotsBuffer.temporarySnapshotTimerValue;
                     rxPort->snapshotsBuffer.decoderStates.decodingState = DECODER_STATE_TYPE_DECODING;
                     __rxSnapshotBufferDequeue(&rxPort->snapshotsBuffer);
                     goto __DECODER_STATE_TYPE_DECODING;
@@ -337,6 +338,7 @@ void manchesterDecodeBuffer(DirectionOrientedPort *const port,
                     }
                     rxPort->snapshotsBuffer.temporarySnapshotTimerValue = timerValue;
                     rxPort->buffer.receptionDuration += difference;
+//                    rxPort->buffer.receptionEndTimestamp = timerValue;
                     __rxSnapshotBufferDequeue(&rxPort->snapshotsBuffer);
                     // on overdue: difference of two snapshots exceed the max. rx clock duration
                 } else {
