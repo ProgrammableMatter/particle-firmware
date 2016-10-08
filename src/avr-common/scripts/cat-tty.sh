@@ -5,7 +5,7 @@
 #
 
 device="$1"         # serial device
-baud_rate="38400"   # bit/sec
+baud_rate="$2"   # bit/sec
 parity="-parenb"    # no parity bit
 stop_bits="-cstopb" # one stop bit
 byte_bits="cs8"			# num byte bits
