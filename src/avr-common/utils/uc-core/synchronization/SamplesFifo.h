@@ -119,7 +119,7 @@ static void __calculateMeanUsingFifoInOutObservations(TimeSynchronization *const
     // mean
     timeSynchronization->mean =
             (CalculationType) timeSynchronization->__unnormalizedCumulativeMean /
-            (CalculationType) timeSynchronization->timeIntervalSamples.numSamples;
+            (CalculationType) TIME_SYNCHRONIZATION_SAMPLES_FIFO_BUFFER_SIZE;
 
     // mean without outlier
     timeSynchronization->meanWithoutMarkedOutlier =

@@ -73,7 +73,6 @@ void tryApproximateTimings(TimeSynchronization *const timeSynchronization) {
             }
 
             if (__synchronization_meanValue <= 1000) {
-                printf("s %lu \n", (uint32_t) __synchronization_meanValue);
                 blinkLed4Forever(&ParticleAttributes.alerts);
             }
 

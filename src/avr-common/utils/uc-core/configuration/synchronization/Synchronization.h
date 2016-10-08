@@ -13,9 +13,9 @@
 #define TIME_SYNCHRONIZATION_SAMPLE_OFFSET ((uint16_t) INT16_MAX)
 
 /**
- * mean calculation on-line vs off-line
+ * Mean calculation on-line vs off-line.
+ * Uses more flash memory, may speed up the synchronization approximation slightly.
  */
-// TODO: on-line calculation suffers of a bug (ev. off-by-one issue?)
 //#define SYNCHRONIZATION_STRATEGY_MEAN_ENABLE_ONLINE_CALCULATION
 
 /**
