@@ -33,6 +33,8 @@ typedef enum StateType {
             STATE_TYPE_DISCOVERY_PULSING,
     // state when discovery pulsing ended
             STATE_TYPE_DISCOVERY_PULSING_DONE,
+    // state when discovery is performed but node has no neighbors
+            STATE_TYPE_DISCOVERY_DONE_ORPHAN_NODE,
     // state after reset
             STATE_TYPE_RESET,
 
@@ -225,6 +227,15 @@ typedef struct DirectionOrientedPorts {
 } DirectionOrientedPorts;
 
 /**
+ * alert switches to en-/disable alerts on runtime
+ */
+typedef struct Alerts {
+    uint8_t isRxBufferOverflowEnabled : 1;
+    uint8_t isRxParityErorEnabled : 1;
+    uint8_t isGenericErrorEnabled : 1;
+    uint8_t __pad  : 5;
+} Alerts;
+/**
  * The global particle structure containing buffers, states, counters and alike.
  */
 typedef struct Particle {
@@ -270,6 +281,11 @@ typedef struct Particle {
      * related resources in a direction oriented way.
      */
     DirectionOrientedPorts directionOrientedPorts;
+
+    /**
+     * flags arming/disarming alerts on run time
+     */
+    Alerts alerts;
 #ifdef SIMULATION
     // a marker used to assure the correct interpretation of the particle structure when simulating
     uint8_t __structEndMarker;

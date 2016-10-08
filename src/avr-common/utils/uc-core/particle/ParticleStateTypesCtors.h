@@ -115,6 +115,17 @@ void constructDirectionOrientedPorts(DirectionOrientedPorts *const o) {
                                    &ParticleAttributes.protocol.ports.east);
 }
 
+
+/**
+ * constructor function
+ * @param o the object to construct
+ */
+void constructAlerts(Alerts *const o) {
+    o->isRxBufferOverflowEnabled = false;
+    o->isRxParityErorEnabled = false;
+    o->isGenericErrorEnabled = false;
+}
+
 /**
  * constructor function
  * @param o the object to construct
@@ -129,6 +140,7 @@ void constructParticle(Particle *const o) {
     constructTimeSynchronization(&o->timeSynchronization);
     constructLocalTimeTracking(&o->localTime);
     constructDirectionOrientedPorts(&o->directionOrientedPorts);
+    constructAlerts(&o->alerts);
 #ifdef SIMULATION
     o->__structStartMarker = 0xaa;
     o->__structEndMarker = 0xaa;
