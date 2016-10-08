@@ -285,21 +285,10 @@
  */
 
 // test point 1
-#ifdef __AVR_ATtiny1634__
-#define __TEST_POINT1_PIN     Pin2
-#define __TEST_POINT1_DIR     BDir
-#define __TEST_POINT1_OUT     BOut
-#define __TEST_POINT1_IN      BIn
-#else
-#  if defined(__AVR_ATmega16__)
-#    define __TEST_POINT1_PIN Pin4
-#    define __TEST_POINT1_DIR BDir
-#    define __TEST_POINT1_OUT BOut
-#    define __TEST_POINT1_IN  BIn
-#  else
-#    error
-#  endif
-#endif
+#define __TEST_POINT1_PIN     Pin5
+#define __TEST_POINT1_DIR     ADir
+#define __TEST_POINT1_OUT     AOut
+#define __TEST_POINT1_IN      AIn
 
 #define TEST_POINT1         __TEST_POINT1_IN  getBit    __TEST_POINT1_PIN
 #define TEST_POINT1_HI      __TEST_POINT1_OUT setHi     __TEST_POINT1_PIN
@@ -311,10 +300,21 @@
 #define TEST_POINT1_SETUP   __TEST_POINT1_DIR setOut    __TEST_POINT1_PIN; TEST_POINT1_LO
 
 // test point 2
-#define __TEST_POINT2_PIN     Pin1
+#ifdef __AVR_ATtiny1634__
+#define __TEST_POINT2_PIN     Pin2
 #define __TEST_POINT2_DIR     BDir
 #define __TEST_POINT2_OUT     BOut
 #define __TEST_POINT2_IN      BIn
+#else
+#  if defined(__AVR_ATmega16__)
+#    define __TEST_POINT2_PIN Pin4
+#    define __TEST_POINT2_DIR BDir
+#    define __TEST_POINT2_OUT BOut
+#    define __TEST_POINT2_IN  BIn
+#  else
+#    error
+#  endif
+#endif
 
 #define TEST_POINT2         __TEST_POINT2_IN  getBit    __TEST_POINT2_PIN
 #define TEST_POINT2_HI      __TEST_POINT2_OUT setHi     __TEST_POINT2_PIN
@@ -326,10 +326,10 @@
 #define TEST_POINT2_SETUP   __TEST_POINT2_DIR setOut    __TEST_POINT2_PIN; TEST_POINT2_LO
 
 // test point 3
-#define __TEST_POINT3_PIN     Pin2
-#define __TEST_POINT3_DIR     CDir
-#define __TEST_POINT3_OUT     COut
-#define __TEST_POINT3_IN      CIn
+#define __TEST_POINT3_DIR     BDir
+#define __TEST_POINT3_PIN     Pin1
+#define __TEST_POINT3_OUT     BOut
+#define __TEST_POINT3_IN      BIn
 
 #define TEST_POINT3         __TEST_POINT3_IN  getBit    __TEST_POINT3_PIN
 #define TEST_POINT3_HI      __TEST_POINT3_OUT setHi     __TEST_POINT3_PIN
@@ -340,20 +340,20 @@
 
 #define TEST_POINT3_SETUP   __TEST_POINT3_DIR setOut    __TEST_POINT3_PIN; TEST_POINT3_LO
 
-// test point 4
-#define __TEST_POINT4_PIN     Pin5
-#define __TEST_POINT4_DIR     ADir
-#define __TEST_POINT4_OUT     AOut
-#define __TEST_POINT4_IN      AIn
-
-#define TEST_POINT4         __TEST_POINT4_IN  getBit    __TEST_POINT4_PIN
-#define TEST_POINT4_HI      __TEST_POINT4_OUT setHi     __TEST_POINT4_PIN
-#define TEST_POINT4_LO      __TEST_POINT4_OUT setLo     __TEST_POINT4_PIN
-#define TEST_POINT4_IS_HI     (0 != (TEST_POINT4))
-#define TEST_POINT4_IS_LO (false == (TEST_POINT4))
-#define TEST_POINT4_TOGGLE  __TEST_POINT4_OUT toggleBit __TEST_POINT4_PIN
-
-#define TEST_POINT4_SETUP   __TEST_POINT4_DIR setOut    __TEST_POINT4_PIN; TEST_POINT4_LO
+//// test point 4 is occupied by clock out
+//#define __TEST_POINT4_PIN     Pin2
+//#define __TEST_POINT4_DIR     CDir
+//#define __TEST_POINT4_OUT     COut
+//#define __TEST_POINT4_IN      CIn
+//
+//#define TEST_POINT4         __TEST_POINT4_IN  getBit    __TEST_POINT4_PIN
+//#define TEST_POINT4_HI      __TEST_POINT4_OUT setHi     __TEST_POINT4_PIN
+//#define TEST_POINT4_LO      __TEST_POINT4_OUT setLo     __TEST_POINT4_PIN
+//#define TEST_POINT4_IS_HI     (0 != (TEST_POINT4))
+//#define TEST_POINT4_IS_LO (false == (TEST_POINT4))
+//#define TEST_POINT4_TOGGLE  __TEST_POINT4_OUT toggleBit __TEST_POINT4_PIN
+//
+//#define TEST_POINT4_SETUP   __TEST_POINT4_DIR setOut    __TEST_POINT4_PIN; TEST_POINT4_LO
 
 // unused pin
 #define __UNUSED1_PIN     Pin1
@@ -380,5 +380,5 @@ EAST_RX_SETUP;  EAST_TX_SETUP; \
 SOUTH_RX_SETUP; SOUTH_TX_SETUP; SOUTH_RX_SWITCH_SETUP; \
 LED_STATUS1_SETUP; LED_STATUS2_SETUP; LED_STATUS3_SETUP; \
 LED_STATUS4_SETUP; \
-TEST_POINT1_SETUP; TEST_POINT2_SETUP; TEST_POINT3_SETUP; TEST_POINT4_SETUP; \
+TEST_POINT1_SETUP; TEST_POINT2_SETUP; TEST_POINT3_SETUP; \
 __UNUSED1_SETUP
