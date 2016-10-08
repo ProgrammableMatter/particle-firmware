@@ -28,6 +28,7 @@
 #include "uc-core/actuation/Actuation.h"
 #include "Commands.h"
 #include "uc-core/periphery/Periphery.h"
+#include "uc-core/stdout/Stdout.h"
 
 /**
  * Disables discovery sensing interrupts.
@@ -71,12 +72,11 @@ static void __enableDiscoveryPulsing(void) {
  * Sets up ports and interrupts but does not enable the global interrupt (I-flag in SREG).
  */
 static void __initParticle(void) {
+    setupUart();
     LED_STATUS1_OFF;
     LED_STATUS2_OFF;
     LED_STATUS3_OFF;
     LED_STATUS4_OFF;
-    LED_STATUS5_OFF;
-    LED_STATUS6_OFF;
 
     TEST_POINT1_LO;
     TEST_POINT2_LO;
@@ -192,23 +192,9 @@ void __enableReception(void) {
     __enableReceptionHardwareForConnectedPorts();
 }
 
-///**
-// * Toggles the heartbeat LED.
-// */
-//extern FUNC_ATTRS void __heartBeatToggle(void);
-//
-//FUNC_ATTRS void __heartBeatToggle(void) {
-//    ParticleAttributes.periphery.loopCount++;
-//    if (ParticleAttributes.periphery.loopCount > HEARTBEAT_LOOP_COUNT_TOGGLE) {
-//        ParticleAttributes.periphery.loopCount = 0;
-//        LED_STATUS6_TOGGLE;
-//    }
-//}
-
 /**
  * Increments the discovery loop counter.
  */
-
 static void __discoveryLoopCount(void) {
     if (ParticleAttributes.discoveryPulseCounters.loopCount < (UINT8_MAX)) {
         ParticleAttributes.discoveryPulseCounters.loopCount++;
@@ -488,6 +474,17 @@ static void __handleNeighboursDiscovery(void) {
         else {
             PARTICLE_DISCOVERY_LOOP_DELAY;
         }
+
+        // show discovery status
+        if (ParticleAttributes.discoveryPulseCounters.north.isConnected) {
+            LED_STATUS1_ON;
+        }
+        if (ParticleAttributes.discoveryPulseCounters.east.isConnected) {
+            LED_STATUS3_ON;
+        }
+        if (ParticleAttributes.discoveryPulseCounters.south.isConnected) {
+            LED_STATUS4_ON;
+        }
         __updateOriginNodeAddress();
     }
 }
@@ -512,6 +509,9 @@ static void __handleDiscoveryPulsingDone(void) {
     if (ParticleAttributes.node.type == NODE_TYPE_ORIGIN) {
         ParticleAttributes.node.state = STATE_TYPE_ENUMERATING_NEIGHBOURS;
         PARTICLE_DISCOVERY_PULSE_DONE_POST_DELAY;
+    } else if (ParticleAttributes.node.type == NODE_TYPE_ORPHAN) {
+        ParticleAttributes.node.state = STATE_TYPE_DISCOVERY_DONE_ORPHAN_NODE;
+        return;
     } else {
         setReceptionistStateStart(&ParticleAttributes.protocol.ports.north);
         ParticleAttributes.node.state = STATE_TYPE_WAIT_FOR_BEING_ENUMERATED;
@@ -600,15 +600,15 @@ static void __onActuationDoneCallback(void) {
  * Checks whether an actuation is to be executed. Switches state if an actuation
  * command is scheduled and the current local time indicates an actuation start.
  */
-//static void __handleIsActuationCommandPeriod(void) {
-//    if (ParticleAttributes.actuationCommand.isScheduled &&
-//        ParticleAttributes.actuationCommand.executionState == ACTUATION_STATE_TYPE_IDLE) {
-//        if (ParticleAttributes.actuationCommand.actuationStart.periodTimeStamp <=
-//            ParticleAttributes.localTime.numTimePeriodsPassed) {
-//            ParticleAttributes.node.state = STATE_TYPE_EXECUTE_ACTUATION_COMMAND;
-//        }
-//    }
-//}
+static void __handleIsActuationCommandPeriod(void) {
+    if (ParticleAttributes.actuationCommand.isScheduled &&
+        ParticleAttributes.actuationCommand.executionState == ACTUATION_STATE_TYPE_IDLE) {
+        if (ParticleAttributes.actuationCommand.actuationStart.periodTimeStamp <=
+            ParticleAttributes.localTime.numTimePeriodsPassed) {
+            ParticleAttributes.node.state = STATE_TYPE_EXECUTE_ACTUATION_COMMAND;
+        }
+    }
+}
 
 /**
  * On matching time period puts the particle to synchronization state and disables further synchronization
@@ -645,7 +645,7 @@ static void __sendNextSyncTimePackage(void) {
  */
 static inline void process(void) {
     // DEBUG_CHAR_OUT('P');
-    // __heartBeatToggle();
+//    heartBeatToggle();
     // ---------------- init states ----------------
 
     switch (ParticleAttributes.node.state) {
@@ -693,6 +693,10 @@ static inline void process(void) {
 
         case STATE_TYPE_DISCOVERY_PULSING_DONE:
             __handleDiscoveryPulsingDone();
+            break;
+
+        case STATE_TYPE_DISCOVERY_DONE_ORPHAN_NODE:
+            blinkKnightRidersKittForever();
             break;
 
             // ---------------- boot states: local enumeration ----------------
@@ -870,17 +874,19 @@ static inline void process(void) {
             ParticleAttributes.directionOrientedPorts.east.receivePimpl();
             ParticleAttributes.directionOrientedPorts.south.receivePimpl();
 
-            // TODO: evaluation code
-//            __handleIsActuationCommandPeriod();
+            __handleIsActuationCommandPeriod();
             __sendNextSyncTimePackage();
-//
-//            if (ParticleAttributes.localTime.numTimePeriodsPassed > 250) {
+
+            // TODO: evaluation code
+            if (ParticleAttributes.localTime.numTimePeriodsPassed > 250) {
+                ParticleAttributes.alerts.isRxBufferOverflowEnabled = true;
+                ParticleAttributes.alerts.isRxParityErorEnabled = true;
+                ParticleAttributes.alerts.isGenericErrorEnabled = true;
 //                blinkAddressNonblocking();
 //                blinkTimeIntervalNonblocking();
 //                ParticleAttributes.periphery.isTxSouthToggleEnabled = true;
-//                forever;
-//
-//            }
+
+            }
             break;
 
             // ---------------- standby states: sleep mode related states ----------------
@@ -908,7 +914,6 @@ static inline void process(void) {
         case STATE_TYPE_ERRONEOUS:
         case STATE_TYPE_STALE:
 //        __STATE_TYPE_STALE:
-            blinkGenericErrorForever();
             break;
     }
 }

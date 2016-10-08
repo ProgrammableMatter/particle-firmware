@@ -14,6 +14,7 @@
 #include "uc-core/communication/Transmission.h"
 #include "uc-core/communication/CommunicationTypesCtors.h"
 #include "uc-core/synchronization/Synchronization.h"
+
 /**
  * Executes a synchronize local time package.
  * Reads the delivered time adds a correction offset and updates the local time.
@@ -56,26 +57,82 @@ void executeSynchronizeLocalTimePackage(const TimePackage *const package,
 //    }
 
 
-    // take just the deviation from the expected package transmission duration which is
-    if (portBuffer->receptionDuration > COMMANDS_EXPECTED_TIME_PACKAGE_RECEPTION_DURATION) {
-        portBuffer->receptionDuration = portBuffer->receptionDuration - UINT16_MAX;
-    } else {
-        portBuffer->receptionDuration =
-                COMMANDS_EXPECTED_TIME_PACKAGE_RECEPTION_DURATION - portBuffer->receptionDuration;
+    // --------
+
+//     take just the deviation from the expected package transmission duration which is
+//    if (portBuffer->receptionDuration > COMMANDS_EXPECTED_TIME_PACKAGE_RECEPTION_DURATION) {
+//        portBuffer->receptionDuration = TIME_SYNCHRONIZATION_SAMPLE_OFFSET +
+//                                        (portBuffer->receptionDuration -
+//                                         COMMANDS_EXPECTED_TIME_PACKAGE_RECEPTION_DURATION);
+//    } else {
+//        portBuffer->receptionDuration = TIME_SYNCHRONIZATION_SAMPLE_OFFSET -
+//                                        (COMMANDS_EXPECTED_TIME_PACKAGE_RECEPTION_DURATION -
+//                                         portBuffer->receptionDuration);
+//    }
+
+    // TODO: evaluation code
+    if (portBuffer->receptionDuration < INT16_MAX) {
+        blinkLed1Forever(&ParticleAttributes.alerts);
     }
+    // scale down to UINT16_MAX/2
+    portBuffer->receptionDuration = portBuffer->receptionDuration - INT16_MAX;
 
-    if (portBuffer->receptionDuration > UINT16_MAX) {
-        blinkParityErrorForever(0);
-    }
 
-    if (portBuffer->receptionDuration > (UINT16_MAX / 2)) {
-        blinkParityErrorForever(1);
-    }
+//    // TODO: evaluation code
+//    if (portBuffer->receptionDuration > UINT16_MAX) {
+//        blinkLed2Forever(&ParticleAttributes.alerts);
+//    }
 
-    SampleValueType sampleValue = (uint16_t) portBuffer->receptionDuration;
-    // to avoid the need of signed, push the value by an offset, usually ~UINT16_MAX/2
-    sampleValue += TIME_SYNCHRONIZATION_SAMPLE_OFFSET;
 
+    // --------------
+
+//    SampleValueType smapleValue;
+//    if (portBuffer->receptionEndTimestamp >= portBuffer->receptionStartTimestamp) {
+//        // on package reception longer than expected -> accelerate the clock
+//        // TODO - hotfix : some durations cannot be inferred from start/end timestampt
+//        uint16_t difference = portBuffer->receptionEndTimestamp - portBuffer->receptionStartTimestamp;
+//        if (difference < 10000) {
+//            smapleValue = TIME_SYNCHRONIZATION_SAMPLE_OFFSET + // add synthetic offset
+//            -(difference);
+//            samplesFifoBufferAddSample(&smapleValue, &ParticleAttributes.timeSynchronization);
+//            LED_STATUS2_TOGGLE;
+//        } else {
+//            LED_STATUS1_TOGGLE;
+//        }
+//
+//    } else {
+//        // on package reception shorter than expected -> decelerate the clock
+//        // TODO - hotfix : some durations cannot be inferred from start/end timestampt
+//        uint16_t difference = portBuffer->receptionStartTimestamp - portBuffer->receptionEndTimestamp;
+//        if (difference < 10000) {
+////            printf("e %u\n", difference);
+//            smapleValue = TIME_SYNCHRONIZATION_SAMPLE_OFFSET - // add synthetic offset
+//                          -(difference);
+//            samplesFifoBufferAddSample(&smapleValue, &ParticleAttributes.timeSynchronization);
+//            LED_STATUS3_TOGGLE;
+//        } else {
+//            printf("s %u\n", portBuffer->receptionStartTimestamp);
+//            printf("e %u\n", portBuffer->receptionEndTimestamp);
+////            printf("df %u\n", difference);
+//            printf("d %lu\n", portBuffer->receptionDuration);
+//            smapleValue =
+//                    UINT16_MAX - portBuffer->receptionStartTimestamp + portBuffer->receptionEndTimestamp;
+//
+//
+//
+//
+//            if (smapleValue < 10000) {
+//                samplesFifoBufferAddSample(&smapleValue, &ParticleAttributes.timeSynchronization);
+//                LED_STATUS3_TOGGLE;
+//            } else {
+//                LED_STATUS4_TOGGLE;
+//            }
+//        }
+//    }
+
+
+    // -----------
+    SampleValueType sampleValue = (SampleValueType) portBuffer->receptionDuration;
     samplesFifoBufferAddSample(&sampleValue, &ParticleAttributes.timeSynchronization);
     tryApproximateTimings(&ParticleAttributes.timeSynchronization);
 
@@ -190,8 +247,9 @@ void executeSetNetworkGeometryPackage(const SetNetworkGeometryPackage *const pac
             __relayPackage((Package *) package, &ParticleAttributes.directionOrientedPorts.simultaneous,
                            SetNetworkGeometryPackageBufferPointerSize, nextState);
         } else if (routeToEast) {
-            StateType nextState = (deactivateParticle) ? STATE_TYPE_SENDING_PACKAGE_TO_EAST_THEN_PREPARE_SLEEP
-                                                       : STATE_TYPE_SENDING_PACKAGE_TO_EAST;
+            StateType nextState = (deactivateParticle)
+                                  ? STATE_TYPE_SENDING_PACKAGE_TO_EAST_THEN_PREPARE_SLEEP
+                                  : STATE_TYPE_SENDING_PACKAGE_TO_EAST;
             __relayPackage((Package *) package, &ParticleAttributes.directionOrientedPorts.east,
                            SetNetworkGeometryPackageBufferPointerSize, nextState);
         } else if (routeToSouth) {

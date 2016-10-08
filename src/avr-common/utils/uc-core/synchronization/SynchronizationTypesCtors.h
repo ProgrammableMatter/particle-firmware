@@ -10,7 +10,7 @@
 #include "LeastSquareRegressionTypesCtors.h"
 #include "SampleFifoTypesCtors.h"
 
-#if defined(SYNCHRONIZATION_ENABLE_ADAPTIVE_OUTLIER_REJECTION) || defined(SYNCHRONIZATION_ENABLE_SIGMA_DEPENDENT_OUTLIER_REJECTION)
+//#if defined(SYNCHRONIZATION_ENABLE_ADAPTIVE_OUTLIER_REJECTION) || defined(SYNCHRONIZATION_ENABLE_SIGMA_DEPENDENT_OUTLIER_REJECTION)
 
 void constructAdaptiveSampleRejection(AdaptiveSampleRejection *const o) {
     o->rejected = 0;
@@ -21,7 +21,7 @@ void constructAdaptiveSampleRejection(AdaptiveSampleRejection *const o) {
     o->isOutlierRejectionBoundValid = false;
 }
 
-#endif
+//#endif
 
 /**
  * constructor function
@@ -39,18 +39,20 @@ void constructTimeSynchronization(TimeSynchronization *const o) {
 #endif
     o->mean = 0;
     o->meanWithoutOutlier = 0;
-#ifdef SYNCHRONIZATION_STRATEGY_MEAN_ENABLE_ONLINE_CALCULATION
-    o->__unnormalizedCumulativeMean = 0;
-#endif
-    o->__unnormalizedCumulativeMeanWithoutOutlier = 0;
-    o->__numberCumulatedValuesWithoutOutlier = 0;
+    o->meanWithoutMarkedOutlier = 0;
+
+//#ifdef SYNCHRONIZATION_STRATEGY_MEAN_ENABLE_ONLINE_CALCULATION
+//    o->__unnormalizedCumulativeMean = 0;
+//#endif
+//    o->__unnormalizedCumulativeMeanWithoutMarkedOutlier = 0;
+//    o->__numberCumulatedValuesWithoutMarkedOutlier = 0;
 #ifdef SYNCHRONIZATION_STRATEGY_PROGRESSIVE_MEAN
     o->progressiveMean = 0;
 #endif
     o->variance = 0;
     o->stdDeviance = 0;
     // TODO: nextSyncPackge initial start time depends on the network int. phase's end
-    o->nextSyncPackageTransmissionStartTime = 20;
+    o->nextSyncPackageTransmissionStartTime = 40;
     o->fastSyncPackageSeparation = 10;
 //    o->syncPackageSeparation = 300;
     o->syncPackageSeparation = 20;

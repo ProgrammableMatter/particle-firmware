@@ -10,19 +10,20 @@
  * The difference of measured synchronization package durations are shifted by the synthetic offset UINT16_MAX/2=0x7fff
  * to overcome the need of signed data types.
  */
-#define TIME_SYNCHRONIZATION_SAMPLE_OFFSET ((uint16_t) 0x7fff)
+#define TIME_SYNCHRONIZATION_SAMPLE_OFFSET ((uint16_t) INT16_MAX)
 
 /**
  * mean calculation on-line vs off-line
  */
-#define SYNCHRONIZATION_STRATEGY_MEAN_ENABLE_ONLINE_CALCULATION
+//#define SYNCHRONIZATION_STRATEGY_MEAN_ENABLE_ONLINE_CALCULATION
 
 /**
  * Synchronization strategy.
  */
 //#define SYNCHRONIZATION_STRATEGY_PROGRESSIVE_MEAN
 #define SYNCHRONIZATION_STRATEGY_MEAN
-#define SYNCHRONIZATION_STRATEGY_MEAN_WITHOUT_OUTLIER
+//#define SYNCHRONIZATION_STRATEGY_MEAN_WITHOUT_OUTLIER
+//#define SYNCHRONIZATION_STRATEGY_MEAN_WITHOUT_MARKED_OUTLIER
 //#define SYNCHRONIZATION_STRATEGY_LEAST_SQUARE_LINEAR_FITTING
 
 ///**

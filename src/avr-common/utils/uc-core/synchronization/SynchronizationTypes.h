@@ -12,7 +12,7 @@
 #include "LeastSquareRegressionTypes.h"
 #include "SampleFifoTypes.h"
 
-#if defined(SYNCHRONIZATION_ENABLE_ADAPTIVE_OUTLIER_REJECTION) || defined(SYNCHRONIZATION_ENABLE_SIGMA_DEPENDENT_OUTLIER_REJECTION)
+//#if defined(SYNCHRONIZATION_ENABLE_ADAPTIVE_OUTLIER_REJECTION) || defined(SYNCHRONIZATION_ENABLE_SIGMA_DEPENDENT_OUTLIER_REJECTION)
 typedef struct AdaptiveSampleRejection {
     uint16_t rejected;
     uint16_t accepted;
@@ -31,35 +31,42 @@ typedef struct AdaptiveSampleRejection {
     uint8_t isOutlierRejectionBoundValid : 1;
     uint8_t __pad : 7;
 } AdaptiveSampleRejection;
-#endif
+//#endif
 
 typedef struct TimeSynchronization {
 
 //    SyncPackageTiming syncPackageTiming;
 
-#if defined(SYNCHRONIZATION_ENABLE_ADAPTIVE_OUTLIER_REJECTION) || defined(SYNCHRONIZATION_ENABLE_SIGMA_DEPENDENT_OUTLIER_REJECTION)
+//#if defined(SYNCHRONIZATION_ENABLE_ADAPTIVE_OUTLIER_REJECTION) || defined(SYNCHRONIZATION_ENABLE_SIGMA_DEPENDENT_OUTLIER_REJECTION)
     AdaptiveSampleRejection adaptiveSampleRejection;
-#endif
+//#endif
     SamplesFifoBuffer timeIntervalSamples;
 #ifdef SYNCHRONIZATION_STRATEGY_LEAST_SQUARE_LINEAR_FITTING
     LeastSquareRegressionResult fittingFunction;
 #endif
     /**
-    * samples' mean
-    */
+     * mean of all values in FiFo
+     */
     CalculationType mean;
+    /**
+     * mean of all values in FiFo within µ+/-f*σ
+     */
     CalculationType meanWithoutOutlier;
+    /**
+     * mean of all values in FiFo being within the current µ+/-f*σ when entered the FiFo
+     */
+    CalculationType meanWithoutMarkedOutlier;
 
-#ifdef SYNCHRONIZATION_STRATEGY_MEAN_ENABLE_ONLINE_CALCULATION
+//#ifdef SYNCHRONIZATION_STRATEGY_MEAN_ENABLE_ONLINE_CALCULATION
     /**
      * The cumulative unnormalized mean field is used to calculate a step-wise mean
      * by just observing the incoming and outgoing FiFo values without
      * the need for a complete FiFo iteration.
      */
-    CumulationType __unnormalizedCumulativeMean;
-    CumulationType __unnormalizedCumulativeMeanWithoutOutlier;
-    uint16_t __numberCumulatedValuesWithoutOutlier;
-#endif
+//    CumulationType __unnormalizedCumulativeMean;
+//    CumulationType __unnormalizedCumulativeMeanWithoutMarkedOutlier;
+//    IndexType __numberCumulatedValuesWithoutMarkedOutlier;
+//#endif
 #ifdef SYNCHRONIZATION_STRATEGY_PROGRESSIVE_MEAN
     /**
      * The progressive mean has kind of knowledge of previous values and is the 1/2 of the last progressive mean and the current value.

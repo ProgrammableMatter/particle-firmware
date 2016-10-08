@@ -52,6 +52,6 @@ typedef struct SamplesFifoBuffer {
     uint8_t isDropOutValid :1;
     uint8_t __isPreDropOutValid :1;
 
-    uint8_t __pad :7;
+    uint8_t __pad :6;
 
 } SamplesFifoBuffer;
