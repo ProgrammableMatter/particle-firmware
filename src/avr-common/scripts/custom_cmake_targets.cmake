@@ -8,7 +8,8 @@ SET(VERIFY_FLASH /bin/bash ${PROJECTS_SOURCE_ROOT}/avr-common/scripts/verify_fla
 SET(ERASE_FLASH /bin/bash ${PROJECTS_SOURCE_ROOT}/avr-common/scripts/erase_flash.sh ${PROGRAMMER} ${PROGRAMMER_TARGET} ${PROGRAMMER_BAUD} ${PROGRAMMER_PORT} ${PROGRAMMER_EXTRA_FLAGS} ${POST_PROGRAMMING_COMMAND})
 
 add_custom_command(OUTPUT cat_uart
-        COMMAND ${PROJECTS_SOURCE_ROOT}/avr-common/scripts/debug_monitor.sh ${DEBUGGER_PORT} ${DEBUGGER_BAUD}
+        #        COMMAND ${PROJECTS_SOURCE_ROOT}/avr-common/scripts/debug_monitor.sh ${DEBUGGER_PORT} ${DEBUGGER_BAUD}
+        COMMAND ${PROJECTS_SOURCE_ROOT}/avr-common/scripts/cat-tty.sh ${DEBUGGER_PORT} ${DEBUGGER_BAUD}
         )
 add_custom_target(${PROJECT_NAME}_listen DEPENDS cat_uart)
 
