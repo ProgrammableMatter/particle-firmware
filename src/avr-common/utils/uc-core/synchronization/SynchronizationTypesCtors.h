@@ -41,17 +41,18 @@ void constructTimeSynchronization(TimeSynchronization *const o) {
     o->meanWithoutOutlier = 0;
     o->meanWithoutMarkedOutlier = 0;
 
-//#ifdef SYNCHRONIZATION_STRATEGY_MEAN_ENABLE_ONLINE_CALCULATION
-//    o->__unnormalizedCumulativeMean = 0;
-//#endif
-//    o->__unnormalizedCumulativeMeanWithoutMarkedOutlier = 0;
-//    o->__numberCumulatedValuesWithoutMarkedOutlier = 0;
+#ifdef SYNCHRONIZATION_STRATEGY_MEAN_ENABLE_ONLINE_CALCULATION
+    o->__unnormalizedCumulativeMean = 0;
+    o->__unnormalizedCumulativeMeanWithoutMarkedOutlier = 0;
+    o->__numberCumulatedValuesWithoutMarkedOutlier = 0;
+#endif
+
 #ifdef SYNCHRONIZATION_STRATEGY_PROGRESSIVE_MEAN
     o->progressiveMean = 0;
 #endif
     o->variance = 0;
     o->stdDeviance = 0;
-    // TODO: nextSyncPackge initial start time depends on the network int. phase's end
+    // TODO: nextSyncPackage initial start time depends on the network int. phase's end
     o->nextSyncPackageTransmissionStartTime = 40;
     o->fastSyncPackageSeparation = 10;
 //    o->syncPackageSeparation = 300;

@@ -74,65 +74,16 @@ void executeSynchronizeLocalTimePackage(const TimePackage *const package,
     if (portBuffer->receptionDuration < INT16_MAX) {
         blinkLed1Forever(&ParticleAttributes.alerts);
     }
-    // scale down to UINT16_MAX/2
-    portBuffer->receptionDuration = portBuffer->receptionDuration - INT16_MAX;
 
+    int32_t sample = (int32_t) portBuffer->receptionDuration - (int32_t) INT16_MAX;
+    // TODO: evaluation code
+    if (sample >= UINT16_MAX) {
+        blinkLed2Forever(&ParticleAttributes.alerts);
+    }
 
-//    // TODO: evaluation code
-//    if (portBuffer->receptionDuration > UINT16_MAX) {
-//        blinkLed2Forever(&ParticleAttributes.alerts);
-//    }
+    // shift value down by -UINT16_MAX/2
+    SampleValueType sampleValue = (SampleValueType) sample;
 
-
-    // --------------
-
-//    SampleValueType smapleValue;
-//    if (portBuffer->receptionEndTimestamp >= portBuffer->receptionStartTimestamp) {
-//        // on package reception longer than expected -> accelerate the clock
-//        // TODO - hotfix : some durations cannot be inferred from start/end timestampt
-//        uint16_t difference = portBuffer->receptionEndTimestamp - portBuffer->receptionStartTimestamp;
-//        if (difference < 10000) {
-//            smapleValue = TIME_SYNCHRONIZATION_SAMPLE_OFFSET + // add synthetic offset
-//            -(difference);
-//            samplesFifoBufferAddSample(&smapleValue, &ParticleAttributes.timeSynchronization);
-//            LED_STATUS2_TOGGLE;
-//        } else {
-//            LED_STATUS1_TOGGLE;
-//        }
-//
-//    } else {
-//        // on package reception shorter than expected -> decelerate the clock
-//        // TODO - hotfix : some durations cannot be inferred from start/end timestampt
-//        uint16_t difference = portBuffer->receptionStartTimestamp - portBuffer->receptionEndTimestamp;
-//        if (difference < 10000) {
-////            printf("e %u\n", difference);
-//            smapleValue = TIME_SYNCHRONIZATION_SAMPLE_OFFSET - // add synthetic offset
-//                          -(difference);
-//            samplesFifoBufferAddSample(&smapleValue, &ParticleAttributes.timeSynchronization);
-//            LED_STATUS3_TOGGLE;
-//        } else {
-//            printf("s %u\n", portBuffer->receptionStartTimestamp);
-//            printf("e %u\n", portBuffer->receptionEndTimestamp);
-////            printf("df %u\n", difference);
-//            printf("d %lu\n", portBuffer->receptionDuration);
-//            smapleValue =
-//                    UINT16_MAX - portBuffer->receptionStartTimestamp + portBuffer->receptionEndTimestamp;
-//
-//
-//
-//
-//            if (smapleValue < 10000) {
-//                samplesFifoBufferAddSample(&smapleValue, &ParticleAttributes.timeSynchronization);
-//                LED_STATUS3_TOGGLE;
-//            } else {
-//                LED_STATUS4_TOGGLE;
-//            }
-//        }
-//    }
-
-
-    // -----------
-    SampleValueType sampleValue = (SampleValueType) portBuffer->receptionDuration;
     samplesFifoBufferAddSample(&sampleValue, &ParticleAttributes.timeSynchronization);
     tryApproximateTimings(&ParticleAttributes.timeSynchronization);
 

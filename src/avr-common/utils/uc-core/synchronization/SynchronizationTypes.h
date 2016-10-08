@@ -57,21 +57,21 @@ typedef struct TimeSynchronization {
      */
     CalculationType meanWithoutMarkedOutlier;
 
-//#ifdef SYNCHRONIZATION_STRATEGY_MEAN_ENABLE_ONLINE_CALCULATION
+#ifdef SYNCHRONIZATION_STRATEGY_MEAN_ENABLE_ONLINE_CALCULATION
     /**
      * The cumulative unnormalized mean field is used to calculate a step-wise mean
      * by just observing the incoming and outgoing FiFo values without
      * the need for a complete FiFo iteration.
      */
-//    CumulationType __unnormalizedCumulativeMean;
-//    CumulationType __unnormalizedCumulativeMeanWithoutMarkedOutlier;
-//    IndexType __numberCumulatedValuesWithoutMarkedOutlier;
-//#endif
+    CumulationType __unnormalizedCumulativeMean;
+    CumulationType __unnormalizedCumulativeMeanWithoutMarkedOutlier;
+    IndexType __numberCumulatedValuesWithoutMarkedOutlier;
+#endif
 #ifdef SYNCHRONIZATION_STRATEGY_PROGRESSIVE_MEAN
     /**
      * The progressive mean has kind of knowledge of previous values and is the 1/2 of the last progressive mean and the current value.
      */
-    CumulationType progressiveMean;
+    SampleValueType progressiveMean;
 #endif
     /**
     * samples' variance
@@ -92,6 +92,7 @@ typedef struct TimeSynchronization {
     uint16_t syncPackageSeparation;
     /**
      * Indicates whether the fields for calculation results are valid or not.
+     * TODO: unused field
      */
     uint8_t isCalculationValid : 1;
     /**
