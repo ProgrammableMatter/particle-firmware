@@ -57,6 +57,9 @@ void simultaneousTxHiImpl(void) {
     MEMORY_BARRIER;
     EAST_TX_LO; // must be inverted due to missing MOSFET
     MEMORY_BARRIER;
+    // TODO: is the noop tuning needed?
+//    NOOP;
+    MEMORY_BARRIER;
     SOUTH_TX_HI;
     MEMORY_BARRIER;
 }
