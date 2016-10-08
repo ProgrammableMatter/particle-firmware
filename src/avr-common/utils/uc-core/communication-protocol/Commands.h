@@ -75,7 +75,13 @@ void executeSynchronizeLocalTimePackage(const TimePackage *const package,
         blinkLed1Forever(&ParticleAttributes.alerts);
     }
 
-    int32_t sample = (int32_t) portBuffer->receptionDuration - (int32_t) INT16_MAX;
+#ifdef SYNCHRONIZATION_TIME_PACKAGE_DURATION_COUNTING_EXCLUSIVE_LAST_RISING_EDGE
+    int32_t sample = (int32_t) (portBuffer->receptionDuration - portBuffer->lastFallingToRisingDuration) -
+                     (int32_t) INT16_MAX;
+#else
+    int32_t sample = (int32_t) (portBuffer->receptionDuration) - (int32_t) INT16_MAX;
+#endif
+
     // TODO: evaluation code
     if (sample >= UINT16_MAX) {
         blinkLed2Forever(&ParticleAttributes.alerts);

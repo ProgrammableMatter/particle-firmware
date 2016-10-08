@@ -337,6 +337,7 @@ void manchesterDecodeBuffer(DirectionOrientedPort *const port,
                     } else {
                     }
                     rxPort->snapshotsBuffer.temporarySnapshotTimerValue = timerValue;
+                    rxPort->buffer.lastFallingToRisingDuration = difference;
                     rxPort->buffer.receptionDuration += difference;
 //                    rxPort->buffer.receptionEndTimestamp = timerValue;
                     __rxSnapshotBufferDequeue(&rxPort->snapshotsBuffer);

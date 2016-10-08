@@ -13,6 +13,15 @@
 #define TIME_SYNCHRONIZATION_SAMPLE_OFFSET ((uint16_t) INT16_MAX)
 
 /**
+ * If defined the time approximation will take the time in between the 1st and the last
+ * falling edge of the time package, since the falling edges are always steeper than compared to
+ * transmission ports having MOS-FET connected. Never the less the time difference until the
+ * differently connected input ports trigger the signal is minimal (less than < 150ns). In other words
+ * we expect this tuning not being relevant to the synchronization result.
+ */
+#define SYNCHRONIZATION_TIME_PACKAGE_DURATION_COUNTING_EXCLUSIVE_LAST_RISING_EDGE
+
+/**
  * Mean calculation on-line vs off-line.
  * Uses more flash memory, may speed up the synchronization approximation slightly.
  */

@@ -76,11 +76,22 @@ void tryApproximateTimings(TimeSynchronization *const timeSynchronization) {
                 blinkLed4Forever(&ParticleAttributes.alerts);
             }
 
+//            CalculationType newTimePeriodInterruptDelay =
+//                    ((CalculationType) __synchronization_meanValue + (CalculationType) INT16_MAX) *
+//                    (CalculationType) __LOCAL_TIME_DEFAULT_INTERRUPT_DELAY_WORKING_POINT_PERCENTAGE;
 
-            CalculationType newTimePeriodInterruptDelay =
-                    ((CalculationType) __synchronization_meanValue + (CalculationType) INT16_MAX) *
-                    (CalculationType) __LOCAL_TIME_DEFAULT_INTERRUPT_DELAY_WORKING_POINT_PERCENTAGE;
-
+            // shift mean value back by +UINT16_T/2
+            CalculationType realDuration = __synchronization_meanValue + (CalculationType) INT16_MAX;
+            // TODO: expected duration - 512 must be taken from runtime definition!
+#ifdef SYNCHRONIZATION_TIME_PACKAGE_DURATION_COUNTING_EXCLUSIVE_LAST_RISING_EDGE
+            CalculationType expectedDuration = UINT16_MAX - 512;
+#else
+            CalculationType expectedDuration = UINT16_MAX;
+#endif
+            // calculate new local time tracking interrupt delay
+            CalculationType factor = realDuration / expectedDuration;
+            CalculationType newTimePeriodInterruptDelay = factor * (CalculationType) UINT16_MAX *
+                                                          __LOCAL_TIME_DEFAULT_INTERRUPT_DELAY_WORKING_POINT_PERCENTAGE;
 
             // TODO: evaluation code
             if (newTimePeriodInterruptDelay >= UINT16_MAX) {
@@ -90,7 +101,6 @@ void tryApproximateTimings(TimeSynchronization *const timeSynchronization) {
                 blinkLed2Forever(&ParticleAttributes.alerts);
             }
 
-
             // update the new mean/clock skew smoothly
             ParticleAttributes.localTime.newTimePeriodInterruptDelay =
                     (uint16_t) roundf(
@@ -99,7 +109,7 @@ void tryApproximateTimings(TimeSynchronization *const timeSynchronization) {
 
             MEMORY_BARRIER;
             ParticleAttributes.localTime.isTimePeriodInterruptDelayUpdateable = true;
-    }
+        }
 #ifndef SYNCHRONIZATION_STRATEGY_PROGRESSIVE_MEAN
     }
 #endif

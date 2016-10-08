@@ -32,6 +32,7 @@ typedef struct PortBuffer {
      * total package reception duration
      */
     uint32_t receptionDuration;
+    uint16_t lastFallingToRisingDuration;
 //    uint16_t receptionStartTimestamp; // start time stamp of the current buffer
 //    uint16_t receptionEndTimestamp; // end time stamp of the current buffer
 } PortBuffer;
