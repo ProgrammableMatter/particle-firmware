@@ -2,3 +2,4 @@
 
 SET(CDEBUG "${CDEBUG}")
 SET(CTUNING "${CTUNING} -fshort-enums")
+SET(CMAKE_BUILD_TYPE "MinSizeRel")
