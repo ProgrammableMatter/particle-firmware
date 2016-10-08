@@ -56,25 +56,9 @@ bool isEvenParity(const RxPort *const rxPort) {
     if (rxPort->parityBitCounter == 0) {
         return true;
     }
-
 #ifdef SIMULATION
     DEBUG_CHAR_OUT('9');
 #endif
-    blinkParityErrorForever(rxPort->parityBitCounter);
+    blinkParityErrorForever(&ParticleAttributes.alerts, rxPort->parityBitCounter);
     return false;
-
-//    Package *package = (Package *) rxPort->buffer.bytes;
-//
-//    // on parity bit set in received package
-//    if (package->asHeader.parityBit) {
-//        // exclude the parity bit from the counter incremented during reception
-//        rxPort->parityBitCounter++;
-//    }
-//
-//    if (rxPort->parityBitCounter != package->asHeader.parityBit) {
-//        blinkParityErrorForever(rxPort->parityBitCounter);
-//        // blinkParityErrorForever(package->asHeader.parityBit);
-//        return false;
-//    }
-//    return true;
 }
