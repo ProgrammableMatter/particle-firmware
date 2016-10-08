@@ -18,3 +18,9 @@
  * http://blog.regehr.org/archives/28
  */
 #define MEMORY_BARRIER asm volatile ("" : : : "memory")
+
+
+/**
+ * Convenience macro for "no operation" instruction.
+ */
+#define NOOP asm ("nop")
