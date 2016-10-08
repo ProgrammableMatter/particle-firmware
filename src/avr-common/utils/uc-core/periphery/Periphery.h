@@ -17,59 +17,62 @@ static void __disableInterruptsForBlockingBlinking(void) {
     RX_SOUTH_INTERRUPT_DISABLE;
 }
 
-//extern FUNC_ATTRS void __blinkAddressBlocking(void);
-/**
- * Blinks row times, column times followed by a quitting flash signal.
- */
-static void __blinkAddressBlocking(void) {
-    LED_STATUS1_OFF;
-    DELAY_MS_500;
-    for (int8_t row = 0; row < ParticleAttributes.node.address.row; row++) {
-        LED_STATUS1_TOGGLE;
-        DELAY_MS_196;
-        LED_STATUS1_TOGGLE;
-        DELAY_MS_196;
-    }
-    DELAY_MS_196;
-    DELAY_MS_196;
-    for (int8_t column = 0; column < ParticleAttributes.node.address.column; column++) {
-        LED_STATUS1_TOGGLE;
-        DELAY_MS_196;
-        LED_STATUS1_TOGGLE;
-        DELAY_MS_196;
-    }
-    DELAY_MS_196;
-
-    LED_STATUS1_TOGGLE;
-    DELAY_MS_30;
-    DELAY_MS_30;
-    LED_STATUS1_TOGGLE;
-    DELAY_MS_30;
-    DELAY_MS_30;
-    LED_STATUS1_TOGGLE;
-    DELAY_MS_30;
-    DELAY_MS_30;
-    LED_STATUS1_TOGGLE;
-}
-
-/**
- * Blinks the current address on status led endlessly.
- */
-void blinkAddressForever(void) {
-    __disableInterruptsForBlockingBlinking();
-    LED_STATUS1_ON;
-    DELAY_MS_500;
-    forever {
-        __blinkAddressBlocking();
-        DELAY_MS_500;
-    }
-}
+///**
+// * Blinks row times, column times followed by a quitting flash signal.
+// */
+//static void __blinkAddressBlocking(void) {
+//    LED_STATUS1_OFF;
+//    DELAY_MS_500;
+//    for (int8_t row = 0; row < ParticleAttributes.node.address.row; row++) {
+//        LED_STATUS1_TOGGLE;
+//        DELAY_MS_196;
+//        LED_STATUS1_TOGGLE;
+//        DELAY_MS_196;
+//    }
+//    DELAY_MS_196;
+//    DELAY_MS_196;
+//    for (int8_t column = 0; column < ParticleAttributes.node.address.column; column++) {
+//        LED_STATUS1_TOGGLE;
+//        DELAY_MS_196;
+//        LED_STATUS1_TOGGLE;
+//        DELAY_MS_196;
+//    }
+//    DELAY_MS_196;
+//
+//    LED_STATUS1_TOGGLE;
+//    DELAY_MS_30;
+//    DELAY_MS_30;
+//    LED_STATUS1_TOGGLE;
+//    DELAY_MS_30;
+//    DELAY_MS_30;
+//    LED_STATUS1_TOGGLE;
+//    DELAY_MS_30;
+//    DELAY_MS_30;
+//    LED_STATUS1_TOGGLE;
+//}
+//
+///**
+// * Blinks the current address on status led endlessly.
+// */
+//void blinkAddressForever(void) {
+//    __disableInterruptsForBlockingBlinking();
+//    LED_STATUS1_ON;
+//    DELAY_MS_500;
+//    forever {
+//        __blinkAddressBlocking();
+//        DELAY_MS_500;
+//    }
+//}
 
 /**
  * Blinks LEDs to indicate the error state.
  * This function never returns.
  */
-void blinkReceptionBufferOverflowErrorForever(void) {
+void blinkReceptionBufferOverflowErrorForever(const Alerts *const alerts) {
+    if (alerts->isRxBufferOverflowEnabled == false) {
+        return;
+    }
+
     __disableInterruptsForBlockingBlinking();
     forever {
         LED_STATUS1_OFF;
@@ -101,13 +104,92 @@ void blinkGenericErrorForever(void) {
     }
 }
 
+static void __blinkLedNForever(uint8_t n) {
+    __disableInterruptsForBlockingBlinking();
+    LED_STATUS1_ON;
+    LED_STATUS2_ON;
+    LED_STATUS3_ON;
+    LED_STATUS4_ON;
+    forever {
+        DELAY_MS_196;
+        switch (n) {
+            case 1:
+                LED_STATUS1_TOGGLE;
+                break;
+            case 2:
+                LED_STATUS2_TOGGLE;
+                break;
+            case 3:
+                LED_STATUS3_TOGGLE;
+                break;
+            case 4:
+                LED_STATUS4_TOGGLE;
+                break;
+        }
+        DELAY_MS_196;
+    }
+}
+
+void blinkLed1Forever(const Alerts *const alerts) {
+    if (alerts->isGenericErrorEnabled == false) {
+        return;
+    }
+
+    __disableInterruptsForBlockingBlinking();
+    __blinkLedNForever(1);
+}
+
+void blinkLed2Forever(const Alerts *alerts) {
+    if (alerts->isGenericErrorEnabled == false) {
+        return;
+    }
+    __disableInterruptsForBlockingBlinking();
+    __blinkLedNForever(2);
+}
+
+void blinkLed3Forever(const Alerts *const alerts) {
+    if (alerts->isGenericErrorEnabled == false) {
+        return;
+    }
+    __disableInterruptsForBlockingBlinking();
+    __blinkLedNForever(3);
+}
+
+void blinkLed4Forever(const Alerts *const alerts) {
+    if (alerts->isGenericErrorEnabled == false) {
+        return;
+    }
+    __disableInterruptsForBlockingBlinking();
+    __blinkLedNForever(4);
+}
+
+void blinkInterruptErrorForever(void) {
+    __disableInterruptsForBlockingBlinking();
+    forever {
+        LED_STATUS1_OFF;
+        LED_STATUS2_ON;
+        LED_STATUS3_OFF;
+        LED_STATUS4_ON;
+        DELAY_MS_196;
+        LED_STATUS1_ON;
+        LED_STATUS2_OFF;
+        LED_STATUS3_ON;
+        LED_STATUS4_OFF;
+        DELAY_MS_196;
+    }
+}
+
 /**
  * Blink LEDs to indicate a parity error state.
  * Sequence on parityBit == true: led 1, led2, led3
  * otherwise: led 3, led 2, led 1.
  * This function never returns.
  */
-void blinkParityErrorForever(bool parityBit) {
+void blinkParityErrorForever(const Alerts *const alerts, bool parityBit) {
+    if (alerts->isRxParityErorEnabled == false) {
+        return;
+    }
+
     __disableInterruptsForBlockingBlinking();
     LED_STATUS1_OFF;
     LED_STATUS2_OFF;
@@ -146,8 +228,6 @@ void ledsOnForever(void) {
     LED_STATUS2_ON;
     LED_STATUS3_ON;
     LED_STATUS4_ON;
-    LED_STATUS5_ON;
-    LED_STATUS6_ON;
     forever;
 }
 
@@ -299,5 +379,74 @@ void blinkAddressNonblocking(void) {
             break;
         default:
             break;
+    }
+}
+
+///**
+// * Toggles the heartbeat LED.
+// */
+//void heartBeatToggle(void) {
+////    if (ParticleAttributes.periphery.loopCount++ == 0) {
+//    if (ParticleAttributes.periphery.loopCount == 0) {
+//        LED_STATUS4_TOGGLE;
+//        ParticleAttributes.periphery.loopCount--;
+//    }
+//}
+
+void blinkKnightRidersKittForever(void) {
+    __disableInterruptsForBlockingBlinking();
+
+#define __kittDelay DELAY_MS_196
+
+    forever {
+        LED_STATUS1_ON;
+        LED_STATUS2_OFF;
+        LED_STATUS3_OFF;
+        LED_STATUS4_OFF;
+        __kittDelay;
+
+        LED_STATUS1_ON;
+        LED_STATUS2_ON;
+        LED_STATUS3_OFF;
+        LED_STATUS4_OFF;
+        __kittDelay;
+
+        LED_STATUS1_OFF;
+        LED_STATUS2_ON;
+        LED_STATUS3_ON;
+        LED_STATUS4_OFF;
+        __kittDelay;
+
+        LED_STATUS1_OFF;
+        LED_STATUS2_OFF;
+        LED_STATUS3_ON;
+        LED_STATUS4_ON;
+        __kittDelay;
+
+        LED_STATUS1_OFF;
+        LED_STATUS2_OFF;
+        LED_STATUS3_OFF;
+        LED_STATUS4_ON;
+        __kittDelay;
+
+
+        LED_STATUS1_OFF;
+        LED_STATUS2_OFF;
+        LED_STATUS3_ON;
+        LED_STATUS4_ON;
+        __kittDelay;
+
+
+        LED_STATUS1_OFF;
+        LED_STATUS2_ON;
+        LED_STATUS3_ON;
+        LED_STATUS4_OFF;
+        __kittDelay;
+
+        LED_STATUS1_ON;
+        LED_STATUS2_ON;
+        LED_STATUS3_OFF;
+        LED_STATUS4_OFF;
+        __kittDelay;
     }
 }

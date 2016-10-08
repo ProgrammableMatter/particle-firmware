@@ -46,10 +46,10 @@ typedef struct BlinkTimeInterval {
  */
 typedef struct Periphery {
     // particle main loop counter
-    uint16_t loopCount;
+    uint8_t loopCount;
     BlinkAddress blinkAddress;
     BlinkTimeInterval blinkTimeInterval;
-//    // validation code
+//    // validation code for emasuring forward latency
 //    volatile uint8_t isTxSouthToggleEnabled : 1;
 //    uint8_t _pad: 7;
 } Periphery;

@@ -6,7 +6,6 @@
 
 #pragma once
 
-//#define ADDRESS_BLINK_STATES_LED_SEPARATION_LONG_BREAK_COUNTER_MAX 28000
 /**
  * address blinking: led on duration
  */
@@ -27,7 +26,6 @@
  * address blinking: separation of one address blinking process
  */
 #define ADDRESS_BLINK_STATES_LED_SEPARATION_LONG_BREAK_COUNTER_MAX ((uint8_t)140)
-
 /**
  * simple heartbeat blinking: on/off
  */

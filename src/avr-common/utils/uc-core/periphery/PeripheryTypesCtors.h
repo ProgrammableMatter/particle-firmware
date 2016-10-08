@@ -39,7 +39,7 @@ void constructPeriphery(Periphery *const o) {
     o->loopCount = 0;
     constructBlinkAddress(&o->blinkAddress);
     constructBlinkTimeInterval(&o->blinkTimeInterval);
-//    // validation code
+//    // validation code for measuring forward latency
 //    o->isTxSouthToggleEnabled = false;
 }
 
