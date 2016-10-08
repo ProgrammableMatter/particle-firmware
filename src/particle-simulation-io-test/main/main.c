@@ -81,12 +81,12 @@ int main(void) {
         TEST_POINT3_HI;
     }
 
-    extraTransitions++;
-    TEST_POINT4_SETUP;
-    for (int i = 0; i < extraTransitions; ++i) {
-        TEST_POINT4_LO;
-        TEST_POINT4_HI;
-    }
+//    extraTransitions++;
+//    TEST_POINT4_SETUP;
+//    for (int i = 0; i < extraTransitions; ++i) {
+//        TEST_POINT4_LO;
+//        TEST_POINT4_HI;
+//    }
 
     extraTransitions++;
     NORTH_TX_SETUP;
