@@ -156,6 +156,10 @@ ISR(LOCAL_TIME_INTERRUPT_VECT) {
     TEST_POINT1_TOGGLE;
     ParticleAttributes.localTime.numTimePeriodsPassed++;
 
+    if (ParticleAttributes.periphery.loopCount > 0) {
+        ParticleAttributes.periphery.loopCount--;
+    }
+
     if (ParticleAttributes.localTime.isTimePeriodInterruptDelayUpdateable) {
         ParticleAttributes.localTime.timePeriodInterruptDelay =
                 ParticleAttributes.localTime.newTimePeriodInterruptDelay;
@@ -181,9 +185,8 @@ ISR(ACTUATOR_PWM_INTERRUPT_VECT) {
     }
 }
 
-EMPTY_INTERRUPT(__UNUSED_TIMER0_OVERFLOW_INTERRUPT_VECT)
-
-EMPTY_INTERRUPT(__UNUSED_TIMER1_OVERFLOW_INTERRUPT_VECT)
+//EMPTY_INTERRUPT(__UNUSED_TIMER0_OVERFLOW_INTERRUPT_VECT)
+//EMPTY_INTERRUPT(__UNUSED_TIMER1_OVERFLOW_INTERRUPT_VECT)
 //ISR(__UNUSED_TIMER1_OVERFLOW_INTERRUPT_VECT) {
 //    LED_STATUS3_TOGGLE;
 //}
@@ -202,9 +205,12 @@ ISR(BADISR_vect) {
 
 #  else
 
-EMPTY_INTERRUPT(RESET_VECT)
+//EMPTY_INTERRUPT(RESET_VECT)
 
-EMPTY_INTERRUPT(BADISR_vect)
+ISR(BADISR_vect) {
+// TODO: activate code again
+//    blinkInterruptErrorForever();
+}
 
 #  endif
 
