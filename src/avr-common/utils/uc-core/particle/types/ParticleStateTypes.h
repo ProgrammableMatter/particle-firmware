@@ -13,6 +13,9 @@
 #include "uc-core/time/TimeTypes.h"
 #include "uc-core/periphery/PeripheryTypes.h"
 #include "uc-core/synchronization/SynchronizationTypes.h"
+#include "uc-core/particle/types/AlertsTypes.h"
+#include "uc-core/particle/types/DiscoveryTypes.h"
+#include "uc-core/particle/types/CommunicationTypes.h"
 
 /**
  * Possible particle's state machine states are listed in this enum.
@@ -129,29 +132,6 @@ typedef enum NodeType {
 } NodeType;
 
 /**
- * The discovery pulse counter stores the amount of discovery pulses and the connectivity state.
- */
-typedef struct DiscoveryPulseCounter {
-    // discovery pulse counter
-    volatile uint8_t counter : 5;
-    // connectivity flag
-    volatile uint8_t isConnected : 1;
-    volatile uint8_t __pad : 2;
-} DiscoveryPulseCounter;
-
-/**
- * Stores the amount of incoming pulses for each communication channel. The isConnected flags are set
- * if the number of incoming pulses exceeds a specific threshold.
- */
-typedef struct DiscoveryPulseCounters {
-    DiscoveryPulseCounter north;
-    DiscoveryPulseCounter east;
-    DiscoveryPulseCounter south;
-    // discovery loop counter
-    uint8_t loopCount;
-} DiscoveryPulseCounters;
-
-/**
  * The node address in the network. The origin node is addressed as row=1, column=1.
  * Address (0,0) is reserved.
  */
@@ -172,69 +152,6 @@ typedef struct Node {
     NodeAddress address;
 } Node;
 
-/**
- * facade to bundle port resources
- */
-typedef struct DirectionOrientedPort {
-    /**
-     * discovery related
-     */
-    DiscoveryPulseCounter *discoveryPulseCounter;
-    /**
-     * communication related
-     */
-    TxPort *txPort;
-    /**
-     * communication related
-     */
-    RxPort *rxPort;
-
-    /**
-     * pointer implementation: decode and interpret reception
-     */
-    void (*receivePimpl)(void);
-
-    void (*txHighPimpl)(void);
-
-    void (*txLowPimpl)(void);
-
-    /**
-     * comm. protocol related
-     */
-    CommunicationProtocolPortState *protocol;
-} DirectionOrientedPort;
-
-/**
- * facade to bundle port resources in a direction oriented way
- */
-typedef struct DirectionOrientedPorts {
-    /**
-     * north port resources
-     */
-    DirectionOrientedPort north;
-    /**
-     * east port resources
-     */
-    DirectionOrientedPort east;
-    /**
-     * south port resources
-     */
-    DirectionOrientedPort south;
-    /**
-     * on simultaneous transmission this port refers to the east port resources
-     */
-    DirectionOrientedPort simultaneous;
-} DirectionOrientedPorts;
-
-/**
- * alert switches to en-/disable alerts on runtime
- */
-typedef struct Alerts {
-    uint8_t isRxBufferOverflowEnabled : 1;
-    uint8_t isRxParityErorEnabled : 1;
-    uint8_t isGenericErrorEnabled : 1;
-    uint8_t __pad  : 5;
-} Alerts;
 /**
  * The global particle structure containing buffers, states, counters and alike.
  */
