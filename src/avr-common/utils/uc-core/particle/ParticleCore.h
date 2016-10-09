@@ -9,8 +9,8 @@
 #include <avr/sleep.h>
 #include "common/common.h"
 #include "Globals.h"
-#include "ParticleStateTypes.h"
-#include "ParticleStateTypesCtors.h"
+#include "uc-core/particle/types/ParticleStateTypes.h"
+#include "uc-core/particle/types/ParticleStateTypesCtors.h"
 #include "uc-core/configuration/IoPins.h"
 #include "uc-core/delay/delay.h"
 #include "uc-core/discovery/Discovery.h"
@@ -596,19 +596,19 @@ static void __onActuationDoneCallback(void) {
     ParticleAttributes.node.state = STATE_TYPE_IDLE;
 }
 
-/**
- * Checks whether an actuation is to be executed. Switches state if an actuation
- * command is scheduled and the current local time indicates an actuation start.
- */
-static void __handleIsActuationCommandPeriod(void) {
-    if (ParticleAttributes.actuationCommand.isScheduled &&
-        ParticleAttributes.actuationCommand.executionState == ACTUATION_STATE_TYPE_IDLE) {
-        if (ParticleAttributes.actuationCommand.actuationStart.periodTimeStamp <=
-            ParticleAttributes.localTime.numTimePeriodsPassed) {
-            ParticleAttributes.node.state = STATE_TYPE_EXECUTE_ACTUATION_COMMAND;
-        }
-    }
-}
+///**
+// * Checks whether an actuation is to be executed. Switches state if an actuation
+// * command is scheduled and the current local time indicates an actuation start.
+// */
+//static void __handleIsActuationCommandPeriod(void) {
+//    if (ParticleAttributes.actuationCommand.isScheduled &&
+//        ParticleAttributes.actuationCommand.executionState == ACTUATION_STATE_TYPE_IDLE) {
+//        if (ParticleAttributes.actuationCommand.actuationStart.periodTimeStamp <=
+//            ParticleAttributes.localTime.numTimePeriodsPassed) {
+//            ParticleAttributes.node.state = STATE_TYPE_EXECUTE_ACTUATION_COMMAND;
+//        }
+//    }
+//}
 
 /**
  * On matching time period puts the particle to synchronization state and disables further synchronization
@@ -874,7 +874,7 @@ static inline void process(void) {
             ParticleAttributes.directionOrientedPorts.east.receivePimpl();
             ParticleAttributes.directionOrientedPorts.south.receivePimpl();
 
-            __handleIsActuationCommandPeriod();
+//            __handleIsActuationCommandPeriod();
             __sendNextSyncTimePackage();
 
             // TODO: evaluation code

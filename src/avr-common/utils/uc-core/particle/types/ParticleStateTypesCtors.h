@@ -11,7 +11,7 @@
 #include "uc-core/communication-protocol/CommunicationProtocolTypesCtors.h"
 #include "uc-core/actuation/ActuationTypesCtors.h"
 #include "uc-core/time/TimeTypesCtors.h"
-#include "PointerImplementation.h"
+#include "uc-core/particle/PointerImplementation.h"
 #include "uc-core/communication/PointerImplementation.h"
 #include "uc-core/periphery/PeripheryTypesCtors.h"
 #include "uc-core/synchronization/SynchronizationTypesCtors.h"
