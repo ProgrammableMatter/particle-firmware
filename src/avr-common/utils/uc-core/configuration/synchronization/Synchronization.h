@@ -37,6 +37,21 @@
 //#define SYNCHRONIZATION_ENABLE_ADAPTIVE_MARKED_OUTLIER_REJECTION
 #define SYNCHRONIZATION_STRATEGY_LEAST_SQUARE_LINEAR_FITTING
 
+/**
+ * Defines the factor f for outlier detection. Samples having values not within
+ * [µ - f * σ, µ + f * σ] are rejected.
+ */
+//#  define SYNCHRONIZATION_OUTLIER_REJECTION_SIGMA_FACTOR ((CalculationType) 48.0)
+//#  define SYNCHRONIZATION_OUTLIER_REJECTION_SIGMA_FACTOR ((CalculationType) 24.0)
+//#  define SYNCHRONIZATION_OUTLIER_REJECTION_SIGMA_FACTOR ((CalculationType) 12.0)
+//#  define SYNCHRONIZATION_OUTLIER_REJECTION_SIGMA_FACTOR ((CalculationType) 9.0)
+//#  define SYNCHRONIZATION_OUTLIER_REJECTION_SIGMA_FACTOR ((CalculationType) 6.0)
+//#  define SYNCHRONIZATION_OUTLIER_REJECTION_SIGMA_FACTOR ((CalculationType) 4.0)
+//#  define SYNCHRONIZATION_OUTLIER_REJECTION_SIGMA_FACTOR ((CalculationType) 3.0)
+//#  define SYNCHRONIZATION_OUTLIER_REJECTION_SIGMA_FACTOR ((CalculationType) 2.8)
+#  define SYNCHRONIZATION_OUTLIER_REJECTION_SIGMA_FACTOR ((CalculationType) 2.0)
+//#  define SYNCHRONIZATION_OUTLIER_REJECTION_SIGMA_FACTOR ((CalculationType) 1.0)
+
 ///**
 // *  Manual clock synchronization adjustment to decelerate the local time tracking.
 // *  Increases the timer/counter compare value.

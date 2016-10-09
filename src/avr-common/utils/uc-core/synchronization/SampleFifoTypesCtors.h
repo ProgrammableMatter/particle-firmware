@@ -19,7 +19,7 @@ void constructFifoElement(FifoElement *const o) {
  * @param o reference to the object to construct
  */
 void constructSamplesFifoBuffer(SamplesFifoBuffer *const o) {
-    for (uint8_t i = 0; i < TIME_SYNCHRONIZATION_SAMPLES_FIFO_BUFFER_SIZE; i++) {
+    for (uint8_t i = 0; i < SAMPLE_FIFO_NUM_BUFFER_ELEMENTS; i++) {
         constructFifoElement(&o->samples[i]);
     }
     o->__startIdx = 0;

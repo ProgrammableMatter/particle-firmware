@@ -10,28 +10,13 @@
 /**
  * Amount of uint16 samples the synchronization buffers for clock skew approximation.
  */
-//#define TIME_SYNCHRONIZATION_SAMPLES_FIFO_BUFFER_SIZE 120
-#define TIME_SYNCHRONIZATION_SAMPLES_FIFO_BUFFER_SIZE 80
+//#define SAMPLE_FIFO_NUM_BUFFER_ELEMENTS 120
+#define SAMPLE_FIFO_NUM_BUFFER_ELEMENTS 80
 
 /**
  * default numeric value indicating buffer's end position
  */
-#define TIME_SYNCHRONIZATION_SAMPLES_FIFO_BUFFER_ITERATOR_END ((uint8_t)(TIME_SYNCHRONIZATION_SAMPLES_FIFO_BUFFER_SIZE + 1))
-
-/**
- * Defines the factor f for outlier detection. Samples having values not within
- * [µ - f * σ, µ + f * σ] are rejected.
- */
-//#  define SYNCHRONIZATION_OUTLIER_REJECTION_SIGMA_FACTOR ((CalculationType) 48.0)
-//#  define SYNCHRONIZATION_OUTLIER_REJECTION_SIGMA_FACTOR ((CalculationType) 24.0)
-//#  define SYNCHRONIZATION_OUTLIER_REJECTION_SIGMA_FACTOR ((CalculationType) 12.0)
-//#  define SYNCHRONIZATION_OUTLIER_REJECTION_SIGMA_FACTOR ((CalculationType) 9.0)
-//#  define SYNCHRONIZATION_OUTLIER_REJECTION_SIGMA_FACTOR ((CalculationType) 6.0)
-//#  define SYNCHRONIZATION_OUTLIER_REJECTION_SIGMA_FACTOR ((CalculationType) 4.0)
-//#  define SYNCHRONIZATION_OUTLIER_REJECTION_SIGMA_FACTOR ((CalculationType) 3.0)
-//#  define SYNCHRONIZATION_OUTLIER_REJECTION_SIGMA_FACTOR ((CalculationType) 2.8)
-#  define SYNCHRONIZATION_OUTLIER_REJECTION_SIGMA_FACTOR ((CalculationType) 2.0)
-//#  define SYNCHRONIZATION_OUTLIER_REJECTION_SIGMA_FACTOR ((CalculationType) 1.0)
+#define TIME_SYNCHRONIZATION_SAMPLES_FIFO_BUFFER_ITERATOR_END ((uint8_t)(SAMPLE_FIFO_NUM_BUFFER_ELEMENTS + 1))
 
 /**
  * if rejected or accepted counter >= SAMPLE_FIFO_ADAPTIVE_REJECTION_REDUCE_COUNTERS_LIMIT

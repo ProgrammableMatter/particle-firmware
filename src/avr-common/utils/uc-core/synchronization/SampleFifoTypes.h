@@ -25,7 +25,7 @@ typedef struct SamplesFifoBuffer {
     /**
      * samples buffer
      */
-    FifoElement samples[TIME_SYNCHRONIZATION_SAMPLES_FIFO_BUFFER_SIZE];
+    FifoElement samples[SAMPLE_FIFO_NUM_BUFFER_ELEMENTS];
     /**
      * index of 1st valid element in buffer
      */

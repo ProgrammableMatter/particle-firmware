@@ -12,14 +12,14 @@
 #include "uc-core/stdout/stdio.h"
 
 bool isFiFoFull(const SamplesFifoBuffer *const samplesFifoBuffer) {
-    return samplesFifoBuffer->numSamples >= TIME_SYNCHRONIZATION_SAMPLES_FIFO_BUFFER_SIZE;
+    return samplesFifoBuffer->numSamples >= SAMPLE_FIFO_NUM_BUFFER_ELEMENTS;
 }
 
 /**
  * circular-increment an index with respect to the fifo buffer boundaries
  */
 static void __samplesFifoBufferIncrementIndex(IndexType *const index) {
-    if (*index < (TIME_SYNCHRONIZATION_SAMPLES_FIFO_BUFFER_SIZE - 1)) {
+    if (*index < (SAMPLE_FIFO_NUM_BUFFER_ELEMENTS - 1)) {
         (*index)++;
     } else {
         *index = 0;
@@ -429,7 +429,7 @@ void samplesFifoBufferAddSample(const SampleValueType *const sample,
                                 TimeSynchronization *const timeSynchronization) {
     // add sample to FiFo
     if (timeSynchronization->timeIntervalSamples.numSamples <
-        TIME_SYNCHRONIZATION_SAMPLES_FIFO_BUFFER_SIZE) {
+        SAMPLE_FIFO_NUM_BUFFER_ELEMENTS) {
         timeSynchronization->timeIntervalSamples.numSamples++;
     }
     __samplesFifoBufferIncrementInsertIndex(&timeSynchronization->timeIntervalSamples);
