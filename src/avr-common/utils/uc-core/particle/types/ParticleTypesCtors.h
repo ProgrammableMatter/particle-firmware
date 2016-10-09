@@ -6,9 +6,9 @@
 
 #pragma once
 
-#include "ParticleStateTypes.h"
+#include "ParticleTypes.h"
 #include "AlertsTypesCtors.h"
-#include "DiscoveryTypesCtors.h"
+#include "DiscoveryPulseCountersCtors.h"
 #include "CommunicationTypesCtors.h"
 #include "uc-core/communication/CommunicationTypesCtors.h"
 #include "uc-core/communication-protocol/CommunicationProtocolTypesCtors.h"

@@ -6,6 +6,7 @@
 
 #include "uc-core/configuration/Discovery.h"
 #include "uc-core/configuration/IoPins.h"
+#include "uc-core/discovery/DiscoveryTypes.h"
 #include "uc-core/particle/Globals.h"
 
 /**

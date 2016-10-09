@@ -14,7 +14,7 @@
 #include "uc-core/periphery/PeripheryTypes.h"
 #include "uc-core/synchronization/SynchronizationTypes.h"
 #include "uc-core/particle/types/AlertsTypes.h"
-#include "uc-core/particle/types/DiscoveryTypes.h"
+#include "uc-core/particle/types/DiscoveryPulseCountersTypes.h"
 #include "uc-core/particle/types/CommunicationTypes.h"
 
 /**

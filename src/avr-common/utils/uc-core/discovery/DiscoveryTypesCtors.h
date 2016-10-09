@@ -16,14 +16,3 @@ void constructDiscoveryPulseCounter(DiscoveryPulseCounter *const o) {
     o->counter = 0;
     o->isConnected = false;
 }
-
-/**
- * constructor function
- * @param o the object to construct
- */
-void constructDiscoveryPulseCounters(DiscoveryPulseCounters *const o) {
-    constructDiscoveryPulseCounter(&o->north);
-    constructDiscoveryPulseCounter(&o->east);
-    constructDiscoveryPulseCounter(&o->south);
-    o->loopCount = 0;
-}

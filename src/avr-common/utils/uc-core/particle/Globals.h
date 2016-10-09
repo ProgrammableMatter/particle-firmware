@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "uc-core/particle/types/ParticleStateTypes.h"
+#include "uc-core/particle/types/ParticleTypes.h"
 
 /**
  * The global particle state structure containing attributes, buffers and alike.
