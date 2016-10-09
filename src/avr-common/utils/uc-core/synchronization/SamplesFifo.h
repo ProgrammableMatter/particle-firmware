@@ -9,6 +9,7 @@
 #include "uc-core/configuration/synchronization/SampleFifoTypes.h"
 #include "SynchronizationTypes.h"
 #include <math.h>
+#include "uc-core/stdout/stdio.h"
 
 bool isFiFoFull(const SamplesFifoBuffer *const samplesFifoBuffer) {
     return samplesFifoBuffer->numSamples >= TIME_SYNCHRONIZATION_SAMPLES_FIFO_BUFFER_SIZE;
@@ -176,7 +177,7 @@ static void __calculateProgressiveMean(const SampleValueType *const sample,
 
 #endif
 
-#if defined(SYNCHRONIZATION_ENABLE_SIGMA_DEPENDENT_OUTLIER_REJECTION) && defined(SYNCHRONIZATION_STRATEGY_MEAN_WITHOUT_OUTLIER)
+#if defined(SYNCHRONIZATION_STRATEGY_MEAN_WITHOUT_OUTLIER)
 
 /**
  * Update the outlier limits.
@@ -415,6 +416,28 @@ void samplesFifoBufferAddSample(const SampleValueType *const sample,
                                 TimeSynchronization *const timeSynchronization) {
     // very naive implementation used for evaluation/comparison
     __calculateProgressiveMean(sample, timeSynchronization);
+}
+
+#endif
+
+#ifdef SYNCHRONIZATION_STRATEGY_LEAST_SQUARE_LINEAR_FITTING
+
+/**
+ * Adds a value to the FiFo buffer.
+ */
+void samplesFifoBufferAddSample(const SampleValueType *const sample,
+                                TimeSynchronization *const timeSynchronization) {
+    // add sample to FiFo
+    if (timeSynchronization->timeIntervalSamples.numSamples <
+        TIME_SYNCHRONIZATION_SAMPLES_FIFO_BUFFER_SIZE) {
+        timeSynchronization->timeIntervalSamples.numSamples++;
+    }
+    __samplesFifoBufferIncrementInsertIndex(&timeSynchronization->timeIntervalSamples);
+    timeSynchronization->timeIntervalSamples.
+            samples[timeSynchronization->timeIntervalSamples.__insertIndex].value = *sample;
+//    timeSynchronization->timeIntervalSamples.
+//            samples[timeSynchronization->timeIntervalSamples.__insertIndex].isRejected = isToBeRejected;
+//    printf("%u\n", *sample);
 }
 
 #endif
