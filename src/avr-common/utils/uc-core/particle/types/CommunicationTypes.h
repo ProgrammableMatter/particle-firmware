@@ -7,8 +7,9 @@
 #pragma once
 
 #include <stdint.h>
-
-
+#include "uc-core/discovery/DiscoveryTypes.h"
+#include "uc-core/communication/CommunicationTypes.h"
+#include "uc-core/communication-protocol/CommunicationProtocolTypes.h"
 /**
  * facade to bundle port resources
  */

@@ -3,6 +3,9 @@
  */
 
 #pragma once
+
+#include <stdint.h>
+
 /**
  * Structure to Keep track of number of intervals passed since time tracking was activated.
  * A time interval can be adjusted at runtime.

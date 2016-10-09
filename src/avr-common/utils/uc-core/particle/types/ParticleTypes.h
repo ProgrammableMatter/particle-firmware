@@ -7,8 +7,6 @@
 #pragma once
 
 #include <stdint.h>
-#include "uc-core/communication/CommunicationTypes.h"
-#include "uc-core/communication-protocol/CommunicationProtocolTypes.h"
 #include "uc-core/actuation/ActuationTypes.h"
 #include "uc-core/time/TimeTypes.h"
 #include "uc-core/periphery/PeripheryTypes.h"

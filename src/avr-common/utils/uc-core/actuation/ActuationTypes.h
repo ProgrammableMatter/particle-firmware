@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include <stdint.h>
 /**
  * Describes all possible output modes.
  */
