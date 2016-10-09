@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "ParticleCore.h"
+#include "Particle.h"
 
 /**
  * The main particle loop. It repetitively calls the state driven particle core implementation.

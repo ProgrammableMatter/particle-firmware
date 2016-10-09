@@ -9,8 +9,8 @@
 #include <avr/sleep.h>
 #include "common/common.h"
 #include "Globals.h"
-#include "uc-core/particle/types/ParticleStateTypes.h"
-#include "uc-core/particle/types/ParticleStateTypesCtors.h"
+#include "uc-core/particle/types/ParticleTypes.h"
+#include "uc-core/particle/types/ParticleTypesCtors.h"
 #include "uc-core/configuration/IoPins.h"
 #include "uc-core/delay/delay.h"
 #include "uc-core/discovery/Discovery.h"
