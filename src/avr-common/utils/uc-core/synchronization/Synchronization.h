@@ -29,11 +29,8 @@
  || defined(SYNCHRONIZATION_STRATEGY_MEAN_WITHOUT_MARKED_OUTLIER) \
  || defined(SYNCHRONIZATION_STRATEGY_PROGRESSIVE_MEAN) \
  || defined(SYNCHRONIZATION_STRATEGY_MEAN_WITHOUT_OUTLIER) \
- || defined(SYNCHRONIZATION_ENABLE_ADAPTIVE_MARKED_OUTLIER_REJECTION)
-
-#include "Deviation.h"
-
-#include "uc-core/stdout/stdio.h"
+ || defined(SYNCHRONIZATION_ENABLE_ADAPTIVE_MARKED_OUTLIER_REJECTION) \
+ || defined(SYNCHRONIZATION_STRATEGY_LEAST_SQUARE_LINEAR_FITTING)
 
 /**
  * Clock skew approximation entry point: Independent on which approximation strategy is chosen,
@@ -65,8 +62,11 @@ void tryApproximateTimings(TimeSynchronization *const timeSynchronization) {
 #ifdef SYNCHRONIZATION_STRATEGY_PROGRESSIVE_MEAN
 #    define __synchronization_meanValue ParticleAttributes.timeSynchronization.progressiveMean
 #endif
+#ifdef SYNCHRONIZATION_STRATEGY_LEAST_SQUARE_LINEAR_FITTING
+#  define __synchronization_meanValue timeSynchronization->fittingFunction.d
+            calculateLinearFittingFunctionVarianceAndStdDeviance(timeSynchronization);
+#endif
 
-            calculateMeanWithoutOutlier(timeSynchronization);
             // TODO: evaluation code
             if (__synchronization_meanValue >= UINT16_MAX) {
                 blinkLed3Forever(&ParticleAttributes.alerts);
@@ -81,17 +81,21 @@ void tryApproximateTimings(TimeSynchronization *const timeSynchronization) {
 //                    (CalculationType) __LOCAL_TIME_DEFAULT_INTERRUPT_DELAY_WORKING_POINT_PERCENTAGE;
 
             // shift mean value back by +UINT16_T/2
-            CalculationType realDuration = __synchronization_meanValue + (CalculationType) INT16_MAX;
+            CalculationType realDuration = __synchronization_meanValue
+                                           + (CalculationType) INT16_MAX;
             // TODO: expected duration - 512 must be taken from runtime definition!
 #ifdef SYNCHRONIZATION_TIME_PACKAGE_DURATION_COUNTING_EXCLUSIVE_LAST_RISING_EDGE
+            // on considering 1st-falling to last falling time package edge
             CalculationType expectedDuration = UINT16_MAX - 512;
 #else
+            // on considering whole time package duration
             CalculationType expectedDuration = UINT16_MAX;
 #endif
             // calculate new local time tracking interrupt delay
             CalculationType factor = realDuration / expectedDuration;
-            CalculationType newTimePeriodInterruptDelay = factor * (CalculationType) UINT16_MAX *
-                                                          __LOCAL_TIME_DEFAULT_INTERRUPT_DELAY_WORKING_POINT_PERCENTAGE;
+            CalculationType newTimePeriodInterruptDelay =
+                    factor * (CalculationType) UINT16_MAX *
+                    __LOCAL_TIME_DEFAULT_INTERRUPT_DELAY_WORKING_POINT_PERCENTAGE;
 
             // TODO: evaluation code
             if (newTimePeriodInterruptDelay >= UINT16_MAX) {
@@ -114,42 +118,5 @@ void tryApproximateTimings(TimeSynchronization *const timeSynchronization) {
     }
 #endif
 }
-
-#endif
-
-#ifdef SYNCHRONIZATION_STRATEGY_LEAST_SQUARE_LINEAR_FITTING
-
-///**
-// * Clock skew approximation entry point: Independent on which approximation strategy is chosen,
-// * this approximation function is triggered after each TimePackage has been received correctly and
-// * it's pdu reception duration offset has been stored to the fifo queue.
-// */
-//void tryApproximateTimings(TimeSynchronization *const timeSynchronization) {
-//    if (isEnoughFifoDataAvailable(timeSynchronization)) {
-//        if (ParticleAttributes.localTime.isTimePeriodInterruptDelayUpdateable == false) {
-//            calculateLinearFittingFunctionVarianceAndStdDeviance(timeSynchronization);
-//
-//#define __synchronization_meanValue timeSynchronization->fittingFunction.d
-//
-//            CalculationType newTimePeriodInterruptDelay;
-//            if (__synchronization_meanValue > TIME_SYNCHRONIZATION_SAMPLE_OFFSET) {
-//                newTimePeriodInterruptDelay =
-//                        (CalculationType) LOCAL_TIME_DEFAULT_INTERRUPT_DELAY +
-//                        (CalculationType) LOCAL_TIME_DEFAULT_INTERRUPT_DELAY_WORKING_POINT_PERCENTAGE *
-//                        (__synchronization_meanValue - (CalculationType) TIME_SYNCHRONIZATION_SAMPLE_OFFSET)
-//                        SYNCHRONIZATION_MANUAL_ADJUSTMENT_CLOCK_ACCELERATION;
-//            } else {
-//                newTimePeriodInterruptDelay =
-//                        (CalculationType) LOCAL_TIME_DEFAULT_INTERRUPT_DELAY -
-//                        (CalculationType) LOCAL_TIME_DEFAULT_INTERRUPT_DELAY_WORKING_POINT_PERCENTAGE *
-//                        ((CalculationType) TIME_SYNCHRONIZATION_SAMPLE_OFFSET - __synchronization_meanValue)
-//                        SYNCHRONIZATION_MANUAL_ADJUSTMENT_CLOCK_ACCELERATION;
-//            }
-//            ParticleAttributes.localTime.newTimePeriodInterruptDelay = (uint16_t) roundf(newTimePeriodInterruptDelay);
-//            MEMORY_BARRIER;
-//            ParticleAttributes.localTime.isTimePeriodInterruptDelayUpdateable = true;
-//        }
-//    }
-//}
 
 #endif
