@@ -15,9 +15,9 @@
 #    define __STDOUT_BAUD_PRESCALE (((F_CPU / (STDOUT_UART_BAUD_RATE * 16UL))) - 1)
 
 uint8_t uartPutchar(char byte) {
-    if (byte == '\n') {
-        uartPutchar('\r');
-    }
+//    if (byte == '\n') {
+//        uartPutchar('\r');
+//    }
     while ((UCSR1A getBit bit(UDRE1)) == 0);
     UDR1 = byte;
     return 0;
