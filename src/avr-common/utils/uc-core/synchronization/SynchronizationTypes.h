@@ -91,11 +91,6 @@ typedef struct TimeSynchronization {
      */
     uint16_t syncPackageSeparation;
     /**
-     * Indicates whether the fields for calculation results are valid or not.
-     * TODO: unused field
-     */
-    uint8_t isCalculationValid : 1;
-    /**
      * sync. package separation during fast sync. phase; usually much lower than default sync package separation
      */
     uint8_t fastSyncPackageSeparation;
@@ -103,7 +98,6 @@ typedef struct TimeSynchronization {
      * number of packages to transmit for fast synchronization
      */
     uint16_t totalFastSyncPackagesToTransmit;
-
     /**
      * barrier for sync package scheduling
      */

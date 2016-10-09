@@ -54,10 +54,9 @@ void constructTimeSynchronization(TimeSynchronization *const o) {
     o->stdDeviance = 0;
     // TODO: nextSyncPackage initial start time depends on the network int. phase's end
     o->nextSyncPackageTransmissionStartTime = 40;
-    o->fastSyncPackageSeparation = 10;
+    o->fastSyncPackageSeparation = 20;
 //    o->syncPackageSeparation = 300;
     o->syncPackageSeparation = 20;
     o->totalFastSyncPackagesToTransmit = 500;
-    o->isCalculationValid = false;
     o->isNextSyncPackageTransmissionEnabled = false;
 }
