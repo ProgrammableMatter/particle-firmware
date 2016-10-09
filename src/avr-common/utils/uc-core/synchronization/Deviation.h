@@ -9,7 +9,7 @@
 #include "uc-core/configuration/synchronization/Deviation.h"
 #include "SynchronizationTypes.h"
 #include "Synchronization.h"
-#include "uc-core/stdout/stdio.h"
+//#include "uc-core/stdout/stdio.h"
 
 #ifndef DEVIATION_BINARY_SEARCH_SQRT
 
@@ -150,8 +150,6 @@ void calculateMeanWithoutMarkedOutlier(TimeSynchronization *const timeSynchroniz
  * @pre The arithmetic mean must be valid.
  */
 void calculateVarianceAndStdDeviance(TimeSynchronization *const timeSynchronization) {
-    timeSynchronization->isCalculationValid = false;
-    MEMORY_BARRIER;
     timeSynchronization->variance = 0;
     IndexType numberCumulatedValues = 0;
 
@@ -177,7 +175,4 @@ void calculateVarianceAndStdDeviance(TimeSynchronization *const timeSynchronizat
 #    error sqrt() implementation not specified
 #  endif
 #endif
-
-    MEMORY_BARRIER;
-    timeSynchronization->isCalculationValid = true;
 }
