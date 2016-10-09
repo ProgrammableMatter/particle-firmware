@@ -18,11 +18,4 @@ typedef struct LeastSquareRegressionResult {
     * d as known of f(x)=k*x+d
     */
     CalculationType d;
-
-    /**
-    * Indicates whether the fields for calculation results are valid or not.
-    */
-    uint8_t isCalculationValid : 1;
-    uint8_t __pad : 7;
-
 } LeastSquareRegressionResult;

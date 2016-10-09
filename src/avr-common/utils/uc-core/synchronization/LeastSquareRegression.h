@@ -16,9 +16,6 @@
  * The arithmetic mean is calculated in the same pass followed by a second std deviance pass.
  */
 void calculateLinearFittingFunctionVarianceAndStdDeviance(TimeSynchronization *const timeSynchronization) {
-    timeSynchronization->fittingFunction.isCalculationValid = false;
-    MEMORY_BARRIER;
-
     CumulationType a_ = 0, b_ = 0, c_ = 0, e_ = 0;
     SampleValueType y = 0;
     IndexType x = 1;
@@ -75,7 +72,4 @@ void calculateLinearFittingFunctionVarianceAndStdDeviance(TimeSynchronization *c
 
     // printf("k%li d%li\n", (int32_t) timeSynchronization->fittingFunction.k,
     //   (int32_t) timeSynchronization->fittingFunction.d);
-
-    MEMORY_BARRIER;
-    timeSynchronization->fittingFunction.isCalculationValid = true;
 }

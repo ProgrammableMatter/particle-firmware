@@ -15,5 +15,4 @@
 void constructLeastSquareRegressionResult(LeastSquareRegressionResult *const o) {
     o->k = 0;
     o->d = 0;
-    o->isCalculationValid = false;
 }
