@@ -120,7 +120,7 @@ static void __calculateMeanUsingFifoInOutObservations(TimeSynchronization *const
     // mean
     timeSynchronization->mean =
             (CalculationType) timeSynchronization->__unnormalizedCumulativeMean /
-            (CalculationType) TIME_SYNCHRONIZATION_SAMPLES_FIFO_BUFFER_SIZE;
+            (CalculationType) SAMPLE_FIFO_NUM_BUFFER_ELEMENTS;
 
     // mean without outlier
     timeSynchronization->meanWithoutMarkedOutlier =
@@ -281,7 +281,7 @@ void samplesFifoBufferAddSample(const SampleValueType *const sample,
 
     // add sample to FiFo
     if (timeSynchronization->timeIntervalSamples.numSamples <
-        TIME_SYNCHRONIZATION_SAMPLES_FIFO_BUFFER_SIZE) {
+        SAMPLE_FIFO_NUM_BUFFER_ELEMENTS) {
         timeSynchronization->timeIntervalSamples.numSamples++;
     }
     __samplesFifoBufferIncrementInsertIndex(&timeSynchronization->timeIntervalSamples);
@@ -344,7 +344,7 @@ void samplesFifoBufferAddSample(const SampleValueType *const sample,
 
     // add sample to FiFo
     if (timeSynchronization->timeIntervalSamples.numSamples <
-        TIME_SYNCHRONIZATION_SAMPLES_FIFO_BUFFER_SIZE) {
+        SAMPLE_FIFO_NUM_BUFFER_ELEMENTS) {
         timeSynchronization->timeIntervalSamples.numSamples++;
     }
     __samplesFifoBufferIncrementInsertIndex(&timeSynchronization->timeIntervalSamples);
@@ -373,7 +373,7 @@ void samplesFifoBufferAddSample(const SampleValueType *const sample,
                                 TimeSynchronization *const timeSynchronization) {
     // add any sample to FiFo regardless of outlier
     if (timeSynchronization->timeIntervalSamples.numSamples <
-        TIME_SYNCHRONIZATION_SAMPLES_FIFO_BUFFER_SIZE) {
+        SAMPLE_FIFO_NUM_BUFFER_ELEMENTS) {
         timeSynchronization->timeIntervalSamples.numSamples++;
     }
     __samplesFifoBufferIncrementInsertIndex(&timeSynchronization->timeIntervalSamples);
