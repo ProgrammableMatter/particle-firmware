@@ -112,7 +112,9 @@ void tryApproximateTimings(TimeSynchronization *const timeSynchronization) {
             CalculationType factor = realDuration / expectedDuration;
 
             CalculationType newTimePeriodInterruptDelay =
-                    factor * (CalculationType) __LOCAL_TIME_DEFAULT_INTERRUPT_DELAY;
+                    factor *
+                    (CalculationType) __LOCAL_TIME_DEFAULT_INTERRUPT_DELAY +
+                    SYNCHRONIZATION_MANUAL_ADJUSTMENT_CLOCK_ACCELERATION;
 
 
 //            // TODO: evaluation code
