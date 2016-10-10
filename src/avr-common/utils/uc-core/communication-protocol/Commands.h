@@ -96,6 +96,12 @@ void executeSynchronizeLocalTimePackage(const TimePackage *const package,
     // DEBUG_INT16_OUT(TIMER_TX_RX_COUNTER_VALUE);
     // DEBUG_INT16_OUT(package->time);
     // DEBUG_INT16_OUT(package->packageTransmissionLatency);
+
+    // consider the optional request to set the local time to a new value
+    ParticleAttributes.localTime.newNumTimePeriodsPassed = package->localTime;
+    MEMORY_BARRIER;
+    ParticleAttributes.localTime.isNumTimePeriodsPassedUpdateable = package->forceTimeUpdate;
+
     ParticleAttributes.protocol.isBroadcastEnabled = package->header.enableBroadcast;
 }
 

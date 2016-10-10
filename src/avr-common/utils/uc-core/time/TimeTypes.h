@@ -11,7 +11,14 @@
  * A time interval can be adjusted at runtime.
  */
 typedef struct LocalTimeTracking {
+    /**
+     * The current local time.
+     */
     volatile uint16_t numTimePeriodsPassed;
+    /**
+     * The new local time to be considered in the next local time tracking ISR.
+     */
+    volatile uint16_t newNumTimePeriodsPassed;
     /**
      * The current delay for local time tracking. The value is updated by the corresponding ISR only.
      */
@@ -21,11 +28,15 @@ typedef struct LocalTimeTracking {
      */
     volatile uint16_t newTimePeriodInterruptDelay;
     /**
-     * Flag indicating new time tracking period interrupt delay available.
+     * Flag indicating new time tracking period interrupt delay is available.
      * If true a new value is available which the ISR has to consider
      * and no new value is calculated until the ISR clears the flag.
      * If false a new value can be calculated.
      */
     volatile uint8_t isTimePeriodInterruptDelayUpdateable : 1;
-    uint8_t __pad : 7;
+    /**
+     * Flag indicating new time period value is available.
+     */
+    volatile uint8_t isNumTimePeriodsPassedUpdateable : 1;
+    uint8_t __pad : 6;
 } LocalTimeTracking;

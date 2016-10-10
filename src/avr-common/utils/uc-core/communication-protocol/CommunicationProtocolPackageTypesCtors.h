@@ -88,7 +88,8 @@ void constructEnumerationACKWithAddressToParentPackage(void) {
  * Constructor function: builds the protocol package at the given port's buffer.
  * @param txPort the port reference where to buffer the package at
  */
-void constructSyncTimePackage(TxPort *const txPort) {
+//void constructSyncTimePackage(TxPort *const txPort) {
+void constructSyncTimePackage(TxPort *const txPort, bool forceTimeUpdate) {
     clearTransmissionPortBuffer(txPort);
     Package *package = (Package *) txPort->buffer.bytes;
     package->asSyncTimePackage.header.startBit = 1;
@@ -101,10 +102,13 @@ void constructSyncTimePackage(TxPort *const txPort) {
     CLI;
     MEMORY_BARRIER;
     package->asSyncTimePackage.time = TIMER_TX_RX_COUNTER_VALUE;
+    package->asSyncTimePackage.localTime = ParticleAttributes.localTime.numTimePeriodsPassed;
     MEMORY_BARRIER;
     SREG = sreg;
-    package->asSyncTimePackage.packageTransmissionLatency = COMMUNICATION_PROTOCOL_TIME_SYNCHRONIZATION_PACKAGE_RECEPTION_DURATION;
-    package->asSyncTimePackage.stuffing1 = 0x5555;
+//    package->asSyncTimePackage.packageTransmissionLatency = COMMUNICATION_PROTOCOL_TIME_SYNCHRONIZATION_PACKAGE_RECEPTION_DURATION;
+    package->asSyncTimePackage.forceTimeUpdate = forceTimeUpdate;
+//    package->asSyncTimePackage.stuffing1 = 0x5555;
+    package->asSyncTimePackage.stuffing1 = 0x2AAA;
     package->asSyncTimePackage.stuffing2 = 0x55;
     // for evaluation purpose
 //    package->asSyncTimePackage.time = 0;

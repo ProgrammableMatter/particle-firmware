@@ -277,7 +277,8 @@ static void __handleSynchronizeNeighbour(const StateType endState) {
     switch (commPortState->initiatorState) {
         // transmit local time simultaneously on east and south ports
         case COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT:
-            constructSyncTimePackage(txPort);
+            constructSyncTimePackage(txPort, false);
+//            constructSyncTimePackage(txPort);
             enableTransmission(txPort);
             commPortState->initiatorState = COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT_WAIT_FOR_TX_FINISHED;
             break;

@@ -160,8 +160,14 @@ typedef struct TimePackage {
     uint16_t time;
 //    uint16_t packageTransmissionLatency;
     uint16_t localTime;
-    uint16_t forceUpdateTime : 1;
+    uint16_t forceTimeUpdate : 1;
     uint16_t stuffing1 : 15;
+//    uint16_t stuffing1;
+    /**
+     * stuffing2 should be 0x55 or at least must end with 0b1.
+     * Otherwise the measured synchronization time interval deduced from the time package
+     * will be wrong and affect the whole time skew/synchronization calculation.
+     */
     uint8_t stuffing2;
 } TimePackage;
 
