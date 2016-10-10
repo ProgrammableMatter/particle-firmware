@@ -7,6 +7,7 @@
 #pragma once
 
 #include "uc-core/configuration/synchronization/Synchronization.h"
+#include "uc-core/configuration/communication/Communication.h"
 #include "uc-core/particle/Globals.h"
 #include "SynchronizationTypes.h"
 #include "SamplesFifo.h"
@@ -31,6 +32,36 @@
  || defined(SYNCHRONIZATION_STRATEGY_MEAN_WITHOUT_OUTLIER) \
  || defined(SYNCHRONIZATION_ENABLE_ADAPTIVE_MARKED_OUTLIER_REJECTION) \
  || defined(SYNCHRONIZATION_STRATEGY_LEAST_SQUARE_LINEAR_FITTING)
+
+/**
+ * Calculates a new transmission clock according to the factor.
+ * @param factor the factorization of the default transmission baud rate
+ */
+static void __approximateNewBaudRate(const float *const factor) {
+    CalculationType newTransmissionClockDelay =
+            *factor * (CalculationType) COMMUNICATION_DEFAULT_TX_RX_CLOCK_DELAY;
+    ParticleAttributes.communication.timerAdjustment.newTransmissionClockDelay =
+            roundf(((CalculationType) ParticleAttributes.communication.timerAdjustment.newTransmissionClockDelay +
+                    newTransmissionClockDelay) / 2.0);
+
+    ParticleAttributes.communication.timerAdjustment.newTransmissionClockDelayHalf =
+            roundf(ParticleAttributes.communication.timerAdjustment.newTransmissionClockDelay / 2.0);
+
+    ParticleAttributes.communication.timerAdjustment.maxShortIntervalDuration =
+            roundf(*factor *
+                   COMMUNICATION_DEFAULT_MAX_SHORT_RECEPTION_OVERTIME_PERCENTAGE_RATIO *
+                   (CalculationType) ParticleAttributes.communication.timerAdjustment.newTransmissionClockDelay);
+
+    ParticleAttributes.communication.timerAdjustment.maxLongIntervalDuration =
+            roundf(*factor *
+                   COMMUNICATION_DEFAULT_MAX_LONG_RECEPTION_OVERTIME_PERCENTAGE_RATIO *
+                   (CalculationType) ParticleAttributes.communication.timerAdjustment.newTransmissionClockDelay);
+
+    MEMORY_BARRIER;
+    // indicate new transmission timings available, will be considered in the next TX ISR
+    ParticleAttributes.communication.timerAdjustment.isTransmissionClockDelayUpdateable = true;
+
+}
 
 /**
  * Clock skew approximation entry point: Independent on which approximation strategy is chosen,
@@ -66,19 +97,6 @@ void tryApproximateTimings(TimeSynchronization *const timeSynchronization) {
 #  define __synchronization_meanValue timeSynchronization->fittingFunction.d
             calculateLinearFittingFunctionVarianceAndStdDeviance(timeSynchronization);
 #endif
-
-//            // TODO: evaluation code
-//            if (__synchronization_meanValue >= UINT16_MAX) {
-//                blinkLed3Forever(&ParticleAttributes.alerts);
-//            }
-//            if (__synchronization_meanValue <= 1000) {
-//                blinkLed4Forever(&ParticleAttributes.alerts);
-//            }
-
-//            CalculationType newTimePeriodInterruptDelay =
-//                    ((CalculationType) __synchronization_meanValue + (CalculationType) INT16_MAX) *
-//                    (CalculationType) __LOCAL_TIME_DEFAULT_INTERRUPT_DELAY_WORKING_POINT_PERCENTAGE;
-
             // shift mean value back by +UINT16_T/2
             CalculationType realDuration = __synchronization_meanValue
                                            + (CalculationType) INT16_MAX;
@@ -92,23 +110,18 @@ void tryApproximateTimings(TimeSynchronization *const timeSynchronization) {
 #endif
             // calculate new local time tracking interrupt delay
             CalculationType factor = realDuration / expectedDuration;
+
             CalculationType newTimePeriodInterruptDelay =
-                    factor * (CalculationType) UINT16_MAX *
-                    __LOCAL_TIME_DEFAULT_INTERRUPT_DELAY_WORKING_POINT_PERCENTAGE;
+                    factor * (CalculationType) __LOCAL_TIME_DEFAULT_INTERRUPT_DELAY;
+
 
 //            // TODO: evaluation code
-//            if (newTimePeriodInterruptDelay >= UINT16_MAX) {
-//                blinkLed1Forever(&ParticleAttributes.alerts);
-//            }
-//            if (newTimePeriodInterruptDelay <= 10000) {
-//                blinkLed2Forever(&ParticleAttributes.alerts);
-//            }
-
-//            // TODO: evaluation code
-//            if (newTimePeriodInterruptDelay > (ParticleAttributes.localTime.newTimePeriodInterruptDelay+1)) {
+//            if (newTimePeriodInterruptDelay >
+//                (ParticleAttributes.localTime.newTimePeriodInterruptDelay + 1)) {
 //                LED_STATUS3_TOGGLE;
 //
-//            } else if (newTimePeriodInterruptDelay < (ParticleAttributes.localTime.newTimePeriodInterruptDelay-1)) {
+//            } else if (newTimePeriodInterruptDelay <
+//                       (ParticleAttributes.localTime.newTimePeriodInterruptDelay - 1)) {
 //                LED_STATUS4_TOGGLE;
 //            } else {
 //                LED_STATUS3_TOGGLE;
@@ -123,6 +136,7 @@ void tryApproximateTimings(TimeSynchronization *const timeSynchronization) {
 
             MEMORY_BARRIER;
             ParticleAttributes.localTime.isTimePeriodInterruptDelayUpdateable = true;
+            __approximateNewBaudRate(&factor);
         }
 #ifndef SYNCHRONIZATION_STRATEGY_PROGRESSIVE_MEAN
     }

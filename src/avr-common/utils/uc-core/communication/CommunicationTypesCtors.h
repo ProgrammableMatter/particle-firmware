@@ -5,6 +5,7 @@
  */
 #pragma once
 
+#include <math.h>
 #include "CommunicationTypes.h"
 #include "ManchesterDecodingTypesCtors.h"
 
@@ -102,18 +103,17 @@ void constructCommunicationPorts(CommunicationPorts *const o) {
  * @param o reference to the object to construct
  */
 void constructTransmissionTimerAdjustment(TransmissionTimerAdjustment *const o) {
-    o->maxShortIntervalDurationOvertimePercentageRatio = COMMUNICATION_DEFAULT_MAX_SHORT_RECEPTION_OVERTIME_PERCENTAGE_RATIO;
     o->maxShortIntervalDuration =
-            (COMMUNICATION_DEFAULT_MAX_SHORT_RECEPTION_OVERTIME_PERCENTAGE_RATIO / 100.0) *
-            COMMUNICATION_DEFAULT_TX_RX_CLOCK_DELAY;
-    o->maxLongIntervalDurationOvertimePercentageRatio = COMMUNICATION_DEFAULT_MAX_LONG_RECEPTION_OVERTIME_PERCENTAGE_RATIO;
+            round(COMMUNICATION_DEFAULT_MAX_SHORT_RECEPTION_OVERTIME_PERCENTAGE_RATIO *
+                  COMMUNICATION_DEFAULT_TX_RX_CLOCK_DELAY);
     o->maxLongIntervalDuration =
-            (COMMUNICATION_DEFAULT_MAX_LONG_RECEPTION_OVERTIME_PERCENTAGE_RATIO / 100.0) *
-            COMMUNICATION_DEFAULT_TX_RX_CLOCK_DELAY;
+            roundf(COMMUNICATION_DEFAULT_MAX_LONG_RECEPTION_OVERTIME_PERCENTAGE_RATIO *
+                   COMMUNICATION_DEFAULT_TX_RX_CLOCK_DELAY);
 
     o->transmissionClockDelay = COMMUNICATION_DEFAULT_TX_RX_CLOCK_DELAY;
     o->transmissionClockDelayHalf = COMMUNICATION_DEFAULT_TX_RX_CLOCK_DELAY >> 1;
-    o->newTransmissionClockDelay = 0;
+    o->newTransmissionClockDelay = o->transmissionClockDelay;
+    o->newTransmissionClockDelayHalf = 0;
     o->isTransmissionClockDelayUpdateable = false;
 
     o->transmissionClockShift = 0;

@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <math.h>
 #include "Communication.h"
 #include "ManchesterDecodingTypes.h"
 #include "uc-core/configuration/interrupts/TxRxTimer.h"
@@ -234,43 +235,6 @@ void captureSnapshot(uint16_t *const timerCounterValue, const bool isRisingEdge,
 }
 
 /**
- * Calculates the a new transmission clock speed according to the specified timings. The result is stored
- * to the ParticleAttributes.communication.timerAdjustment fields.
- * @param rxPort the reception port to approximate timings from
- */
-//extern DECODING_FUNC_ATTRS void __approximateNewTxClockSpeed(volatile RxPort *rxPort);
-
-//static DECODING_FUNC_ATTRS void __approximateNewTxClockSpeed(volatile RxPort *rxPort) {
-//
-//    ParticleAttributes.communication.timerAdjustment.isTransmissionClockDelayUpdateable = false;
-//    __calculateTimestampLag(&rxPort->buffer.receptionStartTimestamp,
-//                            &rxPort->buffer.receptionEndTimestamp,
-//                            &ParticleAttributes.communication.timerAdjustment.newTransmissionClockDelay);
-//    ParticleAttributes.communication.timerAdjustment.newTransmissionClockDelay =
-//            (ParticleAttributes.communication.timerAdjustment.newTransmissionClockDelay /
-//             rxPort->snapshotsBuffer.numberHalfCyclesPassed) * 2;
-//    ParticleAttributes.communication.timerAdjustment.isTransmissionClockDelayUpdateable = true;
-//
-//    // TODO: clock speed adjustment implementation regarding __approximateNewClockSpeed() outcome is missing
-//}
-
-
-///**
-// * Calculates the a new transmission clock shift/window according to the specified timings.
-// * @param snapshotValue the first snapshot of a transmission
-// */
-static void __approximateNewTxClockShift(const uint16_t snapshotValue) {
-    ParticleAttributes.communication.timerAdjustment.isTransmissionClockShiftUpdateable = false;
-    MEMORY_BARRIER;
-    ParticleAttributes.communication.timerAdjustment.newTransmissionClockShift =
-            (snapshotValue % ParticleAttributes.communication.timerAdjustment.transmissionClockDelay) / 2;
-    MEMORY_BARRIER;
-    ParticleAttributes.communication.timerAdjustment.isTransmissionClockShiftUpdateable = true;
-
-    // TODO: clock synchronization implementation regarding __approximateNewClockShift() outcome is missing
-}
-
-/**
  * State driven decoding of the specified snapshots buffer. The result is a bit oriented stream.
  * The order is the same as the snapshot buffer's. On package end/timeout calls the interpreter with
  * the respective port as argument.
@@ -293,13 +257,6 @@ void manchesterDecodeBuffer(DirectionOrientedPort *const port,
                     bufferBitPointerStart(&rxPort->buffer.pointer);
                     __resetDecoderPhaseState(rxPort->snapshotsBuffer.decoderStates.phaseState);
                     rxPort->snapshotsBuffer.temporarySnapshotTimerValue = __getTimerValue(snapshot);
-                    ParticleAttributes.communication.timerAdjustment.isTransmissionClockDelayUpdateable = false;
-                    MEMORY_BARRIER;
-
-                    // calculate clock shift for synchronization
-                    if (rxPort == &ParticleAttributes.communication.ports.rx.north) {
-                        __approximateNewTxClockShift(rxPort->snapshotsBuffer.temporarySnapshotTimerValue);
-                    }
 
                     DEBUG_CHAR_OUT('+');
                     rxPort->parityBitCounter = 0;
@@ -373,8 +330,9 @@ void manchesterDecodeBuffer(DirectionOrientedPort *const port,
                 __calculateTimestampLag(&rxPort->snapshotsBuffer.temporarySnapshotTimerValue, &timerNow,
                                         &difference);
 //                DEBUG_INT16_OUT(difference);
-                if (difference >=
-                    2 * ParticleAttributes.communication.timerAdjustment.transmissionClockDelay) {
+                if (difference >= (uint16_t)
+                        (roundf(2.0 *
+                                ParticleAttributes.communication.timerAdjustment.transmissionClockDelay))) {
 #ifdef SIMULATION
                     rxPort->snapshotsBuffer.decoderStates.decodingState = DECODER_STATE_TYPE_POST_TIMEOUT_PROCESS;
 #endif
@@ -392,11 +350,8 @@ void manchesterDecodeBuffer(DirectionOrientedPort *const port,
         value = rxPort->buffer.pointer.bitMask;
         DEBUG_INT16_OUT(rxPort->buffer.pointer.bitMask);
 #endif
-            // TODO: capture sync pdu duration -> linear fitting
 //            __approximateNewTxClockSpeed(rxPort);
             rxPort->isDataBuffered = true;
-            MEMORY_BARRIER;
-            ParticleAttributes.communication.timerAdjustment.isTransmissionClockDelayUpdateable = true;
             rxPort->snapshotsBuffer.decoderStates.decodingState = DECODER_STATE_TYPE_START;
             interpreterImpl(port);
             break;

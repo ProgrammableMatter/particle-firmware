@@ -56,25 +56,6 @@ void executeSynchronizeLocalTimePackage(const TimePackage *const package,
 //        ParticleAttributes.localTime.isTimePeriodInterruptDelayUpdateable = true;
 //    }
 
-
-    // --------
-
-//     take just the deviation from the expected package transmission duration which is
-//    if (portBuffer->receptionDuration > COMMANDS_EXPECTED_TIME_PACKAGE_RECEPTION_DURATION) {
-//        portBuffer->receptionDuration = TIME_SYNCHRONIZATION_SAMPLE_OFFSET +
-//                                        (portBuffer->receptionDuration -
-//                                         COMMANDS_EXPECTED_TIME_PACKAGE_RECEPTION_DURATION);
-//    } else {
-//        portBuffer->receptionDuration = TIME_SYNCHRONIZATION_SAMPLE_OFFSET -
-//                                        (COMMANDS_EXPECTED_TIME_PACKAGE_RECEPTION_DURATION -
-//                                         portBuffer->receptionDuration);
-//    }
-
-//    // TODO: evaluation code
-//    if (portBuffer->receptionDuration < INT16_MAX) {
-//        blinkLed1Forever(&ParticleAttributes.alerts);
-//    }
-
 #ifdef SYNCHRONIZATION_TIME_PACKAGE_DURATION_COUNTING_EXCLUSIVE_LAST_RISING_EDGE
     // TODO: @lastFallingToRisingDuration
     // impl. must be: store last uint32 duration, on last edge restore last uint32 duration
@@ -85,16 +66,12 @@ void executeSynchronizeLocalTimePackage(const TimePackage *const package,
     int32_t sample = (int32_t) (portBuffer->receptionDuration) - (int32_t) INT16_MAX;
 #endif
 
-//    // TODO: evaluation code
-//    if (sample >= UINT16_MAX) {
-//        blinkLed2Forever(&ParticleAttributes.alerts);
-//    }
-
     // shift value down by -UINT16_MAX/2
     SampleValueType sampleValue = (SampleValueType) sample;
 
     samplesFifoBufferAddSample(&sampleValue, &ParticleAttributes.timeSynchronization);
     tryApproximateTimings(&ParticleAttributes.timeSynchronization);
+
 
     // DEBUG_INT16_OUT(TIMER_TX_RX_COUNTER_VALUE);
     // DEBUG_INT16_OUT(package->time);

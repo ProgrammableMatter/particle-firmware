@@ -45,16 +45,14 @@
 /**
  * Maximum short reception time lag.
  */
-//#define COMMUNICATION_DEFAULT_MAX_SHORT_RECEPTION_OVERTIME_PERCENTAGE_RATIO ((uint8_t) 59)
-// TODO: find lower level
-#define COMMUNICATION_DEFAULT_MAX_SHORT_RECEPTION_OVERTIME_PERCENTAGE_RATIO ((uint8_t) 75)
+//#define COMMUNICATION_DEFAULT_MAX_SHORT_RECEPTION_OVERTIME_PERCENTAGE_RATIO ((uint8_t) 0.59)
+#define COMMUNICATION_DEFAULT_MAX_SHORT_RECEPTION_OVERTIME_PERCENTAGE_RATIO ((float) 0.75)
 /**
  * Maximum long reception time lag. If maximum long snapshot lag is exceeded the reception
  * experiences a timeout.
  */
-//#define COMMUNICATION_DEFAULT_MAX_LONG_RECEPTION_OVERTIME_PERCENTAGE_RATIO ((uint8_t) 112)
-// TODO: find lower level
-#define COMMUNICATION_DEFAULT_MAX_LONG_RECEPTION_OVERTIME_PERCENTAGE_RATIO ((uint8_t) 125)
+//#define COMMUNICATION_DEFAULT_MAX_LONG_RECEPTION_OVERTIME_PERCENTAGE_RATIO ((uint8_t) 1.12)
+#define COMMUNICATION_DEFAULT_MAX_LONG_RECEPTION_OVERTIME_PERCENTAGE_RATIO ((float) 1.25)
 
 /**
  * Number of buffer bytes for reception and transmission. Received snapshots are decoded to

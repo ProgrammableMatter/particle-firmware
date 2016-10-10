@@ -16,8 +16,9 @@
  * Typically called within an ISR.
  */
 void scheduleNextTxInterrupt(void) {
-    TIMER_TX_RX_COMPARE_VALUE += ParticleAttributes.communication.timerAdjustment.transmissionClockDelayHalf
-                                 + ParticleAttributes.communication.timerAdjustment.transmissionClockShift;
+    TIMER_TX_RX_COMPARE_VALUE +=
+            (uint16_t) (0.5 + ParticleAttributes.communication.timerAdjustment.transmissionClockDelayHalf)
+            + ParticleAttributes.communication.timerAdjustment.transmissionClockShift;
 }
 
 /**
@@ -29,10 +30,12 @@ static void __scheduleStartTxInterrupt(void) {
     CLI;
     MEMORY_BARRIER;
     uint16_t counter = TIMER_TX_RX_COUNTER_VALUE;
+    uint16_t transmissionClockDelay =
+            roundf(ParticleAttributes.communication.timerAdjustment.transmissionClockDelay);
+
     TIMER_TX_RX_COMPARE_VALUE = counter -
-                                (counter %
-                                 ParticleAttributes.communication.timerAdjustment.transmissionClockDelay)
-                                + 2 * ParticleAttributes.communication.timerAdjustment.transmissionClockDelay
+                                (counter % transmissionClockDelay)
+                                + 2 * transmissionClockDelay
                                 + ParticleAttributes.communication.timerAdjustment.transmissionClockShift;
     MEMORY_BARRIER;
     SREG = sreg;
@@ -59,6 +62,15 @@ void enableTransmission(TxPort *const port) {
     port->isDataBuffered = true;
     MEMORY_BARRIER;
     if (startTransmission) {
+        // update new transmission baud rate
+        if (ParticleAttributes.communication.timerAdjustment.isTransmissionClockDelayUpdateable) {
+            ParticleAttributes.communication.timerAdjustment.transmissionClockDelay =
+                    ParticleAttributes.communication.timerAdjustment.newTransmissionClockDelay;
+            ParticleAttributes.communication.timerAdjustment.transmissionClockDelayHalf =
+                    ParticleAttributes.communication.timerAdjustment.newTransmissionClockDelayHalf;
+            MEMORY_BARRIER;
+            ParticleAttributes.communication.timerAdjustment.isTransmissionClockDelayUpdateable = false;
+        }
         __scheduleStartTxInterrupt();
     }
 }

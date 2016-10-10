@@ -75,57 +75,45 @@ typedef struct RxPort {
  * Transmission timing related fields that allows runtime changes.
  */
 typedef struct TransmissionTimerAdjustment {
-
     /**
      * snapshot differences below this threshold are treated as short interval occurrences
      * maxShortIntervalDuration = (maxShortIntervalDuration / 100) * transmissionClockDelay
      */
     uint16_t maxShortIntervalDuration;
-
-    /**
-     * the short interval overtime ratio
-     */
-    uint8_t maxShortIntervalDurationOvertimePercentageRatio;
-
     /**
      * snapshot differences below this threshold are treated as long interval occurrences
      * * maxShortIntervalDuration = (maxShortIntervalDuration / 100) * transmissionClockDelay
      */
     uint16_t maxLongIntervalDuration;
-
-    /**
-     * the long interval overtime ratio
-     */
-    uint8_t maxLongIntervalDurationOvertimePercentageRatio;
-
     /**
      * The tx/rx clock delay for the manchester coding.
      * Regarding tx: transmission interrupts are scheduled according this delay
      * Regarding rx: the short and long interval durations are derived from this delay
      */
-    volatile uint16_t transmissionClockDelay;
+    volatile float transmissionClockDelay;
     /**
      * transmissionClockDelayHalf = transmissionClockDelay / 2
      */
-    volatile uint16_t transmissionClockDelayHalf;
-
+    volatile float transmissionClockDelayHalf;
     /**
      * the newly calculated / approximated transmission clock delay
      */
-    uint16_t newTransmissionClockDelay;
-
+    volatile float newTransmissionClockDelay;
+    /**
+     * the newly calculated / approximated transmission half clock delay
+     */
+    volatile float newTransmissionClockDelayHalf;
     /**
      * transmission start offset
      */
     uint16_t transmissionClockShift;
-
     /**
      * newly calculated / approximated transmission start offset
      */
     uint16_t newTransmissionClockShift;
 
-    uint8_t isTransmissionClockDelayUpdateable : 1;
-    uint8_t isTransmissionClockShiftUpdateable : 1;
+    volatile uint8_t isTransmissionClockDelayUpdateable : 1;
+    volatile uint8_t isTransmissionClockShiftUpdateable : 1;
 
     uint8_t __pad : 6;
 } TransmissionTimerAdjustment;
