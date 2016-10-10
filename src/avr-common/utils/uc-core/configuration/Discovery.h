@@ -32,5 +32,10 @@
  * Neighbour discovery counter 1 compare A value defines the pulse frequency
  * The lower the value, the higher the frequency.
  */
-//#define DEFAULT_NEIGHBOUR_SENSING_COUNTER_COMPARE_VALUE ((uint16_t)0x80)
+#ifdef SIMULATION
 #define DEFAULT_NEIGHBOUR_SENSING_COUNTER_COMPARE_VALUE ((uint16_t)0x70)
+#else
+//#define DEFAULT_NEIGHBOUR_SENSING_COUNTER_COMPARE_VALUE ((uint16_t)0x80)
+#define DEFAULT_NEIGHBOUR_SENSING_COUNTER_COMPARE_VALUE ((uint16_t)0x90)
+#endif
+
