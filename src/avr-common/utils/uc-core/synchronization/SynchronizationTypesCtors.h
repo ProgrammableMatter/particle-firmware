@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include "uc-core/configuration/synchronization/SynchronizationTypesCtors.h"
 #include "SynchronizationTypes.h"
 #include "LeastSquareRegressionTypesCtors.h"
 #include "SampleFifoTypesCtors.h"
@@ -53,10 +54,10 @@ void constructTimeSynchronization(TimeSynchronization *const o) {
     o->variance = 0;
     o->stdDeviance = 0;
     // TODO: nextSyncPackage initial start time depends on the network int. phase's end
-    o->nextSyncPackageTransmissionStartTime = 40;
-    o->fastSyncPackageSeparation = 20;
-//    o->syncPackageSeparation = 300;
-    o->syncPackageSeparation = 20;
-    o->totalFastSyncPackagesToTransmit = 500;
+    o->nextSyncPackageTransmissionStartTime = SYNCHRONIZATION_TYPES_CTORS_FIRST_SYNC_PACKAGE_LOCAL_TIME;
+    o->fastSyncPackageSeparation = SYNCHRONIZATION_TYPES_CTORS_FAST_SYNC_PACKAGE_SEPARATION;
+    o->forwardSyncPackageSeparation = SYNCHRONIZATION_TYPES_CTORS_FORWARD_SYNC_PACKAGE_SEPARATION;
+    o->syncPackageSeparation = SYNCHRONIZATION_TYPES_CTORS_SYNC_PACKAGE_SEPARATION;
+    o->totalFastSyncPackagesToTransmit = SYNCHRONIZATION_TYPES_CTORS_TOTAL_FAST_SYNC_PACKAGES;
     o->isNextSyncPackageTransmissionEnabled = false;
 }
