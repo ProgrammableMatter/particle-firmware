@@ -20,6 +20,7 @@ void calculateLinearFittingFunctionVarianceAndStdDeviance(TimeSynchronization *c
     SampleValueType y = 0;
     IndexType x = 1;
 
+//    // TODO: evaluation code
 //    cli();
 //    samplesFifoBufferIteratorStart(&timeSynchronization->timeIntervalSamples);
 //    do {
@@ -46,7 +47,7 @@ void calculateLinearFittingFunctionVarianceAndStdDeviance(TimeSynchronization *c
         // f += 2 * x; --> f == c
 
         // 2-factor pulled our of loop means each factor *= 2
-
+        // TODO: evaluation code
         // printf("[%u] --> a %lu b %lu c %lu e %lu\n", x, a_, b_, c_, e_);
         x++;
 
@@ -60,7 +61,7 @@ void calculateLinearFittingFunctionVarianceAndStdDeviance(TimeSynchronization *c
     uint8_t d_ = timeSynchronization->timeIntervalSamples.numSamples * 2;
     e_ *= 2;
     CumulationType *f_ = &c_;
-
+    // TODO: evaluation code
     // printf("a%lu b%lu c%lu d%u e%lu f%lu\n", a_, b_, c_, d_, e_, *f_);
 
     // we obtain two linear equations from the transformed partial derivatives to d and k
@@ -70,6 +71,7 @@ void calculateLinearFittingFunctionVarianceAndStdDeviance(TimeSynchronization *c
     // and d explicitly
     timeSynchronization->fittingFunction.d = (timeSynchronization->fittingFunction.k * a_ + b_) / c_;
 
+    // TODO: evaluation code
     // printf("k%li d%li\n", (int32_t) timeSynchronization->fittingFunction.k,
     //   (int32_t) timeSynchronization->fittingFunction.d);
 }
