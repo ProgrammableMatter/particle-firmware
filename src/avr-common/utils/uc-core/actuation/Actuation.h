@@ -201,4 +201,4 @@ static void handleExecuteActuation(void (*const actuationDoneCallback)(void)) {
 //            DEBUG_CHAR_OUT('Y');
             break;
     }
-};
+}

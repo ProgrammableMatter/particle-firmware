@@ -6,8 +6,6 @@
 
 #pragma once
 
-#include <inttypes.h>
-
 /**
  * ~75% actuation duty cycle
  */
