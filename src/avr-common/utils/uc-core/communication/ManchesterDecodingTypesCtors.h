@@ -6,7 +6,6 @@
 
 #pragma once
 
-#include "Communication.h"
 #include "ManchesterDecodingTypes.h"
 
 /**
