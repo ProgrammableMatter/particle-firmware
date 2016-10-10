@@ -2,10 +2,10 @@
  * @author Raoul Rubien 2016
  */
 
-
 #include "uc-core/particle/Particle.h"
 
 //unsigned char __stuff __attribute__((section(".noinit")));
+
 
 /**
  * A mocked up particle loop. It puts the particle in an initialized reception state.
@@ -22,7 +22,7 @@ inline void processLoop(void) {
  * starts
  */
 int main(void) {
-    DELAY_US_150;
+//    DELAY_US_150;
 
     DEBUG_CHAR_OUT('0');
     // configure input/output pins
@@ -39,6 +39,9 @@ int main(void) {
 
     clearReceptionBuffers();
     // setup and enable reception and counter interrupts
+    ParticleAttributes.discoveryPulseCounters.north.isConnected = true;
+    ParticleAttributes.discoveryPulseCounters.east.isConnected = true;
+    ParticleAttributes.discoveryPulseCounters.south.isConnected = true;
     __enableReception();
 
     SEI;

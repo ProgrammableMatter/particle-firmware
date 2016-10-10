@@ -2,12 +2,17 @@
  * @author Raoul Rubien 2016
  */
 
+
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <common/common.h>
 #include <uc-core/configuration/IoPins.h>
 #include <uc-core/particle/Globals.h>
-#include <uc-core/particle/types/ParticleTypesCtors.h>
+//#include <uc-core/particle/types/ParticleTypesCtors.h>
+#include <uc-core/communication/Communication.h>
+#include <uc-core/delay/delay.h>
+#include <uc-core/configuration/interrupts/TxRxTimer.h>
+#include <uc-core/communication/CommunicationTypesCtors.h>
 
 #define TIMER_TX_ENABLE_COMPARE_TOP_INTERRUPT \
     __TIMER1_INTERRUPT_CLEAR_PENDING_COMPARE_A; \
@@ -56,7 +61,14 @@ ISR(TIMER_TX_COUNTER_CENTER_VECTOR) {
 }
 
 inline void initTransmission(void) {
-    constructParticle(&ParticleAttributes);
+//    constructParticle(&ParticleAttributes);
+    ParticleAttributes.__structStartMarker = 0xaa;
+    ParticleAttributes.__structEndMarker = 0xaa;
+    ParticleAttributes.node.address.row = 0;
+    ParticleAttributes.node.address.column = 0;
+
+    constructTxPort(&ParticleAttributes.communication.ports.tx.south);
+
     ParticleAttributes.node.state = STATE_TYPE_START;
     ParticleAttributes.node.type = NODE_TYPE_MASTER;
 
