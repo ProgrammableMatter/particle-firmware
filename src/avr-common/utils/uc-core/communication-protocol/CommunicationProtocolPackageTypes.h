@@ -158,8 +158,10 @@ typedef struct EnumerationPackage {
 typedef struct TimePackage {
     HeaderPackage header;
     uint16_t time;
-    uint16_t packageTransmissionLatency;
-    uint16_t stuffing1;
+//    uint16_t packageTransmissionLatency;
+    uint16_t localTime;
+    uint16_t forceUpdateTime : 1;
+    uint16_t stuffing1 : 15;
     uint8_t stuffing2;
 } TimePackage;
 

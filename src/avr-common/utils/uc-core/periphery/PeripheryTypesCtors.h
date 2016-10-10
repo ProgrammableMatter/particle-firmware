@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "Periphery.h"
+#include "PeripheryTypes.h"
 
 /**
 * constructor function

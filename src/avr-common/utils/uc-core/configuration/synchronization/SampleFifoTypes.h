@@ -6,7 +6,6 @@
 
 #pragma once
 
-#include <stdint.h>
 /**
  * Amount of uint16 samples the synchronization buffers for clock skew approximation.
  */
