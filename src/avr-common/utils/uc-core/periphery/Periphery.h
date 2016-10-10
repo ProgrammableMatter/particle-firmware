@@ -68,7 +68,7 @@ static void __disableInterruptsForBlockingBlinking(void) {
  * Blinks LEDs to indicate the error state.
  * This function never returns.
  */
-void blinkReceptionBufferOverflowErrorForever(const Alerts *const alerts) {
+void blinkReceptionBufferOverflowErrorForever(const Alerts *const alerts, uint8_t portNumber) {
     if (alerts->isRxBufferOverflowEnabled == false) {
         return;
     }
@@ -83,6 +83,13 @@ void blinkReceptionBufferOverflowErrorForever(const Alerts *const alerts) {
         LED_STATUS2_OFF;
         LED_STATUS3_ON;
         DELAY_MS_196;
+
+        for (uint8_t i = 0; i < portNumber; i++) {
+            LED_STATUS4_OFF;
+            DELAY_MS_196;
+            LED_STATUS4_ON;
+            DELAY_MS_196;
+        }
     }
 }
 

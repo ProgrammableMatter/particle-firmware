@@ -26,7 +26,7 @@ void executeSynchronizeLocalTimePackage(const TimePackage *const package,
     // DEBUG_INT16_OUT(snapshotBuffer->temporaryTxStopSnapshotTimerValue - snapshotBuffer->temporaryTxStartSnapshotTimerValue);
     // DEBUG_INT16_OUT(TIMER_TX_RX_COUNTER_VALUE);
 
-//    LED_STATUS3_TOGGLE;
+    LED_STATUS2_TOGGLE;
 //    TIMER_TX_RX_COUNTER_VALUE =
 //            package->time +
 //            COMMUNICATION_PROTOCOL_TIME_SYNCHRONIZATION_PER_NODE_INTERRUPT_LAG *
@@ -70,22 +70,25 @@ void executeSynchronizeLocalTimePackage(const TimePackage *const package,
 //                                         portBuffer->receptionDuration);
 //    }
 
-    // TODO: evaluation code
-    if (portBuffer->receptionDuration < INT16_MAX) {
-        blinkLed1Forever(&ParticleAttributes.alerts);
-    }
+//    // TODO: evaluation code
+//    if (portBuffer->receptionDuration < INT16_MAX) {
+//        blinkLed1Forever(&ParticleAttributes.alerts);
+//    }
 
 #ifdef SYNCHRONIZATION_TIME_PACKAGE_DURATION_COUNTING_EXCLUSIVE_LAST_RISING_EDGE
+    // TODO: @lastFallingToRisingDuration
+    // impl. must be: store last uint32 duration, on last edge restore last uint32 duration
+    // instead of receptionDuration - lastFallingToRisingDuration
     int32_t sample = (int32_t) (portBuffer->receptionDuration - portBuffer->lastFallingToRisingDuration) -
                      (int32_t) INT16_MAX;
 #else
     int32_t sample = (int32_t) (portBuffer->receptionDuration) - (int32_t) INT16_MAX;
 #endif
 
-    // TODO: evaluation code
-    if (sample >= UINT16_MAX) {
-        blinkLed2Forever(&ParticleAttributes.alerts);
-    }
+//    // TODO: evaluation code
+//    if (sample >= UINT16_MAX) {
+//        blinkLed2Forever(&ParticleAttributes.alerts);
+//    }
 
     // shift value down by -UINT16_MAX/2
     SampleValueType sampleValue = (SampleValueType) sample;
@@ -101,6 +104,18 @@ void executeSynchronizeLocalTimePackage(const TimePackage *const package,
     ParticleAttributes.localTime.newNumTimePeriodsPassed = package->localTime;
     MEMORY_BARRIER;
     ParticleAttributes.localTime.isNumTimePeriodsPassedUpdateable = package->forceTimeUpdate;
+
+    // schedule local time when new sync. package is to be forwarded
+    uint8_t sreg = SREG;
+    cli();
+    MEMORY_BARRIER;
+    ParticleAttributes.timeSynchronization.nextSyncPackageTransmissionStartTime =
+            ParticleAttributes.localTime.numTimePeriodsPassed;
+    MEMORY_BARRIER;
+    SREG = sreg;
+
+    ParticleAttributes.protocol.isSimultaneousTransmissionEnabled = true;
+    ParticleAttributes.node.state = STATE_TYPE_RESYNC_NEIGHBOUR;
 
     ParticleAttributes.protocol.isBroadcastEnabled = package->header.enableBroadcast;
 }

@@ -272,13 +272,15 @@ static void __handleWaitForBeingEnumerated(void) {
  * @param endState the state when handler has finished
  */
 static void __handleSynchronizeNeighbour(const StateType endState) {
+//    LED_STATUS4_TOGGLE;
     CommunicationProtocolPortState *commPortState = ParticleAttributes.directionOrientedPorts.simultaneous.protocol;
+//        CommunicationProtocolPortState *commPortState = ParticleAttributes.directionOrientedPorts.south.protocol;
     TxPort *txPort = ParticleAttributes.directionOrientedPorts.simultaneous.txPort;
+//    TxPort *txPort = ParticleAttributes.directionOrientedPorts.south.txPort;
     switch (commPortState->initiatorState) {
         // transmit local time simultaneously on east and south ports
         case COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT:
             constructSyncTimePackage(txPort, false);
-//            constructSyncTimePackage(txPort);
             enableTransmission(txPort);
             commPortState->initiatorState = COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT_WAIT_FOR_TX_FINISHED;
             break;
@@ -616,8 +618,9 @@ static void __onActuationDoneCallback(void) {
  * scheduling until the package is transmitted.
  */
 static void __sendNextSyncTimePackage(void) {
-    if (ParticleAttributes.node.type == NODE_TYPE_ORIGIN) {
-        if (ParticleAttributes.timeSynchronization.isNextSyncPackageTransmissionEnabled) {
+    if (ParticleAttributes.timeSynchronization.isNextSyncPackageTransmissionEnabled) {
+        if (ParticleAttributes.node.type == NODE_TYPE_ORIGIN) {
+            // on origin node: schedule next sync package
             if (ParticleAttributes.timeSynchronization.nextSyncPackageTransmissionStartTime ==
                 ParticleAttributes.localTime.numTimePeriodsPassed) {
 
@@ -631,7 +634,6 @@ static void __sendNextSyncTimePackage(void) {
                             ParticleAttributes.timeSynchronization.fastSyncPackageSeparation;
                     ParticleAttributes.timeSynchronization.totalFastSyncPackagesToTransmit--;
                 }
-
                 ParticleAttributes.node.state = STATE_TYPE_RESYNC_NEIGHBOUR;
                 ParticleAttributes.timeSynchronization.isNextSyncPackageTransmissionEnabled = false;
                 LED_STATUS2_TOGGLE;
@@ -681,14 +683,12 @@ static inline void process(void) {
             break;
 
         case STATE_TYPE_NEIGHBOURS_DISCOVERED:
-//            __discoveryLoopCount();
             ParticleAttributes.node.state = STATE_TYPE_DISCOVERY_PULSING;
             goto __STATE_TYPE_DISCOVERY_PULSING;
             break;
 
         __STATE_TYPE_DISCOVERY_PULSING:
         case STATE_TYPE_DISCOVERY_PULSING:
-//            PARTICLE_DISCOVERY_LOOP_DELAY;
             __handleDiscoveryPulsing();
             break;
 
@@ -806,7 +806,6 @@ static inline void process(void) {
 
         case STATE_TYPE_SYNC_NEIGHBOUR_DONE:
             __handleSynchronizeNeighbourDoneOrRunTest(STATE_TYPE_IDLE);
-            // TODO: the flag should be set in the local time tracking ISR
             ParticleAttributes.timeSynchronization.isNextSyncPackageTransmissionEnabled = true;
             break;
 

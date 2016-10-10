@@ -67,14 +67,13 @@ void tryApproximateTimings(TimeSynchronization *const timeSynchronization) {
             calculateLinearFittingFunctionVarianceAndStdDeviance(timeSynchronization);
 #endif
 
-            // TODO: evaluation code
-            if (__synchronization_meanValue >= UINT16_MAX) {
-                blinkLed3Forever(&ParticleAttributes.alerts);
-            }
-
-            if (__synchronization_meanValue <= 1000) {
-                blinkLed4Forever(&ParticleAttributes.alerts);
-            }
+//            // TODO: evaluation code
+//            if (__synchronization_meanValue >= UINT16_MAX) {
+//                blinkLed3Forever(&ParticleAttributes.alerts);
+//            }
+//            if (__synchronization_meanValue <= 1000) {
+//                blinkLed4Forever(&ParticleAttributes.alerts);
+//            }
 
 //            CalculationType newTimePeriodInterruptDelay =
 //                    ((CalculationType) __synchronization_meanValue + (CalculationType) INT16_MAX) *
@@ -97,13 +96,24 @@ void tryApproximateTimings(TimeSynchronization *const timeSynchronization) {
                     factor * (CalculationType) UINT16_MAX *
                     __LOCAL_TIME_DEFAULT_INTERRUPT_DELAY_WORKING_POINT_PERCENTAGE;
 
-            // TODO: evaluation code
-            if (newTimePeriodInterruptDelay >= UINT16_MAX) {
-                blinkLed1Forever(&ParticleAttributes.alerts);
-            }
-            if (newTimePeriodInterruptDelay <= 10000) {
-                blinkLed2Forever(&ParticleAttributes.alerts);
-            }
+//            // TODO: evaluation code
+//            if (newTimePeriodInterruptDelay >= UINT16_MAX) {
+//                blinkLed1Forever(&ParticleAttributes.alerts);
+//            }
+//            if (newTimePeriodInterruptDelay <= 10000) {
+//                blinkLed2Forever(&ParticleAttributes.alerts);
+//            }
+
+//            // TODO: evaluation code
+//            if (newTimePeriodInterruptDelay > (ParticleAttributes.localTime.newTimePeriodInterruptDelay+1)) {
+//                LED_STATUS3_TOGGLE;
+//
+//            } else if (newTimePeriodInterruptDelay < (ParticleAttributes.localTime.newTimePeriodInterruptDelay-1)) {
+//                LED_STATUS4_TOGGLE;
+//            } else {
+//                LED_STATUS3_TOGGLE;
+//                LED_STATUS4_TOGGLE;
+//            }
 
             // update the new mean/clock skew smoothly
             ParticleAttributes.localTime.newTimePeriodInterruptDelay =

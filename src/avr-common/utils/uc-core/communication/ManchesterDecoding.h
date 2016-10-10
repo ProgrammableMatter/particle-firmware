@@ -204,7 +204,17 @@ void captureSnapshot(uint16_t *const timerCounterValue, const bool isRisingEdge,
         DEBUG_CHAR_OUT('8');
 #endif
         // TODO: evaluation code
-        blinkReceptionBufferOverflowErrorForever(&ParticleAttributes.alerts);
+        uint8_t portNumber = 4;
+        if (snapshotBuffer == &ParticleAttributes.directionOrientedPorts.north.rxPort->snapshotsBuffer) {
+            portNumber = 1;
+        } else if (snapshotBuffer ==
+                   &ParticleAttributes.directionOrientedPorts.east.rxPort->snapshotsBuffer) {
+            portNumber = 2;
+        } else if (snapshotBuffer ==
+                   &ParticleAttributes.directionOrientedPorts.south.rxPort->snapshotsBuffer) {
+            portNumber = 3;
+        }
+        blinkReceptionBufferOverflowErrorForever(&ParticleAttributes.alerts, portNumber);
     }
 
     volatile Snapshot *snapshot = &(snapshotBuffer->snapshots[snapshotBuffer->endIndex]);
