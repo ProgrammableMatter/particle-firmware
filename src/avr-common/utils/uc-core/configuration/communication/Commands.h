@@ -6,6 +6,4 @@
 
 #pragma once
 
-#include <stdint.h>
-
 #define COMMANDS_EXPECTED_TIME_PACKAGE_RECEPTION_DURATION UINT16_MAX
