@@ -7,7 +7,6 @@
 #pragma once
 
 #include "uc-core/particle/Globals.h"
-#include "./CommunicationProtocol.h"
 #include "./CommunicationProtocolTypes.h"
 
 /**
