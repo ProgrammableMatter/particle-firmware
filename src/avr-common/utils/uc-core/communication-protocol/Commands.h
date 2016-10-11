@@ -57,9 +57,6 @@ void executeSynchronizeLocalTimePackage(const TimePackage *const package,
 //    }
 
 #ifdef SYNCHRONIZATION_TIME_PACKAGE_DURATION_COUNTING_EXCLUSIVE_LAST_RISING_EDGE
-    // TODO: @lastFallingToRisingDuration
-    // impl. must be: store last uint32 duration, on last edge restore last uint32 duration
-    // instead of receptionDuration - lastFallingToRisingDuration
     int32_t sample = (int32_t) (portBuffer->receptionDuration - portBuffer->lastFallingToRisingDuration) -
                      (int32_t) INT16_MAX;
 #else
@@ -120,7 +117,8 @@ void executeAnnounceNetworkGeometryPackage(const AnnounceNetworkGeometryPackage 
         ParticleAttributes.protocol.networkGeometry.rows = package->rows;
         ParticleAttributes.protocol.networkGeometry.columns = package->columns;
         ParticleAttributes.protocol.isSimultaneousTransmissionEnabled = true;
-        ParticleAttributes.node.state = STATE_TYPE_SYNC_NEIGHBOUR;
+//        ParticleAttributes.node.state = STATE_TYPE_SYNC_NEIGHBOUR;
+        ParticleAttributes.node.state = STATE_TYPE_SYNC_NEIGHBOUR_DONE;
         setInitiatorStateStart(ParticleAttributes.directionOrientedPorts.simultaneous.protocol);
     } else {
         constructAnnounceNetworkGeometryPackage(package->rows, package->columns);
