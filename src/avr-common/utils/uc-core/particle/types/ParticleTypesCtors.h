@@ -16,6 +16,7 @@
 #include "uc-core/time/TimeTypesCtors.h"
 #include "uc-core/periphery/PeripheryTypesCtors.h"
 #include "uc-core/synchronization/SynchronizationTypesCtors.h"
+#include "uc-core/scheduler/SchedulerTypesCtors.h"
 
 /**
  * constructor function
@@ -51,6 +52,7 @@ void constructParticle(Particle *const o) {
     constructLocalTimeTracking(&o->localTime);
     constructDirectionOrientedPorts(&o->directionOrientedPorts);
     constructAlerts(&o->alerts);
+    constructScheduler(&o->scheduler);
 #ifdef SIMULATION
     o->__structStartMarker = 0xaa;
     o->__structEndMarker = 0xaa;

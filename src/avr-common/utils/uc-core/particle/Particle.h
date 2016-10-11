@@ -30,6 +30,8 @@
 #include "uc-core/periphery/Periphery.h"
 #include "uc-core/stdout/Stdout.h"
 #include "uc-core/time/Time.h"
+#include "uc-core/scheduler/Scheduler.h"
+#include "uc-core/scheduler/SchedulerTypesCtors.h"
 
 /**
  * Disables discovery sensing interrupts.
@@ -69,6 +71,12 @@ static void __enableDiscoveryPulsing(void) {
     TIMER_NEIGHBOUR_SENSE_RESUME;
 }
 
+void enableAlerts(void) {
+    ParticleAttributes.alerts.isRxBufferOverflowEnabled = true;
+    ParticleAttributes.alerts.isRxParityErrorEnabled = true;
+    ParticleAttributes.alerts.isGenericErrorEnabled = true;
+}
+
 /**
  * Sets up ports and interrupts but does not enable the global interrupt (I-flag in SREG).
  */
@@ -96,6 +104,19 @@ static void __initParticle(void) {
 
     // TODO: evaluation source
     MEMORY_BARRIER;
+
+    // add single shot task: enable alerts
+    SchedulerTask *task = &ParticleAttributes.scheduler.tasks[SCHEDULER_TASK_ID_ENABLE_ALERTS];
+    constructSchedulerTask(task);
+    task->isEnabled = true;
+    task->startAction = enableAlerts;
+    task->startTimestamp = 255;
+
+    task = &ParticleAttributes.scheduler.tasks[SCHEDULER_TASK_ID_SETUP_LEDS];
+    constructSchedulerTask(task);
+    task->isEnabled = true;
+    task->startAction = setupLedsBeforeProcessing;
+    task->startTimestamp = 128;
 }
 
 /**
@@ -870,20 +891,23 @@ static inline void process(void) {
             ParticleAttributes.directionOrientedPorts.south.receivePimpl();
 
 //            __handleIsActuationCommandPeriod();
-            setupLedsBeforeProcessing();
+//            setupLedsBeforeProcessing();
             __sendNextSyncTimePackage();
+
+            // future time stamp dependent execution should be better placed in the scheduler
+            processScheduler();
 //            shiftConsumableLocalTimeTrackingClockLagUnitsToIsr();
 
-            // TODO: evaluation code
-            if (ParticleAttributes.localTime.numTimePeriodsPassed > 255) {
-                ParticleAttributes.alerts.isRxBufferOverflowEnabled = true;
-                ParticleAttributes.alerts.isRxParityErrorEnabled = true;
-                ParticleAttributes.alerts.isGenericErrorEnabled = true;
-//                blinkAddressNonblocking();
-//                blinkTimeIntervalNonblocking();
-//                ParticleAttributes.periphery.isTxSouthToggleEnabled = true;
-
-            }
+//            // TODO: evaluation code
+//            if (ParticleAttributes.localTime.numTimePeriodsPassed > 255) {
+//                ParticleAttributes.alerts.isRxBufferOverflowEnabled = true;
+//                ParticleAttributes.alerts.isRxParityErrorEnabled = true;
+//                ParticleAttributes.alerts.isGenericErrorEnabled = true;
+////                blinkAddressNonblocking();
+////                blinkTimeIntervalNonblocking();
+////                ParticleAttributes.periphery.isTxSouthToggleEnabled = true;
+//
+//            }
             break;
 
             // ---------------- standby states: sleep mode related states ----------------
