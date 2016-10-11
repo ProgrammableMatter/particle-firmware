@@ -17,6 +17,20 @@ static void __disableInterruptsForBlockingBlinking(void) {
     RX_SOUTH_INTERRUPT_DISABLE;
 }
 
+static void __ledsOff(void) {
+    LED_STATUS1_OFF;
+    LED_STATUS2_OFF;
+    LED_STATUS3_OFF;
+    LED_STATUS4_OFF;
+}
+
+static void __ledsOn(void) {
+    LED_STATUS1_ON;
+    LED_STATUS2_ON;
+    LED_STATUS3_ON;
+    LED_STATUS4_ON;
+}
+
 ///**
 // * Blinks row times, column times followed by a quitting flash signal.
 // */
@@ -70,6 +84,9 @@ static void __disableInterruptsForBlockingBlinking(void) {
  */
 void blinkReceptionBufferOverflowErrorForever(const Alerts *const alerts, uint8_t portNumber) {
     if (alerts->isRxBufferOverflowEnabled == false) {
+        __ledsOff();
+        LED_STATUS2_ON;
+        LED_STATUS3_ON;
         return;
     }
 
@@ -100,23 +117,16 @@ void blinkReceptionBufferOverflowErrorForever(const Alerts *const alerts, uint8_
 void blinkGenericErrorForever(void) {
     __disableInterruptsForBlockingBlinking();
     forever {
-        LED_STATUS1_OFF;
-        LED_STATUS2_OFF;
-        LED_STATUS3_OFF;
+        __ledsOff();
         DELAY_MS_196;
-        LED_STATUS1_ON;
-        LED_STATUS2_ON;
-        LED_STATUS3_ON;
+        __ledsOn();
         DELAY_MS_196;
     }
 }
 
 static void __blinkLedNForever(uint8_t n) {
     __disableInterruptsForBlockingBlinking();
-    LED_STATUS1_ON;
-    LED_STATUS2_ON;
-    LED_STATUS3_ON;
-    LED_STATUS4_ON;
+    __ledsOn();
     forever {
         DELAY_MS_196;
         switch (n) {
@@ -139,6 +149,9 @@ static void __blinkLedNForever(uint8_t n) {
 
 void blinkLed1Forever(const Alerts *const alerts) {
     if (alerts->isGenericErrorEnabled == false) {
+        __ledsOff();
+        LED_STATUS1_ON;
+        LED_STATUS2_ON;
         return;
     }
 
@@ -148,6 +161,8 @@ void blinkLed1Forever(const Alerts *const alerts) {
 
 void blinkLed2Forever(const Alerts *alerts) {
     if (alerts->isGenericErrorEnabled == false) {
+        __ledsOff();
+        LED_STATUS2_ON;
         return;
     }
     __disableInterruptsForBlockingBlinking();
@@ -156,6 +171,8 @@ void blinkLed2Forever(const Alerts *alerts) {
 
 void blinkLed3Forever(const Alerts *const alerts) {
     if (alerts->isGenericErrorEnabled == false) {
+        __ledsOff();
+        LED_STATUS3_ON;
         return;
     }
     __disableInterruptsForBlockingBlinking();
@@ -164,6 +181,8 @@ void blinkLed3Forever(const Alerts *const alerts) {
 
 void blinkLed4Forever(const Alerts *const alerts) {
     if (alerts->isGenericErrorEnabled == false) {
+        __ledsOff();
+        LED_STATUS4_ON;
         return;
     }
     __disableInterruptsForBlockingBlinking();
@@ -194,13 +213,14 @@ void blinkInterruptErrorForever(void) {
  */
 void blinkParityErrorForever(const Alerts *const alerts, bool parityBit) {
     if (alerts->isRxParityErorEnabled == false) {
+        __ledsOff();
+        LED_STATUS1_ON;
+        LED_STATUS2_ON;
         return;
     }
 
     __disableInterruptsForBlockingBlinking();
-    LED_STATUS1_OFF;
-    LED_STATUS2_OFF;
-    LED_STATUS3_OFF;
+    __ledsOff();
 
     if (parityBit == true) {
         forever {
@@ -231,10 +251,7 @@ void blinkParityErrorForever(const Alerts *const alerts, bool parityBit) {
 
 void ledsOnForever(void) {
     __disableInterruptsForBlockingBlinking();
-    LED_STATUS1_ON;
-    LED_STATUS2_ON;
-    LED_STATUS3_ON;
-    LED_STATUS4_ON;
+    __ledsOn();
     forever;
 }
 
