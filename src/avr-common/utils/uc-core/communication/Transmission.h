@@ -32,6 +32,7 @@ static void __scheduleStartTxInterrupt(void) {
     uint16_t counter = TIMER_TX_RX_COUNTER_VALUE;
     uint16_t transmissionClockDelay = ParticleAttributes.communication.timerAdjustment.transmissionClockDelay;
 
+    // TODO: too complicated scheduling. starting tx at specific time-windows is not necessary
     TIMER_TX_RX_COMPARE_VALUE = counter -
                                 (counter % transmissionClockDelay)
                                 + 2 * transmissionClockDelay
