@@ -330,9 +330,8 @@ void manchesterDecodeBuffer(DirectionOrientedPort *const port,
                 __calculateTimestampLag(&rxPort->snapshotsBuffer.temporarySnapshotTimerValue, &timerNow,
                                         &difference);
 //                DEBUG_INT16_OUT(difference);
-                if (difference >= (uint16_t)
-                        (roundf(2.0 *
-                                ParticleAttributes.communication.timerAdjustment.transmissionClockDelay))) {
+                if (difference >=
+                    (ParticleAttributes.communication.timerAdjustment.transmissionClockDelay * 2)) {
 #ifdef SIMULATION
                     rxPort->snapshotsBuffer.decoderStates.decodingState = DECODER_STATE_TYPE_POST_TIMEOUT_PROCESS;
 #endif
