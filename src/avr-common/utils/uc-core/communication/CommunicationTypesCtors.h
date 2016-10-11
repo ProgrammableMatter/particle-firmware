@@ -111,7 +111,7 @@ void constructTransmissionTimerAdjustment(TransmissionTimerAdjustment *const o) 
                    COMMUNICATION_DEFAULT_TX_RX_CLOCK_DELAY);
 
     o->transmissionClockDelay = COMMUNICATION_DEFAULT_TX_RX_CLOCK_DELAY;
-    o->transmissionClockDelayHalf = COMMUNICATION_DEFAULT_TX_RX_CLOCK_DELAY >> 1;
+    o->transmissionClockDelayHalf = COMMUNICATION_DEFAULT_TX_RX_CLOCK_DELAY / 2;
     o->newTransmissionClockDelay = o->transmissionClockDelay;
     o->newTransmissionClockDelayHalf = 0;
     o->isTransmissionClockDelayUpdateable = false;

@@ -45,16 +45,16 @@ static void __approximateNewBaudRate(const float *const factor) {
                     newTransmissionClockDelay) / 2.0);
 
     ParticleAttributes.communication.timerAdjustment.newTransmissionClockDelayHalf =
-            roundf(ParticleAttributes.communication.timerAdjustment.newTransmissionClockDelay / 2.0);
+            roundf(newTransmissionClockDelay / 2.0);
 
     ParticleAttributes.communication.timerAdjustment.maxShortIntervalDuration =
             roundf(*factor *
-                   COMMUNICATION_DEFAULT_MAX_SHORT_RECEPTION_OVERTIME_PERCENTAGE_RATIO *
+                   (CalculationType) COMMUNICATION_DEFAULT_MAX_SHORT_RECEPTION_OVERTIME_PERCENTAGE_RATIO *
                    (CalculationType) ParticleAttributes.communication.timerAdjustment.newTransmissionClockDelay);
 
     ParticleAttributes.communication.timerAdjustment.maxLongIntervalDuration =
             roundf(*factor *
-                   COMMUNICATION_DEFAULT_MAX_LONG_RECEPTION_OVERTIME_PERCENTAGE_RATIO *
+                   (CalculationType) COMMUNICATION_DEFAULT_MAX_LONG_RECEPTION_OVERTIME_PERCENTAGE_RATIO *
                    (CalculationType) ParticleAttributes.communication.timerAdjustment.newTransmissionClockDelay);
 
     MEMORY_BARRIER;
