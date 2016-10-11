@@ -201,8 +201,8 @@ void updateOutlierRejectionLimitDependingOnSigma(TimeSynchronization *const time
 static void __reduceRejectionCounters(AdaptiveSampleRejection *const adaptiveSampleRejection) {
     if ((adaptiveSampleRejection->rejected >= SAMPLE_FIFO_ADAPTIVE_REJECTION_REDUCE_COUNTERS_LIMIT) ||
         (adaptiveSampleRejection->accepted >= SAMPLE_FIFO_ADAPTIVE_REJECTION_REDUCE_COUNTERS_LIMIT)) {
-        adaptiveSampleRejection->rejected <<= 1;
-        adaptiveSampleRejection->accepted <<= 1;
+        adaptiveSampleRejection->rejected /= 2;
+        adaptiveSampleRejection->accepted /= 2;
     }
 
     if (adaptiveSampleRejection->accepted <= 0 || adaptiveSampleRejection->rejected <= 0) {
@@ -223,10 +223,11 @@ static void __updateCurrentRejectionBoundariesDependingOnCounters(
         if (adaptiveSampleRejection->currentAcceptedDeviation <=
             SAMPLE_FIFO_ADAPTIVE_REJECTION_UPDATE_REJECTION_MIN_INTERVAL) {
             adaptiveSampleRejection->currentAcceptedDeviation = SAMPLE_FIFO_ADAPTIVE_REJECTION_UPDATE_REJECTION_MIN_INTERVAL;
-            LED_STATUS2_ON;
-        } else {
-            LED_STATUS2_TOGGLE;
+//            LED_STATUS2_ON;
         }
+//        else {
+//            LED_STATUS2_TOGGLE;
+//        }
     } else if ((adaptiveSampleRejection->accepted +
                 SAMPLE_FIFO_ADAPTIVE_REJECTION_UPDATE_REJECTION_INTERVAL_THRESHOLD) <
                (SAMPLE_FIFO_ADAPTIVE_REJECTION_ACCEPTANCE_RATIO * adaptiveSampleRejection->rejected)) {
@@ -236,13 +237,15 @@ static void __updateCurrentRejectionBoundariesDependingOnCounters(
             SAMPLE_FIFO_ADAPTIVE_REJECTION_UPDATE_REJECTION_MAX_INTERVAL) {
             adaptiveSampleRejection->currentAcceptedDeviation = SAMPLE_FIFO_ADAPTIVE_REJECTION_UPDATE_REJECTION_MAX_INTERVAL;
             LED_STATUS3_ON;
-        } else {
-            LED_STATUS3_TOGGLE;
         }
-    } else {
-        LED_STATUS3_TOGGLE;
-        LED_STATUS2_TOGGLE;
+//         else {
+//            LED_STATUS3_TOGGLE;
+//        }
     }
+//    else {
+//        LED_STATUS3_TOGGLE;
+//        LED_STATUS2_TOGGLE;
+//    }
 
     // update new rejection boundaries
     adaptiveSampleRejection->outlierLowerBound =
