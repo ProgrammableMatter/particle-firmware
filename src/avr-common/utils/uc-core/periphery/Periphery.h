@@ -82,7 +82,7 @@ static void __ledsOn(void) {
  * Blinks LEDs to indicate the error state.
  * This function never returns.
  */
-void blinkReceptionBufferOverflowErrorForever(const Alerts *const alerts, uint8_t portNumber) {
+void blinkReceptionSnapshotBufferOverflowErrorForever(const Alerts *const alerts, uint8_t portNumber) {
     if (alerts->isRxBufferOverflowEnabled == false) {
         __ledsOff();
         LED_STATUS2_ON;
@@ -108,6 +108,10 @@ void blinkReceptionBufferOverflowErrorForever(const Alerts *const alerts, uint8_
             DELAY_MS_196;
         }
     }
+}
+
+void blinkReceptionBufferOverflowErrorForever(const Alerts *const alerts, uint8_t portNumber) {
+    blinkReceptionSnapshotBufferOverflowErrorForever(alerts, 2 * portNumber);
 }
 
 /**
@@ -472,5 +476,25 @@ void blinkKnightRidersKittForever(void) {
         LED_STATUS3_OFF;
         LED_STATUS4_OFF;
         __kittDelay;
+    }
+}
+
+/**
+ * Puts all LEDs into a defined state once in an early idle state.
+ */
+void setupLedsBeforeProcessing(void) {
+    if (ParticleAttributes.periphery.doClearLeds) {
+        if (ParticleAttributes.localTime.numTimePeriodsPassed > 128 &&
+            ParticleAttributes.localTime.numTimePeriodsPassed < 140) {
+            ParticleAttributes.periphery.doClearLeds = false;
+            __ledsOff();
+            if (ParticleAttributes.node.type == NODE_TYPE_ORIGIN ||
+                ParticleAttributes.node.type == NODE_TYPE_INTER_HEAD) {
+                LED_STATUS1_ON;
+            }
+            if (ParticleAttributes.node.type == NODE_TYPE_TAIL) {
+                LED_STATUS4_ON;
+            }
+        }
     }
 }

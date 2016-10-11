@@ -869,6 +869,7 @@ static inline void process(void) {
             ParticleAttributes.directionOrientedPorts.south.receivePimpl();
 
 //            __handleIsActuationCommandPeriod();
+            setupLedsBeforeProcessing();
             __sendNextSyncTimePackage();
 
             // TODO: evaluation code
