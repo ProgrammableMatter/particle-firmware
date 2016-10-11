@@ -29,6 +29,7 @@
 #include "Commands.h"
 #include "uc-core/periphery/Periphery.h"
 #include "uc-core/stdout/Stdout.h"
+#include "uc-core/time/Time.h"
 
 /**
  * Disables discovery sensing interrupts.
@@ -871,6 +872,7 @@ static inline void process(void) {
 //            __handleIsActuationCommandPeriod();
             setupLedsBeforeProcessing();
             __sendNextSyncTimePackage();
+//            shiftConsumableLocalTimeTrackingClockLagUnitsToIsr();
 
             // TODO: evaluation code
             if (ParticleAttributes.localTime.numTimePeriodsPassed > 255) {

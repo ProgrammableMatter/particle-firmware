@@ -9,6 +9,7 @@
 #include "CommunicationProtocolTypes.h"
 #include "Commands.h"
 #include "uc-core/parity/Parity.h"
+#include "uc-core/time/Time.h"
 
 /**
  * Interprets reception in wait for being enumerate states.
@@ -81,7 +82,19 @@ static void __interpretReceivedPackage(const DirectionOrientedPort *const port) 
         case PACKAGE_HEADER_ID_TYPE_SYNC_TIME:
             if (isEvenParity(port->rxPort) &&
                 equalsPackageSize(&port->rxPort->buffer.pointer, TimePackageBufferPointerSize)) {
+#ifdef LOCAL_TIME_EXPERIMENTAL_IN_PHASE_APPROXIMATION_SHIFT
+                uint8_t sreg = SREG;
+                cli();
+                MEMORY_BARRIER;
+                uint16_t localTimeTrackingTimerCounterCompareValue = LOCAL_TIME_INTERRUPT_COMPARE_VALUE;
+                MEMORY_BARRIER;
+                SREG = sreg;
+                executeSynchronizeLocalTimePackage(
+                        &package->asSyncTimePackage,
+                        &port->rxPort->buffer, localTimeTrackingTimerCounterCompareValue);
+#else
                 executeSynchronizeLocalTimePackage(&package->asSyncTimePackage, &port->rxPort->buffer);
+#endif
             }
             break;
 

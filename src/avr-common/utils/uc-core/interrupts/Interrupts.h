@@ -156,15 +156,25 @@ ISR(LOCAL_TIME_INTERRUPT_VECT) {
     TEST_POINT1_TOGGLE;
     ParticleAttributes.localTime.numTimePeriodsPassed++;
 
+    // TODO: move periphery loop count to main
     if (ParticleAttributes.periphery.loopCount > 0) {
         ParticleAttributes.periphery.loopCount--;
     }
 
+    // consider eventually new updateable period duration
     if (ParticleAttributes.localTime.isTimePeriodInterruptDelayUpdateable) {
         ParticleAttributes.localTime.timePeriodInterruptDelay =
                 ParticleAttributes.localTime.newTimePeriodInterruptDelay;
         ParticleAttributes.localTime.isTimePeriodInterruptDelayUpdateable = false;
     }
+
+#ifdef LOCAL_TIME_EXPERIMENTAL_IN_PHASE_APPROXIMATION_SHIFT
+    // consider the ordered clock shift to be consumed
+    if (ParticleAttributes.localTime.isTimerCounterShiftConsumable) {
+        LOCAL_TIME_INTERRUPT_COMPARE_VALUE += ParticleAttributes.localTime.portionCounterShiftToBeConsumed;
+        ParticleAttributes.localTime.isTimerCounterShiftConsumable = false;
+    }
+#endif
     LOCAL_TIME_INTERRUPT_COMPARE_VALUE += ParticleAttributes.localTime.timePeriodInterruptDelay;
 }
 

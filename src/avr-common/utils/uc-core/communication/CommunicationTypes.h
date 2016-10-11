@@ -15,9 +15,9 @@
  * Describes a bit within a 4 byte buffer.
  */
 typedef struct BufferBitPointer {
-    uint8_t byteNumber : 4; // the referenced byte index
+    volatile uint8_t byteNumber : 4; // the referenced byte index
     uint8_t __pad: 4;
-    uint8_t bitMask; // the referenced bit in the byte
+    volatile uint8_t bitMask; // the referenced bit in the byte
 } BufferBitPointer;
 
 /**
@@ -105,10 +105,12 @@ typedef struct TransmissionTimerAdjustment {
     volatile float newTransmissionClockDelayHalf;
     /**
      * transmission start offset
+     * TODO: remove clock shift
      */
     uint16_t transmissionClockShift;
     /**
      * newly calculated / approximated transmission start offset
+     * TODO: remove clock shift
      */
     uint16_t newTransmissionClockShift;
 

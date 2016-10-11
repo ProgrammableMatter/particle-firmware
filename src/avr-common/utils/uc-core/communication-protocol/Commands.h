@@ -14,48 +14,38 @@
 #include "uc-core/communication/Transmission.h"
 #include "uc-core/communication/CommunicationTypesCtors.h"
 #include "uc-core/synchronization/Synchronization.h"
+#include "uc-core/configuration/interrupts/LocalTime.h"
+#include "uc-core/time/Time.h"
+
 
 /**
  * Executes a synchronize local time package.
  * Reads the delivered time adds a correction offset and updates the local time.
  * @param package the package to interpret and execute
  */
+#ifdef LOCAL_TIME_EXPERIMENTAL_IN_PHASE_APPROXIMATION_SHIFT
+
+void executeSynchronizeLocalTimePackage(const TimePackage *const package,
+                                        PortBuffer *const portBuffer,
+                                        uint16_t localTimeTrackingTimerCounterCompareValue) {
+#else
+
 void executeSynchronizeLocalTimePackage(const TimePackage *const package,
                                         PortBuffer *const portBuffer) {
-    //,  RxSnapshotBuffer *snapshotBuffer) {
+#endif
+
     // DEBUG_INT16_OUT(snapshotBuffer->temporaryTxStopSnapshotTimerValue - snapshotBuffer->temporaryTxStartSnapshotTimerValue);
     // DEBUG_INT16_OUT(TIMER_TX_RX_COUNTER_VALUE);
 
+#ifdef LOCAL_TIME_EXPERIMENTAL_IN_PHASE_APPROXIMATION_SHIFT
+    // consider sender's local time tracking interrupt's timer/counter value when tx package was built
+    updateConsumableLagBetweenLocalAndRemoteTimerCounter(localTimeTrackingTimerCounterCompareValue,
+                                                         package->timerCounterValue);
+#endif
+
     LED_STATUS2_TOGGLE;
-//    TIMER_TX_RX_COUNTER_VALUE =
-//            package->time +
-//            COMMUNICATION_PROTOCOL_TIME_SYNCHRONIZATION_PER_NODE_INTERRUPT_LAG *
-//            (ParticleAttributes.node.address.row - 1 +
-//             ParticleAttributes.node.address.column - 1) +
-//            package->packageTransmissionLatency +
-//            COMMUNICATION_PROTOCOL_TIME_SYNCHRONIZATION_PACKAGE_EXECUTION_LAG +
-//            COMMUNICATION_PROTOCOL_TIME_SYNCHRONIZATION_MANUAL_POSITIVE_ADJUSTMENT -
-//            COMMUNICATION_PROTOCOL_TIME_SYNCHRONIZATION_MANUAL_NEGATIVE_ADJUSTMENT;
-//    TEST_POINT1_TOGGLE;
 
-
-//    double accelerationFactor = 1.0;
-//    // on package reception longer than expected -> accelerate the clock
-//    if (portBuffer->receptionEndTimestamp >= portBuffer->receptionStartTimestamp) {
-//        accelerationFactor = (portBuffer->receptionEndTimestamp - portBuffer->receptionStartTimestamp) /
-//                             ParticleAttributes.localTime.timePeriodInterruptDelay;
-//        ParticleAttributes.localTime.newTimePeriodInterruptDelay =
-//                (1.0 + accelerationFactor) * ParticleAttributes.localTime.timePeriodInterruptDelay;
-//        ParticleAttributes.localTime.isTimePeriodInterruptDelayUpdateable = true;
-//    } else {
-//        // on package reception shorter than expected -> decelerate the clock
-//        accelerationFactor = (portBuffer->receptionStartTimestamp - portBuffer->receptionEndTimestamp) /
-//                             ParticleAttributes.localTime.timePeriodInterruptDelay;
-//        ParticleAttributes.localTime.newTimePeriodInterruptDelay =
-//                (1.0 - accelerationFactor) * ParticleAttributes.localTime.timePeriodInterruptDelay;
-//        ParticleAttributes.localTime.isTimePeriodInterruptDelayUpdateable = true;
-//    }
-
+    // calculate pdu duration
 #ifdef SYNCHRONIZATION_TIME_PACKAGE_DURATION_COUNTING_EXCLUSIVE_LAST_RISING_EDGE
     int32_t sample = (int32_t) (portBuffer->receptionDuration - portBuffer->lastFallingToRisingDuration) -
                      (int32_t) INT16_MAX;
@@ -69,25 +59,12 @@ void executeSynchronizeLocalTimePackage(const TimePackage *const package,
     samplesFifoBufferAddSample(&sampleValue, &ParticleAttributes.timeSynchronization);
     tryApproximateTimings(&ParticleAttributes.timeSynchronization);
 
-
-    // DEBUG_INT16_OUT(TIMER_TX_RX_COUNTER_VALUE);
-    // DEBUG_INT16_OUT(package->time);
-    // DEBUG_INT16_OUT(package->packageTransmissionLatency);
-
     // consider the optional request to set the local time to a new value
-    ParticleAttributes.localTime.newNumTimePeriodsPassed = package->localTime;
+    ParticleAttributes.localTime.newNumTimePeriodsPassed = package->timePeriod;
     MEMORY_BARRIER;
-    ParticleAttributes.localTime.isNumTimePeriodsPassedUpdateable = package->forceTimeUpdate;
+    ParticleAttributes.localTime.isNumTimePeriodsPassedUpdateable = package->forceTimePeriodUpdate;
 
-    // schedule local time when new sync. package is to be forwarded
-    uint8_t sreg = SREG;
-    cli();
-    MEMORY_BARRIER;
-    ParticleAttributes.timeSynchronization.nextSyncPackageTransmissionStartTime =
-            ParticleAttributes.localTime.numTimePeriodsPassed;
-    MEMORY_BARRIER;
-    SREG = sreg;
-
+    // schedule when the new sync. package is to be forwarded according to the current local time
     ParticleAttributes.protocol.isSimultaneousTransmissionEnabled = true;
     ParticleAttributes.node.state = STATE_TYPE_RESYNC_NEIGHBOUR;
 

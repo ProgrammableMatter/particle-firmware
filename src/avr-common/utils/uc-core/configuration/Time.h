@@ -49,3 +49,11 @@
  * The working point as (LOCAL_TIME_DEFAULT_INTERRUPT_DELAY / UINT16_MAX).
  */
 #define LOCAL_TIME_DEFAULT_INTERRUPT_DELAY_WORKING_POINT_PERCENTAGE __LOCAL_TIME_DEFAULT_INTERRUPT_DELAY_WORKING_POINT_PERCENTAGE
+
+
+/**
+ * The rather simple experimental shows an example how a clock shift could be approached.
+ * Never the less there is too less flash memory left on device to implement a better, non naive approach.
+ * Enable the define to enable the source.
+ */
+//#define LOCAL_TIME_EXPERIMENTAL_IN_PHASE_APPROXIMATION_SHIFT
