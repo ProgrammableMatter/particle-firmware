@@ -7,6 +7,7 @@
 #include <inttypes.h>
 #include "PortInteraction.h"
 #include <stdbool.h>
+#include <stddef.h>
 
 #define forever while(1)
 
