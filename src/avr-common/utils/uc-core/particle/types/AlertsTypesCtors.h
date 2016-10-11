@@ -14,6 +14,6 @@
  */
 void constructAlerts(Alerts *const o) {
     o->isRxBufferOverflowEnabled = false;
-    o->isRxParityErorEnabled = false;
+    o->isRxParityErrorEnabled = false;
     o->isGenericErrorEnabled = false;
 }

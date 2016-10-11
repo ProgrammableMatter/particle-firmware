@@ -212,7 +212,7 @@ void blinkInterruptErrorForever(void) {
  * This function never returns.
  */
 void blinkParityErrorForever(const Alerts *const alerts, bool parityBit) {
-    if (alerts->isRxParityErorEnabled == false) {
+    if (alerts->isRxParityErrorEnabled == false) {
         __ledsOff();
         LED_STATUS1_ON;
         LED_STATUS2_ON;

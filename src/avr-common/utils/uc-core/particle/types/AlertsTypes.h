@@ -13,7 +13,7 @@
  */
 typedef struct Alerts {
     uint8_t isRxBufferOverflowEnabled : 1;
-    uint8_t isRxParityErorEnabled : 1;
+    uint8_t isRxParityErrorEnabled : 1;
     uint8_t isGenericErrorEnabled : 1;
     uint8_t __pad  : 5;
 } Alerts;
