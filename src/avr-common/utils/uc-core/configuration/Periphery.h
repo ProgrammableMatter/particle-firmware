@@ -7,6 +7,13 @@
 #pragma once
 
 /**
+ * To shrink flash usage on target device, the periphery implementation can be removed safely
+ * without to influence the compilation except the output size.
+ * Enable the define to remove the implementation, disable the define to compile the implementation.
+ */
+//#define PERIPHERY_REMOVE_IMPL
+
+/**
  * address blinking: led on duration
  */
 #define ADDRESS_BLINK_STATES_LED_ON_COUNTER_MAX ((uint8_t)30)
@@ -30,3 +37,4 @@
  * simple heartbeat blinking: on/off
  */
 #define TIME_INTERVAL_BLINK_STATES_PERIOD_MULTIPLIER ((uint8_t)60)
+

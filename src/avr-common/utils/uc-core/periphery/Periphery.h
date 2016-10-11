@@ -11,6 +11,8 @@
 #include "uc-core/configuration/Periphery.h"
 #include "uc-core/configuration/interrupts/ReceptionPCI.h"
 
+#ifndef PERIPHERY_REMOVE_IMPL
+
 static void __disableInterruptsForBlockingBlinking(void) {
     RX_NORTH_INTERRUPT_DISABLE;
     RX_EAST_INTERRUPT_DISABLE;
@@ -498,3 +500,20 @@ void setupLedsBeforeProcessing(void) {
         }
     }
 }
+
+#else
+#define blinkReceptionSnapshotBufferOverflowErrorForever(...)
+#define blinkReceptionBufferOverflowErrorForever(...)
+#define blinkGenericErrorForever(...)
+#define blinkLed1Forever(...)
+#define blinkLed2Forever(...)
+#define blinkLed3Forever(...)
+#define blinkLed4Forever(...)
+#define blinkInterruptErrorForever(...)
+#define blinkParityErrorForever(...)
+#define ledsOnForever(...)
+#define blinkTimeIntervalNonblocking(...)
+#define blinkAddressNonblocking(...)
+#define blinkKnightRidersKittForever(...)
+#define setupLedsBeforeProcessing(...)
+#endif
