@@ -485,10 +485,10 @@ void blinkKnightRidersKittForever(void) {
  * Puts all LEDs into a defined state once in an early idle state.
  */
 void setupLedsBeforeProcessing(void) {
-    if (ParticleAttributes.periphery.doClearLeds) {
-        if (ParticleAttributes.localTime.numTimePeriodsPassed > 128 &&
-            ParticleAttributes.localTime.numTimePeriodsPassed < 140) {
-            ParticleAttributes.periphery.doClearLeds = false;
+//    if (ParticleAttributes.periphery.doClearLeds) {
+//        if (ParticleAttributes.localTime.numTimePeriodsPassed > 128 &&
+//            ParticleAttributes.localTime.numTimePeriodsPassed < 140) {
+//            ParticleAttributes.periphery.doClearLeds = false;
             __ledsOff();
             if (ParticleAttributes.node.type == NODE_TYPE_ORIGIN ||
                 ParticleAttributes.node.type == NODE_TYPE_INTER_HEAD) {
@@ -497,8 +497,8 @@ void setupLedsBeforeProcessing(void) {
             if (ParticleAttributes.node.type == NODE_TYPE_TAIL) {
                 LED_STATUS4_ON;
             }
-        }
-    }
+//        }
+//    }
 }
 
 #else
