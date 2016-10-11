@@ -82,9 +82,7 @@ static void __initParticle(void) {
     TEST_POINT2_LO;
 
     DELAY_MS_1;
-    LED_STATUS1_ON;
     DELAY_MS_1;
-    LED_STATUS1_OFF;
 
 //    RX_INTERRUPTS_SETUP; // configure input pins interrupts
 //    RX_INTERRUPTS_ENABLE; // enable input pin interrupts
@@ -272,11 +270,8 @@ static void __handleWaitForBeingEnumerated(void) {
  * @param endState the state when handler has finished
  */
 static void __handleSynchronizeNeighbour(const StateType endState) {
-//    LED_STATUS4_TOGGLE;
     CommunicationProtocolPortState *commPortState = ParticleAttributes.directionOrientedPorts.simultaneous.protocol;
-//        CommunicationProtocolPortState *commPortState = ParticleAttributes.directionOrientedPorts.south.protocol;
     TxPort *txPort = ParticleAttributes.directionOrientedPorts.simultaneous.txPort;
-//    TxPort *txPort = ParticleAttributes.directionOrientedPorts.south.txPort;
     switch (commPortState->initiatorState) {
         // transmit local time simultaneously on east and south ports
         case COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT:
@@ -621,9 +616,8 @@ static void __sendNextSyncTimePackage(void) {
     if (ParticleAttributes.timeSynchronization.isNextSyncPackageTransmissionEnabled) {
         if (ParticleAttributes.node.type == NODE_TYPE_ORIGIN) {
             // on origin node: schedule next sync package
-            if (ParticleAttributes.timeSynchronization.nextSyncPackageTransmissionStartTime ==
+            if (ParticleAttributes.timeSynchronization.nextSyncPackageTransmissionStartTime <=
                 ParticleAttributes.localTime.numTimePeriodsPassed) {
-
                 if (ParticleAttributes.timeSynchronization.totalFastSyncPackagesToTransmit <= 0) {
                     // separation on default cyclic synchronization
                     ParticleAttributes.timeSynchronization.nextSyncPackageTransmissionStartTime +=
@@ -878,9 +872,9 @@ static inline void process(void) {
             __sendNextSyncTimePackage();
 
             // TODO: evaluation code
-            if (ParticleAttributes.localTime.numTimePeriodsPassed > 250) {
+            if (ParticleAttributes.localTime.numTimePeriodsPassed > 255) {
                 ParticleAttributes.alerts.isRxBufferOverflowEnabled = true;
-                ParticleAttributes.alerts.isRxParityErorEnabled = true;
+                ParticleAttributes.alerts.isRxParityErrorEnabled = true;
                 ParticleAttributes.alerts.isGenericErrorEnabled = true;
 //                blinkAddressNonblocking();
 //                blinkTimeIntervalNonblocking();
