@@ -84,11 +84,13 @@ static void __interpretReceivedPackage(const DirectionOrientedPort *const port) 
                 equalsPackageSize(&port->rxPort->buffer.pointer, TimePackageBufferPointerSize)) {
 #ifdef LOCAL_TIME_EXPERIMENTAL_IN_PHASE_APPROXIMATION_SHIFT
                 uint8_t sreg = SREG;
-                cli();
+                MEMORY_BARRIER;
+                CLI;
                 MEMORY_BARRIER;
                 uint16_t localTimeTrackingTimerCounterCompareValue = LOCAL_TIME_INTERRUPT_COMPARE_VALUE;
                 MEMORY_BARRIER;
                 SREG = sreg;
+                MEMORY_BARRIER;
                 executeSynchronizeLocalTimePackage(
                         &package->asSyncTimePackage,
                         &port->rxPort->buffer, localTimeTrackingTimerCounterCompareValue);

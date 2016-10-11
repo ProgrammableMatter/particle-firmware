@@ -21,7 +21,7 @@ void calculateLinearFittingFunctionVarianceAndStdDeviance(TimeSynchronization *c
     IndexType x = 1;
 
 //    // TODO: evaluation code
-//    cli();
+//    CLI;
 //    samplesFifoBufferIteratorStart(&timeSynchronization->timeIntervalSamples);
 //    do {
 //        printf("%u,\n",

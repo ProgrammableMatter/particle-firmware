@@ -340,6 +340,7 @@ void manchesterDecodeBuffer(DirectionOrientedPort *const port,
                 uint16_t timerNow = TIMER_TX_RX_COUNTER_VALUE;
                 MEMORY_BARRIER;
                 SREG = sreg;
+                MEMORY_BARRIER;
                 uint16_t difference;
                 __calculateTimestampLag(&rxPort->snapshotsBuffer.temporarySnapshotTimerValue, &timerNow,
                                         &difference);

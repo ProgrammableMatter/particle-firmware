@@ -900,7 +900,9 @@ static inline void process(void) {
         case STATE_TYPE_SLEEP_MODE:
             DEBUG_CHAR_OUT('z');
             sleep_enable();
+            MEMORY_BARRIER;
             CLI;
+            MEMORY_BARRIER;
             sleep_cpu();
             sleep_disable();
             DEBUG_CHAR_OUT('Z');

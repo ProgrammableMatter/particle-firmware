@@ -105,6 +105,7 @@ void constructSyncTimePackage(TxPort *const txPort, bool forceTimePeriodUpdate) 
     package->asSyncTimePackage.timePeriod = ParticleAttributes.localTime.numTimePeriodsPassed;
     MEMORY_BARRIER;
     SREG = sreg;
+    MEMORY_BARRIER;
 //    package->asSyncTimePackage.packageTransmissionLatency = COMMUNICATION_PROTOCOL_TIME_SYNCHRONIZATION_PACKAGE_RECEPTION_DURATION;
     package->asSyncTimePackage.forceTimePeriodUpdate = forceTimePeriodUpdate;
 //    package->asSyncTimePackage.stuffing1 = 0x5555;
