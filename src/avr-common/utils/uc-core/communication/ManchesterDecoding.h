@@ -92,6 +92,16 @@ static void __storeDataBit(RxPort *const rxPort, const bool isRisingEdge) {
         bufferBitPointerIncrement(&rxPort->buffer.pointer);
     } else {
         rxPort->isOverflowed = true;
+        // TODO: evaluation code
+        uint8_t portNumber = 5;
+        if (rxPort == ParticleAttributes.directionOrientedPorts.north.rxPort) {
+            portNumber = 1;
+        } else if (rxPort == ParticleAttributes.directionOrientedPorts.east.rxPort) {
+            portNumber = 2;
+        } else if (rxPort == ParticleAttributes.directionOrientedPorts.south.rxPort) {
+            portNumber = 3;
+        }
+        blinkReceptionBufferOverflowErrorForever(&ParticleAttributes.alerts, portNumber);
     }
 }
 
@@ -205,7 +215,7 @@ void captureSnapshot(uint16_t *const timerCounterValue, const bool isRisingEdge,
         DEBUG_CHAR_OUT('8');
 #endif
         // TODO: evaluation code
-        uint8_t portNumber = 4;
+        uint8_t portNumber = 5;
         if (snapshotBuffer == &ParticleAttributes.directionOrientedPorts.north.rxPort->snapshotsBuffer) {
             portNumber = 1;
         } else if (snapshotBuffer ==
@@ -215,7 +225,7 @@ void captureSnapshot(uint16_t *const timerCounterValue, const bool isRisingEdge,
                    &ParticleAttributes.directionOrientedPorts.south.rxPort->snapshotsBuffer) {
             portNumber = 3;
         }
-        blinkReceptionBufferOverflowErrorForever(&ParticleAttributes.alerts, portNumber);
+        blinkReceptionSnapshotBufferOverflowErrorForever(&ParticleAttributes.alerts, portNumber);
     }
 
     volatile Snapshot *snapshot = &(snapshotBuffer->snapshots[snapshotBuffer->endIndex]);
