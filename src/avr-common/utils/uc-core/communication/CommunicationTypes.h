@@ -15,9 +15,9 @@
  * Describes a bit within a 4 byte buffer.
  */
 typedef struct BufferBitPointer {
-    volatile uint8_t byteNumber : 4; // the referenced byte index
+    uint8_t byteNumber : 4; // the referenced byte index
     uint8_t __pad: 4;
-    volatile uint8_t bitMask; // the referenced bit in the byte
+    uint8_t bitMask; // the referenced bit in the byte
 } BufferBitPointer;
 
 /**
