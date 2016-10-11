@@ -30,13 +30,13 @@ static void __scheduleStartTxInterrupt(void) {
     CLI;
     MEMORY_BARRIER;
     uint16_t counter = TIMER_TX_RX_COUNTER_VALUE;
-    uint16_t transmissionClockDelay = ParticleAttributes.communication.timerAdjustment.transmissionClockDelay;
-
-    // TODO: too complicated scheduling. starting tx at specific time-windows is not necessary
-    TIMER_TX_RX_COMPARE_VALUE = counter -
-                                (counter % transmissionClockDelay)
-                                + 2 * transmissionClockDelay
-                                + ParticleAttributes.communication.timerAdjustment.transmissionClockShift;
+//    uint16_t transmissionClockDelay = ParticleAttributes.communication.timerAdjustment.transmissionClockDelay;
+//    TIMER_TX_RX_COMPARE_VALUE = counter -
+//                                (counter % transmissionClockDelay)
+//                                + 2 * transmissionClockDelay
+//                                + ParticleAttributes.communication.timerAdjustment.transmissionClockShift;
+    TIMER_TX_RX_COMPARE_VALUE =
+            counter + ParticleAttributes.communication.timerAdjustment.transmissionClockDelay * 2;
     MEMORY_BARRIER;
     SREG = sreg;
     MEMORY_BARRIER;
@@ -49,6 +49,10 @@ static void __scheduleStartTxInterrupt(void) {
  * @param port the designated transmission port to read the buffer and transmit from
  */
 void enableTransmission(TxPort *const port) {
+//    uint8_t sreg = SREG;
+//    MEMORY_BARRIER;
+//    CLI;
+//    MEMORY_BARRIER;
     DEBUG_CHAR_OUT('t');
     bool startTransmission = true;
     // on already ongoing transmission: no need to schedule a transmission start
@@ -73,4 +77,6 @@ void enableTransmission(TxPort *const port) {
         }
         __scheduleStartTxInterrupt();
     }
+//    MEMORY_BARRIER;
+//    SREG = sreg;
 }
