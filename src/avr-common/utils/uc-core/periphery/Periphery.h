@@ -10,6 +10,7 @@
 #include "uc-core/delay/delay.h"
 #include "uc-core/configuration/Periphery.h"
 #include "uc-core/configuration/interrupts/ReceptionPCI.h"
+#include "uc-core/scheduler/SchedulerTypes.h"
 
 #ifndef PERIPHERY_REMOVE_IMPL
 
@@ -412,17 +413,6 @@ void blinkAddressNonblocking(void) {
     }
 }
 
-///**
-// * Toggles the heartbeat LED.
-// */
-//void heartBeatToggle(void) {
-////    if (ParticleAttributes.periphery.loopCount++ == 0) {
-//    if (ParticleAttributes.periphery.loopCount == 0) {
-//        LED_STATUS4_TOGGLE;
-//        ParticleAttributes.periphery.loopCount--;
-//    }
-//}
-
 void blinkKnightRidersKittForever(void) {
     __disableInterruptsForBlockingBlinking();
 
@@ -482,24 +472,29 @@ void blinkKnightRidersKittForever(void) {
 }
 
 /**
- * Puts all LEDs into a defined state once in an early idle state.
+ * Puts all LEDs into a defined state. Since leds are toggled
+ * during initialization process their state is undetermined.
  */
-void setupLedsBeforeProcessing(void) {
-//    if (ParticleAttributes.periphery.doClearLeds) {
-//        if (ParticleAttributes.localTime.numTimePeriodsPassed > 128 &&
-//            ParticleAttributes.localTime.numTimePeriodsPassed < 140) {
-//            ParticleAttributes.periphery.doClearLeds = false;
-            __ledsOff();
-            if (ParticleAttributes.node.type == NODE_TYPE_ORIGIN ||
-                ParticleAttributes.node.type == NODE_TYPE_INTER_HEAD) {
-                LED_STATUS1_ON;
-            }
-            if (ParticleAttributes.node.type == NODE_TYPE_TAIL) {
-                LED_STATUS4_ON;
-            }
-//        }
-//    }
+void setupLedsState(SchedulerTask *task) {
+    __ledsOff();
+    if (ParticleAttributes.node.type == NODE_TYPE_ORIGIN ||
+        ParticleAttributes.node.type == NODE_TYPE_INTER_HEAD) {
+        LED_STATUS1_ON;
+    }
+    if (ParticleAttributes.node.type == NODE_TYPE_TAIL) {
+        LED_STATUS4_ON;
+    }
+    task->isEnabled = false;
 }
+
+
+///**
+// * Toggles the heartbeat LED.
+// */
+//void heartBeatToggle(SchedulerTask *task) {
+//    LED_STATUS4_TOGGLE;
+//    task->isEnabled = true;
+//}
 
 #else
 #define blinkReceptionSnapshotBufferOverflowErrorForever(...)

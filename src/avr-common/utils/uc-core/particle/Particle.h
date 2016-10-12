@@ -71,10 +71,32 @@ static void __enableDiscoveryPulsing(void) {
     TIMER_NEIGHBOUR_SENSE_RESUME;
 }
 
-void enableAlerts(void) {
+void enableAlerts(SchedulerTask *const task) {
     ParticleAttributes.alerts.isRxBufferOverflowEnabled = true;
     ParticleAttributes.alerts.isRxParityErrorEnabled = true;
     ParticleAttributes.alerts.isGenericErrorEnabled = true;
+    // to remove compiler warning, clearing this flag is redundant
+    task->isEnabled = false;
+}
+
+
+void sendNextSyncTimePackage(SchedulerTask *const task) {
+    if (ParticleAttributes.timeSynchronization.isNextSyncPackageTransmissionEnabled) {
+        if (ParticleAttributes.node.type == NODE_TYPE_ORIGIN) {
+//             on origin node: schedule next sync package
+            if (ParticleAttributes.timeSynchronization.totalFastSyncPackagesToTransmit <= 0) {
+                // separation on default synchronization
+                task->reScheduleDelay = ParticleAttributes.timeSynchronization.syncPackageSeparation;
+            } else {
+                // separation on fast synchronization
+                task->reScheduleDelay = ParticleAttributes.timeSynchronization.fastSyncPackageSeparation;
+                ParticleAttributes.timeSynchronization.totalFastSyncPackagesToTransmit--;
+            }
+            ParticleAttributes.node.state = STATE_TYPE_RESYNC_NEIGHBOUR;
+            ParticleAttributes.timeSynchronization.isNextSyncPackageTransmissionEnabled = false;
+            LED_STATUS2_TOGGLE;
+        }
+    }
 }
 
 /**
@@ -105,18 +127,11 @@ static void __initParticle(void) {
     // TODO: evaluation source
     MEMORY_BARRIER;
 
-    // add single shot task: enable alerts
-    SchedulerTask *task = &ParticleAttributes.scheduler.tasks[SCHEDULER_TASK_ID_ENABLE_ALERTS];
-    constructSchedulerTask(task);
-    task->isEnabled = true;
-    task->startAction = enableAlerts;
-    task->startTimestamp = 255;
-
-    task = &ParticleAttributes.scheduler.tasks[SCHEDULER_TASK_ID_SETUP_LEDS];
-    constructSchedulerTask(task);
-    task->isEnabled = true;
-    task->startAction = setupLedsBeforeProcessing;
-    task->startTimestamp = 128;
+    // add tasks to scheduler
+    addSingleShotTask(SCHEDULER_TASK_ID_SETUP_LEDS, setupLedsState, 128);
+    addSingleShotTask(SCHEDULER_TASK_ID_ENABLE_ALERTS, enableAlerts, 255);
+    addCyclicTask(SCHEDULER_TASK_ID_SYNC_PACKAGE, sendNextSyncTimePackage, 350, 100);
+//    addCyclicTask(SCHEDULER_TASK_ID_HEARTBEAT_LED_TOGGLE, heartBeatToggle, 300, 400);
 }
 
 /**
@@ -634,29 +649,30 @@ static void __onActuationDoneCallback(void) {
  * On matching time period puts the particle to synchronization state and disables further synchronization
  * scheduling until the package is transmitted.
  */
-static void __sendNextSyncTimePackage(void) {
-    if (ParticleAttributes.timeSynchronization.isNextSyncPackageTransmissionEnabled) {
-        if (ParticleAttributes.node.type == NODE_TYPE_ORIGIN) {
-            // on origin node: schedule next sync package
-            if (ParticleAttributes.timeSynchronization.nextSyncPackageTransmissionStartTime <=
-                ParticleAttributes.localTime.numTimePeriodsPassed) {
-                if (ParticleAttributes.timeSynchronization.totalFastSyncPackagesToTransmit <= 0) {
-                    // separation on default cyclic synchronization
-                    ParticleAttributes.timeSynchronization.nextSyncPackageTransmissionStartTime +=
-                            ParticleAttributes.timeSynchronization.syncPackageSeparation;
-                } else {
-                    // separation on fast synchronization
-                    ParticleAttributes.timeSynchronization.nextSyncPackageTransmissionStartTime +=
-                            ParticleAttributes.timeSynchronization.fastSyncPackageSeparation;
-                    ParticleAttributes.timeSynchronization.totalFastSyncPackagesToTransmit--;
-                }
-                ParticleAttributes.node.state = STATE_TYPE_RESYNC_NEIGHBOUR;
-                ParticleAttributes.timeSynchronization.isNextSyncPackageTransmissionEnabled = false;
-                LED_STATUS2_TOGGLE;
-            }
-        }
-    }
-}
+//static void __sendNextSyncTimePackage(void) {
+//    if (ParticleAttributes.timeSynchronization.isNextSyncPackageTransmissionEnabled) {
+//        if (ParticleAttributes.node.type == NODE_TYPE_ORIGIN) {
+//            // on origin node: schedule next sync package
+//            if (ParticleAttributes.timeSynchronization.nextSyncPackageTransmissionStartTime <=
+//                ParticleAttributes.localTime.numTimePeriodsPassed) {
+//                if (ParticleAttributes.timeSynchronization.totalFastSyncPackagesToTransmit <= 0) {
+//                    // separation on default cyclic synchronization
+//                    ParticleAttributes.timeSynchronization.nextSyncPackageTransmissionStartTime +=
+//                            ParticleAttributes.timeSynchronization.syncPackageSeparation;
+//                } else {
+//                    // separation on fast synchronization
+//                    ParticleAttributes.timeSynchronization.nextSyncPackageTransmissionStartTime +=
+//                            ParticleAttributes.timeSynchronization.fastSyncPackageSeparation;
+//                    ParticleAttributes.timeSynchronization.totalFastSyncPackagesToTransmit--;
+//                }
+//                ParticleAttributes.node.state = STATE_TYPE_RESYNC_NEIGHBOUR;
+//                ParticleAttributes.timeSynchronization.isNextSyncPackageTransmissionEnabled = false;
+//                LED_STATUS2_TOGGLE;
+//            }
+//        }
+//    }
+//}
+
 
 /**
  * The core function is called cyclically in the particle loop. It implements the
@@ -664,7 +680,6 @@ static void __sendNextSyncTimePackage(void) {
  */
 static inline void process(void) {
     // DEBUG_CHAR_OUT('P');
-//    heartBeatToggle();
     // ---------------- init states ----------------
 
     switch (ParticleAttributes.node.state) {
@@ -892,7 +907,7 @@ static inline void process(void) {
 
 //            __handleIsActuationCommandPeriod();
 //            setupLedsBeforeProcessing();
-            __sendNextSyncTimePackage();
+//            __sendNextSyncTimePackage();
 
             // future time stamp dependent execution should be better placed in the scheduler
             processScheduler();
