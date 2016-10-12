@@ -36,7 +36,6 @@ void constructBlinkTimeInterval(BlinkTimeInterval *const o) {
 **/
 
 void constructPeriphery(Periphery *const o) {
-    o->loopCount = 0;
     constructBlinkAddress(&o->blinkAddress);
     constructBlinkTimeInterval(&o->blinkTimeInterval);
     o->doClearLeds = true;

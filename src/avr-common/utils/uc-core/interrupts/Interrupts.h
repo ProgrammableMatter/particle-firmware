@@ -156,11 +156,6 @@ ISR(LOCAL_TIME_INTERRUPT_VECT) {
     TEST_POINT1_TOGGLE;
     ParticleAttributes.localTime.numTimePeriodsPassed++;
 
-    // TODO: move periphery loop count to main
-    if (ParticleAttributes.periphery.loopCount > 0) {
-        ParticleAttributes.periphery.loopCount--;
-    }
-
     // consider eventually new updateable period duration
     if (ParticleAttributes.localTime.isTimePeriodInterruptDelayUpdateable) {
         ParticleAttributes.localTime.timePeriodInterruptDelay =

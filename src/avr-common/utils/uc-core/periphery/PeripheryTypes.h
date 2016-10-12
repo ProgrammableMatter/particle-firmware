@@ -45,8 +45,6 @@ typedef struct BlinkTimeInterval {
  * Counters/resources needed for non vital platform's periphery such as LEDs, test points and alike.
  */
 typedef struct Periphery {
-    // particle main loop counter
-    uint8_t loopCount;
     BlinkAddress blinkAddress;
     BlinkTimeInterval blinkTimeInterval;
     uint8_t doClearLeds : 1;
