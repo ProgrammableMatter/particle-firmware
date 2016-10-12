@@ -38,12 +38,12 @@ void addCyclicTask(const uint8_t taskId, void (*const action)(SchedulerTask *con
 /**
  * increment pending retained counters
  */
-static void __advancePendingOverflowingCounters(void) {
+static void __advancePendingOverflowingCounters(const uint16_t now) {
     for (uint8_t idx = 0; idx < SCHEDULER_MAX_TASKS; idx++) {
         SchedulerTask *task = &ParticleAttributes.scheduler.tasks[idx];
 
         if (task->__isCounterRetained) {
-            task->startTimestamp += task->reScheduleDelay;
+            task->startTimestamp = now + task->reScheduleDelay;
             task->__isCounterRetained = false;
         }
     }
@@ -59,7 +59,7 @@ void processScheduler(void) {
 
     if (now < ParticleAttributes.scheduler.lastCallToScheduler) {
         // on local time tracking overflowed
-        __advancePendingOverflowingCounters();
+        __advancePendingOverflowingCounters(now);
     }
 
     for (uint8_t idx = 0; idx < SCHEDULER_MAX_TASKS; idx++) {
@@ -107,7 +107,7 @@ void processScheduler(void) {
                 }
                 task->isExecuted = true;
 
-                uint16_t nextExecution = task->startTimestamp + task->reScheduleDelay;
+                uint16_t nextExecution = now + task->reScheduleDelay;
                 if (nextExecution < task->startTimestamp) {
                     // on timestamp overflow: the counter is updated is retained until the local
                     // time has also overflowed
