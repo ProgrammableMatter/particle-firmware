@@ -59,6 +59,6 @@ bool isEvenParity(const RxPort *const rxPort) {
 #ifdef SIMULATION
     DEBUG_CHAR_OUT('9');
 #endif
-    blinkParityErrorForever(&ParticleAttributes.alerts, rxPort->parityBitCounter);
+    blinkParityErrorForever(rxPort->parityBitCounter);
     return false;
 }

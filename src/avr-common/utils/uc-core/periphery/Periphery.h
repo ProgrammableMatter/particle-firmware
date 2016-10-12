@@ -85,8 +85,8 @@ static void __ledsOn(void) {
  * Blinks LEDs to indicate the error state.
  * This function never returns.
  */
-void blinkReceptionSnapshotBufferOverflowErrorForever(const Alerts *const alerts, uint8_t portNumber) {
-    if (alerts->isRxBufferOverflowEnabled == false) {
+static void __blinkBufferOverflowErrorForever(uint8_t portNumber) {
+    if (ParticleAttributes.alerts.isRxBufferOverflowEnabled == false) {
         __ledsOff();
         LED_STATUS2_ON;
         LED_STATUS3_ON;
@@ -113,8 +113,28 @@ void blinkReceptionSnapshotBufferOverflowErrorForever(const Alerts *const alerts
     }
 }
 
-void blinkReceptionBufferOverflowErrorForever(const Alerts *const alerts, uint8_t portNumber) {
-    blinkReceptionSnapshotBufferOverflowErrorForever(alerts, 2 * portNumber);
+void blinkReceptionBufferOverflowErrorForever(RxPort *const rxPort) {
+    uint8_t portNumber = 5;
+    if (rxPort == ParticleAttributes.directionOrientedPorts.north.rxPort) {
+        portNumber = 1;
+    } else if (rxPort == ParticleAttributes.directionOrientedPorts.east.rxPort) {
+        portNumber = 2;
+    } else if (rxPort == ParticleAttributes.directionOrientedPorts.south.rxPort) {
+        portNumber = 3;
+    }
+    __blinkBufferOverflowErrorForever(2 * portNumber);
+}
+
+void blinkReceptionSnapshotBufferOverflowErrorForever(RxSnapshotBuffer *const snapshotBuffer) {
+    uint8_t portNumber = 5;
+    if (snapshotBuffer == &ParticleAttributes.directionOrientedPorts.north.rxPort->snapshotsBuffer) {
+        portNumber = 1;
+    } else if (snapshotBuffer == &ParticleAttributes.directionOrientedPorts.east.rxPort->snapshotsBuffer) {
+        portNumber = 2;
+    } else if (snapshotBuffer == &ParticleAttributes.directionOrientedPorts.south.rxPort->snapshotsBuffer) {
+        portNumber = 3;
+        __blinkBufferOverflowErrorForever(portNumber);
+    }
 }
 
 /**
@@ -154,8 +174,8 @@ static void __blinkLedNForever(uint8_t n) {
     }
 }
 
-void blinkLed1Forever(const Alerts *const alerts) {
-    if (alerts->isGenericErrorEnabled == false) {
+void blinkLed1Forever(void) {
+    if (ParticleAttributes.alerts.isGenericErrorEnabled == false) {
         __ledsOff();
         LED_STATUS1_ON;
         LED_STATUS2_ON;
@@ -166,8 +186,8 @@ void blinkLed1Forever(const Alerts *const alerts) {
     __blinkLedNForever(1);
 }
 
-void blinkLed2Forever(const Alerts *alerts) {
-    if (alerts->isGenericErrorEnabled == false) {
+void blinkLed2Forever(void) {
+    if (ParticleAttributes.alerts.isGenericErrorEnabled == false) {
         __ledsOff();
         LED_STATUS2_ON;
         return;
@@ -176,8 +196,8 @@ void blinkLed2Forever(const Alerts *alerts) {
     __blinkLedNForever(2);
 }
 
-void blinkLed3Forever(const Alerts *const alerts) {
-    if (alerts->isGenericErrorEnabled == false) {
+void blinkLed3Forever(void) {
+    if (ParticleAttributes.alerts.isGenericErrorEnabled == false) {
         __ledsOff();
         LED_STATUS3_ON;
         return;
@@ -186,8 +206,8 @@ void blinkLed3Forever(const Alerts *const alerts) {
     __blinkLedNForever(3);
 }
 
-void blinkLed4Forever(const Alerts *const alerts) {
-    if (alerts->isGenericErrorEnabled == false) {
+void blinkLed4Forever(void) {
+    if (ParticleAttributes.alerts.isGenericErrorEnabled == false) {
         __ledsOff();
         LED_STATUS4_ON;
         return;
@@ -218,8 +238,8 @@ void blinkInterruptErrorForever(void) {
  * otherwise: led 3, led 2, led 1.
  * This function never returns.
  */
-void blinkParityErrorForever(const Alerts *const alerts, bool parityBit) {
-    if (alerts->isRxParityErrorEnabled == false) {
+void blinkParityErrorForever(bool parityBit) {
+    if (ParticleAttributes.alerts.isRxParityErrorEnabled == false) {
         __ledsOff();
         LED_STATUS1_ON;
         LED_STATUS2_ON;

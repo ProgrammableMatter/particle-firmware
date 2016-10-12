@@ -92,18 +92,7 @@ static void __storeDataBit(RxPort *const rxPort, const bool isRisingEdge) {
         bufferBitPointerIncrement(&rxPort->buffer.pointer);
     } else {
         rxPort->isOverflowed = true;
-#ifndef PERIPHERY_REMOVE_IMPL
-        // TODO: evaluation code
-        uint8_t portNumber = 5;
-        if (rxPort == ParticleAttributes.directionOrientedPorts.north.rxPort) {
-            portNumber = 1;
-        } else if (rxPort == ParticleAttributes.directionOrientedPorts.east.rxPort) {
-            portNumber = 2;
-        } else if (rxPort == ParticleAttributes.directionOrientedPorts.south.rxPort) {
-            portNumber = 3;
-        }
-        blinkReceptionBufferOverflowErrorForever(&ParticleAttributes.alerts, portNumber);
-#endif
+        blinkReceptionBufferOverflowErrorForever(rxPort);
     }
 }
 
@@ -216,20 +205,7 @@ void captureSnapshot(uint16_t *const timerCounterValue, const bool isRisingEdge,
 #ifdef SIMULATION
         DEBUG_CHAR_OUT('8');
 #endif
-#ifndef PERIPHERY_REMOVE_IMPL
-        // TODO: evaluation code
-        uint8_t portNumber = 5;
-        if (snapshotBuffer == &ParticleAttributes.directionOrientedPorts.north.rxPort->snapshotsBuffer) {
-            portNumber = 1;
-        } else if (snapshotBuffer ==
-                   &ParticleAttributes.directionOrientedPorts.east.rxPort->snapshotsBuffer) {
-            portNumber = 2;
-        } else if (snapshotBuffer ==
-                   &ParticleAttributes.directionOrientedPorts.south.rxPort->snapshotsBuffer) {
-            portNumber = 3;
-        }
-        blinkReceptionSnapshotBufferOverflowErrorForever(&ParticleAttributes.alerts, portNumber);
-#endif
+        blinkReceptionSnapshotBufferOverflowErrorForever(snapshotBuffer);
     }
 
     volatile Snapshot *snapshot = &(snapshotBuffer->snapshots[snapshotBuffer->endIndex]);
