@@ -57,7 +57,7 @@ void executeSynchronizeLocalTimePackage(const TimePackage *const package,
     SampleValueType sampleValue = (SampleValueType) sample;
 
     samplesFifoBufferAddSample(&sampleValue, &ParticleAttributes.timeSynchronization);
-    tryApproximateTimings(&ParticleAttributes.timeSynchronization);
+    tryApproximateTimings();
 
     // consider the optional request to set the local time to a new value
     ParticleAttributes.localTime.newNumTimePeriodsPassed = package->timePeriod;

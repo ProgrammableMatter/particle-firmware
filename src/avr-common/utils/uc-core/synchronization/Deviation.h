@@ -52,7 +52,8 @@ static void __binarySearchSqr(const CalculationType *const number, CalculationTy
  * @pre The arithmetic mean must be valid.
  * @pre The standard deviation must be valid.
  */
-void calculateMeanWithoutOutlier(TimeSynchronization *const timeSynchronization) {
+void calculateMeanWithoutOutlier(void) {
+    TimeSynchronization *const timeSynchronization = &ParticleAttributes.timeSynchronization;
     timeSynchronization->meanWithoutOutlier = 0;
     IndexType numberCumulatedValues = 0;
 
@@ -76,7 +77,8 @@ void calculateMeanWithoutOutlier(TimeSynchronization *const timeSynchronization)
  * Calculates the mean (off-line) of all available samples in the FiFo.
  * A call to this function involves iterating the whole FiFo.
  */
-void calculateMean(TimeSynchronization *const timeSynchronization) {
+void calculateMean(void) {
+    TimeSynchronization *const timeSynchronization = &ParticleAttributes.timeSynchronization;
     timeSynchronization->mean = 0;
     IndexType numberCumulatedValues = 0;
 
@@ -97,7 +99,8 @@ void calculateMean(TimeSynchronization *const timeSynchronization) {
  * as outlier marked values.
  * A call to this function involves iterating the whole FiFo.
  */
-void calculateMeanAndMeanWithoutMarkedOutlier(TimeSynchronization *const timeSynchronization) {
+void calculateMeanAndMeanWithoutMarkedOutlier(void) {
+    TimeSynchronization *const timeSynchronization = &ParticleAttributes.timeSynchronization;
     timeSynchronization->mean = 0;
     timeSynchronization->meanWithoutMarkedOutlier = 0;
     IndexType numberCumulatedValues = 0;
@@ -126,7 +129,8 @@ void calculateMeanAndMeanWithoutMarkedOutlier(TimeSynchronization *const timeSyn
  * Calculates the mean of all available samples in the FiFo exclusive marked as outlier.
  * A call to this function involves iterating the whole FiFo.
  */
-void calculateMeanWithoutMarkedOutlier(TimeSynchronization *const timeSynchronization) {
+void calculateMeanWithoutMarkedOutlier(void) {
+    TimeSynchronization *const timeSynchronization = &ParticleAttributes.timeSynchronization;
     timeSynchronization->meanWithoutMarkedOutlier = 0;
     IndexType numberCumulatedValuesWithoutOutlier = 0;
 
@@ -149,7 +153,8 @@ void calculateMeanWithoutMarkedOutlier(TimeSynchronization *const timeSynchroniz
  * Calculate the variance and std deviance of the values in the fifo buffer.
  * @pre The arithmetic mean must be valid.
  */
-void calculateVarianceAndStdDeviance(TimeSynchronization *const timeSynchronization) {
+void calculateVarianceAndStdDeviance(void) {
+    TimeSynchronization *const timeSynchronization = &ParticleAttributes.timeSynchronization;
     timeSynchronization->variance = 0;
     IndexType numberCumulatedValues = 0;
 

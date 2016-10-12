@@ -68,7 +68,8 @@ static void __approximateNewBaudRate(const float *const factor) {
  * this approximation function is triggered after each TimePackage has been received correctly and
  * it's pdu reception duration offset has been stored to the fifo queue.
  */
-void tryApproximateTimings(TimeSynchronization *const timeSynchronization) {
+void tryApproximateTimings(void) {
+    TimeSynchronization *const timeSynchronization = &ParticleAttributes.timeSynchronization;
 #ifndef SYNCHRONIZATION_STRATEGY_PROGRESSIVE_MEAN
     if (isFiFoFull(&timeSynchronization->timeIntervalSamples)) {
 #endif
@@ -80,9 +81,9 @@ void tryApproximateTimings(TimeSynchronization *const timeSynchronization) {
 #ifdef SYNCHRONIZATION_STRATEGY_MEAN_WITHOUT_OUTLIER
 #  define __synchronization_meanValue ParticleAttributes.timeSynchronization.meanWithoutOutlier
             //@pre mean is valid
-            calculateVarianceAndStdDeviance(timeSynchronization);
-            updateOutlierRejectionLimitDependingOnSigma(timeSynchronization);
-            calculateMeanWithoutOutlier(timeSynchronization);
+            calculateVarianceAndStdDeviance();
+            updateOutlierRejectionLimitDependingOnSigma();
+            calculateMeanWithoutOutlier();
 #endif
 #ifdef SYNCHRONIZATION_STRATEGY_MEAN
 #  define __synchronization_meanValue ParticleAttributes.timeSynchronization.mean
@@ -95,7 +96,7 @@ void tryApproximateTimings(TimeSynchronization *const timeSynchronization) {
 #endif
 #ifdef SYNCHRONIZATION_STRATEGY_LEAST_SQUARE_LINEAR_FITTING
 #  define __synchronization_meanValue timeSynchronization->fittingFunction.d
-            calculateLinearFittingFunctionVarianceAndStdDeviance(timeSynchronization);
+            calculateLinearFittingFunctionVarianceAndStdDeviance();
 #endif
             // shift mean value back by +UINT16_T/2
             CalculationType realDuration = __synchronization_meanValue

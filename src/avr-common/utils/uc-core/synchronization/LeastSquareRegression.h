@@ -15,7 +15,8 @@
  * The output (fitting function and several statistical values) are stored to the SamplesFifoBuffer.
  * The arithmetic mean is calculated in the same pass followed by a second std deviance pass.
  */
-void calculateLinearFittingFunctionVarianceAndStdDeviance(TimeSynchronization *const timeSynchronization) {
+void calculateLinearFittingFunctionVarianceAndStdDeviance(void) {
+    TimeSynchronization *const timeSynchronization = &ParticleAttributes.timeSynchronization;
     CumulationType a_ = 0, b_ = 0, c_ = 0, e_ = 0;
     SampleValueType y = 0;
     IndexType x = 1;

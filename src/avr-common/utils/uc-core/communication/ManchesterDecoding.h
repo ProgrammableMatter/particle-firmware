@@ -168,24 +168,6 @@ static void __rxSnapshotBufferIncrementEndIndex(RxSnapshotBuffer *const o) {
 #define __rxSnapshotBufferIsEmpty(rxSnapshotBuffer) \
     ((rxSnapshotBuffer)->startIndex == (rxSnapshotBuffer)->endIndex)
 
-///**
-// * Calculates the time lag in between two timestamp values.
-// * @param a minuend
-// * @param b subtrahend
-// * @param result the positive difference in between the minuend and subtrahend with respect to
-// * timestamp being possibly separated by timer/counter overflow
-// */
-//static void __calculateTimestampLag(const uint16_t *const previousSnapshotValue,
-//                                    const uint16_t *const currentSnapshotValue,
-//                                    uint16_t *const result) {
-//    *result = *currentSnapshotValue - *previousSnapshotValue;
-////    if (*currentSnapshotValue >= *previousSnapshotValue) {
-////        *result = *currentSnapshotValue - *previousSnapshotValue;
-////    } else { // if capture timer counter has overflowed
-////        *result = (UINT16_MAX - *previousSnapshotValue) + *currentSnapshotValue;
-////    }
-//}
-
 /**
  * Appends a value and the specified flank to the snapshot buffer. The least significant counter value
  * bit is discarded and used to store the flank.
@@ -270,8 +252,6 @@ void manchesterDecodeBuffer(DirectionOrientedPort *const port,
                 volatile Snapshot *snapshot = __rxSnapshotBufferPeek(&rxPort->snapshotsBuffer);
                 uint16_t timerValue = __getTimerValue(snapshot);
                 uint16_t difference = timerValue - rxPort->snapshotsBuffer.temporarySnapshotTimerValue;
-//                __calculateTimestampLag(&rxPort->snapshotsBuffer.temporarySnapshotTimerValue,
-//                                        &timerValue, &difference);
 //                DEBUG_INT16_OUT(difference);
 
                 if (difference <=
@@ -319,8 +299,6 @@ void manchesterDecodeBuffer(DirectionOrientedPort *const port,
                 SREG = sreg;
                 MEMORY_BARRIER;
                 uint16_t difference = timerNow - rxPort->snapshotsBuffer.temporarySnapshotTimerValue;
-//                __calculateTimestampLag(&rxPort->snapshotsBuffer.temporarySnapshotTimerValue, &timerNow,
-//                                        &difference);
 //                DEBUG_INT16_OUT(difference);
                 if (difference >=
                     (ParticleAttributes.communication.timerAdjustment.transmissionClockDelay * 2)) {

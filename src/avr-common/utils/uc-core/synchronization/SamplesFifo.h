@@ -182,7 +182,8 @@ static void __calculateProgressiveMean(const SampleValueType *const sample,
 /**
  * Update the outlier limits.
  */
-void updateOutlierRejectionLimitDependingOnSigma(TimeSynchronization *const timeSynchronization) {
+void updateOutlierRejectionLimitDependingOnSigma(void) {
+    TimeSynchronization *const timeSynchronization = &ParticleAttributes.timeSynchronization;
     CalculationType rejectionLimit =
             SYNCHRONIZATION_OUTLIER_REJECTION_SIGMA_FACTOR *
             timeSynchronization->stdDeviance;
@@ -198,7 +199,10 @@ void updateOutlierRejectionLimitDependingOnSigma(TimeSynchronization *const time
 
 #ifdef SYNCHRONIZATION_ENABLE_ADAPTIVE_MARKED_OUTLIER_REJECTION
 
-static void __reduceRejectionCounters(AdaptiveSampleRejection *const adaptiveSampleRejection) {
+static void __reduceRejectionCounters(void) {
+   AdaptiveSampleRejection *const adaptiveSampleRejection =
+   &ParticleAttributes.timeSynchronization.adaptiveSampleRejection;
+
     if ((adaptiveSampleRejection->rejected >= SAMPLE_FIFO_ADAPTIVE_REJECTION_REDUCE_COUNTERS_LIMIT) ||
         (adaptiveSampleRejection->accepted >= SAMPLE_FIFO_ADAPTIVE_REJECTION_REDUCE_COUNTERS_LIMIT)) {
         adaptiveSampleRejection->rejected /= 2;
@@ -211,9 +215,9 @@ static void __reduceRejectionCounters(AdaptiveSampleRejection *const adaptiveSam
     }
 }
 
-static void __updateCurrentRejectionBoundariesDependingOnCounters(
-        TimeSynchronization *const timeSynchronization) {
-    AdaptiveSampleRejection *const adaptiveSampleRejection = &timeSynchronization->adaptiveSampleRejection;
+static void __updateCurrentRejectionBoundariesDependingOnCounters(void) {
+    AdaptiveSampleRejection *const adaptiveSampleRejection =
+    &ParticleAttributes.timeSynchronization->adaptiveSampleRejection;
     // update rejection interval
     if (adaptiveSampleRejection->accepted >
         (SAMPLE_FIFO_ADAPTIVE_REJECTION_ACCEPTANCE_RATIO * adaptiveSampleRejection->rejected +
@@ -262,8 +266,8 @@ static void __updateCurrentRejectionBoundariesDependingOnCounters(
 /**
  * Adds a value to the FiFo buffer.
  */
-void samplesFifoBufferAddSample(const SampleValueType *const sample,
-                                TimeSynchronization *const timeSynchronization) {
+void samplesFifoBufferAddSample(const SampleValueType *const sample) {
+    TimeSynchronization *const timeSynchronization = &ParticleAttributes.timeSynchronization;
     bool isToBeRejected = false;
     // on overfull start rejecting on overfull FiFo
     if (timeSynchronization->timeIntervalSamples.isDropOutValid) {
@@ -311,12 +315,12 @@ void samplesFifoBufferAddSample(const SampleValueType *const sample,
 #else
     // off-line mean calculation
     if (isFiFoFull(&timeSynchronization->timeIntervalSamples)) {
-        calculateMean(timeSynchronization);
+        calculateMean();
     }
 
     // on full FiFo update the rejection boundaries
     if (isFiFoFull(&timeSynchronization->timeIntervalSamples)) {
-        __updateCurrentRejectionBoundariesDependingOnCounters(timeSynchronization);
+        __updateCurrentRejectionBoundariesDependingOnCounters();
     }
 #endif
 }
@@ -402,7 +406,7 @@ void samplesFifoBufferAddSample(const SampleValueType *const sample,
 #else
     // off-line mean calculation
     if (isFiFoFull(&timeSynchronization->timeIntervalSamples)) {
-        calculateMean(timeSynchronization);
+        calculateMean();
     }
 #endif
 }
