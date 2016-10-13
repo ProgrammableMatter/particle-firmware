@@ -39,8 +39,8 @@
 /**
  * Initial value for clock delay for Manchester (de-)coding (reception and transmission).
  */
-#define COMMUNICATION_DEFAULT_TX_RX_CLOCK_DELAY ((uint16_t) 1024)
-//#define DEFAULT_TX_RX_CLOCK_DELAY ((uint16_t) 2048)
+//#define COMMUNICATION_DEFAULT_TX_RX_CLOCK_DELAY ((uint16_t) 1024)
+#define COMMUNICATION_DEFAULT_TX_RX_CLOCK_DELAY ((uint16_t) 2048)
 
 /**
  * Maximum short reception time lag.

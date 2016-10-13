@@ -52,16 +52,16 @@ static inline void __handleInputInterrupt(DirectionOrientedPort *const port,
 /**
  * Schedules the next transmission interrupt if transmission data is buffered.
  */
-
 static void __scheduleNextTransmission(void) {
-    if (ParticleAttributes.communication.ports.tx.north.isTransmitting ||
-        ParticleAttributes.communication.ports.tx.east.isTransmitting ||
-        ParticleAttributes.communication.ports.tx.south.isTransmitting) {
-        scheduleNextTxInterrupt();
-    } else {
-        TIMER_TX_RX_DISABLE_COMPARE_INTERRUPT;
-        DEBUG_CHAR_OUT('U');
-    }
+//    if (ParticleAttributes.communication.ports.tx.north.isTransmitting ||
+//        ParticleAttributes.communication.ports.tx.east.isTransmitting ||
+//        ParticleAttributes.communication.ports.tx.south.isTransmitting) {
+//        scheduleNextTxInterrupt();
+//    } else {
+//        TIMER_TX_RX_DISABLE_COMPARE_INTERRUPT;
+//        DEBUG_CHAR_OUT('U');
+//    }
+    scheduleNextTxInterrupt();
 }
 
 /**
@@ -119,6 +119,7 @@ ISR(SOUTH_PIN_CHANGE_INTERRUPT_VECT) {
  * simulator int. #7
  */
 ISR(TX_TIMER_INTERRUPT_VECT) {
+    TEST_POINT1_TOGGLE;
     switch (ParticleAttributes.node.state) {
         case STATE_TYPE_START:
         case STATE_TYPE_ACTIVE:
@@ -164,11 +165,11 @@ ISR(LOCAL_TIME_INTERRUPT_VECT) {
     }
 
 #ifdef LOCAL_TIME_EXPERIMENTAL_IN_PHASE_APPROXIMATION_SHIFT
-    // consider the ordered clock shift to be consumed
-    if (ParticleAttributes.localTime.isTimerCounterShiftConsumable) {
-        LOCAL_TIME_INTERRUPT_COMPARE_VALUE += ParticleAttributes.localTime.portionCounterShiftToBeConsumed;
-        ParticleAttributes.localTime.isTimerCounterShiftConsumable = false;
-    }
+        // consider the ordered clock shift to be consumed
+        if (ParticleAttributes.localTime.isTimerCounterShiftConsumable) {
+            LOCAL_TIME_INTERRUPT_COMPARE_VALUE += ParticleAttributes.localTime.portionCounterShiftToBeConsumed;
+            ParticleAttributes.localTime.isTimerCounterShiftConsumable = false;
+        }
 #endif
     LOCAL_TIME_INTERRUPT_COMPARE_VALUE += ParticleAttributes.localTime.timePeriodInterruptDelay;
 }

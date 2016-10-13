@@ -131,7 +131,7 @@ static void __initParticle(void) {
     addSingleShotTask(SCHEDULER_TASK_ID_SETUP_LEDS, setupLedsState, 128);
     addSingleShotTask(SCHEDULER_TASK_ID_ENABLE_ALERTS, enableAlerts, 255);
     addCyclicTask(SCHEDULER_TASK_ID_SYNC_PACKAGE, sendNextSyncTimePackage, 350, 100);
-//    addCyclicTask(SCHEDULER_TASK_ID_HEARTBEAT_LED_TOGGLE, heartBeatToggle, 300, 400);
+    addCyclicTask(SCHEDULER_TASK_ID_HEARTBEAT_LED_TOGGLE, heartBeatToggle, 300, 400);
 }
 
 /**
@@ -554,6 +554,9 @@ static void __handleDiscoveryPulsingDone(void) {
     }
     __enableReception();
     clearReceptionBuffers();
+    // TODO
+    scheduleNextTxInterrupt();
+    TIMER_TX_RX_ENABLE_COMPARE_INTERRUPT;
 }
 
 /**

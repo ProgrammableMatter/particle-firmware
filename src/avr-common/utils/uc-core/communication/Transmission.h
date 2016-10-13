@@ -24,24 +24,24 @@ void scheduleNextTxInterrupt(void) {
 /**
  * Schedules the next transmission start interrupt with atomic read/write to TIMER_TX_RX_COUNTER_VALUE.
  */
-static void __scheduleStartTxInterrupt(void) {
-    uint8_t sreg = SREG;
-    MEMORY_BARRIER;
-    CLI;
-    MEMORY_BARRIER;
-    uint16_t counter = TIMER_TX_RX_COUNTER_VALUE;
-//    uint16_t transmissionClockDelay = ParticleAttributes.communication.timerAdjustment.transmissionClockDelay;
-//    TIMER_TX_RX_COMPARE_VALUE = counter -
-//                                (counter % transmissionClockDelay)
-//                                + 2 * transmissionClockDelay
-//                                + ParticleAttributes.communication.timerAdjustment.transmissionClockShift;
-    TIMER_TX_RX_COMPARE_VALUE =
-            counter + ParticleAttributes.communication.timerAdjustment.transmissionClockDelay * 2;
-    MEMORY_BARRIER;
-    SREG = sreg;
-    MEMORY_BARRIER;
-    TIMER_TX_RX_ENABLE_COMPARE_INTERRUPT;
-}
+//static void __scheduleStartTxInterrupt(void) {
+//    uint8_t sreg = SREG;
+//    MEMORY_BARRIER;
+//    CLI;
+//    MEMORY_BARRIER;
+//    uint16_t counter = TIMER_TX_RX_COUNTER_VALUE;
+////    uint16_t transmissionClockDelay = ParticleAttributes.communication.timerAdjustment.transmissionClockDelay;
+////    TIMER_TX_RX_COMPARE_VALUE = counter -
+////                                (counter % transmissionClockDelay)
+////                                + 2 * transmissionClockDelay
+////                                + ParticleAttributes.communication.timerAdjustment.transmissionClockShift;
+//    TIMER_TX_RX_COMPARE_VALUE =
+//            counter + ParticleAttributes.communication.timerAdjustment.transmissionClockDelay * 2;
+//    MEMORY_BARRIER;
+//    SREG = sreg;
+//    MEMORY_BARRIER;
+//    TIMER_TX_RX_ENABLE_COMPARE_INTERRUPT;
+//}
 
 /**
  * Activates the designated port to contribute to the next transmission until
@@ -75,7 +75,7 @@ void enableTransmission(TxPort *const port) {
             MEMORY_BARRIER;
             ParticleAttributes.communication.timerAdjustment.isTransmissionClockDelayUpdateable = false;
         }
-        __scheduleStartTxInterrupt();
+//        __scheduleStartTxInterrupt();
     }
 //    MEMORY_BARRIER;
 //    SREG = sreg;

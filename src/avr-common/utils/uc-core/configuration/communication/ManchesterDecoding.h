@@ -23,5 +23,5 @@
 // 22% snapshots buffer of 9 byte PDU max. events
 //#define MANCHESTER_DECODING_RX_NUMBER_SNAPSHOTS 32
 // 20% snapshots buffer of 9 byte PDU max. events
-#define MANCHESTER_DECODING_RX_NUMBER_SNAPSHOTS 29
+#define MANCHESTER_DECODING_RX_NUMBER_SNAPSHOTS 40
 

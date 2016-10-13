@@ -9,7 +9,7 @@
 /**
  * Size of the task array the scheduler keeps track of.
  */
-#define SCHEDULER_MAX_TASKS ((uint8_t)4)
+#define SCHEDULER_MAX_TASKS 4
 
 /**
  * Task array id arguments:

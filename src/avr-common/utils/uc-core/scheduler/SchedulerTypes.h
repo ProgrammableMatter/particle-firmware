@@ -37,7 +37,4 @@ typedef struct SchedulerTask {
 typedef struct Scheduler {
     SchedulerTask tasks[SCHEDULER_MAX_TASKS];
     uint16_t lastCallToScheduler;
-
 } Scheduler;
-
-
