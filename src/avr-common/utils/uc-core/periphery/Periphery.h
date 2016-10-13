@@ -284,12 +284,18 @@ void ledsOnForever(void) {
 
 
 void blinkTimeIntervalNonblocking(void) {
-    if (ParticleAttributes.periphery.blinkTimeInterval.lastExecutionTime ==
-        ParticleAttributes.localTime.numTimePeriodsPassed) {
+    uint8_t sreg = SREG;
+    MEMORY_BARRIER;
+    CLI;
+    MEMORY_BARRIER;
+    uint16_t now = ParticleAttributes.localTime.numTimePeriodsPassed;
+    MEMORY_BARRIER;
+    SREG = sreg;
+
+    if (ParticleAttributes.periphery.blinkTimeInterval.lastExecutionTime == now) {
         return;
     }
-    ParticleAttributes.periphery.blinkTimeInterval.lastExecutionTime =
-            ParticleAttributes.localTime.numTimePeriodsPassed;
+    ParticleAttributes.periphery.blinkTimeInterval.lastExecutionTime = now;
 
     switch (ParticleAttributes.periphery.blinkTimeInterval.blinkState) {
 
@@ -318,11 +324,18 @@ void blinkTimeIntervalNonblocking(void) {
 
 void blinkAddressNonblocking(void) {
 
-    if (ParticleAttributes.periphery.blinkAddress.lastExecutionTime ==
-        ParticleAttributes.localTime.numTimePeriodsPassed) {
+    uint8_t sreg = SREG;
+    MEMORY_BARRIER;
+    CLI;
+    MEMORY_BARRIER;
+    uint16_t now = ParticleAttributes.localTime.numTimePeriodsPassed;
+    MEMORY_BARRIER;
+    SREG = sreg;
+
+    if (ParticleAttributes.periphery.blinkAddress.lastExecutionTime == now) {
         return;
     }
-    ParticleAttributes.periphery.blinkAddress.lastExecutionTime = ParticleAttributes.localTime.numTimePeriodsPassed;
+    ParticleAttributes.periphery.blinkAddress.lastExecutionTime = now;
 
     switch (ParticleAttributes.periphery.blinkAddress.blinkAddressState) {
 

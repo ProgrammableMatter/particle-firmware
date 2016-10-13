@@ -149,6 +149,7 @@ static void __enableReceptionInterrupts(void) {
  * handles actuation command states
  */
 static void handleExecuteActuation(void (*const actuationDoneCallback)(void)) {
+    uint8_t sreg;
     switch (ParticleAttributes.actuationCommand.executionState) {
         case ACTUATION_STATE_TYPE_IDLE:
             if (ParticleAttributes.actuationCommand.isScheduled) {
@@ -173,8 +174,15 @@ static void handleExecuteActuation(void (*const actuationDoneCallback)(void)) {
 
         __ACTUATION_STATE_TYPE_WORKING:
         case ACTUATION_STATE_TYPE_WORKING:
-            if (ParticleAttributes.actuationCommand.actuationEnd.periodTimeStamp <
-                ParticleAttributes.localTime.numTimePeriodsPassed) {
+            sreg = SREG;
+            MEMORY_BARRIER;
+            CLI;
+            MEMORY_BARRIER;
+            uint16_t now = ParticleAttributes.localTime.numTimePeriodsPassed;
+            MEMORY_BARRIER;
+            SREG = sreg;
+            // TODO: ev. move actuation impl. to scheduler
+            if (ParticleAttributes.actuationCommand.actuationEnd.periodTimeStamp < now) {
                 ParticleAttributes.actuationCommand.executionState = ACTUATION_STATE_TYPE_RELAXATION_PAUSE;
                 goto __ACTUATION_STATE_TYPE_RELAXATION_PAUSE;
             }

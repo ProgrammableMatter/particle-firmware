@@ -55,7 +55,13 @@ static void __advancePendingOverflowingCounters(const uint16_t now) {
  * If a node state is specified (state limited tasks) the actions are performed only within this states.
  */
 void processScheduler(void) {
+    uint8_t sreg = SREG;
+    MEMORY_BARRIER;
+    CLI;
+    MEMORY_BARRIER;
     uint16_t now = ParticleAttributes.localTime.numTimePeriodsPassed;
+    MEMORY_BARRIER;
+    SREG = sreg;
 
     if (now < ParticleAttributes.scheduler.lastCallToScheduler) {
         // on local time tracking overflowed
