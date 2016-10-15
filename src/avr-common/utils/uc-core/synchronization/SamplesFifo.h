@@ -458,8 +458,6 @@ void samplesFifoBufferAddSample(const SampleValueType *const sample,
  */
 void samplesFifoBufferAddSample(const SampleValueType *const sample,
                                 TimeSynchronization *const timeSynchronization) {
-    LED_STATUS3_TOGGLE;
-
     // very naive implementation: use current observation as mean
     timeSynchronization->mean = *sample;
     // workaround

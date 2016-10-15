@@ -49,7 +49,6 @@ void tryApproximateTimings(void) {
         if (ParticleAttributes.localTime.isTimePeriodInterruptDelayUpdateable == false &&
             ParticleAttributes.communication.timerAdjustment.isTransmissionClockDelayUpdateable == false) {
 
-            LED_STATUS4_TOGGLE;
 #ifdef SYNCHRONIZATION_STRATEGY_MEAN_WITHOUT_MARKED_OUTLIER
 #  define __synchronization_meanValue ParticleAttributes.timeSynchronization.meanWithoutMarkedOutlier
 #endif
