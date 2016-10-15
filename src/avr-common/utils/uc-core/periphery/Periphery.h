@@ -521,13 +521,13 @@ void setupLedsState(SchedulerTask *task) {
 }
 
 
-///**
-// * Toggles the heartbeat LED.
-// */
-//void heartBeatToggle(SchedulerTask *task) {
-//    LED_STATUS4_TOGGLE;
-//    task->isEnabled = true;
-//}
+/**
+ * Toggles the heartbeat LED.
+ */
+void heartBeatToggle(SchedulerTask *task) {
+    LED_STATUS4_TOGGLE;
+    task->isEnabled = true;
+}
 
 #else
 #define blinkReceptionSnapshotBufferOverflowErrorForever(...)
