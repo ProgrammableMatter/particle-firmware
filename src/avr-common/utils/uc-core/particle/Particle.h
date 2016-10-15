@@ -128,7 +128,9 @@ static void __initParticle(void) {
     MEMORY_BARRIER;
 
     // add tasks to scheduler
+#ifndef PERIPHERY_REMOVE_IMPL
     addSingleShotTask(SCHEDULER_TASK_ID_SETUP_LEDS, setupLedsState, 128);
+#endif
     addSingleShotTask(SCHEDULER_TASK_ID_ENABLE_ALERTS, enableAlerts, 255);
     addCyclicTask(SCHEDULER_TASK_ID_SYNC_PACKAGE, sendNextSyncTimePackage, 350, 100);
 //    addCyclicTask(SCHEDULER_TASK_ID_HEARTBEAT_LED_TOGGLE, heartBeatToggle, 300, 400);
