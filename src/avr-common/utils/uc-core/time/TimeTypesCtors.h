@@ -16,8 +16,8 @@
 void constructLocalTimeTracking(LocalTimeTracking *const o) {
     o->numTimePeriodsPassed = 0;
     o->newNumTimePeriodsPassed = 0;
-    o->timePeriodInterruptDelay = LOCAL_TIME_DEFAULT_INTERRUPT_DELAY;
-    o->newTimePeriodInterruptDelay = LOCAL_TIME_DEFAULT_INTERRUPT_DELAY;
+    o->timePeriodInterruptDelay = LOCAL_TIME_TRACKING_INT_DELAY_MANCHESTER_CLOCK_INITIAL_VALUE;
+    o->newTimePeriodInterruptDelay = LOCAL_TIME_TRACKING_INT_DELAY_MANCHESTER_CLOCK_INITIAL_VALUE;
     o->isTimePeriodInterruptDelayUpdateable = false;
     o->isNumTimePeriodsPassedUpdateable = false;
 #ifdef LOCAL_TIME_EXPERIMENTAL_IN_PHASE_APPROXIMATION_SHIFT

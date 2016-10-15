@@ -35,36 +35,6 @@
  || defined(SYNCHRONIZATION_STRATEGY_LEAST_SQUARE_LINEAR_FITTING)
 
 /**
- * Calculates a new transmission clock according to the factor.
- * @param factor the factorization of the default transmission baud rate
- */
-static void __approximateNewBaudRate(const float *const factor) {
-    CalculationType newTransmissionClockDelay =
-            *factor * (CalculationType) COMMUNICATION_DEFAULT_TX_RX_CLOCK_DELAY;
-    ParticleAttributes.communication.timerAdjustment.newTransmissionClockDelay =
-            roundf(((CalculationType) ParticleAttributes.communication.timerAdjustment.newTransmissionClockDelay +
-                    newTransmissionClockDelay) / 2.0);
-
-    ParticleAttributes.communication.timerAdjustment.newTransmissionClockDelayHalf =
-            roundf(newTransmissionClockDelay / 2.0);
-
-    ParticleAttributes.communication.timerAdjustment.maxShortIntervalDuration =
-            roundf(*factor *
-                   (CalculationType) COMMUNICATION_DEFAULT_MAX_SHORT_RECEPTION_OVERTIME_PERCENTAGE_RATIO *
-                   (CalculationType) ParticleAttributes.communication.timerAdjustment.newTransmissionClockDelay);
-
-    ParticleAttributes.communication.timerAdjustment.maxLongIntervalDuration =
-            roundf(*factor *
-                   (CalculationType) COMMUNICATION_DEFAULT_MAX_LONG_RECEPTION_OVERTIME_PERCENTAGE_RATIO *
-                   (CalculationType) ParticleAttributes.communication.timerAdjustment.newTransmissionClockDelay);
-
-    MEMORY_BARRIER;
-    // indicate new transmission timings available, will be considered in the next TX ISR
-    ParticleAttributes.communication.timerAdjustment.isTransmissionClockDelayUpdateable = true;
-
-}
-
-/**
  * Clock skew approximation entry point: Independent on which approximation strategy is chosen,
  * this approximation function is triggered after each TimePackage has been received correctly and
  * it's pdu reception duration offset has been stored to the fifo queue.
@@ -74,7 +44,9 @@ void tryApproximateTimings(void) {
 #ifndef SYNCHRONIZATION_STRATEGY_PROGRESSIVE_MEAN
     if (isFiFoFull(&timeSynchronization->timeIntervalSamples)) {
 #endif
-        if (ParticleAttributes.localTime.isTimePeriodInterruptDelayUpdateable == false) {
+        // if ISR already considered previous new values
+        if (ParticleAttributes.localTime.isTimePeriodInterruptDelayUpdateable == false &&
+            ParticleAttributes.communication.timerAdjustment.isTransmissionClockDelayUpdateable == false) {
 
 #ifdef SYNCHRONIZATION_STRATEGY_MEAN_WITHOUT_MARKED_OUTLIER
 #  define __synchronization_meanValue ParticleAttributes.timeSynchronization.meanWithoutMarkedOutlier
@@ -100,50 +72,47 @@ void tryApproximateTimings(void) {
             calculateLinearFittingFunctionVarianceAndStdDeviance();
 #endif
             // shift mean value back by +UINT16_T/2
-            CalculationType realDuration = __synchronization_meanValue
-                                           + (CalculationType) INT16_MAX;
-            // TODO: expected duration - 512 must be taken from runtime definition!
+            CalculationType observedFiFallingToLaFallingPduEdgeDuration =
+                    __synchronization_meanValue +
+                    (CalculationType) TIME_SYNCHRONIZATION_SAMPLE_OFFSET;
+
+            // calculate one manchester clock duration
 #ifdef SYNCHRONIZATION_TIME_PACKAGE_DURATION_COUNTING_EXCLUSIVE_LAST_RISING_EDGE
-            uint16_t clockDelayHalf = roundf(
-                    ParticleAttributes.communication.timerAdjustment.newTransmissionClockDelayHalf);
-            // on considering 1st-falling to last falling time package edge
-            CalculationType expectedDuration =
-                    COMMANDS_EXPECTED_TIME_PACKAGE_RECEPTION_DURATION - clockDelayHalf;
+            // the observed duration contains 63 clocks + 1 half clock
+            ParticleAttributes.communication.timerAdjustment.newTransmissionClockDelay =
+                    (observedFiFallingToLaFallingPduEdgeDuration +
+                     SYNCHRONIZATION_MANUAL_ADJUSTMENT_CLOCK_ACCELERATION) /
+                    SYNCHRONIZATION_PDU_NUMBER_CLOCKS_IN_MEASURED_INTERVAL_FIRST_FALLING_TO_LAST_FALLING_EDGE;
 #else
-            // on considering whole time package duration
-            CalculationType expectedDuration = UINT16_MAX;
+            // the observed duration contains 64 clocks
+            ParticleAttributes.communication.timerAdjustment.newTransmissionClockDelay =
+                    (observedFiFallingToLaFallingPduEdgeDuration +
+                     SYNCHRONIZATION_MANUAL_ADJUSTMENT_CLOCK_ACCELERATION) /
+                     SYNCHRONIZATION_PDU_NUMBER_CLOCKS_IN_MEASURED_INTERVAL_FIRST_FALLING_TO_LAST_EDGE;
 #endif
-            // calculate new local time tracking interrupt delay
-            CalculationType factor = realDuration / expectedDuration;
+            // calculate manchester clock/2 duration
+            ParticleAttributes.communication.timerAdjustment.newTransmissionClockDelayHalf =
+                    ParticleAttributes.communication.timerAdjustment.newTransmissionClockDelay / 2.0;
 
-            CalculationType newTimePeriodInterruptDelay =
-                    factor *
-                    (CalculationType) __LOCAL_TIME_DEFAULT_INTERRUPT_DELAY +
-                    SYNCHRONIZATION_MANUAL_ADJUSTMENT_CLOCK_ACCELERATION;
+            // calculate the upper limit of measured short interval duration (manchester decoding decision limit)
+            ParticleAttributes.communication.timerAdjustment.maxShortIntervalDuration =
+                    roundf((CalculationType) COMMUNICATION_DEFAULT_MAX_SHORT_RECEPTION_OVERTIME_PERCENTAGE_RATIO *
+                           (CalculationType) ParticleAttributes.communication.timerAdjustment.newTransmissionClockDelay);
 
+            // calculate the upper limit of measured long interval duration (manchester decoding decision limit)
+            ParticleAttributes.communication.timerAdjustment.maxLongIntervalDuration =
+                    roundf((CalculationType) COMMUNICATION_DEFAULT_MAX_LONG_RECEPTION_OVERTIME_PERCENTAGE_RATIO *
+                           (CalculationType) ParticleAttributes.communication.timerAdjustment.newTransmissionClockDelay);
 
-//            // TODO: evaluation code
-//            if (newTimePeriodInterruptDelay >
-//                (ParticleAttributes.localTime.newTimePeriodInterruptDelay + 1)) {
-//                LED_STATUS3_TOGGLE;
-//
-//            } else if (newTimePeriodInterruptDelay <
-//                       (ParticleAttributes.localTime.newTimePeriodInterruptDelay - 1)) {
-//                LED_STATUS4_TOGGLE;
-//            } else {
-//                LED_STATUS3_TOGGLE;
-//                LED_STATUS4_TOGGLE;
-//            }
-
-            // update the new mean/clock skew smoothly
+            // calculate the new local time tracking interrupt delay
             ParticleAttributes.localTime.newTimePeriodInterruptDelay =
-                    (uint16_t) roundf(
-                            ((CalculationType) ParticleAttributes.localTime.newTimePeriodInterruptDelay +
-                             newTimePeriodInterruptDelay) / 2.0);
+                    roundf(ParticleAttributes.communication.timerAdjustment.newTransmissionClockDelay *
+                           LOCAL_TIME_TRACKING_INT_DELAY_MANCHESTER_CLOCK_MULTIPLIER);
+
 
             MEMORY_BARRIER;
             ParticleAttributes.localTime.isTimePeriodInterruptDelayUpdateable = true;
-            __approximateNewBaudRate(&factor);
+            ParticleAttributes.communication.timerAdjustment.isTransmissionClockDelayUpdateable = true;
         }
 #ifndef SYNCHRONIZATION_STRATEGY_PROGRESSIVE_MEAN
     }

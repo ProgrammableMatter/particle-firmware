@@ -59,3 +59,15 @@
 //#define __SYNCHRONIZATION_MANUAL_ADJUSTMENT_CLOCK_NO_ACCELERATION
 //#define __SYNCHRONIZATION_MANUAL_ADJUSTMENT_CLOCK_SPEED_UP - ((uint8_t) 12)
 #define SYNCHRONIZATION_MANUAL_ADJUSTMENT_CLOCK_ACCELERATION __SYNCHRONIZATION_MANUAL_ADJUSTMENT_CLOCK_SLOW_DOWN
+
+
+/**
+ * Defines the number of manchester clocks in the observing measure interval.
+ * First falling to last falling refers to the whole PDU length minus 1/2 clocks.
+ */
+#define SYNCHRONIZATION_PDU_NUMBER_CLOCKS_IN_MEASURED_INTERVAL_FIRST_FALLING_TO_LAST_FALLING_EDGE ((float) 63.5)
+/**
+ * Defines the number of manchester clocks in the observing measure interval.
+ * First edge to last edge refers to the whole whole PDU lengt.
+ */
+#define SYNCHRONIZATION_PDU_NUMBER_CLOCKS_IN_MEASURED_INTERVAL_FIRST_FALLING_TO_LAST_EDGE ((float) 64.0)
