@@ -104,8 +104,11 @@ void tryApproximateTimings(void) {
                                            + (CalculationType) INT16_MAX;
             // TODO: expected duration - 512 must be taken from runtime definition!
 #ifdef SYNCHRONIZATION_TIME_PACKAGE_DURATION_COUNTING_EXCLUSIVE_LAST_RISING_EDGE
+            uint16_t clockDelayHalf = roundf(
+                    ParticleAttributes.communication.timerAdjustment.newTransmissionClockDelayHalf);
             // on considering 1st-falling to last falling time package edge
-            CalculationType expectedDuration = COMMANDS_EXPECTED_TIME_PACKAGE_RECEPTION_DURATION - 512;
+            CalculationType expectedDuration =
+                    COMMANDS_EXPECTED_TIME_PACKAGE_RECEPTION_DURATION - clockDelayHalf;
 #else
             // on considering whole time package duration
             CalculationType expectedDuration = UINT16_MAX;
