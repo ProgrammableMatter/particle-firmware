@@ -46,7 +46,7 @@ void samplesFifoBufferIteratorStart(SamplesFifoBuffer *const samplesBuffer) {
     samplesBuffer->iterator = samplesBuffer->__startIdx;
 }
 
-#ifndef SYNCHRONIZATION_STRATEGY_PROGRESSIVE_MEAN
+#if !defined(SYNCHRONIZATION_STRATEGY_PROGRESSIVE_MEAN) && !defined(SYNCHRONIZATION_STRATEGY_RAW_OBSERVATION)
 
 /**
  * Increments the end index for the next value to be inserted (First-in).
@@ -173,6 +173,8 @@ static void __calculateProgressiveMean(const SampleValueType *const sample,
                  (CalculationType) timeSynchronization->progressiveMean) / 2.0;
         timeSynchronization->progressiveMean = (SampleValueType) roundf(newProgressiveMean);
     }
+    // workaround
+    timeSynchronization->timeIntervalSamples.numSamples = SAMPLE_FIFO_NUM_BUFFER_ELEMENTS;
 }
 
 #endif
@@ -445,6 +447,23 @@ void samplesFifoBufferAddSample(const SampleValueType *const sample,
 //    timeSynchronization->timeIntervalSamples.
 //            samples[timeSynchronization->timeIntervalSamples.__insertIndex].isRejected = isToBeRejected;
 //    printf("%u\n", *sample);
+}
+
+#endif
+
+#ifdef SYNCHRONIZATION_STRATEGY_RAW_OBSERVATION
+
+/**
+ * Adds a value to the FiFo buffer.
+ */
+void samplesFifoBufferAddSample(const SampleValueType *const sample,
+                                TimeSynchronization *const timeSynchronization) {
+    LED_STATUS3_TOGGLE;
+
+    // very naive implementation: use current observation as mean
+    timeSynchronization->mean = *sample;
+    // workaround
+    timeSynchronization->timeIntervalSamples.numSamples = SAMPLE_FIFO_NUM_BUFFER_ELEMENTS;
 }
 
 #endif

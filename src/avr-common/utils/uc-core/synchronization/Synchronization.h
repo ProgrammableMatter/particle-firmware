@@ -27,7 +27,8 @@
 
 #include "uc-core/configuration/Time.h"
 
-#if defined(SYNCHRONIZATION_STRATEGY_MEAN) \
+#if defined(SYNCHRONIZATION_STRATEGY_RAW_OBSERVATION) \
+ || defined(SYNCHRONIZATION_STRATEGY_MEAN) \
  || defined(SYNCHRONIZATION_STRATEGY_MEAN_WITHOUT_MARKED_OUTLIER) \
  || defined(SYNCHRONIZATION_STRATEGY_PROGRESSIVE_MEAN) \
  || defined(SYNCHRONIZATION_STRATEGY_MEAN_WITHOUT_OUTLIER) \
@@ -40,14 +41,15 @@
  * it's pdu reception duration offset has been stored to the fifo queue.
  */
 void tryApproximateTimings(void) {
-    TimeSynchronization *const timeSynchronization = &ParticleAttributes.timeSynchronization;
-#ifndef SYNCHRONIZATION_STRATEGY_PROGRESSIVE_MEAN
-    if (isFiFoFull(&timeSynchronization->timeIntervalSamples)) {
-#endif
+//    TimeSynchronization *const timeSynchronization = &ParticleAttributes.timeSynchronization;
+//#if !defined(SYNCHRONIZATION_STRATEGY_PROGRESSIVE_MEAN) || !defined(SYNCHRONIZATION_STRATEGY_RAW_OBSERVATION)
+    if (isFiFoFull(&ParticleAttributes.timeSynchronization.timeIntervalSamples)) {
+//#endif
         // if ISR already considered previous new values
         if (ParticleAttributes.localTime.isTimePeriodInterruptDelayUpdateable == false &&
             ParticleAttributes.communication.timerAdjustment.isTransmissionClockDelayUpdateable == false) {
 
+            LED_STATUS4_TOGGLE;
 #ifdef SYNCHRONIZATION_STRATEGY_MEAN_WITHOUT_MARKED_OUTLIER
 #  define __synchronization_meanValue ParticleAttributes.timeSynchronization.meanWithoutMarkedOutlier
 #endif
@@ -57,6 +59,9 @@ void tryApproximateTimings(void) {
             calculateVarianceAndStdDeviance();
             updateOutlierRejectionLimitDependingOnSigma();
             calculateMeanWithoutOutlier();
+#endif
+#ifdef SYNCHRONIZATION_STRATEGY_RAW_OBSERVATION
+#  define __synchronization_meanValue ParticleAttributes.timeSynchronization.mean
 #endif
 #ifdef SYNCHRONIZATION_STRATEGY_MEAN
 #  define __synchronization_meanValue ParticleAttributes.timeSynchronization.mean
@@ -68,28 +73,21 @@ void tryApproximateTimings(void) {
 #    define __synchronization_meanValue ParticleAttributes.timeSynchronization.progressiveMean
 #endif
 #ifdef SYNCHRONIZATION_STRATEGY_LEAST_SQUARE_LINEAR_FITTING
-#  define __synchronization_meanValue timeSynchronization->fittingFunction.d
+#  define __synchronization_meanValue ParticleAttributes.timeSynchronization.fittingFunction.d
             calculateLinearFittingFunctionVarianceAndStdDeviance();
 #endif
+
             // shift mean value back by +UINT16_T/2
-            CalculationType observedFiFallingToLaFallingPduEdgeDuration =
+            CalculationType observedPduDuration =
                     __synchronization_meanValue +
                     (CalculationType) TIME_SYNCHRONIZATION_SAMPLE_OFFSET;
 
             // calculate one manchester clock duration
-#ifdef SYNCHRONIZATION_TIME_PACKAGE_DURATION_COUNTING_EXCLUSIVE_LAST_RISING_EDGE
-            // the observed duration contains 63 clocks + 1 half clock
             ParticleAttributes.communication.timerAdjustment.newTransmissionClockDelay =
-                    (observedFiFallingToLaFallingPduEdgeDuration +
+                    (observedPduDuration +
                      SYNCHRONIZATION_MANUAL_ADJUSTMENT_CLOCK_ACCELERATION) /
-                    SYNCHRONIZATION_PDU_NUMBER_CLOCKS_IN_MEASURED_INTERVAL_FIRST_FALLING_TO_LAST_FALLING_EDGE;
-#else
-            // the observed duration contains 64 clocks
-            ParticleAttributes.communication.timerAdjustment.newTransmissionClockDelay =
-                    (observedFiFallingToLaFallingPduEdgeDuration +
-                     SYNCHRONIZATION_MANUAL_ADJUSTMENT_CLOCK_ACCELERATION) /
-                     SYNCHRONIZATION_PDU_NUMBER_CLOCKS_IN_MEASURED_INTERVAL_FIRST_FALLING_TO_LAST_EDGE;
-#endif
+                    SYNCHRONIZATION_PDU_NUMBER_CLOCKS_IN_MEASURED_INTERVAL;
+
             // calculate manchester clock/2 duration
             ParticleAttributes.communication.timerAdjustment.newTransmissionClockDelayHalf =
                     ParticleAttributes.communication.timerAdjustment.newTransmissionClockDelay / 2.0;
@@ -109,14 +107,13 @@ void tryApproximateTimings(void) {
                     roundf(ParticleAttributes.communication.timerAdjustment.newTransmissionClockDelay *
                            LOCAL_TIME_TRACKING_INT_DELAY_MANCHESTER_CLOCK_MULTIPLIER);
 
-
             MEMORY_BARRIER;
             ParticleAttributes.localTime.isTimePeriodInterruptDelayUpdateable = true;
             ParticleAttributes.communication.timerAdjustment.isTransmissionClockDelayUpdateable = true;
         }
-#ifndef SYNCHRONIZATION_STRATEGY_PROGRESSIVE_MEAN
+//#ifndef SYNCHRONIZATION_STRATEGY_PROGRESSIVE_MEAN
     }
-#endif
+//#endif
 }
 
 #endif

@@ -113,7 +113,7 @@ void constructTransmissionTimerAdjustment(TransmissionTimerAdjustment *const o) 
     o->transmissionClockDelay = COMMUNICATION_DEFAULT_TX_RX_CLOCK_DELAY;
     o->transmissionClockDelayHalf = COMMUNICATION_DEFAULT_TX_RX_CLOCK_DELAY / 2;
     o->newTransmissionClockDelay = o->transmissionClockDelay;
-    o->newTransmissionClockDelayHalf = 0;
+    o->newTransmissionClockDelayHalf = o->transmissionClockDelayHalf;
     o->isTransmissionClockDelayUpdateable = false;
 
     // TODO: remove clock shift

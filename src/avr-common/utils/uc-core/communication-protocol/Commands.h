@@ -45,7 +45,7 @@ void executeSynchronizeLocalTimePackage(const TimePackage *const package,
 
     LED_STATUS2_TOGGLE;
 
-    // calculate pdu duration
+    // calculate observed PDU duration
 #ifdef SYNCHRONIZATION_TIME_PACKAGE_DURATION_COUNTING_EXCLUSIVE_LAST_RISING_EDGE
     int32_t sample = (int32_t) (portBuffer->receptionDuration - portBuffer->lastFallingToRisingDuration) -
                      (int32_t) TIME_SYNCHRONIZATION_SAMPLE_OFFSET;
