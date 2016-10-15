@@ -190,7 +190,7 @@ void constructHeatWiresPackage(TxPort *const txPort,
     package->asHeatWiresPackage.addressColumn = address->column;
     package->asHeatWiresPackage.startTimeStamp = startTimeStamp;
     package->asHeatWiresPackage.durationLsb = duration & 0x00ff;
-    package->asHeatWiresPackage.durationMsb = duration & 0x0300;
+    package->asHeatWiresPackage.durationMsb = (duration & 0x0300) >> 8;
     package->asHeatWiresPackage.northLeft = wires->northLeft;
     package->asHeatWiresPackage.northRight = wires->northRight;
 
