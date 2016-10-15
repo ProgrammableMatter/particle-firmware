@@ -8,6 +8,7 @@
 
 #include "uc-core/configuration/synchronization/Synchronization.h"
 #include "uc-core/configuration/communication/Communication.h"
+#include "uc-core/configuration/communication/Commands.h"
 #include "uc-core/particle/Globals.h"
 #include "SynchronizationTypes.h"
 #include "SamplesFifo.h"
@@ -104,7 +105,7 @@ void tryApproximateTimings(void) {
             // TODO: expected duration - 512 must be taken from runtime definition!
 #ifdef SYNCHRONIZATION_TIME_PACKAGE_DURATION_COUNTING_EXCLUSIVE_LAST_RISING_EDGE
             // on considering 1st-falling to last falling time package edge
-            CalculationType expectedDuration = UINT16_MAX - 512;
+            CalculationType expectedDuration = COMMANDS_EXPECTED_TIME_PACKAGE_RECEPTION_DURATION - 512;
 #else
             // on considering whole time package duration
             CalculationType expectedDuration = UINT16_MAX;
