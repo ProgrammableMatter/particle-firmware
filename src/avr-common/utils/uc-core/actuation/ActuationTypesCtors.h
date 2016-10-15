@@ -24,7 +24,10 @@ void constructActuators(Actuators *const o) {
  * @param o reference to the object to construct
  */
 void constructHeatingMode(HeatingMode *const o) {
-    o->dutyCycleLevel = HEATING_LEVEL_TYPE_MEDIUM;
+    // TODO: pwm driven pwer levels seems not to work correctly - don't see the pwm
+//    o->dutyCycleLevel = HEATING_LEVEL_TYPE_MEDIUM;
+    o->dutyCycleLevel = HEATING_LEVEL_TYPE_MAXIMUM;
+//    o->dutyCycleLevel = HEATING_LEVEL_TYPE_STRONG;
 }
 
 /**
