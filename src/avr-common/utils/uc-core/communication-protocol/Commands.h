@@ -203,6 +203,15 @@ void executeSetNetworkGeometryPackage(const SetNetworkGeometryPackage *const pac
     updateAndDetermineNodeType();
 }
 
+
+static uint16_t __getHeatWiresDuration(HeatWiresPackage const *const package) {
+    return (((uint16_t) package->durationMsb) << 8) | package->durationLsb;
+}
+
+static uint16_t __getHeatWiresRangeDuration(HeatWiresRangePackage const *const package) {
+    return (((uint16_t) package->durationMsb) << 8) | package->durationLsb;
+}
+
 /**
  * Infer an actuation command from a heat wires package or a heat wires range package
  * for the the east actuator.
@@ -219,8 +228,7 @@ static void __inferEastActuatorCommand(const Package *const package) {
             ParticleAttributes.actuationCommand.actuationStart.periodTimeStamp = heatWiresRangePackage->startTimeStamp;
             ParticleAttributes.actuationCommand.actuationEnd.periodTimeStamp =
                     heatWiresRangePackage->startTimeStamp +
-                    ((((uint16_t) heatWiresRangePackage->durationMsb) << 8) |
-                     heatWiresRangePackage->durationLsb);
+                    __getHeatWiresRangeDuration(heatWiresRangePackage);
             ParticleAttributes.actuationCommand.isScheduled = true;
         }
         else {
@@ -229,8 +237,7 @@ static void __inferEastActuatorCommand(const Package *const package) {
             if (heatWiresPackage->northLeft) ParticleAttributes.actuationCommand.actuators.eastRight = true;
             ParticleAttributes.actuationCommand.actuationStart.periodTimeStamp = heatWiresPackage->startTimeStamp;
             ParticleAttributes.actuationCommand.actuationEnd.periodTimeStamp =
-                    heatWiresPackage->startTimeStamp +
-                    ((((uint16_t) heatWiresPackage->durationMsb) << 8) | heatWiresPackage->durationLsb);
+                    heatWiresPackage->startTimeStamp + __getHeatWiresDuration(heatWiresPackage);
 
             ParticleAttributes.actuationCommand.isScheduled = true;
         }
@@ -253,8 +260,7 @@ static void __inferSouthActuatorCommand(const Package *const package) {
             ParticleAttributes.actuationCommand.actuationStart.periodTimeStamp = heatWiresRangePackage->startTimeStamp;
             ParticleAttributes.actuationCommand.actuationEnd.periodTimeStamp =
                     heatWiresRangePackage->startTimeStamp +
-                    ((((uint16_t) heatWiresRangePackage->durationMsb) << 8) |
-                     heatWiresRangePackage->durationLsb);
+                    __getHeatWiresRangeDuration(heatWiresRangePackage);
             ParticleAttributes.actuationCommand.isScheduled = true;
         } else {
             const HeatWiresPackage *const heatWiresPackage = &package->asHeatWiresPackage;
@@ -262,8 +268,7 @@ static void __inferSouthActuatorCommand(const Package *const package) {
             if (heatWiresPackage->northLeft) ParticleAttributes.actuationCommand.actuators.southRight = true;
             ParticleAttributes.actuationCommand.actuationStart.periodTimeStamp = heatWiresPackage->startTimeStamp;
             ParticleAttributes.actuationCommand.actuationEnd.periodTimeStamp =
-                    heatWiresPackage->startTimeStamp +
-                    ((((uint16_t) heatWiresPackage->durationMsb) << 8) | heatWiresPackage->durationLsb);
+                    heatWiresPackage->startTimeStamp + __getHeatWiresDuration(heatWiresPackage);
             ParticleAttributes.actuationCommand.isScheduled = true;
         }
     }
@@ -282,8 +287,7 @@ static void __scheduleHeatWiresCommand(const Package *const package) {
             ParticleAttributes.actuationCommand.actuationStart.periodTimeStamp = heatWiresRangePackage->startTimeStamp;
             ParticleAttributes.actuationCommand.actuationEnd.periodTimeStamp =
                     heatWiresRangePackage->startTimeStamp +
-                    ((((uint16_t) heatWiresRangePackage->durationMsb) << 8) |
-                     heatWiresRangePackage->durationLsb);
+                    __getHeatWiresRangeDuration(heatWiresRangePackage);
             ParticleAttributes.protocol.isBroadcastEnabled = heatWiresRangePackage->header.enableBroadcast;
             ParticleAttributes.actuationCommand.isScheduled = true;
         } else {
@@ -292,8 +296,7 @@ static void __scheduleHeatWiresCommand(const Package *const package) {
             ParticleAttributes.actuationCommand.actuators.northRight = heatWiresPackage->northRight;
             ParticleAttributes.actuationCommand.actuationStart.periodTimeStamp = heatWiresPackage->startTimeStamp;
             ParticleAttributes.actuationCommand.actuationEnd.periodTimeStamp =
-                    heatWiresPackage->startTimeStamp +
-                    ((((uint16_t) heatWiresPackage->durationMsb) << 8) | heatWiresPackage->durationLsb);
+                    heatWiresPackage->startTimeStamp + __getHeatWiresDuration(heatWiresPackage);
             ParticleAttributes.protocol.isBroadcastEnabled = heatWiresPackage->header.enableBroadcast;
             ParticleAttributes.actuationCommand.isScheduled = true;
         }
