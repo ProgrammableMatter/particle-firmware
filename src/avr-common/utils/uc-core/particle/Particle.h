@@ -32,6 +32,7 @@
 #include "uc-core/time/Time.h"
 #include "uc-core/scheduler/Scheduler.h"
 #include "uc-core/scheduler/SchedulerTypesCtors.h"
+#include "uc-core/evaluation/Evaluation.h"
 
 /**
  * Disables discovery sensing interrupts.
@@ -79,26 +80,6 @@ void enableAlerts(SchedulerTask *const task) {
     task->isEnabled = false;
 }
 
-
-void sendNextSyncTimePackage(SchedulerTask *const task) {
-    if (ParticleAttributes.timeSynchronization.isNextSyncPackageTransmissionEnabled) {
-        if (ParticleAttributes.node.type == NODE_TYPE_ORIGIN) {
-//             on origin node: schedule next sync package
-            if (ParticleAttributes.timeSynchronization.totalFastSyncPackagesToTransmit <= 0) {
-                // separation on default synchronization
-                task->reScheduleDelay = ParticleAttributes.timeSynchronization.syncPackageSeparation;
-            } else {
-                // separation on fast synchronization
-                task->reScheduleDelay = ParticleAttributes.timeSynchronization.fastSyncPackageSeparation;
-                ParticleAttributes.timeSynchronization.totalFastSyncPackagesToTransmit--;
-            }
-            ParticleAttributes.node.state = STATE_TYPE_RESYNC_NEIGHBOUR;
-            ParticleAttributes.timeSynchronization.isNextSyncPackageTransmissionEnabled = false;
-            LED_STATUS2_TOGGLE;
-        }
-    }
-}
-
 /**
  * Sets up ports and interrupts but does not enable the global interrupt (I-flag in SREG).
  */
@@ -132,8 +113,16 @@ static void __initParticle(void) {
     addSingleShotTask(SCHEDULER_TASK_ID_SETUP_LEDS, setupLedsState, 128);
 #endif
     addSingleShotTask(SCHEDULER_TASK_ID_ENABLE_ALERTS, enableAlerts, 255);
+
     addCyclicTask(SCHEDULER_TASK_ID_SYNC_PACKAGE, sendNextSyncTimePackage, 350, 100);
+    setNodeTypeLimitedTask(SCHEDULER_TASK_ID_SYNC_PACKAGE, NODE_TYPE_ORIGIN);
+    setCountLimitedTask(SCHEDULER_TASK_ID_SYNC_PACKAGE, 30);
+
 //    addCyclicTask(SCHEDULER_TASK_ID_HEARTBEAT_LED_TOGGLE, heartBeatToggle, 300, 400);
+
+    addSingleShotTask(SCHEDULER_TASK_ID_HEAT_WIRES, heatWires, 0);
+    setNodeTypeLimitedTask(SCHEDULER_TASK_ID_HEAT_WIRES, NODE_TYPE_ORIGIN);
+    disableTask(SCHEDULER_TASK_ID_HEAT_WIRES);
 }
 
 /**
@@ -314,7 +303,7 @@ static void __handleSynchronizeNeighbour(const StateType endState) {
     switch (commPortState->initiatorState) {
         // transmit local time simultaneously on east and south ports
         case COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT:
-            constructSyncTimePackage(txPort, false);
+            constructSyncTimePackage(txPort, true);
             enableTransmission(txPort);
             commPortState->initiatorState = COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT_WAIT_FOR_TX_FINISHED;
             break;
@@ -633,47 +622,19 @@ static void __onActuationDoneCallback(void) {
     ParticleAttributes.node.state = STATE_TYPE_IDLE;
 }
 
-///**
-// * Checks whether an actuation is to be executed. Switches state if an actuation
-// * command is scheduled and the current local time indicates an actuation start.
-// */
-//static void __handleIsActuationCommandPeriod(void) {
-//    if (ParticleAttributes.actuationCommand.isScheduled &&
-//        ParticleAttributes.actuationCommand.executionState == ACTUATION_STATE_TYPE_IDLE) {
-//        if (ParticleAttributes.actuationCommand.actuationStart.periodTimeStamp <=
-//            ParticleAttributes.localTime.numTimePeriodsPassed) {
-//            ParticleAttributes.node.state = STATE_TYPE_EXECUTE_ACTUATION_COMMAND;
-//        }
-//    }
-//}
-
 /**
- * On matching time period puts the particle to synchronization state and disables further synchronization
- * scheduling until the package is transmitted.
+ * Checks whether an actuation is to be executed. Switches state if an actuation
+ * command is scheduled and the current local time indicates an actuation start.
  */
-//static void __sendNextSyncTimePackage(void) {
-//    if (ParticleAttributes.timeSynchronization.isNextSyncPackageTransmissionEnabled) {
-//        if (ParticleAttributes.node.type == NODE_TYPE_ORIGIN) {
-//            // on origin node: schedule next sync package
-//            if (ParticleAttributes.timeSynchronization.nextSyncPackageTransmissionStartTime <=
-//                ParticleAttributes.localTime.numTimePeriodsPassed) {
-//                if (ParticleAttributes.timeSynchronization.totalFastSyncPackagesToTransmit <= 0) {
-//                    // separation on default cyclic synchronization
-//                    ParticleAttributes.timeSynchronization.nextSyncPackageTransmissionStartTime +=
-//                            ParticleAttributes.timeSynchronization.syncPackageSeparation;
-//                } else {
-//                    // separation on fast synchronization
-//                    ParticleAttributes.timeSynchronization.nextSyncPackageTransmissionStartTime +=
-//                            ParticleAttributes.timeSynchronization.fastSyncPackageSeparation;
-//                    ParticleAttributes.timeSynchronization.totalFastSyncPackagesToTransmit--;
-//                }
-//                ParticleAttributes.node.state = STATE_TYPE_RESYNC_NEIGHBOUR;
-//                ParticleAttributes.timeSynchronization.isNextSyncPackageTransmissionEnabled = false;
-//                LED_STATUS2_TOGGLE;
-//            }
-//        }
-//    }
-//}
+static void __handleIsActuationCommandPeriod(void) {
+    if (ParticleAttributes.actuationCommand.isScheduled &&
+        ParticleAttributes.actuationCommand.executionState == ACTUATION_STATE_TYPE_IDLE) {
+        if (ParticleAttributes.actuationCommand.actuationStart.periodTimeStamp <=
+            ParticleAttributes.localTime.numTimePeriodsPassed) {
+            ParticleAttributes.node.state = STATE_TYPE_EXECUTE_ACTUATION_COMMAND;
+        }
+    }
+}
 
 
 /**
@@ -906,23 +867,16 @@ static inline void process(void) {
             ParticleAttributes.directionOrientedPorts.north.receivePimpl();
             ParticleAttributes.directionOrientedPorts.east.receivePimpl();
             ParticleAttributes.directionOrientedPorts.south.receivePimpl();
-
-//            __handleIsActuationCommandPeriod();
-//            setupLedsBeforeProcessing();
-//            __sendNextSyncTimePackage();
+            __handleIsActuationCommandPeriod();
 
             // future time stamp dependent execution should be better placed in the scheduler
             processScheduler();
 //            shiftConsumableLocalTimeTrackingClockLagUnitsToIsr();
-
 //            // TODO: evaluation code
 //            if (ParticleAttributes.localTime.numTimePeriodsPassed > 255) {
-//                ParticleAttributes.alerts.isRxBufferOverflowEnabled = true;
-//                ParticleAttributes.alerts.isRxParityErrorEnabled = true;
-//                ParticleAttributes.alerts.isGenericErrorEnabled = true;
-////                blinkAddressNonblocking();
-////                blinkTimeIntervalNonblocking();
-////                ParticleAttributes.periphery.isTxSouthToggleEnabled = true;
+//                blinkAddressNonblocking();
+//                blinkTimeIntervalNonblocking();
+//                ParticleAttributes.periphery.isTxSouthToggleEnabled = true;
 //
 //            }
             break;
