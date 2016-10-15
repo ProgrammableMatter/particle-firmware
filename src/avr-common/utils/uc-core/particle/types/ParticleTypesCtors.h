@@ -7,6 +7,7 @@
 #pragma once
 
 #include "ParticleTypes.h"
+#include "NodeAddressTypesCtors.h"
 #include "AlertsTypesCtors.h"
 #include "DiscoveryPulseCountersCtors.h"
 #include "CommunicationTypesCtors.h"
@@ -17,15 +18,8 @@
 #include "uc-core/periphery/PeripheryTypesCtors.h"
 #include "uc-core/synchronization/SynchronizationTypesCtors.h"
 #include "uc-core/scheduler/SchedulerTypesCtors.h"
+#include "uc-core/evaluation/EvaluationTypesCtors.h"
 
-/**
- * constructor function
- * @param o the object to construct
- */
-void constructNodeAddress(NodeAddress *const o) {
-    o->row = 0;
-    o->column = 0;
-}
 
 /**
  * constructor function
@@ -53,6 +47,7 @@ void constructParticle(Particle *const o) {
     constructDirectionOrientedPorts(&o->directionOrientedPorts);
     constructAlerts(&o->alerts);
     constructScheduler(&o->scheduler);
+    constructEvaluation(&o->evaluation);
 #ifdef SIMULATION
     o->__structStartMarker = 0xaa;
     o->__structEndMarker = 0xaa;

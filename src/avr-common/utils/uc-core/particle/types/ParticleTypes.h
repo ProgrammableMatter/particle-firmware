@@ -7,6 +7,7 @@
 #pragma once
 
 #include <stdint.h>
+#include "uc-core/particle/types/NodeAddressTypes.h"
 #include "uc-core/actuation/ActuationTypes.h"
 #include "uc-core/time/TimeTypes.h"
 #include "uc-core/periphery/PeripheryTypes.h"
@@ -16,15 +17,7 @@
 #include "uc-core/particle/types/CommunicationTypes.h"
 #include "uc-core/scheduler/SchedulerTypes.h"
 #include "uc-core/particle/types/ParticleStateTypes.h"
-
-/**
- * The node address in the network. The origin node is addressed as row=1, column=1.
- * Address (0,0) is reserved.
- */
-typedef struct NodeAddress {
-    uint8_t row;
-    uint8_t column;
-} NodeAddress;
+#include "uc-core/evaluation/EvaluationTypes.h"
 
 /**
  * Describes the node state type and address.
@@ -84,7 +77,6 @@ typedef struct Particle {
      * related resources in a direction oriented way.
      */
     DirectionOrientedPorts directionOrientedPorts;
-
     /**
      * flags arming/disarming alerts on run time
      */
@@ -93,6 +85,10 @@ typedef struct Particle {
      * Simple scheduler to plan and execute tasks from the main loop.
      */
     Scheduler scheduler;
+    /**
+     * Evaluation relevant fields. Can be removed in productive application.
+     */
+    Evaluation evaluation;
 #ifdef SIMULATION
     // a marker used to assure the correct interpretation of the particle structure when simulating
     uint8_t __structEndMarker;
