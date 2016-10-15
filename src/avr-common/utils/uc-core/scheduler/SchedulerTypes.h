@@ -30,7 +30,7 @@ typedef struct SchedulerTask {
     uint8_t isEndActionExecuted : 1;
 
     uint8_t isCyclicTask: 1;
-    uint8_t __isCounterRetained: 1;
+    uint8_t __isExecutionRetained: 1;
     uint8_t __pad : 7;
 } SchedulerTask;
 

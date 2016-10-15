@@ -12,7 +12,10 @@
 
 
 /**
- * adds a single shot task
+ * Adds a single shot task to the scheduler.
+ * @param taskId the id in the scheduler's array
+ * @param task function pointer to execute
+ * @param timestamp the 1st (desired) execution timestamp
  */
 void addSingleShotTask(const uint8_t taskId, void (*const action)(SchedulerTask *const task),
                        const uint16_t timestamp) {
@@ -23,6 +26,13 @@ void addSingleShotTask(const uint8_t taskId, void (*const action)(SchedulerTask 
     task->isEnabled = true;
 }
 
+/**
+ * Adds a cyclic task to the scheduler.
+ * @param taskId the id in the scheduler's array
+ * @param task function pointer to execute
+ * @param timestamp the 1st (desired) execution timestamp
+ * @param separation the delay until the subsequent execution, must be < than UINT16_MAX
+ */
 void addCyclicTask(const uint8_t taskId, void (*const action)(SchedulerTask *const task),
                    const uint16_t timestamp,
                    const uint16_t separation) {
@@ -36,40 +46,28 @@ void addCyclicTask(const uint8_t taskId, void (*const action)(SchedulerTask *con
 }
 
 /**
- * increment pending retained counters
- */
-static void __advancePendingOverflowingCounters(const uint16_t now) {
-    for (uint8_t idx = 0; idx < SCHEDULER_MAX_TASKS; idx++) {
-        SchedulerTask *task = &ParticleAttributes.scheduler.tasks[idx];
-
-        if (task->__isCounterRetained) {
-            task->startTimestamp = now + task->reScheduleDelay;
-            task->__isCounterRetained = false;
-        }
-    }
-}
-
-/**
  * Assures a task's start action is executed once asap after the desired start timestamp
  * and (on time limited tasks) the task's end action executed once after the end time stamp.
  * If a node state is specified (state limited tasks) the actions are performed only within this states.
+ * TODO: cyclic task
  */
 void processScheduler(void) {
     uint8_t sreg = SREG;
     MEMORY_BARRIER;
     CLI;
     MEMORY_BARRIER;
-    uint16_t now = ParticleAttributes.localTime.numTimePeriodsPassed;
+    uint16_t const now = ParticleAttributes.localTime.numTimePeriodsPassed;
     MEMORY_BARRIER;
     SREG = sreg;
 
-    if (now < ParticleAttributes.scheduler.lastCallToScheduler) {
-        // on local time tracking overflowed
-        __advancePendingOverflowingCounters(now);
-    }
 
     for (uint8_t idx = 0; idx < SCHEDULER_MAX_TASKS; idx++) {
         SchedulerTask *task = &ParticleAttributes.scheduler.tasks[idx];
+
+        if (now < ParticleAttributes.scheduler.lastCallToScheduler) {
+            // on local time tracking overflowed, unlock tasks kept back
+            task->__isExecutionRetained = false;
+        }
 
         // on disabled task
         if (!task->isEnabled) {
@@ -88,18 +86,13 @@ void processScheduler(void) {
             LED_STATUS3_ON;
 
             if (task->startTimestamp <= now && false == task->isStartActionExecuted) {
-
-                if (task->startAction != NULL) {
-                    task->startAction(task);
-                }
+                task->startAction(task);
                 task->isStartActionExecuted = true;
             }
             else if (task->endTimestamp <= now &&
                      true == task->isStartActionExecuted &&
                      false == task->isEndActionExecuted) {
-                if (task->endAction != NULL) {
-                    task->endAction(task);
-                }
+                task->endAction(task);
                 task->isEndActionExecuted = true;
                 task->isExecuted = true;
                 task->isEnabled = false;
@@ -107,28 +100,23 @@ void processScheduler(void) {
         }
             // on cyclic task, re-schedule next timestamp
         else if (task->isCyclicTask) {
-            if (task->startTimestamp <= now) {
-                if (task->startAction != NULL) {
-                    task->startAction(task);
-                }
+            if (task->startTimestamp <= now && task->__isExecutionRetained == false) {
+                task->startAction(task);
                 task->isExecuted = true;
 
                 uint16_t nextExecution = now + task->reScheduleDelay;
-                if (nextExecution < task->startTimestamp) {
+                if (nextExecution < now) {
                     // on timestamp overflow: the counter is updated is retained until the local
                     // time has also overflowed
-                    task->__isCounterRetained = true;
-                } else {
-                    task->startTimestamp = nextExecution;
+                    task->__isExecutionRetained = true;
                 }
+                task->startTimestamp = nextExecution;
             }
         }
             // on single shot task
         else {
             if (task->startTimestamp <= now && false == task->isStartActionExecuted) {
-                if (task->startAction != NULL) {
-                    task->startAction(task);
-                }
+                task->startAction(task);
                 task->isStartActionExecuted = true;
                 task->isExecuted = true;
                 task->isEnabled = false;

@@ -28,7 +28,7 @@ void constructSchedulerTask(SchedulerTask *const o) {
     o->isEndActionExecuted = false;
     o->reScheduleDelay = false;
     o->isCyclicTask = false;
-    o->__isCounterRetained = false;
+    o->__isExecutionRetained = false;
 }
 
 /**
