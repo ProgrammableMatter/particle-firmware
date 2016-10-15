@@ -9,7 +9,7 @@
 /**
  * Size of the task array the scheduler keeps track of.
  */
-#define SCHEDULER_MAX_TASKS ((uint8_t)4)
+#define SCHEDULER_MAX_TASKS ((uint8_t)5)
 
 /**
  * Task array id arguments:
@@ -18,3 +18,4 @@
 #define SCHEDULER_TASK_ID_SETUP_LEDS ((uint8_t)1)
 #define SCHEDULER_TASK_ID_SYNC_PACKAGE ((uint8_t)2)
 #define SCHEDULER_TASK_ID_HEARTBEAT_LED_TOGGLE ((uint8_t)3)
+#define SCHEDULER_TASK_ID_HEAT_WIRES ((uint8_t)4)

@@ -14,7 +14,9 @@ typedef struct SchedulerTask {
     uint16_t startTimestamp;
     uint16_t endTimestamp;
     uint16_t reScheduleDelay;
+    uint16_t numCalls;
     StateType state;
+    NodeType nodeType;
 
     void (*startAction)(struct SchedulerTask *const);
 
@@ -22,16 +24,18 @@ typedef struct SchedulerTask {
 
     uint8_t isTimeLimited : 1;
     uint8_t isStateLimited : 1;
-
     uint8_t isEnabled : 1;
     uint8_t isExecuted : 1;
     uint8_t isStarted : 1;
     uint8_t isStartActionExecuted : 1;
     uint8_t isEndActionExecuted : 1;
-
     uint8_t isCyclicTask: 1;
+
     uint8_t __isExecutionRetained: 1;
-    uint8_t __pad : 7;
+    uint8_t isNodeTypeLimited : 1;
+    uint8_t isCountLimitedTask : 1;
+    uint8_t isLastCall : 1;
+    uint8_t __pad : 4;
 } SchedulerTask;
 
 typedef struct Scheduler {

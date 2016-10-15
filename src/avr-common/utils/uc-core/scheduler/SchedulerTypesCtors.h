@@ -16,9 +16,13 @@
 void constructSchedulerTask(SchedulerTask *const o) {
     o->startTimestamp = 0;
     o->endTimestamp = 0;
+    o->reScheduleDelay = 0;
+    o->numCalls = 0;
     o->state = STATE_TYPE_IDLE;
+    o->isNodeTypeLimited = NODE_TYPE_INVALID;
     o->startAction = NULL;
     o->endAction = NULL;
+
     o->isTimeLimited = false;
     o->isStateLimited = false;
     o->isEnabled = false;
@@ -26,9 +30,12 @@ void constructSchedulerTask(SchedulerTask *const o) {
     o->isStarted = false;
     o->isStartActionExecuted = false;
     o->isEndActionExecuted = false;
-    o->reScheduleDelay = false;
     o->isCyclicTask = false;
+
     o->__isExecutionRetained = false;
+    o->isNodeTypeLimited = false;
+    o->isCountLimitedTask = false;
+    o->isLastCall = false;
 }
 
 /**

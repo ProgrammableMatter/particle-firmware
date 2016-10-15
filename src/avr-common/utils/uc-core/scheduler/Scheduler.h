@@ -9,6 +9,34 @@
 #include "Scheduler.h"
 #include "uc-core/particle/Globals.h"
 #include "common/common.h"
+#include "uc-core/particle/types/ParticleStateTypes.h"
+
+
+void setNodeTypeLimitedTask(uint8_t taskId, NodeType nodeType) {
+    SchedulerTask *task = &ParticleAttributes.scheduler.tasks[taskId];
+    task->isNodeTypeLimited = true;
+    task->nodeType = nodeType;
+}
+
+void setStateTypeLimtedTask(uint8_t taskId, StateType stateType) {
+    SchedulerTask *task = &ParticleAttributes.scheduler.tasks[taskId];
+    task->isStateLimited = true;
+    task->state = stateType;
+}
+
+void setCountLimitedTask(uint8_t taskId, uint16_t numCalls) {
+    SchedulerTask *task = &ParticleAttributes.scheduler.tasks[taskId];
+    task->isCountLimitedTask = true;
+    task->numCalls = numCalls;
+}
+
+void disableTask(uint8_t taskId) {
+    ParticleAttributes.scheduler.tasks[taskId].isEnabled = false;
+}
+
+void enableTask(uint8_t taskId) {
+    ParticleAttributes.scheduler.tasks[taskId].isEnabled = true;
+}
 
 
 /**
@@ -43,6 +71,15 @@ void addCyclicTask(const uint8_t taskId, void (*const action)(SchedulerTask *con
     task->startTimestamp = timestamp;
     task->reScheduleDelay = separation;
     task->isEnabled = true;
+}
+
+static void __onCountLimitedTaskDecrementCounter(SchedulerTask *const task) {
+    if (task->isCountLimitedTask) {
+        --task->numCalls;
+        if (task->numCalls <= 0) {
+            task->isLastCall = true;
+        }
+    }
 }
 
 /**
@@ -81,6 +118,20 @@ void processScheduler(void) {
             }
         }
 
+        // on node type limited task
+        if (task->isNodeTypeLimited) {
+            if (task->nodeType != ParticleAttributes.node.type) {
+                continue;
+            }
+        }
+
+        // on count limited task
+        if (task->isCountLimitedTask) {
+            if (task->numCalls <= 0) {
+                continue;
+            }
+        }
+
         // on time limited task
         if (task->isTimeLimited) {
             LED_STATUS3_ON;
@@ -101,9 +152,9 @@ void processScheduler(void) {
             // on cyclic task, re-schedule next timestamp
         else if (task->isCyclicTask) {
             if (task->startTimestamp <= now && task->__isExecutionRetained == false) {
+                __onCountLimitedTaskDecrementCounter(task);
                 task->startAction(task);
                 task->isExecuted = true;
-
                 uint16_t nextExecution = now + task->reScheduleDelay;
                 if (nextExecution < now) {
                     // on timestamp overflow: the counter is updated is retained until the local
@@ -116,11 +167,11 @@ void processScheduler(void) {
             // on single shot task
         else {
             if (task->startTimestamp <= now && false == task->isStartActionExecuted) {
+                __onCountLimitedTaskDecrementCounter(task);
                 task->startAction(task);
                 task->isStartActionExecuted = true;
                 task->isExecuted = true;
                 task->isEnabled = false;
-                LED_STATUS1_ON;
             }
         }
     }
