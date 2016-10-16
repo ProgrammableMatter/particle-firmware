@@ -68,7 +68,7 @@ void calculateLinearFittingFunctionVarianceAndStdDeviance(void) {
     // we obtain two linear equations from the transformed partial derivatives to d and k
     // with k explicitly
     timeSynchronization->fittingFunction.k =
-            ((CalculationType) d_ * b_ - (CalculationType) c_ * e_) / (d_ * a_ - (*f_) * c_);
+            ((CalculationType) d_ * b_ - (CalculationType) c_ * e_) / (a_ * d_ - (*f_) * c_);
     // and d explicitly
     timeSynchronization->fittingFunction.d = (timeSynchronization->fittingFunction.k * a_ + b_) / c_;
 
