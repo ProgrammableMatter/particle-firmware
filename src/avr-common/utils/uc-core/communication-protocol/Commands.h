@@ -318,9 +318,8 @@ void executeHeatWiresPackage(const HeatWiresPackage *const package) {
         return;
     }
 
-    // on package forwarding
     bool routeToEast = false, routeToSouth = false, inferLocalCommand = false;
-
+    // on package forwarding
     if (ParticleAttributes.node.address.column < package->addressColumn) {
         routeToEast = true;
     } else if (ParticleAttributes.node.address.column == package->addressColumn) {
@@ -331,11 +330,12 @@ void executeHeatWiresPackage(const HeatWiresPackage *const package) {
          ParticleAttributes.node.address.column == package->addressColumn) ||
         (ParticleAttributes.node.address.row == package->addressRow &&
          ParticleAttributes.node.address.column + 1 == package->addressColumn)) {
+        // on destination equals some subsequent neighbor
         inferLocalCommand = true;
     }
 
     if (routeToEast) {
-        if (!ParticleAttributes.protocol.isBroadcastEnabled) {
+        if (false == ParticleAttributes.protocol.isBroadcastEnabled) {
             __relayPackage((Package *) package,
                            &ParticleAttributes.directionOrientedPorts.east,
                            HeatWiresPackageBufferPointerSize,
@@ -346,7 +346,7 @@ void executeHeatWiresPackage(const HeatWiresPackage *const package) {
             __inferEastActuatorCommand((Package *) package);
         }
     } else if (routeToSouth) {
-        if (!ParticleAttributes.protocol.isBroadcastEnabled) {
+        if (false == ParticleAttributes.protocol.isBroadcastEnabled) {
             __relayPackage((Package *) package,
                            &ParticleAttributes.directionOrientedPorts.south,
                            HeatWiresPackageBufferPointerSize,
