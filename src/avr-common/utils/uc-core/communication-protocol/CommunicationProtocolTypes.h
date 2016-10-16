@@ -76,5 +76,6 @@ typedef struct CommunicationProtocol {
     uint8_t hasNetworkGeometryDiscoveryBreadCrumb : 1;
     volatile uint8_t isBroadcastEnabled : 1;
     volatile uint8_t isSimultaneousTransmissionEnabled : 1;
-    uint8_t __pad : 5;
+    uint8_t isLastReceptionInterpreted : 1;
+    uint8_t __pad : 4;
 } CommunicationProtocol;

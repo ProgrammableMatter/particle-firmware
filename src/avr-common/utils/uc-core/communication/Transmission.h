@@ -29,14 +29,9 @@ static void __scheduleStartTxInterrupt(void) {
     MEMORY_BARRIER;
     CLI;
     MEMORY_BARRIER;
-    uint16_t counter = TIMER_TX_RX_COUNTER_VALUE;
-//    uint16_t transmissionClockDelay = ParticleAttributes.communication.timerAdjustment.transmissionClockDelay;
-//    TIMER_TX_RX_COMPARE_VALUE = counter -
-//                                (counter % transmissionClockDelay)
-//                                + 2 * transmissionClockDelay
-//                                + ParticleAttributes.communication.timerAdjustment.transmissionClockShift;
     TIMER_TX_RX_COMPARE_VALUE =
-            counter + ParticleAttributes.communication.timerAdjustment.transmissionClockDelay * 2;
+            TIMER_TX_RX_COUNTER_VALUE +
+            ParticleAttributes.communication.timerAdjustment.transmissionClockDelay * 2;
     MEMORY_BARRIER;
     SREG = sreg;
     MEMORY_BARRIER;
@@ -66,6 +61,7 @@ void enableTransmission(TxPort *const port) {
     port->isDataBuffered = true;
     MEMORY_BARRIER;
     if (startTransmission) {
+        LED_STATUS4_TOGGLE;
         // update new transmission baud rate
         if (ParticleAttributes.communication.timerAdjustment.isTransmissionClockDelayUpdateable) {
             ParticleAttributes.communication.timerAdjustment.transmissionClockDelay =

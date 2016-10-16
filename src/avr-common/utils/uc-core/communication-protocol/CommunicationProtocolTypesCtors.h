@@ -50,4 +50,5 @@ void constructCommunicationProtocol(CommunicationProtocol *const o) {
     o->hasNetworkGeometryDiscoveryBreadCrumb = false;
     o->isBroadcastEnabled = false;
     o->isSimultaneousTransmissionEnabled = false;
+    o->isLastReceptionInterpreted = false;
 }

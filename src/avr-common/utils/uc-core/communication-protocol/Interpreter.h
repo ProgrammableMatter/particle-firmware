@@ -204,6 +204,7 @@ static void __interpretEnumerateNeighbourAckReception(RxPort *const rxPort,
  */
 static void interpretRxBuffer(DirectionOrientedPort *const port) {
     DEBUG_CHAR_OUT('I');
+    ParticleAttributes.protocol.isLastReceptionInterpreted = false;
     switch (ParticleAttributes.node.state) {
         case STATE_TYPE_WAIT_FOR_BEING_ENUMERATED:
             __interpretWaitForBeingEnumeratedReception(port->rxPort,
@@ -230,6 +231,11 @@ static void interpretRxBuffer(DirectionOrientedPort *const port) {
 
         default:
             break;
+    }
+
+    if (ParticleAttributes.protocol.isLastReceptionInterpreted) {
+        LED_STATUS4_TOGGLE;
+        ParticleAttributes.protocol.isLastReceptionInterpreted = false;
     }
     // DEBUG_CHAR_OUT('i');
 }
