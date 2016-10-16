@@ -29,11 +29,8 @@
  * @param port the designated port
  * @param isRxHigh the logic signal level
  */
-
-// TODO: inline vs. not inline (sync. issue)
 static inline void __handleInputInterrupt(DirectionOrientedPort *const port,
                                           const bool isRxHigh, uint16_t timerCounterValue) {
-//    uint16_t timerCounterValue = TIMER_TX_RX_COUNTER_VALUE;
     switch (ParticleAttributes.node.state) {
         case STATE_TYPE_NEIGHBOURS_DISCOVERY:
             // on discovery pulse
