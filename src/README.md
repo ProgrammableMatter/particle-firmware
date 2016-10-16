@@ -3,6 +3,7 @@ Particle firmware project
 This project implements a particle that, if connected to a
 particle network, acts as a programmable entity. The network as a whole acts
 as programmable matter (see <http://arxiv.org/abs/1402.2507>).
+* Videos of several test cases can be watched [here](https://drive.google.com/drive/folders/0Bx3U4CEhKK8dWDU4OHdjRE1Dblk?usp=sharing).
 
 Folder structure
 ----------------
