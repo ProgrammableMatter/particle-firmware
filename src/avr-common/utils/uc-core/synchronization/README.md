@@ -1,8 +1,8 @@
 Synchronization
 ===============
 
-Methos
-------
+Methods
+-------
 
 | # | Method | uses FiFo | Details | 
 |---|--------|-----------|----------|
@@ -17,15 +17,15 @@ Methos
 
 Test Setup
 ----------
-| # | Method# | Method | FiFo size | outlier detection σ  | pitch | performance |  
+| # | Method# | Method | FiFo size | outlier detection σ  | pitch | performance |
 |---|------------|-----|-----------|----------------------|-------|-------------|
 | 1 | 1          | raw value |     |                      | 12    | good        |
-| 2 | 3          | mean | 40 |     |                      | 16    | slow adjustment |
-| 3 | 3          | mean | 8  |     |                      | 16    | good |
-| 4 | 5          | mean without marked outlier | 80 | 2.0 | 16   | slow |
+| 2 | 3          | mean                 | 40 |            | 16    | good, slow adjustment |
+| 3 | 3          | mean                 | 8  |            | 16    | good |
+| 4 | 5          | mean without marked outlier | 80 | 2.0 | 16   | acceptable, slow adjustment |
 | 5 | 4          | mean without outlier | 16 | 2.0 | 16   | acceptable |
-| 6 | 4          | mean without outlier | 40 | 2.0 | 20   | slow |
+| 6 | 4          | mean without outlier | 40 | 2.0 | 20   | good, slow adjustment |
 | 7 | 4          | mean without outlier | 40 | 2.0 | 16   | good |
 | 8 | 2          | progressive mean     |    |     | 16   | good |
 | 9 | 7          | linear regression    | 40 |     |      | poor, failed, overshoot |
-|   | 6          | TODO                 |    |     |      |                    | 
+| 10  | 6          | mean with adaptive outlier detection   |      |     |      | TODO, ?, bad: many adjustment parameters | 
