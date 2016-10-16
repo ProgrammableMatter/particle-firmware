@@ -364,7 +364,7 @@ void samplesFifoBufferAddSample(const SampleValueType *const sample,
 
 
     // update mean exclusive marked outlier
-    calculateMeanWithoutMarkedOutlier(timeSynchronization);
+    calculateMeanWithoutMarkedOutlier();
 }
 
 #endif
