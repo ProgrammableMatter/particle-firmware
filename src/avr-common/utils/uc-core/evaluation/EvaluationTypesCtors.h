@@ -7,12 +7,12 @@
 #pragma once
 
 #include "EvaluationTypes.h"
-#include "uc-core/particle/types/NodeAddressTypesCtors.h"
 
 /**
 * constructor function
 * @param o the object to construct
 **/
 void constructEvaluation(Evaluation *const o) {
-    constructNodeAddress(&o->nextHeatWiresAddress);
+    o->nextHeatWiresAddress.row = 1;
+    o->nextHeatWiresAddress.column = 1;
 }
