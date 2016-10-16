@@ -32,6 +32,7 @@
 #include "uc-core/time/Time.h"
 #include "uc-core/scheduler/Scheduler.h"
 #include "uc-core/scheduler/SchedulerTypesCtors.h"
+#include "uc-core/configuration/Evaluation.h"
 #include "uc-core/evaluation/Evaluation.h"
 
 /**
@@ -114,18 +115,24 @@ static void __initParticle(void) {
 #endif
     addSingleShotTask(SCHEDULER_TASK_ID_ENABLE_ALERTS, __enableAlerts, 255);
 
-    // add cyclic sync. time task
+    // add toggle led task: for heartbeat indication
+    // addCyclicTask(SCHEDULER_TASK_ID_HEARTBEAT_LED_TOGGLE, heartBeatToggle, 300, 400);
+
+#ifdef EVALUATION_SIMPLE_SYNC_AND_ACTUATION
+    // add cyclic but count limited sync. time task
     addCyclicTask(SCHEDULER_TASK_ID_SYNC_PACKAGE, sendNextSyncTimePackage, 350, 100);
     taskEnableNodeTypeLimit(SCHEDULER_TASK_ID_SYNC_PACKAGE, NODE_TYPE_ORIGIN);
     taskEnableCountLimit(SCHEDULER_TASK_ID_SYNC_PACKAGE, 30);
-
-    // add toggle led task: for heartbeat indication
-    // addCyclicTask(SCHEDULER_TASK_ID_HEARTBEAT_LED_TOGGLE, heartBeatToggle, 300, 400);
 
     // prepare but disable task, is enabled by last call of sync. task
     addCyclicTask(SCHEDULER_TASK_ID_HEAT_WIRES, heatWires, 350, 1500);
     taskEnableNodeTypeLimit(SCHEDULER_TASK_ID_HEAT_WIRES, NODE_TYPE_ORIGIN);
     taskDisable(SCHEDULER_TASK_ID_HEAT_WIRES);
+#endif
+#ifdef EVALUATION_SYNC_CYCLICALLY
+    addCyclicTask(SCHEDULER_TASK_ID_SYNC_PACKAGE, sendNextSyncTimePackage, 350, 100);
+    taskEnableNodeTypeLimit(SCHEDULER_TASK_ID_SYNC_PACKAGE, NODE_TYPE_ORIGIN);
+#endif
 }
 
 /**
