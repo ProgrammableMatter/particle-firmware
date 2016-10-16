@@ -12,29 +12,36 @@
 #include "uc-core/particle/types/ParticleStateTypes.h"
 
 
-void setNodeTypeLimitedTask(uint8_t taskId, NodeType nodeType) {
+void taskEnableNodeTypeLimit(uint8_t taskId, NodeType nodeType) {
     SchedulerTask *task = &ParticleAttributes.scheduler.tasks[taskId];
     task->isNodeTypeLimited = true;
     task->nodeType = nodeType;
 }
 
-void setStateTypeLimtedTask(uint8_t taskId, StateType stateType) {
+void taskEnableStateTypeLimt(uint8_t taskId, StateType stateType) {
     SchedulerTask *task = &ParticleAttributes.scheduler.tasks[taskId];
     task->isStateLimited = true;
     task->state = stateType;
 }
 
-void setCountLimitedTask(uint8_t taskId, uint16_t numCalls) {
+void taskEnableCountLimit(uint8_t taskId, uint16_t numCalls) {
     SchedulerTask *task = &ParticleAttributes.scheduler.tasks[taskId];
     task->isCountLimitedTask = true;
+    task->isLastCall = false;
     task->numCalls = numCalls;
 }
 
-void disableTask(uint8_t taskId) {
+void taskDisableCountLimit(uint8_t taskId) {
+    SchedulerTask *task = &ParticleAttributes.scheduler.tasks[taskId];
+    task->isCountLimitedTask = false;
+    task->isLastCall = false;
+}
+
+void taskDisable(uint8_t taskId) {
     ParticleAttributes.scheduler.tasks[taskId].isEnabled = false;
 }
 
-void enableTask(uint8_t taskId) {
+void taskEnable(uint8_t taskId) {
     ParticleAttributes.scheduler.tasks[taskId].isEnabled = true;
 }
 
@@ -134,8 +141,6 @@ void processScheduler(void) {
 
         // on time limited task
         if (task->isTimeLimited) {
-            LED_STATUS3_ON;
-
             if (task->startTimestamp <= now && false == task->isStartActionExecuted) {
                 task->startAction(task);
                 task->isStartActionExecuted = true;
