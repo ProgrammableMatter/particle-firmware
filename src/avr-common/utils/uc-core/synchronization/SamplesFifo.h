@@ -242,7 +242,7 @@ static void __updateCurrentRejectionBoundariesDependingOnCounters(void) {
         if (adaptiveSampleRejection->currentAcceptedDeviation >=
             SAMPLE_FIFO_ADAPTIVE_REJECTION_UPDATE_REJECTION_MAX_INTERVAL) {
             adaptiveSampleRejection->currentAcceptedDeviation = SAMPLE_FIFO_ADAPTIVE_REJECTION_UPDATE_REJECTION_MAX_INTERVAL;
-            LED_STATUS3_ON;
+//            LED_STATUS3_ON;
         }
 //         else {
 //            LED_STATUS3_TOGGLE;
