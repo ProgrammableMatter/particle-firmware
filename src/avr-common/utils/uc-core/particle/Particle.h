@@ -72,7 +72,7 @@ static void __enableDiscoveryPulsing(void) {
     TIMER_NEIGHBOUR_SENSE_RESUME;
 }
 
-void enableAlerts(SchedulerTask *const task) {
+static void __enableAlerts(SchedulerTask *const task) {
     ParticleAttributes.alerts.isRxBufferOverflowEnabled = true;
     ParticleAttributes.alerts.isRxParityErrorEnabled = true;
     ParticleAttributes.alerts.isGenericErrorEnabled = true;
@@ -112,17 +112,18 @@ static void __initParticle(void) {
 #ifndef PERIPHERY_REMOVE_IMPL
     addSingleShotTask(SCHEDULER_TASK_ID_SETUP_LEDS, setupLedsState, 128);
 #endif
-    addSingleShotTask(SCHEDULER_TASK_ID_ENABLE_ALERTS, enableAlerts, 255);
+    addSingleShotTask(SCHEDULER_TASK_ID_ENABLE_ALERTS, __enableAlerts, 255);
 
     addCyclicTask(SCHEDULER_TASK_ID_SYNC_PACKAGE, sendNextSyncTimePackage, 350, 100);
-    setNodeTypeLimitedTask(SCHEDULER_TASK_ID_SYNC_PACKAGE, NODE_TYPE_ORIGIN);
-    setCountLimitedTask(SCHEDULER_TASK_ID_SYNC_PACKAGE, 30);
+    taskEnableNodeTypeLimit(SCHEDULER_TASK_ID_SYNC_PACKAGE, NODE_TYPE_ORIGIN);
+    taskEnableCountLimit(SCHEDULER_TASK_ID_SYNC_PACKAGE, 30);
 
 //    addCyclicTask(SCHEDULER_TASK_ID_HEARTBEAT_LED_TOGGLE, heartBeatToggle, 300, 400);
 
-    addSingleShotTask(SCHEDULER_TASK_ID_HEAT_WIRES, heatWires, 0);
-    setNodeTypeLimitedTask(SCHEDULER_TASK_ID_HEAT_WIRES, NODE_TYPE_ORIGIN);
-    disableTask(SCHEDULER_TASK_ID_HEAT_WIRES);
+    addCyclicTask(SCHEDULER_TASK_ID_HEAT_WIRES, heatWires, 350, 1500);
+//    addSingleShotTask(SCHEDULER_TASK_ID_HEAT_WIRES, heatWires, 0);
+    taskEnableNodeTypeLimit(SCHEDULER_TASK_ID_HEAT_WIRES, NODE_TYPE_ORIGIN);
+    taskDisable(SCHEDULER_TASK_ID_HEAT_WIRES);
 }
 
 /**
@@ -547,41 +548,41 @@ static void __handleDiscoveryPulsingDone(void) {
     clearReceptionBuffers();
 }
 
-/**
- * Sends the set network geometry package and switches to the given state.
- * @param rows the new network geometry rows
- * @param cols the new network geometry rows
- * @param endState the state when handler finished
- */
-static void __handleSetNetworkGeometry(const uint8_t rows, const uint8_t cols,
-                                       const StateType endState) {
-    CommunicationProtocolPortState *commPortState = ParticleAttributes.directionOrientedPorts.simultaneous.protocol;
-    TxPort *txPort = ParticleAttributes.directionOrientedPorts.simultaneous.txPort;
-    switch (commPortState->initiatorState) {
-        case COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT:
-            constructSetNetworkGeometryPackage(txPort, rows, cols);
-            enableTransmission(txPort);
-            commPortState->initiatorState = COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT_WAIT_FOR_TX_FINISHED;
-            break;
-
-            // wait for tx finished
-        case COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT_WAIT_FOR_TX_FINISHED:
-            if (txPort->isTransmitting) {
-                break;
-            }
-            commPortState->initiatorState = COMMUNICATION_INITIATOR_STATE_TYPE_IDLE;
-            goto __COMMUNICATION_INITIATOR_STATE_TYPE_IDLE;
-            break;
-
-        case COMMUNICATION_INITIATOR_STATE_TYPE_WAIT_FOR_RESPONSE:
-        case COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT_ACK:
-        case COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT_ACK_WAIT_FOR_TX_FINISHED:
-        __COMMUNICATION_INITIATOR_STATE_TYPE_IDLE:
-        case COMMUNICATION_INITIATOR_STATE_TYPE_IDLE:
-            ParticleAttributes.node.state = endState;
-            break;
-    }
-}
+///**
+// * Sends the set network geometry package and switches to the given state.
+// * @param rows the new network geometry rows
+// * @param cols the new network geometry rows
+// * @param endState the state when handler finished
+// */
+//static void __handleSetNetworkGeometry(const uint8_t rows, const uint8_t cols,
+//                                       const StateType endState) {
+//    CommunicationProtocolPortState *commPortState = ParticleAttributes.directionOrientedPorts.simultaneous.protocol;
+//    TxPort *txPort = ParticleAttributes.directionOrientedPorts.simultaneous.txPort;
+//    switch (commPortState->initiatorState) {
+//        case COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT:
+//            constructSetNetworkGeometryPackage(txPort, rows, cols);
+//            enableTransmission(txPort);
+//            commPortState->initiatorState = COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT_WAIT_FOR_TX_FINISHED;
+//            break;
+//
+//            // wait for tx finished
+//        case COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT_WAIT_FOR_TX_FINISHED:
+//            if (txPort->isTransmitting) {
+//                break;
+//            }
+//            commPortState->initiatorState = COMMUNICATION_INITIATOR_STATE_TYPE_IDLE;
+//            goto __COMMUNICATION_INITIATOR_STATE_TYPE_IDLE;
+//            break;
+//
+//        case COMMUNICATION_INITIATOR_STATE_TYPE_WAIT_FOR_RESPONSE:
+//        case COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT_ACK:
+//        case COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT_ACK_WAIT_FOR_TX_FINISHED:
+//        __COMMUNICATION_INITIATOR_STATE_TYPE_IDLE:
+//        case COMMUNICATION_INITIATOR_STATE_TYPE_IDLE:
+//            ParticleAttributes.node.state = endState;
+//            break;
+//    }
+//}
 
 /**
  * State driven handling of sending package states without ack requests.
@@ -803,13 +804,12 @@ static inline void process(void) {
             ParticleAttributes.timeSynchronization.isNextSyncPackageTransmissionEnabled = true;
             break;
 
-            // ---------------- working states: set network geometry----------------
-            // TODO: unused state
-        case STATE_TYPE_SEND_SET_NETWORK_GEOMETRY:
-            __handleSetNetworkGeometry(ParticleAttributes.protocol.networkGeometry.rows,
-                                       ParticleAttributes.protocol.networkGeometry.columns,
-                                       STATE_TYPE_IDLE);
-            break;
+//            // ---------------- working states: set network geometry----------------
+//        case STATE_TYPE_SEND_SET_NETWORK_GEOMETRY:
+//            __handleSetNetworkGeometry(ParticleAttributes.protocol.networkGeometry.rows,
+//                                       ParticleAttributes.protocol.networkGeometry.columns,
+//                                       STATE_TYPE_IDLE);
+//            break;
 
             // ---------------- working states: execute actuation command----------------
 
