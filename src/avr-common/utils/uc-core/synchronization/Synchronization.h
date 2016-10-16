@@ -41,10 +41,7 @@
  * it's pdu reception duration offset has been stored to the fifo queue.
  */
 void tryApproximateTimings(void) {
-//    TimeSynchronization *const timeSynchronization = &ParticleAttributes.timeSynchronization;
-//#if !defined(SYNCHRONIZATION_STRATEGY_PROGRESSIVE_MEAN) || !defined(SYNCHRONIZATION_STRATEGY_RAW_OBSERVATION)
     if (isFiFoFull(&ParticleAttributes.timeSynchronization.timeIntervalSamples)) {
-//#endif
         // if ISR already considered previous new values
         if (ParticleAttributes.localTime.isTimePeriodInterruptDelayUpdateable == false &&
             ParticleAttributes.communication.timerAdjustment.isTransmissionClockDelayUpdateable == false) {
@@ -110,9 +107,7 @@ void tryApproximateTimings(void) {
             ParticleAttributes.localTime.isTimePeriodInterruptDelayUpdateable = true;
             ParticleAttributes.communication.timerAdjustment.isTransmissionClockDelayUpdateable = true;
         }
-//#ifndef SYNCHRONIZATION_STRATEGY_PROGRESSIVE_MEAN
     }
-//#endif
 }
 
 #endif

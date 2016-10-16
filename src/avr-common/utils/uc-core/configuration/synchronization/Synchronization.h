@@ -30,8 +30,8 @@
 /**
  * Synchronization strategy.
  */
-#define SYNCHRONIZATION_STRATEGY_RAW_OBSERVATION
-//#define SYNCHRONIZATION_STRATEGY_MEAN
+//#define SYNCHRONIZATION_STRATEGY_RAW_OBSERVATION
+#define SYNCHRONIZATION_STRATEGY_MEAN
 //#define SYNCHRONIZATION_STRATEGY_PROGRESSIVE_MEAN
 //#define SYNCHRONIZATION_STRATEGY_MEAN_WITHOUT_OUTLIER
 //#define SYNCHRONIZATION_STRATEGY_MEAN_WITHOUT_MARKED_OUTLIER
@@ -47,15 +47,15 @@
 #define SYNCHRONIZATION_OUTLIER_REJECTION_SIGMA_FACTOR ((CalculationType) 2.0)
 //#define SYNCHRONIZATION_OUTLIER_REJECTION_SIGMA_FACTOR ((CalculationType) 1.0)
 
-///**
-// *  Manual clock synchronization adjustment to decelerate the local time tracking.
-// *  Increases the timer/counter compare value.
-// *  As observed the approximated duration mean needs to be decelerated by ~1-2µs,
-// *  which is ~8-16clocks.
-// *  A weight for this constant value should be correlated to the current MCU clock or in other words
-// *  correlated to the difference of the current mean and the initial local time tracking timer/counter
-// *  compare value.
-// */
+/**
+ *  Manual clock synchronization adjustment to decelerate the local time tracking.
+ *  Increases the timer/counter compare value.
+ *  As observed the approximated duration mean needs to be decelerated by ~1-2µs,
+ *  which is ~8-16clocks.
+ *  A weight for this constant value should be correlated to the current MCU clock or in other words
+ *  correlated to the difference of the current mean and the initial local time tracking timer/counter
+ *  compare value.
+ */
 #define __SYNCHRONIZATION_MANUAL_ADJUSTMENT_CLOCK_SLOW_DOWN + ((uint8_t) 16)
 //#define __SYNCHRONIZATION_MANUAL_ADJUSTMENT_CLOCK_NO_ACCELERATION
 //#define __SYNCHRONIZATION_MANUAL_ADJUSTMENT_CLOCK_SPEED_UP - ((uint8_t) 12)
