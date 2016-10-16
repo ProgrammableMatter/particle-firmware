@@ -84,6 +84,7 @@ static void __enableAlerts(SchedulerTask *const task) {
  * Sets up ports and interrupts but does not enable the global interrupt (I-flag in SREG).
  */
 static void __initParticle(void) {
+    // ---------------- basic setup ----------------
     setupUart();
     LED_STATUS1_OFF;
     LED_STATUS2_OFF;
@@ -96,8 +97,9 @@ static void __initParticle(void) {
     DELAY_MS_1;
     DELAY_MS_1;
 
-//    RX_INTERRUPTS_SETUP; // configure input pins interrupts
-//    RX_INTERRUPTS_ENABLE; // enable input pin interrupts
+    // ---------------- ISR setup ----------------
+    // RX_INTERRUPTS_SETUP; // configure input pins interrupts
+    // RX_INTERRUPTS_ENABLE; // enable input pin interrupts
     DISCOVERY_INTERRUPTS_SETUP; // configure pin change interrupt
     TIMER_NEIGHBOUR_SENSE_SETUP; // configure timer interrupt for neighbour sensing
     LOCAL_TIME_INTERRUPT_COMPARE_DISABLE; // prepare local time timer interrupt
@@ -105,23 +107,23 @@ static void __initParticle(void) {
     sleep_disable();
     set_sleep_mode(SLEEP_MODE_PWR_DOWN); // set sleep mode to power down
 
-    // TODO: evaluation source
-    MEMORY_BARRIER;
-
-    // add tasks to scheduler
+    // ---------------- add tasks to scheduler ----------------
+    // task for clearing leds before the basic process starts
 #ifndef PERIPHERY_REMOVE_IMPL
     addSingleShotTask(SCHEDULER_TASK_ID_SETUP_LEDS, setupLedsState, 128);
 #endif
     addSingleShotTask(SCHEDULER_TASK_ID_ENABLE_ALERTS, __enableAlerts, 255);
 
+    // add cyclic sync. time task
     addCyclicTask(SCHEDULER_TASK_ID_SYNC_PACKAGE, sendNextSyncTimePackage, 350, 100);
     taskEnableNodeTypeLimit(SCHEDULER_TASK_ID_SYNC_PACKAGE, NODE_TYPE_ORIGIN);
     taskEnableCountLimit(SCHEDULER_TASK_ID_SYNC_PACKAGE, 30);
 
-//    addCyclicTask(SCHEDULER_TASK_ID_HEARTBEAT_LED_TOGGLE, heartBeatToggle, 300, 400);
+    // add toggle led task: for heartbeat indication
+    // addCyclicTask(SCHEDULER_TASK_ID_HEARTBEAT_LED_TOGGLE, heartBeatToggle, 300, 400);
 
+    // prepare but disable task, is enabled by last call of sync. task
     addCyclicTask(SCHEDULER_TASK_ID_HEAT_WIRES, heatWires, 350, 1500);
-//    addSingleShotTask(SCHEDULER_TASK_ID_HEAT_WIRES, heatWires, 0);
     taskEnableNodeTypeLimit(SCHEDULER_TASK_ID_HEAT_WIRES, NODE_TYPE_ORIGIN);
     taskDisable(SCHEDULER_TASK_ID_HEAT_WIRES);
 }
