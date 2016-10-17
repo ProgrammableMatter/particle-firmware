@@ -160,14 +160,28 @@ ISR(LOCAL_TIME_INTERRUPT_VECT) {
         ParticleAttributes.localTime.isTimePeriodInterruptDelayUpdateable = false;
     }
 
-#ifdef LOCAL_TIME_EXPERIMENTAL_IN_PHASE_APPROXIMATION_SHIFT
-    // consider the ordered clock shift to be consumed
-    if (ParticleAttributes.localTime.isTimerCounterShiftConsumable) {
-        LOCAL_TIME_INTERRUPT_COMPARE_VALUE += ParticleAttributes.localTime.portionCounterShiftToBeConsumed;
-        ParticleAttributes.localTime.isTimerCounterShiftConsumable = false;
+#ifndef LOCAL_TIME_IN_PHASE_SHIFTING_ON_LOCAL_TIME_UPDATE
+    if (ParticleAttributes.localTime.isNumTimePeriodsPassedUpdateable) {
+        ParticleAttributes.localTime.numTimePeriodsPassed =
+                ParticleAttributes.localTime.newNumTimePeriodsPassed;
+        ParticleAttributes.localTime.isNumTimePeriodsPassedUpdateable = false;
+    }
+#else
+    // consider new clock shift to be considered
+    if (ParticleAttributes.localTime.isNewTimerCounterShiftUpdateable) {
+        LOCAL_TIME_INTERRUPT_COMPARE_VALUE += ParticleAttributes.localTime.newTimerCounterShift;
+        MEMORY_BARRIER;
+        ParticleAttributes.localTime.isNewTimerCounterShiftUpdateable = false;
     }
 #endif
+
     LOCAL_TIME_INTERRUPT_COMPARE_VALUE += ParticleAttributes.localTime.timePeriodInterruptDelay;
+
+    if ((ParticleAttributes.localTime.numTimePeriodsPassed >> 4) & 1) {
+        LED_STATUS3_ON;
+    } else {
+        LED_STATUS3_OFF;
+    }
 }
 
 /**

@@ -23,29 +23,105 @@
  * Reads the delivered time adds a correction offset and updates the local time.
  * @param package the package to interpret and execute
  */
-#ifdef LOCAL_TIME_EXPERIMENTAL_IN_PHASE_APPROXIMATION_SHIFT
 
-void executeSynchronizeLocalTimePackage(const TimePackage *const package,
-                                        PortBuffer *const portBuffer,
-                                        uint16_t localTimeTrackingTimerCounterCompareValue) {
-#else
 
-void executeSynchronizeLocalTimePackage(const TimePackage *const package,
-                                        PortBuffer *const portBuffer) {
-#endif
-
+void executeSynchronizeLocalTimePackage(const TimePackage *const package, PortBuffer *const portBuffer) {
     // DEBUG_INT16_OUT(snapshotBuffer->temporaryTxStopSnapshotTimerValue - snapshotBuffer->temporaryTxStartSnapshotTimerValue);
     // DEBUG_INT16_OUT(TIMER_TX_RX_COUNTER_VALUE);
 
-#ifdef LOCAL_TIME_EXPERIMENTAL_IN_PHASE_APPROXIMATION_SHIFT
-    // consider sender's local time tracking interrupt's timer/counter value when tx package was built
-    updateConsumableLagBetweenLocalAndRemoteTimerCounter(localTimeTrackingTimerCounterCompareValue,
-                                                         package->timerCounterValue);
-#endif
-
     LED_STATUS2_TOGGLE;
 
-    // calculate observed PDU duration
+    // ------------------ update local time ---------------------------
+
+#ifndef LOCAL_TIME_IN_PHASE_SHIFTING_ON_LOCAL_TIME_UPDATE
+    // consider the optional request to update the local time
+    if (false == ParticleAttributes.localTime.isNumTimePeriodsPassedUpdateable) {
+        ParticleAttributes.localTime.newNumTimePeriodsPassed = package->timePeriod + 2;
+        MEMORY_BARRIER;
+        ParticleAttributes.localTime.isNumTimePeriodsPassedUpdateable = package->forceTimePeriodUpdate;
+    }
+#else
+    uint8_t sreg = SREG;
+    MEMORY_BARRIER;
+    CLI;
+    MEMORY_BARRIER;
+
+    uint16_t now = TIMER_TX_RX_COUNTER_VALUE;
+    uint16_t nextLocalTriggerTimestamp = LOCAL_TIME_INTERRUPT_COMPARE_VALUE;
+
+    ParticleAttributes.localTime.numTimePeriodsPassed = package->timePeriod + 1;
+
+    ParticleAttributes.timeSynchronization.isNextSyncPackageTimeUpdateRequest = package->forceTimePeriodUpdate;
+    // consider local time tracking ISR delay shift on local time update
+    if (false == ParticleAttributes.localTime.isNewTimerCounterShiftUpdateable &&
+        package->forceTimePeriodUpdate) {
+        LED_STATUS1_TOGGLE;
+
+//        uint8_t sreg = SREG;
+//        MEMORY_BARRIER;
+//        CLI;
+//        MEMORY_BARRIER;
+//        uint16_t now = TIMER_TX_RX_COUNTER_VALUE;
+//        uint16_t nextLocalTriggerTimestamp = LOCAL_TIME_INTERRUPT_COMPARE_VALUE;
+//        MEMORY_BARRIER;
+//        SREG = sreg;
+//        MEMORY_BARRIER;
+
+        // calculate next trigger of remote node according to local time
+        // next_remote_trigger_after_pdu_rx =
+        // now -
+        // pduLatency +
+        // package->timerCounterValue +
+        // 2 * ParticleAttributes.localTime.timePeriodInterruptDelay
+        uint16_t nextRemoteTriggerTimestamp =
+                now -
+                ( // pdu_tx_duration = 1024*64 = UINT16_MAX +
+                        3875) + // TODO: pre + post pdu tx latency - pull out to config
+                +8000 + 3200 + // TODO: manual adjustment: shift right - pull out to config
+                package->timerCounterValue +
+                ParticleAttributes.localTime.timePeriodInterruptDelay +
+                ParticleAttributes.localTime.timePeriodInterruptDelay;
+
+//        //TODO: evaluation code
+//        printf("now %u nxlo %u pdu %u nxrm %u\n",
+//               now,
+//               nextLocalTriggerTimestamp,
+//               package->timerCounterValue,
+//               nextRemoteTriggerTimestamp);
+
+
+//        // TODO: evaluation code
+//        uint16_t nextLocalTriggerTimestampLowerBound =
+//                nextLocalTriggerTimestamp - ParticleAttributes.localTime.newTimePeriodInterruptDelay / 2;
+//        uint16_t nextLocalTriggerTimestampUpperBound = nextLocalTriggerTimestampLowerBound +
+//                                                       ParticleAttributes.localTime.newTimePeriodInterruptDelay;
+//        printf("l %u c %u r %u d %u \n",
+//               nextLocalTriggerTimestampLowerBound,
+//               nextLocalTriggerTimestamp,
+//               nextLocalTriggerTimestampUpperBound,
+//               ParticleAttributes.localTime.newTimePeriodInterruptDelay);
+
+
+        ParticleAttributes.localTime.newTimerCounterShift =
+                (int32_t) nextRemoteTriggerTimestamp -
+                nextLocalTriggerTimestamp;
+
+//        // TODO: evaluation code
+//        printf("sh %ld\n", ParticleAttributes.localTime.newTimerCounterShift);
+
+        // expose new calculation to ISR
+        ParticleAttributes.localTime.isNewTimerCounterShiftUpdateable = true;
+    }
+
+    MEMORY_BARRIER;
+    SREG = sreg;
+    MEMORY_BARRIER;
+#endif
+
+
+
+// ------------------ approximate new clock skew ---------------------------
+// calculate observed PDU duration
 #ifdef SYNCHRONIZATION_TIME_PACKAGE_DURATION_COUNTING_EXCLUSIVE_LAST_RISING_EDGE
     int32_t sample = (int32_t) (portBuffer->receptionDuration - portBuffer->lastFallingToRisingDuration) -
                      (int32_t) TIME_SYNCHRONIZATION_SAMPLE_OFFSET;
@@ -53,22 +129,21 @@ void executeSynchronizeLocalTimePackage(const TimePackage *const package,
     int32_t sample = (int32_t) (portBuffer->receptionDuration) - (int32_t) INT16_MAX;
 #endif
 
-    // shift value down by -UINT16_MAX/2
+// shift value down by -UINT16_MAX/2
     SampleValueType sampleValue = (SampleValueType) sample;
-
     samplesFifoBufferAddSample(&sampleValue, &ParticleAttributes.timeSynchronization);
+
     tryApproximateTimings();
 
-    // consider the optional request to set the local time to a new value
-    ParticleAttributes.localTime.newNumTimePeriodsPassed = package->timePeriod;
-    MEMORY_BARRIER;
-    ParticleAttributes.localTime.isNumTimePeriodsPassedUpdateable = package->forceTimePeriodUpdate;
+// ------------------ schedule re-transmission of new time package ---------------------------
+// schedule when the new sync. package is to be forwarded according to the current local time
+    ParticleAttributes.protocol.
+            isSimultaneousTransmissionEnabled = true;
+    ParticleAttributes.node.
+            state = STATE_TYPE_RESYNC_NEIGHBOUR;
 
-    // schedule when the new sync. package is to be forwarded according to the current local time
-    ParticleAttributes.protocol.isSimultaneousTransmissionEnabled = true;
-    ParticleAttributes.node.state = STATE_TYPE_RESYNC_NEIGHBOUR;
-
-    ParticleAttributes.protocol.isBroadcastEnabled = package->header.enableBroadcast;
+    ParticleAttributes.protocol.
+            isBroadcastEnabled = package->header.enableBroadcast;
 }
 
 
