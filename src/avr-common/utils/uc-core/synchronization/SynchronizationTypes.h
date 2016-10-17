@@ -85,7 +85,7 @@ typedef struct TimeSynchronization {
     /**
      * next local time stamp when transmission is to be initialized
      */
-    uint16_t nextSyncPackageTransmissionStartTime;
+//    uint16_t nextSyncPackageTransmissionStartTime;
     /**
      * default sync package delay in between packages
      */
@@ -102,5 +102,6 @@ typedef struct TimeSynchronization {
      * barrier for sync package scheduling
      */
     uint8_t isNextSyncPackageTransmissionEnabled : 1;
-    uint8_t __pad : 7;
+    uint8_t isNextSyncPackageTimeUpdateRequest : 1;
+    uint8_t __pad : 6;
 } TimeSynchronization;
