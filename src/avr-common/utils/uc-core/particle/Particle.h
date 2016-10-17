@@ -120,18 +120,25 @@ static void __initParticle(void) {
 
 #ifdef EVALUATION_SIMPLE_SYNC_AND_ACTUATION
     // add cyclic but count limited sync. time task
-    addCyclicTask(SCHEDULER_TASK_ID_SYNC_PACKAGE, sendNextSyncTimePackage, 350, 100);
+    addCyclicTask(SCHEDULER_TASK_ID_SYNC_PACKAGE, sendNextSyncTimePackageTask, 350, 100);
     taskEnableNodeTypeLimit(SCHEDULER_TASK_ID_SYNC_PACKAGE, NODE_TYPE_ORIGIN);
     taskEnableCountLimit(SCHEDULER_TASK_ID_SYNC_PACKAGE, 30);
 
     // prepare but disable task, is enabled by last call of sync. task
-    addCyclicTask(SCHEDULER_TASK_ID_HEAT_WIRES, heatWires, 350, 1500);
+    addCyclicTask(SCHEDULER_TASK_ID_HEAT_WIRES, heatWiresTask, 350, 1500);
     taskEnableNodeTypeLimit(SCHEDULER_TASK_ID_HEAT_WIRES, NODE_TYPE_ORIGIN);
     taskDisable(SCHEDULER_TASK_ID_HEAT_WIRES);
 #endif
 #ifdef EVALUATION_SYNC_CYCLICALLY
-    addCyclicTask(SCHEDULER_TASK_ID_SYNC_PACKAGE, sendNextSyncTimePackage, 350, 100);
+    addCyclicTask(SCHEDULER_TASK_ID_SYNC_PACKAGE, sendNextSyncTimePackageTask, 350, 100);
     taskEnableNodeTypeLimit(SCHEDULER_TASK_ID_SYNC_PACKAGE, NODE_TYPE_ORIGIN);
+#endif
+
+#ifdef EVALUATION_SYNC_WITH_CYCLIC_UPDATE_TIME_REQUEST_FLAG
+    addCyclicTask(SCHEDULER_TASK_ID_SYNC_PACKAGE, sendSyncTimePackageAndUpdateRequestFlagTask, 350,
+                  ParticleAttributes.timeSynchronization.fastSyncPackageSeparation);
+    taskEnableNodeTypeLimit(SCHEDULER_TASK_ID_SYNC_PACKAGE, NODE_TYPE_ORIGIN);
+    taskEnableCountLimit(SCHEDULER_TASK_ID_SYNC_PACKAGE, 30);
 #endif
 }
 
@@ -313,7 +320,8 @@ static void __handleSynchronizeNeighbour(const StateType endState) {
     switch (commPortState->initiatorState) {
         // transmit local time simultaneously on east and south ports
         case COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT:
-            constructSyncTimePackage(txPort, true);
+            constructSyncTimePackage(txPort,
+                                     ParticleAttributes.timeSynchronization.isNextSyncPackageTimeUpdateRequest);
             enableTransmission(txPort);
             commPortState->initiatorState = COMMUNICATION_INITIATOR_STATE_TYPE_TRANSMIT_WAIT_FOR_TX_FINISHED;
             break;
