@@ -20,9 +20,6 @@ void constructLocalTimeTracking(LocalTimeTracking *const o) {
     o->newTimePeriodInterruptDelay = LOCAL_TIME_TRACKING_INT_DELAY_MANCHESTER_CLOCK_INITIAL_VALUE;
     o->isTimePeriodInterruptDelayUpdateable = false;
     o->isNumTimePeriodsPassedUpdateable = false;
-#ifdef LOCAL_TIME_EXPERIMENTAL_IN_PHASE_APPROXIMATION_SHIFT
-    o->totalCounterShiftToBeConsumed = 0;
-    o->portionCounterShiftToBeConsumed = 0;
-    o->isTimerCounterShiftConsumable = false;
-#endif
+    o->newTimerCounterShift = 0;
+    o->isNewTimerCounterShiftUpdateable = false;
 }

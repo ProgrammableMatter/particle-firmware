@@ -9,11 +9,10 @@
 #include "uc-core/configuration/communication/Communication.h"
 
 /**
- * The rather simple experimental shows an example how a clock shift could be approached.
- * Never the less there is too less flash memory left on device to implement a better, non naive approach.
- * Enable the define to enable the source.
+ * Put the local time tracking ISR timer counter in phase once the local time is updated by a time package.
+ * Disabling macro disables the feature.
  */
-//#define LOCAL_TIME_EXPERIMENTAL_IN_PHASE_APPROXIMATION_SHIFT
+#define LOCAL_TIME_IN_PHASE_SHIFTING_ON_LOCAL_TIME_UPDATE
 
 /**
  * Defines the working point of the local time tracking interrupt.

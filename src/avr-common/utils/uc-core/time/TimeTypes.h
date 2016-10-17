@@ -36,30 +36,17 @@ typedef struct LocalTimeTracking {
      * If false a new value can be calculated.
      */
     volatile uint8_t isTimePeriodInterruptDelayUpdateable : 1;
-#ifdef LOCAL_TIME_EXPERIMENTAL_IN_PHASE_APPROXIMATION_SHIFT
-    /**
-     * In case the local time tracking interval has to be shifted forward/backward to be in phase with
-     * a remote MCU, the total amount of units to decelerate the clock once can be set.
-     * The units are decremented and consumed subsequently.
-     */
-    uint16_t totalCounterShiftToBeConsumed;
-    /**
-     * The current portion of the total clock counter shift to be observed by the next ISR.
-     */
-    volatile uint16_t portionCounterShiftToBeConsumed;
-#endif
+
+    // todo: doc
+    volatile int32_t newTimerCounterShift;
+
     /**
      * Flag indicating new time period value is available.
      */
     volatile uint8_t isNumTimePeriodsPassedUpdateable : 1;
-#ifdef LOCAL_TIME_EXPERIMENTAL_IN_PHASE_APPROXIMATION_SHIFT
-    /**
-     * Flag indicating the ISR can safely consume the shift portion.
-     * Cleared by the same ISR after consumption.
-     */
-    volatile uint8_t isTimerCounterShiftConsumable: 1;
+
+    // todo: doc
+    volatile uint8_t isNewTimerCounterShiftUpdateable : 1;
     uint8_t __pad : 5;
-#else
-    uint8_t __pad : 6;
-#endif
+
 } LocalTimeTracking;
