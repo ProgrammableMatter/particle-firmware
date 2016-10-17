@@ -157,6 +157,7 @@ typedef struct EnumerationPackage {
  */
 typedef struct TimePackage {
     HeaderPackage header;
+    // TODO: rename timerCounterValue to delayUntilNextTimerCounterTriggers
     uint16_t timerCounterValue;
 //    uint16_t packageTransmissionLatency;
     uint16_t timePeriod;

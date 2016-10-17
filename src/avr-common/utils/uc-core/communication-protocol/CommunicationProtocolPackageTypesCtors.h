@@ -10,6 +10,7 @@
 #include "./CommunicationProtocolPackageTypes.h"
 #include "uc-core/particle/Globals.h"
 #include "uc-core/parity/Parity.h"
+#include "uc-core/configuration/interrupts/LocalTime.h"
 
 /**
  * Constructor function: builds the protocol package at the given port's buffer.
@@ -101,11 +102,20 @@ void constructSyncTimePackage(TxPort *const txPort, bool forceTimePeriodUpdate) 
     MEMORY_BARRIER;
     CLI;
     MEMORY_BARRIER;
-    package->asSyncTimePackage.timerCounterValue = TIMER_TX_RX_COUNTER_VALUE;
+    // transmit the delay until the next local time tracking ISR triggers
+    package->asSyncTimePackage.timerCounterValue =
+            LOCAL_TIME_INTERRUPT_COMPARE_VALUE - TIMER_TX_RX_COUNTER_VALUE;
     package->asSyncTimePackage.timePeriod = ParticleAttributes.localTime.numTimePeriodsPassed;
     MEMORY_BARRIER;
     SREG = sreg;
     MEMORY_BARRIER;
+
+    // TODO: evaluation code
+    if (forceTimePeriodUpdate) {
+        LED_STATUS1_TOGGLE;
+        LED_STATUS1_TOGGLE;
+    }
+
 //    package->asSyncTimePackage.packageTransmissionLatency = COMMUNICATION_PROTOCOL_TIME_SYNCHRONIZATION_PACKAGE_RECEPTION_DURATION;
     package->asSyncTimePackage.forceTimePeriodUpdate = forceTimePeriodUpdate;
 //    package->asSyncTimePackage.stuffing1 = 0x5555;
