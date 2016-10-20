@@ -110,11 +110,11 @@ void constructSyncTimePackage(TxPort *const txPort, bool forceTimePeriodUpdate) 
     SREG = sreg;
     MEMORY_BARRIER;
 
-    // TODO: evaluation code
-    if (forceTimePeriodUpdate) {
-        LED_STATUS1_TOGGLE;
-        LED_STATUS1_TOGGLE;
-    }
+//    // TODO: evaluation code
+//    if (forceTimePeriodUpdate) {
+//        LED_STATUS1_TOGGLE;
+//        LED_STATUS1_TOGGLE;
+//    }
 
 //    package->asSyncTimePackage.packageTransmissionLatency = COMMUNICATION_PROTOCOL_TIME_SYNCHRONIZATION_PACKAGE_RECEPTION_DURATION;
     package->asSyncTimePackage.forceTimePeriodUpdate = forceTimePeriodUpdate;
