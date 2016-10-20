@@ -29,6 +29,10 @@ typedef struct LocalTimeTracking {
      * The new value for local time tracking period interrupt delay.
      */
     volatile uint16_t newTimePeriodInterruptDelay;
+    /** The local time tracking timer/counter compare value shift. It is considered once after
+     *flag isNewTimerCounterShiftUpdateable is set. The flag is cleared by the ISR.
+     */
+    volatile int32_t newTimerCounterShift;
     /**
      * Flag indicating new time tracking period interrupt delay is available.
      * If true a new value is available which the ISR has to consider
@@ -36,16 +40,14 @@ typedef struct LocalTimeTracking {
      * If false a new value can be calculated.
      */
     volatile uint8_t isTimePeriodInterruptDelayUpdateable : 1;
-
-    // todo: doc
-    volatile int32_t newTimerCounterShift;
-
     /**
      * Flag indicating new time period value is available.
      */
     volatile uint8_t isNumTimePeriodsPassedUpdateable : 1;
-
-    // todo: doc
+    /**
+     * Flag indicating the newTimerCounterShift contains a value to be considered by the ISR.
+     * Flag is cleared by the corresponding ISR.
+     */
     volatile uint8_t isNewTimerCounterShiftUpdateable : 1;
     uint8_t __pad : 5;
 
