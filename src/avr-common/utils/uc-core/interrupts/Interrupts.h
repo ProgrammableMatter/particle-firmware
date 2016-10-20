@@ -178,9 +178,9 @@ ISR(LOCAL_TIME_INTERRUPT_VECT) {
     LOCAL_TIME_INTERRUPT_COMPARE_VALUE += ParticleAttributes.localTime.timePeriodInterruptDelay;
 
     if ((ParticleAttributes.localTime.numTimePeriodsPassed >> 4) & 1) {
-        LED_STATUS3_ON;
+        TEST_POINT3_HI;
     } else {
-        LED_STATUS3_OFF;
+        TEST_POINT3_LO;
     }
 }
 

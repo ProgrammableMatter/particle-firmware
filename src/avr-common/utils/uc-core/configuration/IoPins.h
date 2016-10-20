@@ -9,6 +9,7 @@
 #include "common/PortADefinition.h"
 #include "common/PortBDefinition.h"
 #include "common/PortCDefinition.h"
+#include "uc-core/configuration/Leds.h"
 
 #if defined(__AVR_ATmega16__)
 
@@ -193,11 +194,20 @@
 #define __LED_STATUS1_IN  BIn
 
 #define LED_STATUS1        __LED_STATUS1_IN  getBit    __LED_STATUS1_PIN
+#ifdef LEDS_SUPPRESS_OUTPUT
+#define LED_STATUS1_ON
+#define LED_STATUS1_OFF
+#else
 #define LED_STATUS1_ON     __LED_STATUS1_OUT setHi     __LED_STATUS1_PIN
 #define LED_STATUS1_OFF    __LED_STATUS1_OUT setLo     __LED_STATUS1_PIN
+#endif
 #define LED_STATUS1_IS_ON      (0 != (LED_STATUS1))
 #define LED_STATUS1_IS_OFF (false == (LED_STATUS1))
+#ifdef LEDS_SUPPRESS_OUTPUT
+#define LED_STATUS1_TOGGLE
+#else
 #define LED_STATUS1_TOGGLE __LED_STATUS1_OUT toggleBit __LED_STATUS1_PIN
+#endif
 
 #define LED_STATUS1_SETUP  __LED_STATUS1_DIR setOut    __LED_STATUS1_PIN; LED_STATUS1_OFF
 
@@ -208,11 +218,20 @@
 #define __LED_STATUS2_IN  AIn
 
 #define LED_STATUS2        __LED_STATUS2_IN  getBit    __LED_STATUS2_PIN
+#ifdef LEDS_SUPPRESS_OUTPUT
+#define LED_STATUS2_ON
+#define LED_STATUS2_OFF
+#else
 #define LED_STATUS2_ON     __LED_STATUS2_OUT setHi     __LED_STATUS2_PIN
 #define LED_STATUS2_OFF    __LED_STATUS2_OUT setLo     __LED_STATUS2_PIN
+#endif
 #define LED_STATUS2_IS_ON      (0 != (LED_STATUS2))
 #define LED_STATUS2_IS_OFF (false == (LED_STATUS2))
+#ifdef LEDS_SUPPRESS_OUTPUT
+#define LED_STATUS2_TOGGLE
+#else
 #define LED_STATUS2_TOGGLE __LED_STATUS2_OUT toggleBit __LED_STATUS2_PIN
+#endif
 
 #define LED_STATUS2_SETUP  __LED_STATUS2_DIR setOut    __LED_STATUS2_PIN; LED_STATUS2_OFF
 
@@ -223,11 +242,20 @@
 #define __LED_STATUS3_IN  AIn
 
 #define LED_STATUS3        __LED_STATUS3_IN  getBit    __LED_STATUS3_PIN
+#ifdef LEDS_SUPPRESS_OUTPUT
+#define LED_STATUS3_ON
+#define LED_STATUS3_OFF
+#else
 #define LED_STATUS3_ON     __LED_STATUS3_OUT setHi     __LED_STATUS3_PIN
 #define LED_STATUS3_OFF    __LED_STATUS3_OUT setLo     __LED_STATUS3_PIN
+#endif
 #define LED_STATUS3_IS_ON      (0 != (LED_STATUS3))
 #define LED_STATUS3_IS_OFF (false == (LED_STATUS3))
+#ifdef LEDS_SUPPRESS_OUTPUT
+#define LED_STATUS3_TOGGLE
+#else
 #define LED_STATUS3_TOGGLE __LED_STATUS3_OUT toggleBit __LED_STATUS3_PIN
+#endif
 
 #define LED_STATUS3_SETUP  __LED_STATUS3_DIR setOut    __LED_STATUS3_PIN; LED_STATUS3_OFF
 
@@ -239,11 +267,20 @@
 #define __LED_STATUS4_IN  AIn
 
 #define LED_STATUS4        __LED_STATUS4_IN  getBit    __LED_STATUS4_PIN
+#ifdef LEDS_SUPPRESS_OUTPUT
+#define LED_STATUS4_ON
+#define LED_STATUS4_OFF
+#else
 #define LED_STATUS4_ON     __LED_STATUS4_OUT setHi     __LED_STATUS4_PIN
 #define LED_STATUS4_OFF    __LED_STATUS4_OUT setLo     __LED_STATUS4_PIN
+#endif
 #define LED_STATUS4_IS_ON      (0 != (LED_STATUS4))
 #define LED_STATUS4_IS_OFF (false == (LED_STATUS4))
+#ifdef LEDS_SUPPRESS_OUTPUT
+#define LED_STATUS4_TOGGLE
+#else
 #define LED_STATUS4_TOGGLE __LED_STATUS4_OUT toggleBit __LED_STATUS4_PIN
+#endif
 
 #define LED_STATUS4_SETUP  __LED_STATUS4_DIR setOut    __LED_STATUS4_PIN; LED_STATUS4_OFF
 
