@@ -11,7 +11,7 @@
  * without to influence the compilation except the output size.
  * Enable the define to remove the implementation, disable the define to compile the implementation.
  */
-//#define PERIPHERY_REMOVE_IMPL
+#define PERIPHERY_REMOVE_IMPL
 
 /**
  * address blinking: led on duration
