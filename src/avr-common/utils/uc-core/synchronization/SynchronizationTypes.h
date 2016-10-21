@@ -93,7 +93,7 @@ typedef struct TimeSynchronization {
     /**
      * sync. package separation during fast sync. phase; usually much lower than default sync package separation
      */
-    uint8_t fastSyncPackageSeparation;
+    uint16_t fastSyncPackageSeparation;
     /**
      * number of packages to transmit for fast synchronization
      */
