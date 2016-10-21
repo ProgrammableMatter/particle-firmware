@@ -30,7 +30,8 @@
  * @param isRxHigh the logic signal level
  */
 static inline void __handleInputInterrupt(DirectionOrientedPort *const port,
-                                          const bool isRxHigh, uint16_t timerCounterValue) {
+                                          const bool isRxHigh, uint16_t timerCounterValue,
+                                          uint16_t nextLocalTimeInterruptCompareValue) {
     switch (ParticleAttributes.node.state) {
         case STATE_TYPE_NEIGHBOURS_DISCOVERY:
             // on discovery pulse
@@ -41,7 +42,7 @@ static inline void __handleInputInterrupt(DirectionOrientedPort *const port,
 
         default:
             // on data received
-            captureSnapshot(&timerCounterValue, isRxHigh, &port->rxPort->snapshotsBuffer);
+            captureSnapshot(timerCounterValue, isRxHigh, nextLocalTimeInterruptCompareValue, port->rxPort);
             break;
     }
 }
@@ -83,7 +84,7 @@ ISR(NORTH_PIN_CHANGE_INTERRUPT_VECT) {
         }
     }
     __handleInputInterrupt(&ParticleAttributes.directionOrientedPorts.north,
-                           NORTH_RX_IS_HI, TIMER_TX_RX_COUNTER_VALUE);
+                           NORTH_RX_IS_HI, TIMER_TX_RX_COUNTER_VALUE, LOCAL_TIME_INTERRUPT_COMPARE_VALUE);
 //    TEST_POINT1_TOGGLE;
 }
 
@@ -99,7 +100,7 @@ ISR(EAST_PIN_CHANGE_INTERRUPT_VECT) {
 //    if (!EAST_RX_IS_HI)
 //        TEST_POINT1_TOGGLE;
     __handleInputInterrupt(&ParticleAttributes.directionOrientedPorts.east,
-                           EAST_RX_IS_HI, TIMER_TX_RX_COUNTER_VALUE);
+                           EAST_RX_IS_HI, TIMER_TX_RX_COUNTER_VALUE, LOCAL_TIME_INTERRUPT_COMPARE_VALUE);
 }
 
 /**
@@ -108,7 +109,7 @@ ISR(EAST_PIN_CHANGE_INTERRUPT_VECT) {
  */
 ISR(SOUTH_PIN_CHANGE_INTERRUPT_VECT) {
     __handleInputInterrupt(&ParticleAttributes.directionOrientedPorts.south,
-                           SOUTH_RX_IS_HI, TIMER_TX_RX_COUNTER_VALUE);
+                           SOUTH_RX_IS_HI, TIMER_TX_RX_COUNTER_VALUE, LOCAL_TIME_INTERRUPT_COMPARE_VALUE);
 }
 
 /**
@@ -160,24 +161,25 @@ ISR(LOCAL_TIME_INTERRUPT_VECT) {
         ParticleAttributes.localTime.isTimePeriodInterruptDelayUpdateable = false;
     }
 
-#ifndef LOCAL_TIME_IN_PHASE_SHIFTING_ON_LOCAL_TIME_UPDATE
-    if (ParticleAttributes.localTime.isNumTimePeriodsPassedUpdateable) {
-        ParticleAttributes.localTime.numTimePeriodsPassed =
-                ParticleAttributes.localTime.newNumTimePeriodsPassed;
-        ParticleAttributes.localTime.isNumTimePeriodsPassedUpdateable = false;
-    }
-#else
+#ifdef LOCAL_TIME_IN_PHASE_SHIFTING_ON_LOCAL_TIME_UPDATE
     // consider new clock shift to be considered
     if (ParticleAttributes.localTime.isNewTimerCounterShiftUpdateable) {
         LOCAL_TIME_INTERRUPT_COMPARE_VALUE += ParticleAttributes.localTime.newTimerCounterShift;
         MEMORY_BARRIER;
         ParticleAttributes.localTime.isNewTimerCounterShiftUpdateable = false;
+//        TEST_POINT1_TOGGLE;
     }
 #endif
 
+    if (ParticleAttributes.localTime.isNumTimePeriodsPassedUpdateable) {
+        ParticleAttributes.localTime.numTimePeriodsPassed =
+                ParticleAttributes.localTime.newNumTimePeriodsPassed;
+        ParticleAttributes.localTime.isNumTimePeriodsPassedUpdateable = false;
+    }
+
     LOCAL_TIME_INTERRUPT_COMPARE_VALUE += ParticleAttributes.localTime.timePeriodInterruptDelay;
 
-    if ((ParticleAttributes.localTime.numTimePeriodsPassed >> 4) & 1) {
+    if ((ParticleAttributes.localTime.numTimePeriodsPassed >> 6) & 1) {
         TEST_POINT3_HI;
     } else {
         TEST_POINT3_LO;

@@ -176,8 +176,10 @@ static void __rxSnapshotBufferIncrementEndIndex(RxSnapshotBuffer *const o) {
  * @param snapshotsBuffer a reference to the buffer to store to
  *
  */
-void captureSnapshot(uint16_t *const timerCounterValue, const bool isRisingEdge,
-                     RxSnapshotBuffer *const snapshotBuffer) {
+void captureSnapshot(const uint16_t timerCounterValue, const bool isRisingEdge,
+                     const uint16_t nextLocalTimeInterruptCompareValue,
+                     RxPort *const rxPort) {
+    RxSnapshotBuffer *const snapshotBuffer = &rxPort->snapshotsBuffer;
     uint8_t nextEndIdx = 0;
     if (snapshotBuffer->endIndex < (MANCHESTER_DECODING_RX_NUMBER_SNAPSHOTS - 1)) {
         nextEndIdx = snapshotBuffer->endIndex + 1;
@@ -194,16 +196,38 @@ void captureSnapshot(uint16_t *const timerCounterValue, const bool isRisingEdge,
     volatile Snapshot *snapshot = &(snapshotBuffer->snapshots[snapshotBuffer->endIndex]);
     __rxSnapshotBufferIncrementEndIndex(snapshotBuffer);
 
+    // TODO: the real observation between compressed and not compressed has not been measured yet
 #ifdef MANCHESTER_DECODING_ENABLE_MERGE_TIMESTAMP_WITH_EDGE_DIRECTION
+    // using a more compressed storage of snapshot and edge direction with loosing least significant bit
     if (isRisingEdge) {
         (*((volatile uint16_t *) (snapshot))) = (*timerCounterValue & 0xFFFE) | 1;
     } else {
         (*((volatile uint16_t *) (snapshot))) = (*timerCounterValue & 0xFFFE);
     }
 #else
-    snapshot->timerValue = *timerCounterValue;
+    // not compressed, but more accurate
+    snapshot->timerValue = timerCounterValue;
     snapshot->isRisingEdge = isRisingEdge;
 #endif
+    /**
+     * The current local time tracking ISR
+     * + timer compare value to
+     * + snapshot timer value
+     * relation is needed on last PDU edge for shifting local time tracking in phase with transmitter.
+     */
+
+    /**
+     * The timer compare value:
+     * TODO: On consecutive package, if the decoder/interpreter has not been called and considered
+     * before next package this value will be overwritten, thus invalid!
+     */
+    rxPort->buffer.nextLocalTimeInterruptOnPduReceived = nextLocalTimeInterruptCompareValue;
+
+    /**
+     * The snapshot timer value.
+     */
+    rxPort->buffer.localTimeTrackingTimerCounterValueOnPduReceived = timerCounterValue;
+
     __ifSimulationPrintSnapshotBufferSize(snapshotBuffer);
 }
 

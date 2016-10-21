@@ -38,8 +38,8 @@ void constructPortBuffer(volatile PortBuffer *const o) {
     constructBufferBitPointer(&(o->pointer));
     o->receptionDuration = 0;
     o->lastFallingToRisingDuration = 0;
-//    o->receptionStartTimestamp = 0;
-//    o->receptionEndTimestamp = 0;
+    o->nextLocalTimeInterruptOnPduReceived = 0;
+    o->localTimeTrackingTimerCounterValueOnPduReceived = 0;
 }
 
 /**
