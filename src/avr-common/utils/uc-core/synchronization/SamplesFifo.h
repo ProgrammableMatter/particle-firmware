@@ -168,9 +168,9 @@ static void __calculateProgressiveMean(const SampleValueType *const sample,
     if (timeSynchronization->progressiveMean == 0) {
         timeSynchronization->progressiveMean = *sample;
     } else {
-        CalculationType newProgressiveMean =
-                (CalculationType) ((CalculationType) *sample +
-                 (CalculationType) timeSynchronization->progressiveMean) / 2.0;
+             const CalculationType newProgressiveMean =
+                 (CalculationType) *sample * SYNCHRONIZATION_STRATEGY_MEAN_NEW_VALUE_WEIGHT +
+                 (CalculationType) timeSynchronization->progressiveMean * SYNCHRONIZATION_STRATEGY_MEAN_OLD_VALUE_WEIGHT;
         timeSynchronization->progressiveMean = (SampleValueType) roundf(newProgressiveMean);
     }
     // workaround
