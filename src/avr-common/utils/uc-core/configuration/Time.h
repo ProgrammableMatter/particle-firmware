@@ -15,6 +15,12 @@
 #define LOCAL_TIME_IN_PHASE_SHIFTING_ON_LOCAL_TIME_UPDATE
 
 /**
+ * In case the phase has to be shifted more than the maximum step
+ * the value is capped to the maximum step value.
+ */
+#define LOCAL_TIME_IN_PHASE_SHIFTING_MAXIMUM_STEP ((uint16_t) 2000)
+
+/**
  * Defines the working point of the local time tracking interrupt.
  * I.e. if the incoming manchester clock is observed to be 1021, the
  * local time tracking will trigger each 51*1021=52071 clocks.

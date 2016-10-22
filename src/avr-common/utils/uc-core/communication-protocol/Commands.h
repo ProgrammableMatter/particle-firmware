@@ -98,10 +98,15 @@ void executeSynchronizeLocalTimePackage(const TimePackage *const package, PortBu
             shift -= ParticleAttributes.localTime.newTimePeriodInterruptDelay;
         }
 
+        // cap the shift value to the maximum step
+        uint16_t step = (shift > LOCAL_TIME_IN_PHASE_SHIFTING_MAXIMUM_STEP)
+                        ? LOCAL_TIME_IN_PHASE_SHIFTING_MAXIMUM_STEP : shift;
         if (shift < (ParticleAttributes.localTime.newTimePeriodInterruptDelay / 2) ) {
-            shift = -1000;
+            // on short side is left, shift left (shorten one interval)
+            shift = -step;
         } else {
-            shift = 1000;
+            // on short side is right, sift right (extend one interval)
+            shift = step;
         }
 
         // for latent passed interval conting
