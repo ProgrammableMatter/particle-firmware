@@ -45,77 +45,93 @@ void executeSynchronizeLocalTimePackage(const TimePackage *const package, PortBu
     MEMORY_BARRIER;
     CLI;
     MEMORY_BARRIER;
+    const uint16_t now = TIMER_TX_RX_COUNTER_VALUE;
+    const uint16_t receptionEndTimestamp = portBuffer->localTimeTrackingTimerCounterValueOnPduReceived;
+    const uint16_t nextLocalTimeTriggerAfterReception = portBuffer->nextLocalTimeInterruptOnPduReceived;
+    MEMORY_BARRIER;
+    SREG = sreg;
+    MEMORY_BARRIER;
 
-    uint16_t now = TIMER_TX_RX_COUNTER_VALUE;
-    uint16_t nextLocalTriggerTimestamp = LOCAL_TIME_INTERRUPT_COMPARE_VALUE;
-
-    ParticleAttributes.localTime.numTimePeriodsPassed = package->timePeriod + 1;
+//    const uint16_t postRxTimeIsrToInterpeterLatency = now - nextLocalTimeTriggerAfterReception;
+    const uint16_t postRxToInterpeterLatency = now - receptionEndTimestamp;
+    const uint16_t preTxLatency =
+            ParticleAttributes.communication.timerAdjustment.newTransmissionClockDelay * 3;
+//    uint16_t preTxLatency = 3048;
 
     ParticleAttributes.timeSynchronization.isNextSyncPackageTimeUpdateRequest = package->forceTimePeriodUpdate;
     // consider local time tracking ISR delay shift on local time update
     if (false == ParticleAttributes.localTime.isNewTimerCounterShiftUpdateable &&
         package->forceTimePeriodUpdate) {
-        LED_STATUS1_TOGGLE;
-
-//        uint8_t sreg = SREG;
-//        MEMORY_BARRIER;
-//        CLI;
-//        MEMORY_BARRIER;
-//        uint16_t now = TIMER_TX_RX_COUNTER_VALUE;
-//        uint16_t nextLocalTriggerTimestamp = LOCAL_TIME_INTERRUPT_COMPARE_VALUE;
-//        MEMORY_BARRIER;
-//        SREG = sreg;
-//        MEMORY_BARRIER;
-
-        // calculate next trigger of remote node according to local time
-        // next_remote_trigger_after_pdu_rx =
-        // now -
-        // pduLatency +
-        // package->timerCounterValue +
-        // 2 * ParticleAttributes.localTime.timePeriodInterruptDelay
-        uint16_t nextRemoteTriggerTimestamp =
-                now -
-                ( // pdu_tx_duration = 1024*64 = UINT16_MAX +
-                        3875) + // TODO: pre + post pdu tx latency - pull out to config
-                +8000 + 3200 + // TODO: manual adjustment: shift right - pull out to config
-                package->timerCounterValue +
-                ParticleAttributes.localTime.timePeriodInterruptDelay +
-                ParticleAttributes.localTime.timePeriodInterruptDelay;
 
 //        //TODO: evaluation code
-//        printf("now %u nxlo %u pdu %u nxrm %u\n",
-//               now,
-//               nextLocalTriggerTimestamp,
-//               package->timerCounterValue,
-//               nextRemoteTriggerTimestamp);
+//            TEST_POINT3_HI;
+//            TEST_POINT3_LO;
 
+        const uint16_t sepPduEndTimeIsr = nextLocalTimeTriggerAfterReception - receptionEndTimestamp;
 
-//        // TODO: evaluation code
-//        uint16_t nextLocalTriggerTimestampLowerBound =
-//                nextLocalTriggerTimestamp - ParticleAttributes.localTime.newTimePeriodInterruptDelay / 2;
-//        uint16_t nextLocalTriggerTimestampUpperBound = nextLocalTriggerTimestampLowerBound +
-//                                                       ParticleAttributes.localTime.newTimePeriodInterruptDelay;
-//        printf("l %u c %u r %u d %u \n",
-//               nextLocalTriggerTimestampLowerBound,
-//               nextLocalTriggerTimestamp,
-//               nextLocalTriggerTimestampUpperBound,
-//               ParticleAttributes.localTime.newTimePeriodInterruptDelay);
+        const uint32_t sepConstructUntilIsr = roundf(
+                // factor of remote phase
+                ((float) package->delayUntilNextTimeTrackingIsr /
+                 (float) package->localTimeTrackingPeriodInterruptDelay) *
+                // apply to local time unit
+                (float) ParticleAttributes.localTime.newTimePeriodInterruptDelay
+        );
 
+        /**
+         * Delay since the next remote local time tracking interrupt triggers after the PDU was constructed
+         * until the next local time tracking interrupt triggers after the pdu was received
+         * using locally skewed time units.
+         */
+        // for phase shift calculation
+        const uint32_t totalShiftSeparation =
+                // time from pdu reception until next local time ISR
+                +sepPduEndTimeIsr
+                // reception latency
+                + portBuffer->receptionDuration
+                // remote construction until transmission starts
+                + preTxLatency
+                // delay until remote time ISR triggers when PDU constructed in local time units
+                - sepConstructUntilIsr;
 
-        ParticleAttributes.localTime.newTimerCounterShift =
-                (int32_t) nextRemoteTriggerTimestamp -
-                nextLocalTriggerTimestamp;
+        int32_t shift = totalShiftSeparation;
+        while (shift >= ParticleAttributes.localTime.newTimePeriodInterruptDelay) {
+            shift -= ParticleAttributes.localTime.newTimePeriodInterruptDelay;
+        }
 
-//        // TODO: evaluation code
-//        printf("sh %ld\n", ParticleAttributes.localTime.newTimerCounterShift);
+        if (shift < (ParticleAttributes.localTime.newTimePeriodInterruptDelay / 2) ) {
+            shift = -1000;
+        } else {
+            shift = 1000;
+        }
 
-        // expose new calculation to ISR
+        // for latent passed interval conting
+        uint32_t totalSeparation =
+                // PDU received to interpreter latency
+                postRxToInterpeterLatency
+                // reception latency
+                + portBuffer->receptionDuration
+                // remote construction until transmission starts
+                + preTxLatency
+                // delay until remote time ISR triggers when PDU constructed in local time units
+                - sepConstructUntilIsr;
+
+        uint16_t numTimeIntervals = 2;
+        while (totalSeparation >= ParticleAttributes.localTime.newTimePeriodInterruptDelay) {
+            totalSeparation -= ParticleAttributes.localTime.newTimePeriodInterruptDelay;
+            ++numTimeIntervals;
+        }
+
+        // expose calculated number of passed periods to ISR
+        ParticleAttributes.localTime.newNumTimePeriodsPassed = package->timePeriod + numTimeIntervals;
+        MEMORY_BARRIER;
+        ParticleAttributes.localTime.isNumTimePeriodsPassedUpdateable = true;
+
+        // expose calculated phase shift to ISR
+        ParticleAttributes.localTime.newTimerCounterShift = shift;
+        MEMORY_BARRIER;
         ParticleAttributes.localTime.isNewTimerCounterShiftUpdateable = true;
     }
 
-    MEMORY_BARRIER;
-    SREG = sreg;
-    MEMORY_BARRIER;
 #endif
 
 
