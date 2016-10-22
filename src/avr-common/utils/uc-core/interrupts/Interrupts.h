@@ -95,7 +95,7 @@ ISR(NORTH_PIN_CHANGE_INTERRUPT_VECT) {
 ISR(EAST_PIN_CHANGE_INTERRUPT_VECT) {
 //    TEST_POINT1_TOGGLE;
 
-//    // TODO: evaluation code to prove that east pin change ISR can be triggered due to voltage glitches
+//    // TODO: evaluation code to prove that east pin change ISR is sporadic triggered during discovery phase
 //    // to reproduce activate the source and follow the discovery period on the oscilloscope
 //    if (!EAST_RX_IS_HI)
 //        TEST_POINT1_TOGGLE;
@@ -161,16 +161,7 @@ ISR(LOCAL_TIME_INTERRUPT_VECT) {
         ParticleAttributes.localTime.isTimePeriodInterruptDelayUpdateable = false;
     }
 
-#ifdef LOCAL_TIME_IN_PHASE_SHIFTING_ON_LOCAL_TIME_UPDATE
-    // consider new clock shift to be considered
-    if (ParticleAttributes.localTime.isNewTimerCounterShiftUpdateable) {
-        LOCAL_TIME_INTERRUPT_COMPARE_VALUE += ParticleAttributes.localTime.newTimerCounterShift;
-        MEMORY_BARRIER;
-        ParticleAttributes.localTime.isNewTimerCounterShiftUpdateable = false;
-//        TEST_POINT1_TOGGLE;
-    }
-#endif
-
+    // consider eventually new local time counter
     if (ParticleAttributes.localTime.isNumTimePeriodsPassedUpdateable) {
         ParticleAttributes.localTime.numTimePeriodsPassed =
                 ParticleAttributes.localTime.newNumTimePeriodsPassed;
@@ -178,6 +169,16 @@ ISR(LOCAL_TIME_INTERRUPT_VECT) {
     }
 
     LOCAL_TIME_INTERRUPT_COMPARE_VALUE += ParticleAttributes.localTime.timePeriodInterruptDelay;
+
+#ifdef LOCAL_TIME_IN_PHASE_SHIFTING_ON_LOCAL_TIME_UPDATE
+    // consider new clock shift to be considered
+    if (ParticleAttributes.localTime.isNewTimerCounterShiftUpdateable) {
+        LOCAL_TIME_INTERRUPT_COMPARE_VALUE =
+                (int32_t) LOCAL_TIME_INTERRUPT_COMPARE_VALUE +
+                ParticleAttributes.localTime.newTimerCounterShift;
+        ParticleAttributes.localTime.isNewTimerCounterShiftUpdateable = false;
+    }
+#endif
 
     if ((ParticleAttributes.localTime.numTimePeriodsPassed >> 6) & 1) {
         TEST_POINT3_HI;
