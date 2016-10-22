@@ -157,19 +157,34 @@ typedef struct EnumerationPackage {
  */
 typedef struct TimePackage {
     HeaderPackage header;
-    // TODO: rename timerCounterValue to delayUntilNextTimerCounterTriggers
-    uint16_t timerCounterValue;
-//    uint16_t packageTransmissionLatency;
-    uint16_t timePeriod;
-    uint16_t forceTimePeriodUpdate : 1;
-    uint16_t stuffing1 : 15;
-//    uint16_t stuffing1;
     /**
-     * stuffing2 should be 0x55 or at least must end with 0b1.
+     * delay until the next local time tracking ISR triggers when the package is constructed
+     */
+    uint16_t delayUntilNextTimeTrackingIsr;
+    /**
+     * the current time period when the package is constructed
+     */
+    uint16_t timePeriod;
+
+    /**
+     * the current local time tracking ISR delay
+     */
+    uint16_t localTimeTrackingPeriodInterruptDelay;
+
+    /**
+     * indicate that the receiver should also update the local time according to timePeriod
+     */
+    uint8_t forceTimePeriodUpdate : 1;
+    /**
+     * stuffing: can be set arbitrarily, alternating bits recommended since it decreases the coding frequency
+     */
+    uint8_t stuffing : 6;
+    /**
+     * The time package must end with an UNset end bit.
      * Otherwise the measured synchronization time interval deduced from the time package
      * will be wrong and affect the whole time skew/synchronization calculation.
      */
-    uint8_t stuffing2;
+    uint8_t endBit : 1;
 } TimePackage;
 
 /**

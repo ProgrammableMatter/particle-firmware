@@ -102,29 +102,27 @@ void constructSyncTimePackage(TxPort *const txPort, bool forceTimePeriodUpdate) 
     MEMORY_BARRIER;
     CLI;
     MEMORY_BARRIER;
-    // transmit the delay until the next local time tracking ISR triggers
-    package->asSyncTimePackage.timerCounterValue =
-            LOCAL_TIME_INTERRUPT_COMPARE_VALUE - TIMER_TX_RX_COUNTER_VALUE;
+    uint16_t now = TIMER_TX_RX_COUNTER_VALUE;
+    uint16_t compareValue = LOCAL_TIME_INTERRUPT_COMPARE_VALUE;
     package->asSyncTimePackage.timePeriod = ParticleAttributes.localTime.numTimePeriodsPassed;
+    package->asSyncTimePackage.localTimeTrackingPeriodInterruptDelay = ParticleAttributes.localTime.timePeriodInterruptDelay;
     MEMORY_BARRIER;
     SREG = sreg;
     MEMORY_BARRIER;
 
+//     transmit the delay until the next local time tracking ISR triggers
+    package->asSyncTimePackage.delayUntilNextTimeTrackingIsr = compareValue - now;
+
 //    // TODO: evaluation code
 //    if (forceTimePeriodUpdate) {
-//        LED_STATUS1_TOGGLE;
-//        LED_STATUS1_TOGGLE;
+//        TEST_POINT3_HI;
+//        TEST_POINT3_LO;
 //    }
 
-//    package->asSyncTimePackage.packageTransmissionLatency = COMMUNICATION_PROTOCOL_TIME_SYNCHRONIZATION_PACKAGE_RECEPTION_DURATION;
     package->asSyncTimePackage.forceTimePeriodUpdate = forceTimePeriodUpdate;
-//    package->asSyncTimePackage.stuffing1 = 0x5555;
-    package->asSyncTimePackage.stuffing1 = 0x2AAA;
-    package->asSyncTimePackage.stuffing2 = 0x55;
+    package->asSyncTimePackage.stuffing = 42;
+    package->asSyncTimePackage.endBit = 0; // Must be UNset, do not change!
     // for evaluation purpose
-//    package->asSyncTimePackage.time = 0;
-//    package->asSyncTimePackage.packageTransmissionLatency = 0;
-//    package->asSyncTimePackage.stuffing = 0;
 
     setBufferDataEndPointer(&txPort->dataEndPos, TimePackageBufferPointerSize);
     setEvenParityBit(txPort);
