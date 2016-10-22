@@ -17,8 +17,7 @@
  */
 void scheduleNextTxInterrupt(void) {
     TIMER_TX_RX_COMPARE_VALUE +=
-            ParticleAttributes.communication.timerAdjustment.transmissionClockDelayHalf
-            + ParticleAttributes.communication.timerAdjustment.transmissionClockShift;
+            ParticleAttributes.communication.timerAdjustment.transmissionClockDelayHalf;
 }
 
 /**
