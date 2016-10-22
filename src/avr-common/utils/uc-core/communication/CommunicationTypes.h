@@ -33,8 +33,8 @@ typedef struct PortBuffer {
      */
     uint32_t receptionDuration;
     uint16_t lastFallingToRisingDuration;
-    uint16_t nextLocalTimeInterruptOnPduReceived;
-    uint16_t localTimeTrackingTimerCounterValueOnPduReceived;
+    volatile uint16_t nextLocalTimeInterruptOnPduReceived;
+    volatile uint16_t localTimeTrackingTimerCounterValueOnPduReceived;
 } PortBuffer;
 
 /**
@@ -104,20 +104,11 @@ typedef struct TransmissionTimerAdjustment {
      */
     volatile float newTransmissionClockDelayHalf;
     /**
-     * transmission start offset
-     * TODO: remove clock shift
+     * Flag indicating that a new transmission clock delay is available. The value is considered
+     * by the next corresponding ISR.
      */
-    uint16_t transmissionClockShift;
-    /**
-     * newly calculated / approximated transmission start offset
-     * TODO: remove clock shift
-     */
-    uint16_t newTransmissionClockShift;
-
     volatile uint8_t isTransmissionClockDelayUpdateable : 1;
-    volatile uint8_t isTransmissionClockShiftUpdateable : 1;
-
-    uint8_t __pad : 6;
+    uint8_t __pad : 7;
 } TransmissionTimerAdjustment;
 
 /**

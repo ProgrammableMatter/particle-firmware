@@ -115,11 +115,6 @@ void constructTransmissionTimerAdjustment(TransmissionTimerAdjustment *const o) 
     o->newTransmissionClockDelay = o->transmissionClockDelay;
     o->newTransmissionClockDelayHalf = o->transmissionClockDelayHalf;
     o->isTransmissionClockDelayUpdateable = false;
-
-    // TODO: remove clock shift
-    o->transmissionClockShift = 0;
-    o->newTransmissionClockShift = 0;
-    o->isTransmissionClockShiftUpdateable = false;
 }
 
 /**
