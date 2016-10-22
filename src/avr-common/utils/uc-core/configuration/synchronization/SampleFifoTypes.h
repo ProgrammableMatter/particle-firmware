@@ -10,7 +10,7 @@
  * Amount of uint16 samples the synchronization buffers for clock skew approximation.
  */
 //#define SAMPLE_FIFO_NUM_BUFFER_ELEMENTS 120
-#define SAMPLE_FIFO_NUM_BUFFER_ELEMENTS 8
+#define SAMPLE_FIFO_NUM_BUFFER_ELEMENTS 4
 
 /**
  * default numeric value indicating buffer's end position
