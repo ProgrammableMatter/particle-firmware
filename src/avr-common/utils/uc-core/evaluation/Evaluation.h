@@ -25,6 +25,34 @@ static void __updateSendSyncTimePackageTaskInterval(SchedulerTask *const task) {
     }
 }
 
+
+void sendSyncTimePackageAndUpdateRequestFlagTaskForInPhaseShiftingEvaluationTask(SchedulerTask *const task) {
+    // TODO: shrink code by turning loops inside out
+    if (false == task->isLastCall) {
+        if (ParticleAttributes.timeSynchronization.isNextSyncPackageTransmissionEnabled) {
+            // on call send next time package
+            LED_STATUS2_TOGGLE;
+            ParticleAttributes.node.state = STATE_TYPE_RESYNC_NEIGHBOUR;
+            ParticleAttributes.timeSynchronization.isNextSyncPackageTimeUpdateRequest = true;
+            ParticleAttributes.timeSynchronization.isNextSyncPackageTransmissionEnabled = false;
+            ParticleAttributes.protocol.isSimultaneousTransmissionEnabled = true;
+        }
+    } else {
+        // on last call send package with update flag set and re-enable task
+        if (ParticleAttributes.timeSynchronization.isNextSyncPackageTransmissionEnabled) {
+            LED_STATUS2_TOGGLE;
+//            TEST_POINT1_TOGGLE;
+            ParticleAttributes.node.state = STATE_TYPE_RESYNC_NEIGHBOUR;
+            ParticleAttributes.timeSynchronization.isNextSyncPackageTimeUpdateRequest = true;
+            ParticleAttributes.timeSynchronization.isNextSyncPackageTransmissionEnabled = false;
+            ParticleAttributes.protocol.isSimultaneousTransmissionEnabled = true;
+            // re-enable task
+            taskEnableCountLimit(SCHEDULER_TASK_ID_SYNC_PACKAGE, 5);
+            taskEnable(SCHEDULER_TASK_ID_SYNC_PACKAGE);
+        }
+    }
+}
+
 /**
  * Sends the next sync time package. on last call sends the same package with
  * isNextSyncPackageTimeUpdateRequest flag set.
@@ -33,7 +61,7 @@ void sendSyncTimePackageAndUpdateRequestFlagTask(SchedulerTask *const task) {
     // TODO: shrink code by turning loops inside out
     if (false == task->isLastCall) {
         if (ParticleAttributes.timeSynchronization.isNextSyncPackageTransmissionEnabled) {
-//            __updateSendSyncTimePackageTaskInterval(task);
+            __updateSendSyncTimePackageTaskInterval(task);
             // on call send next time package
             LED_STATUS2_TOGGLE;
             ParticleAttributes.node.state = STATE_TYPE_RESYNC_NEIGHBOUR;
@@ -45,6 +73,7 @@ void sendSyncTimePackageAndUpdateRequestFlagTask(SchedulerTask *const task) {
         // on last call send package with update flag set and re-enable task
         if (ParticleAttributes.timeSynchronization.isNextSyncPackageTransmissionEnabled) {
             LED_STATUS2_TOGGLE;
+//            TEST_POINT1_TOGGLE;
             ParticleAttributes.node.state = STATE_TYPE_RESYNC_NEIGHBOUR;
             ParticleAttributes.timeSynchronization.isNextSyncPackageTimeUpdateRequest = true;
             ParticleAttributes.timeSynchronization.isNextSyncPackageTransmissionEnabled = false;
@@ -57,7 +86,7 @@ void sendSyncTimePackageAndUpdateRequestFlagTask(SchedulerTask *const task) {
 }
 
 /**
- * triggers the sending the next synchronization package
+ * Triggers the sending the next synchronization package, not "update time request" flag.
  */
 void sendNextSyncTimePackageTask(SchedulerTask *const task) {
     if (false == task->isLastCall) {

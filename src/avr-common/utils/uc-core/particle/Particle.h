@@ -133,12 +133,20 @@ static void __initParticle(void) {
     addCyclicTask(SCHEDULER_TASK_ID_SYNC_PACKAGE, sendNextSyncTimePackageTask, 350, 100);
     taskEnableNodeTypeLimit(SCHEDULER_TASK_ID_SYNC_PACKAGE, NODE_TYPE_ORIGIN);
 #endif
-
 #ifdef EVALUATION_SYNC_WITH_CYCLIC_UPDATE_TIME_REQUEST_FLAG
     addCyclicTask(SCHEDULER_TASK_ID_SYNC_PACKAGE, sendSyncTimePackageAndUpdateRequestFlagTask, 350,
                   ParticleAttributes.timeSynchronization.fastSyncPackageSeparation);
     taskEnableNodeTypeLimit(SCHEDULER_TASK_ID_SYNC_PACKAGE, NODE_TYPE_ORIGIN);
+    taskEnableCountLimit(SCHEDULER_TASK_ID_SYNC_PACKAGE, 5);
+#endif
+#ifdef EVALUATION_SYNC_WITH_CYCLIC_UPDATE_TIME_REQUEST_FLAG_IN_PHASE_SHIFTING
+    addCyclicTask(SCHEDULER_TASK_ID_SYNC_PACKAGE,
+                  sendSyncTimePackageAndUpdateRequestFlagTaskForInPhaseShiftingEvaluationTask, 350,
+                  ParticleAttributes.timeSynchronization.fastSyncPackageSeparation);
+    taskEnableNodeTypeLimit(SCHEDULER_TASK_ID_SYNC_PACKAGE, NODE_TYPE_ORIGIN);
     taskEnableCountLimit(SCHEDULER_TASK_ID_SYNC_PACKAGE, 30);
+#else
+
 #endif
 }
 
