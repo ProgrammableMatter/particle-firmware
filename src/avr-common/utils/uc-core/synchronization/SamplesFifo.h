@@ -165,14 +165,11 @@ static void __calculateMeanUsingFifoInObservations(TimeSynchronization *const ti
  */
 static void __calculateProgressiveMean(const SampleValueType *const sample,
                                        TimeSynchronization *const timeSynchronization) {
-    if (timeSynchronization->progressiveMean == 0) {
-        timeSynchronization->progressiveMean = *sample;
-    } else {
-             const CalculationType newProgressiveMean =
-                 (CalculationType) *sample * SYNCHRONIZATION_STRATEGY_MEAN_NEW_VALUE_WEIGHT +
-                 (CalculationType) timeSynchronization->progressiveMean * SYNCHRONIZATION_STRATEGY_MEAN_OLD_VALUE_WEIGHT;
-        timeSynchronization->progressiveMean = (SampleValueType) roundf(newProgressiveMean);
-    }
+    const CalculationType newProgressiveMean =
+            (CalculationType) *sample * SYNCHRONIZATION_STRATEGY_MEAN_NEW_VALUE_WEIGHT +
+            (CalculationType) timeSynchronization->progressiveMean *
+            SYNCHRONIZATION_STRATEGY_MEAN_OLD_VALUE_WEIGHT;
+    timeSynchronization->progressiveMean = (SampleValueType) roundf(newProgressiveMean);
     // workaround
     timeSynchronization->timeIntervalSamples.numSamples = SAMPLE_FIFO_NUM_BUFFER_ELEMENTS;
 }
