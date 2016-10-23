@@ -178,7 +178,7 @@ static void handleExecuteActuation(void (*const actuationDoneCallback)(void)) {
             MEMORY_BARRIER;
             CLI;
             MEMORY_BARRIER;
-            uint16_t now = ParticleAttributes.localTime.numTimePeriodsPassed;
+            const uint16_t now = ParticleAttributes.localTime.numTimePeriodsPassed;
             MEMORY_BARRIER;
             SREG = sreg;
             MEMORY_BARRIER;
