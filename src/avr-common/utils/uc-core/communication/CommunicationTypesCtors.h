@@ -73,7 +73,6 @@ void constructTxPorts(TxPorts *const o) {
 void constructRxPort(RxPort *const o) {
     constructRxSnapshotBuffer(&o->snapshotsBuffer);
     constructPortBuffer(&o->buffer);
-    // o->receptionOffset = 0;
     o->isOverflowed = false;
     o->isDataBuffered = false;
     o->parityBitCounter = 0;
