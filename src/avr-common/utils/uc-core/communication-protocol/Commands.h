@@ -51,24 +51,17 @@ void executeSynchronizeLocalTimePackage(const TimePackage *const package, PortBu
     MEMORY_BARRIER;
     SREG = sreg;
     MEMORY_BARRIER;
-
-//    const uint16_t postRxTimeIsrToInterpeterLatency = now - nextLocalTimeTriggerAfterReception;
-    const uint16_t postRxToInterpeterLatency = now - receptionEndTimestamp;
     const uint16_t preTxLatency =
             ParticleAttributes.communication.timerAdjustment.newTransmissionClockDelay * 3;
-//    uint16_t preTxLatency = 3048;
-
     ParticleAttributes.timeSynchronization.isNextSyncPackageTimeUpdateRequest = package->forceTimePeriodUpdate;
+
     // consider local time tracking ISR delay shift on local time update
     if (false == ParticleAttributes.localTime.isNewTimerCounterShiftUpdateable &&
         package->forceTimePeriodUpdate) {
 
-//        //TODO: evaluation code
-//            TEST_POINT3_HI;
-//            TEST_POINT3_LO;
+        const uint16_t sepPduEndToTimeIsrDelay = nextLocalTimeTriggerAfterReception - receptionEndTimestamp;
 
-        const uint16_t sepPduEndTimeIsr = nextLocalTimeTriggerAfterReception - receptionEndTimestamp;
-
+        // remote delay from time remote PDU was constructed until remote local time ISR trigger
         const uint32_t sepConstructUntilIsr = roundf(
                 // factor of remote phase
                 ((float) package->delayUntilNextTimeTrackingIsr /
@@ -77,20 +70,20 @@ void executeSynchronizeLocalTimePackage(const TimePackage *const package, PortBu
                 (float) ParticleAttributes.localTime.newTimePeriodInterruptDelay
         );
 
+        // ---------------------- phase shift calculation ----------------------
         /**
          * Delay since the next remote local time tracking interrupt triggers after the PDU was constructed
          * until the next local time tracking interrupt triggers after the pdu was received
          * using locally skewed time units.
          */
-        // for phase shift calculation
         const uint32_t totalShiftSeparation =
                 // time from pdu reception until next local time ISR
-                +sepPduEndTimeIsr
+                +sepPduEndToTimeIsrDelay
                 // reception latency
                 + portBuffer->receptionDuration
                 // remote construction until transmission starts
                 + preTxLatency
-                // delay until remote time ISR triggers when PDU constructed in local time units
+                // delay until remote time ISR triggers when PDU was constructed in local time units
                 - sepConstructUntilIsr;
 
         int32_t shift = totalShiftSeparation;
@@ -98,26 +91,44 @@ void executeSynchronizeLocalTimePackage(const TimePackage *const package, PortBu
             shift -= ParticleAttributes.localTime.newTimePeriodInterruptDelay;
         }
 
-        // cap the shift value to the maximum step
-        uint16_t step = (shift > LOCAL_TIME_IN_PHASE_SHIFTING_MAXIMUM_STEP)
-                        ? LOCAL_TIME_IN_PHASE_SHIFTING_MAXIMUM_STEP : shift;
-        if (shift < (ParticleAttributes.localTime.newTimePeriodInterruptDelay / 2) ) {
-            // on short side is left, shift left (shorten one interval)
+        // cap the value for the next shift to the maximum step
+        uint16_t step;
+        if (shift > LOCAL_TIME_IN_PHASE_SHIFTING_MAXIMUM_STEP) {
+            step = LOCAL_TIME_IN_PHASE_SHIFTING_MAXIMUM_STEP;
+        } else {
+            step = shift;
+        }
+
+        if (shift < (ParticleAttributes.localTime.newTimePeriodInterruptDelay / 2)) {
+            // on short side is left, shift left (shorten the interval)
             shift = -step;
         } else {
-            // on short side is right, sift right (extend one interval)
+            // on short side is right, sift right (extend the interval)
             shift = step;
         }
 
-        // for latent passed interval conting
+        // expose calculated phase shift to ISR
+        ParticleAttributes.localTime.newTimerCounterShift = shift;
+        MEMORY_BARRIER;
+        ParticleAttributes.localTime.isNewTimerCounterShiftUpdateable = true;
+
+        // ---------------------- reproduce passed time intervals ----------------------
+        // TODO: reading TIMER_TX_RX_COUNTER_VALUE should happen as late as possible
+//        const uint16_t now = TIMER_TX_RX_COUNTER_VALUE;
+        const uint16_t postRxToInterpeterDelay = now - receptionEndTimestamp;
+
+        /**
+         * Total delay since the next remote time ISR triggers when PDU was constructed until
+         * now.
+         */
         uint32_t totalSeparation =
                 // PDU received to interpreter latency
-                postRxToInterpeterLatency
+                postRxToInterpeterDelay
                 // reception latency
                 + portBuffer->receptionDuration
                 // remote construction until transmission starts
                 + preTxLatency
-                // delay until remote time ISR triggers when PDU constructed in local time units
+                // delay until remote time ISR triggers when PDU was constructed in local time units
                 - sepConstructUntilIsr;
 
         uint16_t numTimeIntervals = 2;
@@ -130,41 +141,29 @@ void executeSynchronizeLocalTimePackage(const TimePackage *const package, PortBu
         ParticleAttributes.localTime.newNumTimePeriodsPassed = package->timePeriod + numTimeIntervals;
         MEMORY_BARRIER;
         ParticleAttributes.localTime.isNumTimePeriodsPassedUpdateable = true;
-
-        // expose calculated phase shift to ISR
-        ParticleAttributes.localTime.newTimerCounterShift = shift;
-        MEMORY_BARRIER;
-        ParticleAttributes.localTime.isNewTimerCounterShiftUpdateable = true;
     }
 
 #endif
-
-
-
-// ------------------ approximate new clock skew ---------------------------
-// calculate observed PDU duration
+    // ------------------ approximate new clock skew ---------------------------
+    // calculate observed PDU duration
 #ifdef SYNCHRONIZATION_TIME_PACKAGE_DURATION_COUNTING_EXCLUSIVE_LAST_RISING_EDGE
+    // shift value down by -UINT16_MAX/2
     int32_t sample = (int32_t) (portBuffer->receptionDuration - portBuffer->lastFallingToRisingDuration) -
                      (int32_t) TIME_SYNCHRONIZATION_SAMPLE_OFFSET;
 #else
-    int32_t sample = (int32_t) (portBuffer->receptionDuration) - (int32_t) INT16_MAX;
+    // shift value down by -UINT16_MAX/2
+    int32_t sample = (int32_t) (portBuffer->receptionDuration) - (int32_t) TIME_SYNCHRONIZATION_SAMPLE_OFFSET;
 #endif
 
-// shift value down by -UINT16_MAX/2
     SampleValueType sampleValue = (SampleValueType) sample;
     samplesFifoBufferAddSample(&sampleValue, &ParticleAttributes.timeSynchronization);
-
     tryApproximateTimings();
 
-// ------------------ schedule re-transmission of new time package ---------------------------
-// schedule when the new sync. package is to be forwarded according to the current local time
-    ParticleAttributes.protocol.
-            isSimultaneousTransmissionEnabled = true;
-    ParticleAttributes.node.
-            state = STATE_TYPE_RESYNC_NEIGHBOUR;
-
-    ParticleAttributes.protocol.
-            isBroadcastEnabled = package->header.enableBroadcast;
+    // ------------------ schedule re-transmission of new time package ---------------------------
+    // schedule when the new sync. package is to be forwarded according to the current local time
+    ParticleAttributes.protocol.isSimultaneousTransmissionEnabled = true;
+    ParticleAttributes.node.state = STATE_TYPE_RESYNC_NEIGHBOUR;
+    ParticleAttributes.protocol.isBroadcastEnabled = package->header.enableBroadcast;
 }
 
 
