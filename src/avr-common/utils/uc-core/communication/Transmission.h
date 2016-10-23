@@ -24,13 +24,14 @@ void scheduleNextTxInterrupt(void) {
  * Schedules the next transmission start interrupt with atomic read/write to TIMER_TX_RX_COUNTER_VALUE.
  */
 static void __scheduleStartTxInterrupt(void) {
+    const uint16_t delay = ParticleAttributes.communication.timerAdjustment.newTransmissionClockDelay * 2;
     uint8_t sreg = SREG;
     MEMORY_BARRIER;
     CLI;
     MEMORY_BARRIER;
     TIMER_TX_RX_COMPARE_VALUE =
-            TIMER_TX_RX_COUNTER_VALUE +
-            ParticleAttributes.communication.timerAdjustment.transmissionClockDelay * 2;
+            TIMER_TX_RX_COUNTER_VALUE + delay;
+//            ParticleAttributes.communication.timerAdjustment.transmissionClockDelay * 2;
     MEMORY_BARRIER;
     SREG = sreg;
     MEMORY_BARRIER;
