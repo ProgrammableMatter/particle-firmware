@@ -103,6 +103,7 @@ void processScheduler(void) {
     uint16_t const now = ParticleAttributes.localTime.numTimePeriodsPassed;
     MEMORY_BARRIER;
     SREG = sreg;
+    MEMORY_BARRIER;
 
 
     for (uint8_t idx = 0; idx < SCHEDULER_MAX_TASKS; idx++) {

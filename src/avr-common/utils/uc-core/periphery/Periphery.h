@@ -288,9 +288,10 @@ void blinkTimeIntervalNonblocking(void) {
     MEMORY_BARRIER;
     CLI;
     MEMORY_BARRIER;
-    uint16_t now = ParticleAttributes.localTime.numTimePeriodsPassed;
+    const uint16_t now = ParticleAttributes.localTime.numTimePeriodsPassed;
     MEMORY_BARRIER;
     SREG = sreg;
+    MEMORY_BARRIER;
 
     if (ParticleAttributes.periphery.blinkTimeInterval.lastExecutionTime == now) {
         return;
@@ -328,9 +329,10 @@ void blinkAddressNonblocking(void) {
     MEMORY_BARRIER;
     CLI;
     MEMORY_BARRIER;
-    uint16_t now = ParticleAttributes.localTime.numTimePeriodsPassed;
+    const uint16_t now = ParticleAttributes.localTime.numTimePeriodsPassed;
     MEMORY_BARRIER;
     SREG = sreg;
+    MEMORY_BARRIER;
 
     if (ParticleAttributes.periphery.blinkAddress.lastExecutionTime == now) {
         return;

@@ -102,13 +102,18 @@ void constructSyncTimePackage(TxPort *const txPort, bool forceTimePeriodUpdate) 
     MEMORY_BARRIER;
     CLI;
     MEMORY_BARRIER;
-    uint16_t now = TIMER_TX_RX_COUNTER_VALUE;
-    uint16_t compareValue = LOCAL_TIME_INTERRUPT_COMPARE_VALUE;
+    const uint16_t now = TIMER_TX_RX_COUNTER_VALUE;
+//    const bool isNewTimerCounterShiftUpdateable = ParticleAttributes.localTime.isNewTimerCounterShiftUpdateable;
+    const uint16_t compareValue = LOCAL_TIME_INTERRUPT_COMPARE_VALUE;
     package->asSyncTimePackage.timePeriod = ParticleAttributes.localTime.numTimePeriodsPassed;
     package->asSyncTimePackage.localTimeTrackingPeriodInterruptDelay = ParticleAttributes.localTime.timePeriodInterruptDelay;
     MEMORY_BARRIER;
     SREG = sreg;
     MEMORY_BARRIER;
+
+//    if (isNewTimerCounterShiftUpdateable) {
+//        compareValue += ParticleAttributes.localTime.newTimerCounterShift;
+//    }
 
 //     transmit the delay until the next local time tracking ISR triggers
     package->asSyncTimePackage.delayUntilNextTimeTrackingIsr = compareValue - now;

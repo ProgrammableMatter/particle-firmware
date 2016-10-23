@@ -318,11 +318,11 @@ void manchesterDecodeBuffer(DirectionOrientedPort *const port,
                 MEMORY_BARRIER;
                 CLI;
                 MEMORY_BARRIER;
-                uint16_t timerNow = TIMER_TX_RX_COUNTER_VALUE;
+                const uint16_t now = TIMER_TX_RX_COUNTER_VALUE;
                 MEMORY_BARRIER;
                 SREG = sreg;
                 MEMORY_BARRIER;
-                uint16_t difference = timerNow - rxPort->snapshotsBuffer.temporarySnapshotTimerValue;
+                uint16_t difference = now - rxPort->snapshotsBuffer.temporarySnapshotTimerValue;
 //                DEBUG_INT16_OUT(difference);
                 if (difference >=
                     (ParticleAttributes.communication.timerAdjustment.transmissionClockDelay * 2)) {

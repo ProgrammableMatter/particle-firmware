@@ -181,6 +181,7 @@ static void handleExecuteActuation(void (*const actuationDoneCallback)(void)) {
             uint16_t now = ParticleAttributes.localTime.numTimePeriodsPassed;
             MEMORY_BARRIER;
             SREG = sreg;
+            MEMORY_BARRIER;
             // TODO: ev. move actuation impl. to scheduler
             if (ParticleAttributes.actuationCommand.actuationEnd.periodTimeStamp < now) {
                 ParticleAttributes.actuationCommand.executionState = ACTUATION_STATE_TYPE_RELAXATION_PAUSE;
