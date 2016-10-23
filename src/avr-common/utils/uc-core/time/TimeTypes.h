@@ -32,7 +32,7 @@ typedef struct LocalTimeTracking {
     /** The local time tracking timer/counter compare value shift. It is considered once after
      *flag isNewTimerCounterShiftUpdateable is set. The flag is cleared by the ISR.
      */
-    volatile int32_t newTimerCounterShift;
+    volatile int16_t newTimerCounterShift;
     /**
      * Flag indicating new time tracking period interrupt delay is available.
      * If true a new value is available which the ISR has to consider
