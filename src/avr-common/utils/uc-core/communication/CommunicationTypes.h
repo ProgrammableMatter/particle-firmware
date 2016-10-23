@@ -32,8 +32,17 @@ typedef struct PortBuffer {
      * total package reception duration
      */
     uint32_t receptionDuration;
+    /**
+     * duration of last falling to rising edge in PDU
+     */
     uint16_t lastFallingToRisingDuration;
+    /**
+     * compare value of time tracking ISR when last PDU was received
+     */
     volatile uint16_t nextLocalTimeInterruptOnPduReceived;
+    /**
+     * timer/counter value when lsat PDU was received
+     */
     volatile uint16_t localTimeTrackingTimerCounterValueOnPduReceived;
 } PortBuffer;
 
