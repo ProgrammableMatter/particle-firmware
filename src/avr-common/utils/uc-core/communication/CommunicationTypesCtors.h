@@ -37,6 +37,7 @@ void constructPortBuffer(volatile PortBuffer *const o) {
     o->bytes[0] = 0x1; // set start bit
     constructBufferBitPointer(&(o->pointer));
     o->receptionDuration = 0;
+    o->firstFallingToRisingDuration = 0;
     o->lastFallingToRisingDuration = 0;
     o->nextLocalTimeInterruptOnPduReceived = 0;
     o->localTimeTrackingTimerCounterValueOnPduReceived = 0;

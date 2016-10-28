@@ -33,7 +33,11 @@ typedef struct PortBuffer {
      */
     uint32_t receptionDuration;
     /**
-     * duration of last falling to rising edge in PDU
+     * Duration from PDU start until the 1st bit edge.
+     */
+    uint16_t firstFallingToRisingDuration;
+    /**
+     * Duration from last falling bit edge until PDU end.
      */
     uint16_t lastFallingToRisingDuration;
     /**

@@ -78,12 +78,10 @@ void tryApproximateTimings(void) {
                     __synchronization_meanValue +
                     (CalculationType) TIME_SYNCHRONIZATION_SAMPLE_OFFSET;
 
-            // Note: How can the SYNCHRONIZATION_MANUAL_ADJUSTMENT_CLOCK_ACCELERATION be argued?
-
             // calculate one manchester clock duration
             ParticleAttributes.communication.timerAdjustment.newTransmissionClockDelay =
-                    (observedPduDuration + SYNCHRONIZATION_MANUAL_ADJUSTMENT_CLOCK_ACCELERATION
-                    ) / (CalculationType) SYNCHRONIZATION_PDU_NUMBER_CLOCKS_IN_MEASURED_INTERVAL;
+                    observedPduDuration /
+                    (CalculationType) SYNCHRONIZATION_PDU_NUMBER_CLOCKS_IN_MEASURED_INTERVAL;
 
             // calculate manchester clock/2 duration
             ParticleAttributes.communication.timerAdjustment.newTransmissionClockDelayHalf =

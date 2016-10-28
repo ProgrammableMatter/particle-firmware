@@ -258,6 +258,7 @@ void manchesterDecodeBuffer(DirectionOrientedPort *const port,
                     DEBUG_CHAR_OUT('+');
                     rxPort->parityBitCounter = 0;
                     rxPort->buffer.receptionDuration = 0;
+                    rxPort->buffer.firstFallingToRisingDuration = 0;
 //                    rxPort->buffer.receptionStartTimestamp = rxPort->snapshotsBuffer.temporarySnapshotTimerValue;
                     rxPort->snapshotsBuffer.decoderStates.decodingState = DECODER_STATE_TYPE_DECODING;
                     __rxSnapshotBufferDequeue(&rxPort->snapshotsBuffer);
@@ -274,8 +275,8 @@ void manchesterDecodeBuffer(DirectionOrientedPort *const port,
             // for all snapshots
             while (!__rxSnapshotBufferIsEmpty(&rxPort->snapshotsBuffer)) {
                 volatile Snapshot *snapshot = __rxSnapshotBufferPeek(&rxPort->snapshotsBuffer);
-                uint16_t timerValue = __getTimerValue(snapshot);
-                uint16_t difference = timerValue - rxPort->snapshotsBuffer.temporarySnapshotTimerValue;
+                const uint16_t timerValue = __getTimerValue(snapshot);
+                const uint16_t difference = timerValue - rxPort->snapshotsBuffer.temporarySnapshotTimerValue;
 //                DEBUG_INT16_OUT(difference);
 
                 if (difference <=
@@ -299,7 +300,13 @@ void manchesterDecodeBuffer(DirectionOrientedPort *const port,
                     } else {
                     }
                     rxPort->snapshotsBuffer.temporarySnapshotTimerValue = timerValue;
+                    // store the delay from last bit until PDU end for later synchronization
                     rxPort->buffer.lastFallingToRisingDuration = difference;
+                    // store the delay from PDU start until 1st bit for later synchronization
+                    if (rxPort->buffer.firstFallingToRisingDuration == 0) {
+                        rxPort->buffer.firstFallingToRisingDuration = difference;
+                    }
+
                     rxPort->buffer.receptionDuration += difference;
 //                    rxPort->buffer.receptionEndTimestamp = timerValue;
                     __rxSnapshotBufferDequeue(&rxPort->snapshotsBuffer);

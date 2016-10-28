@@ -14,12 +14,10 @@
 
 /**
  * If defined the time approximation will take the time in between the 1st and the last
- * falling edge of the time package, since the falling edges are always steeper than compared to
- * transmission ports having MOS-FET connected. Never the less the time difference until the
- * differently connected input ports trigger the signal is minimal (less than < 150ns). In other words
- * we expect this tuning not being relevant to the synchronization result.
+ * bit of the time package (1st rising, last falling edge). For more information see
+ * __SYNCHRONIZATION_PDU_NUMBER_CLOCKS_IN_MEASURED_INTERVAL_FIRST_RISING_TO_LAST_FALLING_EDGE_630.
  */
-#define SYNCHRONIZATION_TIME_PACKAGE_DURATION_COUNTING_EXCLUSIVE_LAST_RISING_EDGE
+#define SYNCHRONIZATION_TIME_PACKAGE_DURATION_COUNTING_FIRST_TO_LAST_BIT_EDGE
 
 /**
  * Mean calculation on-line vs off-line.
@@ -31,8 +29,8 @@
  * Synchronization strategy.
  */
 //#define SYNCHRONIZATION_STRATEGY_RAW_OBSERVATION
-//#define SYNCHRONIZATION_STRATEGY_MEAN
-#define SYNCHRONIZATION_STRATEGY_PROGRESSIVE_MEAN
+#define SYNCHRONIZATION_STRATEGY_MEAN
+//#define SYNCHRONIZATION_STRATEGY_PROGRESSIVE_MEAN
 //#define SYNCHRONIZATION_STRATEGY_MEAN_WITHOUT_OUTLIER
 //#define SYNCHRONIZATION_STRATEGY_MEAN_WITHOUT_MARKED_OUTLIER
 //#define SYNCHRONIZATION_ENABLE_ADAPTIVE_MARKED_OUTLIER_REJECTION
@@ -48,38 +46,34 @@
 //#define SYNCHRONIZATION_OUTLIER_REJECTION_SIGMA_FACTOR ((CalculationType) 1.0)
 
 /**
- *  Manual clock synchronization adjustment to decelerate the local time tracking.
- *  Increases the timer/counter compare value.
- *  As observed the approximated duration mean needs to be decelerated by ~1-2µs,
- *  which is ~8-16clocks.
- *  A weight for this constant value should be correlated to the current MCU clock or in other words
- *  correlated to the difference of the current mean and the initial local time tracking timer/counter
- *  compare value.
+ * Defines the number of manchester clocks in the reference time PDU. Instead measuring the whole package
+ * duration (first falling to last rising edge) the the first rising to last falling edge is taken as
+ * reference. This has two major reasons:
+ * I) The transmitter's manchester coding has not the same delay when generating manchester clock or data
+ * signals. Generating clock signals has approx. 6 to 8 instruction more latency versus clock signal. Thus we
+ * take the first data signal as package start reference, which is the first riding edge since any package
+ * starts with a start bit=1. As pdu end we take the last data bit, which is the last falling edge since the
+ * time package has per definition the last bit=0.
+ * II) To get slightly more accurate values, one should prefer using falling edges instead of rising, since
+ * the flank is steeper.
+ *
+ * To overcome this complication one may refactor the coding implementation and calculate the manchester code
+ * off line. The current design decision (on line coding) was based on saving SRAM.
  */
-#define __SYNCHRONIZATION_MANUAL_ADJUSTMENT_CLOCK_SLOW_DOWN + ((uint8_t) 9)
-//#define __SYNCHRONIZATION_MANUAL_ADJUSTMENT_CLOCK_NO_ACCELERATION
-//#define __SYNCHRONIZATION_MANUAL_ADJUSTMENT_CLOCK_SPEED_UP - ((uint8_t) 12)
-#define SYNCHRONIZATION_MANUAL_ADJUSTMENT_CLOCK_ACCELERATION __SYNCHRONIZATION_MANUAL_ADJUSTMENT_CLOCK_SLOW_DOWN
-
-
+#define __SYNCHRONIZATION_PDU_NUMBER_CLOCKS_IN_MEASURED_INTERVAL_FIRST_RISING_TO_LAST_FALLING_EDGE_630 ((float) 63.0)
 /**
- * Defines the number of manchester clocks in the observing measure interval.
- * First falling to last falling refers to the whole PDU length minus 1/2 clocks.
- */
-#define __SYNCHRONIZATION_PDU_NUMBER_CLOCKS_IN_MEASURED_INTERVAL_FIRST_FALLING_TO_LAST_FALLING_EDGE_635 ((float) 63.5)
-/**
- * Defines the number of manchester clocks in the observing measure interval.
- * First edge to last edge refers to the whole whole PDU lengt.
+ * Defines the number of manchester clocks in the reference time PDU.
+ * First edge to last edge refers to the whole whole PDU length.
  */
 #define __SYNCHRONIZATION_PDU_NUMBER_CLOCKS_IN_MEASURED_INTERVAL_FIRST_FALLING_TO_LAST_EDGE_640 ((float) 64.0)
 
 
-#ifdef SYNCHRONIZATION_TIME_PACKAGE_DURATION_COUNTING_EXCLUSIVE_LAST_RISING_EDGE
-#define SYNCHRONIZATION_PDU_NUMBER_CLOCKS_IN_MEASURED_INTERVAL \
-    __SYNCHRONIZATION_PDU_NUMBER_CLOCKS_IN_MEASURED_INTERVAL_FIRST_FALLING_TO_LAST_FALLING_EDGE_635
+#ifdef SYNCHRONIZATION_TIME_PACKAGE_DURATION_COUNTING_FIRST_TO_LAST_BIT_EDGE
+#  define SYNCHRONIZATION_PDU_NUMBER_CLOCKS_IN_MEASURED_INTERVAL \
+    __SYNCHRONIZATION_PDU_NUMBER_CLOCKS_IN_MEASURED_INTERVAL_FIRST_RISING_TO_LAST_FALLING_EDGE_630
 #else
-#define SYNCHRONIZATION_PDU_NUMBER_CLOCKS_IN_MEASURED_INTERVAL \
-#define __SYNCHRONIZATION_PDU_NUMBER_CLOCKS_IN_MEASURED_INTERVAL_FIRST_FALLING_TO_LAST_EDGE_640
+#  define SYNCHRONIZATION_PDU_NUMBER_CLOCKS_IN_MEASURED_INTERVAL \
+    __SYNCHRONIZATION_PDU_NUMBER_CLOCKS_IN_MEASURED_INTERVAL_FIRST_FALLING_TO_LAST_EDGE_640
 #endif
 
 
