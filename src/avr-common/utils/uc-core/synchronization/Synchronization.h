@@ -78,23 +78,17 @@ void tryApproximateTimings(void) {
                     __synchronization_meanValue +
                     (CalculationType) TIME_SYNCHRONIZATION_SAMPLE_OFFSET;
 
-            // TODO: how can the SYNCHRONIZATION_MANUAL_ADJUSTMENT_CLOCK_ACCELERATION be argued?
-//            float observationToExpectationRelation = 1;
-//            float observationToExpectationRelation = // with current MCU drift dependency
-//                    (float) COMMUNICATION_DEFAULT_TX_RX_CLOCK_DELAY / __synchronization_meanValue;
+            // Note: How can the SYNCHRONIZATION_MANUAL_ADJUSTMENT_CLOCK_ACCELERATION be argued?
 
             // calculate one manchester clock duration
             ParticleAttributes.communication.timerAdjustment.newTransmissionClockDelay =
-                    (observedPduDuration
-                     //                     + roundf(observationToExpectationRelation *
-                     //                              SYNCHRONIZATION_MANUAL_ADJUSTMENT_CLOCK_ACCELERATION)
-                     + SYNCHRONIZATION_MANUAL_ADJUSTMENT_CLOCK_ACCELERATION
-                    ) /
-                    SYNCHRONIZATION_PDU_NUMBER_CLOCKS_IN_MEASURED_INTERVAL;
+                    (observedPduDuration + SYNCHRONIZATION_MANUAL_ADJUSTMENT_CLOCK_ACCELERATION
+                    ) / (CalculationType) SYNCHRONIZATION_PDU_NUMBER_CLOCKS_IN_MEASURED_INTERVAL;
 
             // calculate manchester clock/2 duration
             ParticleAttributes.communication.timerAdjustment.newTransmissionClockDelayHalf =
-                    ParticleAttributes.communication.timerAdjustment.newTransmissionClockDelay / 2.0;
+                    ParticleAttributes.communication.timerAdjustment.newTransmissionClockDelay /
+                    (CalculationType) 2.0;
 
             // calculate the upper limit of measured short interval duration (manchester decoding decision limit)
             ParticleAttributes.communication.timerAdjustment.maxShortIntervalDuration =
@@ -109,8 +103,11 @@ void tryApproximateTimings(void) {
             // calculate the new local time tracking interrupt delay
             ParticleAttributes.localTime.newTimePeriodInterruptDelay =
                     roundf(ParticleAttributes.communication.timerAdjustment.newTransmissionClockDelay *
-                           LOCAL_TIME_TRACKING_INT_DELAY_MANCHESTER_CLOCK_MULTIPLIER);
+                           (CalculationType) LOCAL_TIME_TRACKING_INT_DELAY_MANCHESTER_CLOCK_MULTIPLIER);
 
+//            printf("sync old %u new %u\n",
+//                   ParticleAttributes.localTime.timePeriodInterruptDelay,
+//                   ParticleAttributes.localTime.newTimePeriodInterruptDelay);
             MEMORY_BARRIER;
             ParticleAttributes.localTime.isTimePeriodInterruptDelayUpdateable = true;
             ParticleAttributes.communication.timerAdjustment.isTransmissionClockDelayUpdateable = true;
