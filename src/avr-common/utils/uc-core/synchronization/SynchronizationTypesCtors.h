@@ -8,6 +8,7 @@
 
 #include "uc-core/configuration/synchronization/SynchronizationTypesCtors.h"
 #include "uc-core/configuration/synchronization/Synchronization.h"
+#include "uc-core/configuration/communication/Communication.h"
 #include "SynchronizationTypes.h"
 #include "LeastSquareRegressionTypesCtors.h"
 #include "SampleFifoTypesCtors.h"
@@ -51,16 +52,9 @@ void constructTimeSynchronization(TimeSynchronization *const o) {
 
 #ifdef SYNCHRONIZATION_STRATEGY_PROGRESSIVE_MEAN
     // fake a default sample as start value
-#  ifdef SYNCHRONIZATION_TIME_PACKAGE_DURATION_COUNTING_EXCLUSIVE_LAST_RISING_EDGE
-    o->progressiveMean = (uint16_t) COMMUNICATION_DEFAULT_TX_RX_CLOCK_DELAY
-                         * (uint16_t) SYNCHRONIZATION_PDU_NUMBER_CLOCKS_IN_MEASURED_INTERVAL
-                         - (uint16_t) COMMUNICATION_DEFAULT_TX_RX_CLOCK_DELAY / 2
+    o->progressiveMean = (uint16_t) (roundf(SYNCHRONIZATION_PDU_NUMBER_CLOCKS_IN_MEASURED_INTERVAL *
+                                     COMMUNICATION_DEFAULT_TX_RX_CLOCK_DELAY))
                          - TIME_SYNCHRONIZATION_SAMPLE_OFFSET;
-#  else
-    o->progressiveMean = (uint16_t)COMMUNICATION_DEFAULT_TX_RX_CLOCK_DELAY
-                         * (uint16_t) SYNCHRONIZATION_PDU_NUMBER_CLOCKS_IN_MEASURED_INTERVAL
-                         - TIME_SYNCHRONIZATION_SAMPLE_OFFSET;
-#  endif
 #endif
     o->variance = 0;
     o->stdDeviance = 0;
