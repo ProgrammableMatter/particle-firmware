@@ -169,7 +169,9 @@ static void __calculateProgressiveMean(const SampleValueType *const sample,
             (CalculationType) *sample * SYNCHRONIZATION_STRATEGY_MEAN_NEW_VALUE_WEIGHT +
             (CalculationType) timeSynchronization->progressiveMean *
             SYNCHRONIZATION_STRATEGY_MEAN_OLD_VALUE_WEIGHT;
-    timeSynchronization->progressiveMean = (SampleValueType) roundf(newProgressiveMean);
+//    printf("fifo old %u new %u\n", (uint16_t) timeSynchronization->progressiveMean, *sample);
+    timeSynchronization->progressiveMean = newProgressiveMean;
+//    printf("fifo -> %u \n", (uint16_t) timeSynchronization->progressiveMean);
     // workaround
     timeSynchronization->timeIntervalSamples.numSamples = SAMPLE_FIFO_NUM_BUFFER_ELEMENTS;
 }
