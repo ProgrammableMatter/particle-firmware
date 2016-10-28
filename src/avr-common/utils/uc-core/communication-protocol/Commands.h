@@ -148,8 +148,9 @@ void executeSynchronizeLocalTimePackage(const TimePackage *const package, PortBu
     // calculate observed PDU duration
 #ifdef SYNCHRONIZATION_TIME_PACKAGE_DURATION_COUNTING_EXCLUSIVE_LAST_RISING_EDGE
     // shift value down by -UINT16_MAX/2
-    int32_t sample = (int32_t) (portBuffer->receptionDuration - portBuffer->lastFallingToRisingDuration) -
-                     (int32_t) TIME_SYNCHRONIZATION_SAMPLE_OFFSET;
+    int32_t sample =
+            (int32_t) ((int32_t) portBuffer->receptionDuration - portBuffer->lastFallingToRisingDuration) -
+            (int32_t) TIME_SYNCHRONIZATION_SAMPLE_OFFSET;
 #else
     // shift value down by -UINT16_MAX/2
     int32_t sample = (int32_t) (portBuffer->receptionDuration) - (int32_t) TIME_SYNCHRONIZATION_SAMPLE_OFFSET;
