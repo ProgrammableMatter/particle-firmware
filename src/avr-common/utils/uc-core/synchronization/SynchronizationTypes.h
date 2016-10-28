@@ -69,9 +69,9 @@ typedef struct TimeSynchronization {
 #endif
 #ifdef SYNCHRONIZATION_STRATEGY_PROGRESSIVE_MEAN
     /**
-     * The progressive mean has kind of knowledge of previous values and is the 1/2 of the last progressive mean and the current value.
+     * Very simple syn. implementation: The progressive mean has kind of knowledge of previous values.
      */
-    SampleValueType progressiveMean;
+    CalculationType progressiveMean;
 #endif
     /**
     * samples' variance
