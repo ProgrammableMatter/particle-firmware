@@ -146,14 +146,17 @@ void executeSynchronizeLocalTimePackage(const TimePackage *const package, PortBu
 #endif
     // ------------------ approximate new clock skew ---------------------------
     // calculate observed PDU duration
-#ifdef SYNCHRONIZATION_TIME_PACKAGE_DURATION_COUNTING_EXCLUSIVE_LAST_RISING_EDGE
-    // shift value down by -UINT16_MAX/2
-    int32_t sample =
-            (int32_t) ((int32_t) portBuffer->receptionDuration - portBuffer->lastFallingToRisingDuration) -
-            (int32_t) TIME_SYNCHRONIZATION_SAMPLE_OFFSET;
+#ifdef SYNCHRONIZATION_TIME_PACKAGE_DURATION_COUNTING_FIRST_TO_LAST_BIT_EDGE
+    const uint32_t sample =
+            // remove delay from PDU start until 1st bit
+            ((portBuffer->receptionDuration - ((uint32_t) portBuffer->firstFallingToRisingDuration))
+             // remove delay from last bit until PDU end
+             - ((uint32_t) portBuffer->lastFallingToRisingDuration))
+            // shift value down by -UINT16_MAX/2
+            - (uint32_t) TIME_SYNCHRONIZATION_SAMPLE_OFFSET;
 #else
     // shift value down by -UINT16_MAX/2
-    int32_t sample = (int32_t) (portBuffer->receptionDuration) - (int32_t) TIME_SYNCHRONIZATION_SAMPLE_OFFSET;
+    const uint32_t sample = portBuffer->receptionDuration - (uint32_t) TIME_SYNCHRONIZATION_SAMPLE_OFFSET;
 #endif
 
     SampleValueType sampleValue = (SampleValueType) sample;
