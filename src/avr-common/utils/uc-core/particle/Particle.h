@@ -120,12 +120,17 @@ static void __initParticle(void) {
 
 #ifdef EVALUATION_SIMPLE_SYNC_AND_ACTUATION
     // add cyclic but count limited sync. time task
-    addCyclicTask(SCHEDULER_TASK_ID_SYNC_PACKAGE, sendNextSyncTimePackageTask, 350, 100);
+    addCyclicTask(SCHEDULER_TASK_ID_SYNC_PACKAGE,
+                  sendNextSyncTimePackageTask,
+                  SYNCHRONIZATION_TYPES_CTORS_FIRST_SYNC_PACKAGE_LOCAL_TIME,
+                  ParticleAttributes.timeSynchronization.fastSyncPackageSeparation);
     taskEnableNodeTypeLimit(SCHEDULER_TASK_ID_SYNC_PACKAGE, NODE_TYPE_ORIGIN);
-    taskEnableCountLimit(SCHEDULER_TASK_ID_SYNC_PACKAGE, 30);
+    taskEnableCountLimit(SCHEDULER_TASK_ID_SYNC_PACKAGE,
+                         ParticleAttributes.timeSynchronization.totalFastSyncPackagesToTransmit);
 
     // prepare but disable task, is enabled by last call of sync. task
-    addCyclicTask(SCHEDULER_TASK_ID_HEAT_WIRES, heatWiresTask, 350, 1500);
+    addCyclicTask(SCHEDULER_TASK_ID_HEAT_WIRES, heatWiresTask,
+                  SYNCHRONIZATION_TYPES_CTORS_FIRST_SYNC_PACKAGE_LOCAL_TIME, 1500);
     taskEnableNodeTypeLimit(SCHEDULER_TASK_ID_HEAT_WIRES, NODE_TYPE_ORIGIN);
     taskDisable(SCHEDULER_TASK_ID_HEAT_WIRES);
 #endif
@@ -141,11 +146,21 @@ static void __initParticle(void) {
 #endif
 #ifdef EVALUATION_SYNC_WITH_CYCLIC_UPDATE_TIME_REQUEST_FLAG_IN_PHASE_SHIFTING
     addCyclicTask(SCHEDULER_TASK_ID_SYNC_PACKAGE,
-                  sendSyncTimePackageAndUpdateRequestFlagTaskForInPhaseShiftingEvaluationTask, 350,
+                  sendSyncTimePackageAndUpdateRequestFlagForInPhaseShiftingEvaluationTask, 350,
                   ParticleAttributes.timeSynchronization.fastSyncPackageSeparation);
     taskEnableNodeTypeLimit(SCHEDULER_TASK_ID_SYNC_PACKAGE, NODE_TYPE_ORIGIN);
     taskEnableCountLimit(SCHEDULER_TASK_ID_SYNC_PACKAGE, 30);
 #else
+
+#ifdef EVALUATION_SYNC_WITH_CYCLIC_UPDATE_TIME_REQUEST_FLAG_THEN_ACTUATE_ONCE
+    addCyclicTask(SCHEDULER_TASK_ID_SYNC_PACKAGE,
+                  sendSyncTimeAndActuateOnceTask,
+                  SYNCHRONIZATION_TYPES_CTORS_FIRST_SYNC_PACKAGE_LOCAL_TIME,
+                  ParticleAttributes.timeSynchronization.fastSyncPackageSeparation);
+    taskEnableNodeTypeLimit(SCHEDULER_TASK_ID_SYNC_PACKAGE, NODE_TYPE_ORIGIN);
+    taskEnableCountLimit(SCHEDULER_TASK_ID_SYNC_PACKAGE,
+                         ParticleAttributes.timeSynchronization.totalFastSyncPackagesToTransmit);
+#endif
 
 #endif
 }
